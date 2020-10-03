@@ -48,7 +48,7 @@ public class Train : MovingObject
             Vector3 train_destination = new Vector3(train_dest_xy[0], train_dest_xy[1], z_pos);
             target_position = train_destination;
             if (orientation != final_orientation) // curved track
-                StartCoroutine(bezier_move(transform.position, orientation, final_orientation));
+                StartCoroutine(bezier_move(transform, orientation, final_orientation));
             else // straight track
             {
                 StartCoroutine(straight_move(transform.position, target_position));
@@ -58,6 +58,5 @@ public class Train : MovingObject
             //print("next position is " + next_position);
             transform.position = next_position;
         }
-
     }
 }

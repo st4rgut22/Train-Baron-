@@ -23,6 +23,8 @@ public class MovingObject : MonoBehaviour
         South
     }
 
+
+
     Vector2 transform_curve(Vector2 bezier_position, Orientation orientation, Orientation final_orientation)
     {
         // transform the coord of bezier curve so it matches shape of appropriate track
@@ -67,6 +69,22 @@ public class MovingObject : MonoBehaviour
         return bezier_position;
     }
 
+    float get_rotation(Orientation orientation, Orientation final_orientation)
+    {
+        // get angle of moving object along track based on start and end orientation
+        if (orientation == Orientation.North && final_orientation==Orientation.East ||
+            orientation == Orientation.South && final_orientation==Orientation.West ||
+            orientation == Orientation.West && final_orientation==Orientation.North ||
+            orientation == Orientation.East && final_orientation==Orientation.South)
+        {
+            return -90f; // clockwise
+        }
+        else
+        {
+            return 90f; // counterclockwise
+        }
+    }
+
     Vector2 bezier_equation(float t_param)
     {
         next_position = Mathf.Pow(1 - t_param, 3) * p0 +
@@ -76,24 +94,29 @@ public class MovingObject : MonoBehaviour
         return next_position;
     }
 
-    protected IEnumerator bezier_move(Vector2 position, Orientation orientation, Orientation final_orientation)
+    protected IEnumerator bezier_move(Transform location, Orientation orientation, Orientation final_orientation)
     {
+        Vector2 position = location.position;
         float t_param;
         t_param = 1;
         bool final_step = false;
+        float start_angle = transform.eulerAngles[2]; // rotation about z axis
+        float end_angle = start_angle + get_rotation(orientation, final_orientation);
         while (!final_step)
         {
+            float angle = Mathf.LerpAngle(start_angle, end_angle, Mathf.Min(1,1.0f - t_param)); // interpolate from [0,1]
             t_param -= Time.deltaTime * speed;
-            if (t_param < 0)
+            if (t_param < 0) // set t_param to 0 to get bezier coordinates closer to the destination (and be within tolerance)
             {
                 t_param = 0;
                 final_step = true;
             }
             next_position = bezier_equation(t_param);
             next_position = transform_curve(next_position, orientation, final_orientation) + position;
+            location.eulerAngles = new Vector3(0, 0, angle);
             yield return new WaitForEndOfFrame();
         }
-        print("next bezier position " + next_position.ToString("F6"));
+        print("bezier position " + next_position.ToString("F6"));
     }
 
     protected IEnumerator straight_move(Vector2 start_position, Vector2 destination)
