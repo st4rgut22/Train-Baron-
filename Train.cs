@@ -19,13 +19,12 @@ public class Train : MovingObject
         orientation = Orientation.North;
     }
 
-    // Update is called once per framech
+    // Update is called once per frame
     void Update()
     {
-        if (Vector3.Distance(transform.position, target_position) < tolerance) // arrived at target 
+        if (!in_motion) // train enters idle state when track ends or destination reached
         {
             orientation = final_orientation;
-            print(orientation);
             if (orientation == Orientation.East)
             {
                 tile_position = new Vector3Int(Mathf.RoundToInt(transform.position[0]), (int)(transform.position[1]), 0);
@@ -42,8 +41,6 @@ public class Train : MovingObject
             {
                 tile_position = new Vector3Int((int)(transform.position[0]), Mathf.RoundToInt(transform.position[1])-1, 0);
             }
-            //if (orientation==Orientation.East || orientation==Orientation.West) tile_position = new Vector3Int(Mathf.RoundToInt(transform.position[0]), (int)(transform.position[1]), 0); 
-            //else if (orientation==Orientation.North || orientation==Orientation.South) tile_position = new Vector3Int((int)(transform.position[0]), Mathf.RoundToInt(transform.position[1]), 0); 
             Vector2 train_dest_xy = BoardManager.get_train_destination(this);
             Vector3 train_destination = new Vector3(train_dest_xy[0], train_dest_xy[1], z_pos);
             target_position = train_destination;

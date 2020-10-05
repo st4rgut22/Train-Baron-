@@ -8,6 +8,7 @@ public class MovingObject : MonoBehaviour
     protected float speed = 1f;
     protected float tolerance = .004f;
     protected Vector2 next_position;
+    protected bool in_motion = false;
 
     //bezier vertices for a SE turn
     Vector2 p0 = new Vector2(.5f, .5f);
@@ -22,8 +23,6 @@ public class MovingObject : MonoBehaviour
         West,
         South
     }
-
-
 
     Vector2 transform_curve(Vector2 bezier_position, Orientation orientation, Orientation final_orientation)
     {
@@ -100,27 +99,33 @@ public class MovingObject : MonoBehaviour
         float t_param;
         t_param = 1;
         bool final_step = false;
-        float start_angle = transform.eulerAngles[2]; // rotation about z axis
+        float start_angle = location.eulerAngles[2]; // rotation about z axis
         float end_angle = start_angle + get_rotation(orientation, final_orientation);
+        in_motion = true;
         while (!final_step)
         {
-            float angle = Mathf.LerpAngle(start_angle, end_angle, Mathf.Min(1,1.0f - t_param)); // interpolate from [0,1]
+            float interp = 1.0f - t_param;
             t_param -= Time.deltaTime * speed;
             if (t_param < 0) // set t_param to 0 to get bezier coordinates closer to the destination (and be within tolerance)
             {
+                interp = 1;
                 t_param = 0;
                 final_step = true;
             }
+            float angle = Mathf.LerpAngle(start_angle, end_angle, interp); // interpolate from [0,1]
             next_position = bezier_equation(t_param);
             next_position = transform_curve(next_position, orientation, final_orientation) + position;
             location.eulerAngles = new Vector3(0, 0, angle);
             yield return new WaitForEndOfFrame();
         }
-        print("bezier position " + next_position.ToString("F6"));
+        in_motion = false;
+        //print("angle after rotation is " + location.eulerAngles);
+        //print("bezier position " + next_position.ToString("F6"));
     }
 
     protected IEnumerator straight_move(Vector2 start_position, Vector2 destination)
     {
+        in_motion = true;
         next_position = start_position;
         // Move our position a step closer to the target.
         float step = speed * Time.deltaTime; // calculate distance to move
@@ -129,6 +134,7 @@ public class MovingObject : MonoBehaviour
             next_position = Vector2.MoveTowards(next_position, destination, step);
             yield return new WaitForEndOfFrame();
         }
+        in_motion = false;
     }
 
     // Start is called before the first frame update

@@ -15,20 +15,51 @@ public class BoardManager : MonoBehaviour
     const int board_width = 14;
     const int board_height = 8;
     GameObject[,] board;
+    public  Tile ES_tile;
+    public Tile NE_tile;
+    public Tile WN_tile;
+    public Tile hor_tile;
+    public Tile WS_tile;
+    public Tile vert_tile;
+    public Tile train_tile;
 
-    public void update_train_position()
+    public void place_tile(Vector3 tile_position, string tile_name)
     {
-
+        Vector3Int tilemap_position = new Vector3Int((int)tile_position.x, (int)tile_position.y, (int)tile_position.z);
+        print("place tile " + tile_name + " at position " + tilemap_position);
+        switch (tile_name)
+        {
+            case "curve_ES(Clone)":
+                tilemap.SetTile(tilemap_position, ES_tile);
+                break;
+            case "curve_NE(Clone)":
+                tilemap.SetTile(tilemap_position, NE_tile);
+                break;
+            case "curve_WN(Clone)":
+                tilemap.SetTile(tilemap_position, WN_tile);
+                break;
+            case "curve_WS(Clone)":
+                tilemap.SetTile(tilemap_position, WS_tile);
+                break;
+            case "hor_track(Clone)":
+                tilemap.SetTile(tilemap_position, hor_tile);
+                break;
+            case "vert_track(Clone)":
+                tilemap.SetTile(tilemap_position, vert_tile);
+                break;
+            case "train(Clone)":
+                tilemap.SetTile(tilemap_position, train_tile);
+                break;
+            default:
+                print("You did not click a store item");
+                break;
+        }
     }
 
     public static Vector2 get_train_destination(Train train)
     {
         Vector3Int tile_coord = new Vector3Int(train.tile_position[0], train.tile_position[1], 0);
-        //if (train.orientation==Train.Orientation.East) tile_coord = new Vector3Int(train.tile_position[0], train.tile_position[1], 0);
-        //else if (train.orientation == Train.Orientation.West) tile_coord = new Vector3Int(train.tile_position[0], train.tile_position[1], 0);
-        //else if (train.orientation == Train.Orientation.North) tile_coord = new Vector3Int(train.tile_position[0], train.tile_position[1]+1, 0);
-        //else { tile_coord = new Vector3Int(train.tile_position[0], train.tile_position[1] - 1, 0); }
-        print("next tile coordinate is " + tile_coord);
+        //print("next tile coordinate is " + tile_coord);
         Tile tile = (Tile) tilemap.GetTile(tile_coord);
         Vector2 tile_world_coord = tilemap.GetCellCenterWorld(tile_coord);
         Vector2 final_cell_dest = train.transform.position;
@@ -106,7 +137,7 @@ public class BoardManager : MonoBehaviour
                     break;
             }
         } catch (NullReferenceException e) {
-            print("null reference exception");
+            print("Train has reached the end of the track.");
             print(e.Message);
         }
         //print("FINAL cell destination " + final_cell_dest);
