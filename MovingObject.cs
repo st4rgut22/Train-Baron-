@@ -148,7 +148,11 @@ public class MovingObject : EventDetector
         in_tile = true;
         while (!final_step)
         {
-            if (!in_motion) yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling
+            if (!in_motion)
+            {
+                yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling
+                continue; // don't execute the code below
+            }
             float interp = 1.0f - t_param;
             t_param -= Time.deltaTime * speed;
             if (t_param < 0) // set t_param to 0 to get bezier coordinates closer to the destination (and be within tolerance)

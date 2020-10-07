@@ -22,10 +22,6 @@ public class Boxcar : MovingObject
     // Update is called once per frame
     void Update()
     {
-        if (train != null) // if boxcar has been placed on the board (not in the drag state)
-        {
-            in_motion = train.in_motion;
-            base.Update();
-        }
+        base.Update();
     }
 }

@@ -17,8 +17,6 @@ public class RouteManager : MonoBehaviour
     public Tile WS_tile;
     public Tile vert_tile;
 
-    public GameObject Train; // prefabs
-    public GameObject Boxcar;
     GameManager game_manager;
 
     public void place_tile(Vector3 tile_position, string tile_name)
@@ -46,18 +44,10 @@ public class RouteManager : MonoBehaviour
                 tilemap.SetTile(tilemap_position, vert_tile);
                 break;
             case "train(Clone)": // TODO: specify starting position of train
-                GameObject train = Instantiate(Train); //change to accomodate different starting points
-                Vector3Int position = new Vector3Int(0, 0, 0);
-                game_manager.update_board_state(train, position, new Vector3Int(-1, -1, -1)); // vector3int is a placeholder because there is no prev 
-                train.GetComponent<Train>().spawn_moving_object(position, MovingObject.Orientation.North);
+                game_manager.create_train(); // instantiate train at origin
                 break;
             case "boxcar(Clone)":
-                GameObject train_in_cell = game_manager.train_in_cell(tilemap_position);
-                if (train_in_cell != null)
-                {
-                    GameObject boxcar = Instantiate(Boxcar); //change to accomodate different starting points
-                    boxcar.GetComponent<Boxcar>().attach_to_train(train_in_cell);
-                }
+                game_manager.create_boxcar(tilemap_position);
                 break;
             default:
                 print("You did not click a store item");

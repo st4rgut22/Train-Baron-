@@ -6,6 +6,8 @@ using System;
 
 public class GameManager : MonoBehaviour
 {
+    public GameObject Train; // prefabs
+    public GameObject Boxcar;
 
     public Tilemap tilemap;
     const int cell_width = 1;
@@ -28,6 +30,25 @@ public class GameManager : MonoBehaviour
         return null;
     }
 
+    public void create_boxcar(Vector3Int tilemap_position)
+    {
+        GameObject train = train_in_cell(tilemap_position);
+        if (train != null)
+        {
+            GameObject boxcar = Instantiate(Boxcar); //change to accomodate different starting points
+            boxcar.GetComponent<Boxcar>().attach_to_train(train);
+            train.GetComponent<Train>().attach_boxcar(boxcar);
+        }
+    }
+
+    public void create_train()
+    {
+        GameObject train = Instantiate(Train); //change to accomodate different starting points
+        Vector3Int position = new Vector3Int(0, 0, 0);
+        update_board_state(train, position, new Vector3Int(-1, -1, -1)); // vector3int is a placeholder because there is no prev 
+        train.GetComponent<Train>().spawn_moving_object(position, MovingObject.Orientation.North);
+    }
+
     public void update_board_state(GameObject game_object, Vector3Int position, Vector3Int prev_position)
     {
         try
@@ -35,9 +56,13 @@ public class GameManager : MonoBehaviour
             bool initial_vector = prev_position.Equals(new Vector3Int(-1, -1, -1));
             if (!initial_vector)
             {
-                if (board[prev_position.y, prev_position.x] != game_object)
+                if (board[prev_position.y, prev_position.x] == null)
                     print("WARNING. Gameobject " + game_object.name + " not found in previous position " + prev_position);
-                board[prev_position.y, prev_position.x] = null;
+                else
+                {
+                    if (board[prev_position.y, prev_position.x] == game_object) // only remove gameobject references to itself
+                        board[prev_position.y, prev_position.x] = null;
+                }
             }
             board[position.y, position.x] = game_object;
         } catch (IndexOutOfRangeException e)
