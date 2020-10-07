@@ -22,7 +22,13 @@ public class EventDetector : MonoBehaviour, IPointerDownHandler, IPointerClickHa
 
     public virtual void OnPointerClick(PointerEventData eventData)
     {
-        //Debug.Log("Clicked: " + eventData.pointerCurrentRaycast.gameObject.name);
+        Debug.Log("Clicked: " + eventData.pointerCurrentRaycast.gameObject.name);
+        pointer_clicked(eventData);
+    }
+
+    protected void pointer_clicked(PointerEventData eventData)
+    {
+        print("protected click");
     }
 
     public virtual void OnPointerDown(PointerEventData eventData)

@@ -13,6 +13,7 @@ public class MenuManager : EventDetector
     public GameObject hor_track;
     public GameObject vert_track;
     public GameObject train;
+    public GameObject boxcar;
     public Camera camera;
 
 
@@ -59,6 +60,9 @@ public class MenuManager : EventDetector
             case "train":
                 clicked_item = Instantiate(train, position, Quaternion.identity);
                 break;
+            case "boxcar":
+                clicked_item = Instantiate(boxcar, position, Quaternion.identity);
+                break;
             default:
                 print("You did not click a store item");
                 break;
@@ -73,13 +77,12 @@ public class MenuManager : EventDetector
 
     public override void OnEndDrag(PointerEventData eventData)
     {
-        GameObject bm = GameObject.Find("BoardManager");
-        BoardManager board_manager = bm.GetComponent<BoardManager>();
+        RouteManager route_manager = GameObject.Find("RouteManager").GetComponent<RouteManager>();
         Vector3 final_world_position = convert_screen_to_world_coord(eventData.position);
         print("final world position of tile is " + final_world_position);
         try
         {
-            board_manager.place_tile(final_world_position, clicked_item.name);
+            route_manager.place_tile(final_world_position, clicked_item.name);
             print("tile placed");
             GameObject old_clicked_item = clicked_item;
             Destroy(old_clicked_item); // remove the prefab from scene
