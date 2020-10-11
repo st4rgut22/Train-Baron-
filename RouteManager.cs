@@ -6,125 +6,193 @@ using System;
 
 public class RouteManager : MonoBehaviour
 {
-    public static Tilemap tilemap;
+    // all functions for routing moving objects
 
-    public Train[] train_list;
+    public static Tilemap track_tilemap;
+    public static Tilemap city_tilemap;
 
-    public  Tile ES_tile;
-    public Tile NE_tile;
-    public Tile WN_tile;
-    public Tile hor_tile;
-    public Tile WS_tile;
-    public Tile vert_tile;
-
-    GameManager game_manager;
-
-    public void place_tile(Vector3 tile_position, string tile_name)
+    public enum Orientation
     {
-        Vector3Int tilemap_position = new Vector3Int((int)tile_position.x, (int)tile_position.y, (int)tile_position.z);
-        print("place tile " + tile_name + " at position " + tilemap_position);
-        switch (tile_name)
+        North,
+        East,
+        West,
+        South
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        GameObject track_layer = GameObject.FindGameObjectsWithTag("track_layer")[0];
+        GameObject city_layer = GameObject.FindGameObjectsWithTag("city_layer")[0];
+        if (track_layer != null && city_layer != null)
         {
-            case "curve_ES(Clone)":
-                tilemap.SetTile(tilemap_position, ES_tile);
+            city_tilemap = city_layer.GetComponent<Tilemap>();
+            track_tilemap = track_layer.GetComponent<Tilemap>();
+        }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    public static Dictionary<string, bool> get_exit_track(Vector3Int tilemap_position)
+    {
+        // return a dictionary of routes bordering a tilemap location
+        Dictionary<string, bool> exit_map = new Dictionary<string, bool>(); // key is orientation, value is true if route exists
+        Tile north_tile = (Tile)track_tilemap.GetTile(new Vector3Int(tilemap_position.x, tilemap_position.y + 1, tilemap_position.z));
+        Tile south_tile = (Tile)track_tilemap.GetTile(new Vector3Int(tilemap_position.x, tilemap_position.y - 1, tilemap_position.z));
+        Tile west_tile = (Tile)track_tilemap.GetTile(new Vector3Int(tilemap_position.x - 1, tilemap_position.y, tilemap_position.z));
+        Tile east_tile = (Tile)track_tilemap.GetTile(new Vector3Int(tilemap_position.x + 1, tilemap_position.y, tilemap_position.z));
+        if (north_tile != null) exit_map["N"] = true;
+        else { exit_map["N"] = false; }
+        if (south_tile != null) exit_map["S"] = true;
+        else { exit_map["S"] = false; }
+        if (west_tile != null) exit_map["W"] = true;
+        else { exit_map["W"] = false; }
+        if (east_tile != null) exit_map["E"] = true;
+        else { exit_map["E"] = false; }
+        return exit_map;
+    }
+
+    public static string get_destination_type(Vector3Int tile_coord)
+    {
+        Tile track_tile = (Tile)track_tilemap.GetTile(tile_coord);
+        Tile city_tile = (Tile)city_tilemap.GetTile(tile_coord);
+        if (track_tile != null)
+            return "track";
+        if (city_tile != null)
+            return "city";
+        return ""; // not a destination
+    }
+
+    public static Vector3Int get_adjacent_tile(Vector3Int tile_location, Orientation orientation)
+    {
+        // return tile adjacent to this tile
+        switch (orientation)
+        {
+            case Orientation.North:
+                tile_location.y++;
                 break;
-            case "curve_NE(Clone)":
-                tilemap.SetTile(tilemap_position, NE_tile);
+            case Orientation.East:
+                tile_location.x++;
                 break;
-            case "curve_WN(Clone)":
-                tilemap.SetTile(tilemap_position, WN_tile);
+            case Orientation.West:
+                tile_location.x--;
                 break;
-            case "curve_WS(Clone)":
-                tilemap.SetTile(tilemap_position, WS_tile);
-                break;
-            case "hor_track(Clone)":
-                tilemap.SetTile(tilemap_position, hor_tile);
-                break;
-            case "vert_track(Clone)":
-                tilemap.SetTile(tilemap_position, vert_tile);
-                break;
-            case "train(Clone)": // TODO: specify starting position of train
-                game_manager.create_train(); // instantiate train at origin
-                break;
-            case "boxcar(Clone)":
-                game_manager.create_boxcar(tilemap_position);
+            case Orientation.South:
+                tile_location.y--;
                 break;
             default:
-                print("You did not click a store item");
+                print("none of the orientations matched");
                 break;
         }
+        return tile_location;
+    }
+
+    public static Vector3 get_spawn_location(Vector3Int tilemap_location, Orientation orientation)
+    {
+        Vector3 tile_world_coord = tilemap_location;
+        switch (orientation)
+        {
+            case Orientation.East:
+                tile_world_coord.x += 1;
+                tile_world_coord.y += .5f;
+                break;
+            case Orientation.West:
+                tile_world_coord.y += .5f;
+                break;
+            case Orientation.North:
+                tile_world_coord.x += .5f;
+                tile_world_coord.y += 1;
+                break;
+            case Orientation.South:
+                tile_world_coord.x += .5f;
+                break;
+            default:
+                print("train orientation is not set. cannot set boxcar position");
+                break;
+        }
+        return tile_world_coord;
     }
 
     public static Vector2 get_destination(MovingObject moving_thing)
     {
         Vector3Int tile_coord = new Vector3Int(moving_thing.tile_position[0], moving_thing.tile_position[1], 0);
-        //print("next tile coordinate is " + tile_coord);
-        Tile tile = (Tile) tilemap.GetTile(tile_coord);
-        Vector2 tile_world_coord = tilemap.GetCellCenterWorld(tile_coord);
+        Tile track_tile = (Tile)track_tilemap.GetTile(tile_coord);
+        Tile city_tile = (Tile)city_tilemap.GetTile(tile_coord);
+        Vector2 tile_world_coord = track_tilemap.GetCellCenterWorld(tile_coord);
         Vector2 final_cell_dest = moving_thing.transform.position;
-        try {
-            string tile_name = tile.name;
+        try
+        {
+            if (city_tile != null)
+            {   
+                print("train sees city " + city_tile.name + " final destination is " + tile_world_coord);
+                final_cell_dest = tile_world_coord; // destination is the center of the tile
+            }
+            string tile_name = track_tile.name;
             switch (tile_name)
             {
-                case "curve_ES":
-                    if (moving_thing.orientation == MovingObject.Orientation.West)
-                    {                        
+                case "ES":
+                    if (moving_thing.orientation == Orientation.West)
+                    {
                         final_cell_dest = new Vector2(tile_world_coord[0], tile_world_coord[1] - .5f);
-                        moving_thing.final_orientation = MovingObject.Orientation.South;
+                        moving_thing.final_orientation = Orientation.South;
                     }
                     else
                     {
                         final_cell_dest = new Vector2(tile_world_coord[0] + 0.5f, tile_world_coord[1]);
-                        moving_thing.final_orientation = MovingObject.Orientation.East;
+                        moving_thing.final_orientation = Orientation.East;
                     }
                     break;
-                case "curve_NE":
-                    if (moving_thing.orientation == MovingObject.Orientation.South)
+                case "NE":
+                    if (moving_thing.orientation == Orientation.South)
                     {
                         final_cell_dest = new Vector2(tile_world_coord[0] + 0.5f, tile_world_coord[1]);
-                        moving_thing.final_orientation = MovingObject.Orientation.East;
+                        moving_thing.final_orientation = Orientation.East;
                     }
                     else
                     {
                         final_cell_dest = new Vector2(tile_world_coord[0], tile_world_coord[1] + 0.5f);
-                        moving_thing.final_orientation = MovingObject.Orientation.North;
+                        moving_thing.final_orientation = Orientation.North;
                     }
                     break;
-                case "curve_WN":
-                    if (moving_thing.orientation == MovingObject.Orientation.East)
+                case "WN":
+                    if (moving_thing.orientation == Orientation.East)
                     {
                         final_cell_dest = new Vector2(tile_world_coord[0], tile_world_coord[1] + 0.5f);
-                        moving_thing.final_orientation = MovingObject.Orientation.North;
+                        moving_thing.final_orientation = Orientation.North;
                     }
                     else
                     {
                         final_cell_dest = new Vector2(tile_world_coord[0] - 0.5f, tile_world_coord[1]);
-                        moving_thing.final_orientation = MovingObject.Orientation.West;
+                        moving_thing.final_orientation = Orientation.West;
                     }
 
                     break;
-                case "curve_WS":
-                    if (moving_thing.orientation == MovingObject.Orientation.East)
+                case "WS":
+                    if (moving_thing.orientation == Orientation.East)
                     {
                         final_cell_dest = new Vector2(tile_world_coord[0], tile_world_coord[1] - 0.5f);
-                        moving_thing.final_orientation = MovingObject.Orientation.South;
+                        moving_thing.final_orientation = Orientation.South;
                     }
                     else
                     {
                         final_cell_dest = new Vector2(tile_world_coord[0] - 0.5f, tile_world_coord[1]);
-                        moving_thing.final_orientation = MovingObject.Orientation.West;
+                        moving_thing.final_orientation = Orientation.West;
                     }
                     break;
-                case "vert_track":
-                    if (moving_thing.orientation == MovingObject.Orientation.North)
+                case "vert":
+                    if (moving_thing.orientation == Orientation.North)
                         final_cell_dest = new Vector2(tile_world_coord[0], tile_world_coord[1] + .5f);
                     else
                     {
                         final_cell_dest = new Vector2(tile_world_coord[0], tile_world_coord[1] - .5f);
                     }
                     break;
-                case "hor_track":
-                    if (moving_thing.orientation == MovingObject.Orientation.West)
+                case "hor":
+                    if (moving_thing.orientation == Orientation.West)
                         final_cell_dest = new Vector2(tile_world_coord[0] - .5f, tile_world_coord[1]);
                     else
                     {
@@ -135,28 +203,13 @@ public class RouteManager : MonoBehaviour
                     print("none of the track tiles matched"); // return current position
                     break;
             }
-        } catch (NullReferenceException e) {
+        }
+        catch (NullReferenceException e)
+        {
             print("Train has reached the end of the track.");
             print(e.Message);
         }
         //print("FINAL cell destination " + final_cell_dest);
         return final_cell_dest;
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        GameObject train_layer = GameObject.FindGameObjectsWithTag("train_layer")[0];
-        if (train_layer != null)
-        {
-            tilemap = train_layer.GetComponent<Tilemap>();
-        }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 }

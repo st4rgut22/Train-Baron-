@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: b53fe4d77d06f47f1ba22fdcd16692a2
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - ES_tile: {fileID: 11400000, guid: d67b62ff417ff4819a37d1e6b7c64234, type: 2}
+  - NE_tile: {fileID: 11400000, guid: cee5d8151771e4d088ffecedb145c4be, type: 2}
+  - WN_tile: {fileID: 11400000, guid: d38084b2881824db8a6af02050c73854, type: 2}
+  - hor_tile: {fileID: 11400000, guid: cbb3113d6d4174963a52def00b6890e3, type: 2}
+  - WS_tile: {fileID: 11400000, guid: 254c8690a84e541c599ce2370e420576, type: 2}
+  - vert_tile: {fileID: 11400000, guid: c733ee99ae04045ceaf3b0f72c6e1f9d, type: 2}
+  - train_tile: {fileID: 11400000, guid: 1a8dc8d82d757437ea82ef1ce755c672, type: 2}
+  - boxcar_tile: {fileID: 11400000, guid: 330b9033a36fb438a94188f314b5e508, type: 2}
+  - Train: {fileID: 4236234634092034496, guid: 672045e6053bf42958891f92e18bf956, type: 3}
+  - Boxcar: {fileID: 2839472254287644796, guid: 33e1a5859659c4e59a383099fee1fa31, type: 3}
+  executionOrder: 50
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

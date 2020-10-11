@@ -4,6 +4,7 @@ using UnityEngine;
 public class ClickManager : MonoBehaviour
 {
     public Camera camera;
+    // detect clicks on colliders. Useful for interacting with moving objects.
 
     // Start is called before the first frame update
     void Start()
@@ -24,27 +25,29 @@ public class ClickManager : MonoBehaviour
             if (hit.collider != null)
             {
                 GameObject clicked_gameobject = hit.collider.gameObject;
-                switch (clicked_gameobject.name)
+                string object_name = clicked_gameobject.name.Replace("(Clone)", "");
+                switch (object_name)
                 {
-                    case "curve_ES(Clone)":
+                    case "ES":
                         break;
-                    case "curve_NE(Clone)":
+                    case "NE":
                         break;
-                    case "curve_WN(Clone)":
+                    case "WN":
                         break;
-                    case "curve_WS(Clone)":
+                    case "WS":
                         break;
-                    case "hor_track(Clone)":
+                    case "hor":
                         break;
-                    case "vert_track(Clone)":
+                    case "vert":
                         break;
-                    case "train(Clone)":
-                        clicked_gameobject.GetComponent<Train>().change_motion();
+                    case "train":
+                        Train train_component = clicked_gameobject.GetComponent<Train>();
+                        train_component.change_motion(); 
                         break;
-                    case "boxcar(Clone)":
+                    case "boxcar":
                         break;
                     default:
-                        print("You did not click a gameobject");
+                        print("You did not click a gameobject. Object name is " + object_name);
                         break;
                 }
             }
