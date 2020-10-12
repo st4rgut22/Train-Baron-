@@ -70,12 +70,6 @@ public class MovingObject : EventDetector
                 {
                     tile_position = new Vector3Int((int)(transform.position[0]), Mathf.RoundToInt(transform.position[1]) - 1, 0);
                 }
-                //print("Destination: " + destination_type);
-                //if (destination_type.Equals("city"))
-                //{
-                //    gameObject.SetActive(false); // disable gameobject and components upon reaching the destination
-                //    return;
-                //}
                 print("update " + gameObject.name + " position from " + prev_tile_position + " to " + tile_position);
                 vehicle_manager.update_vehicle_board(gameObject, tile_position, prev_tile_position);
                 Vector2 train_dest_xy = RouteManager.get_destination(this); // set the final orientation and destination
@@ -88,28 +82,41 @@ public class MovingObject : EventDetector
                     StartCoroutine(straight_move(transform.position, target_position));
                 }
             }
-            else // update position within a tile
+            else // in_tile = true. update position within a tile
             {
                 transform.position = next_position;
             }
-        } else // arrived at a city, or the end of the track. Save the final orientation 
-        {
-            // add train to city if arrived in city. update base
-            destination_type = RouteManager.get_destination_type(tile_position); // get type of destination
-            if (destination_type.Equals("city"))
-            {
-                if (gameObject.tag == "train") // if moving object is a train add it to the city it arrived at
-                {
-                    city_manager.add_train_to_board(tile_position, gameObject);
-                    City city = CityManager.get_city(new Vector2Int(tile_position.x, tile_position.y)).GetComponent<City>();
-                    gameObject.GetComponent<Train>().set_city(city);
-                }
-                //gameObject.SetActive(false); // disable gameobject and components upon reaching the destination
-                return;
-            }
+        } else // In_motion = false. arrived at a city, or the end of the track. Save the final orientation 
+        {          
+            update_city(gameObject, tile_position); // add train to city if arrived in city. update base
             prev_orientation = orientation;
-            //print("orientation in idle state is " + orientation);
         }
+    }
+
+    public void update_city(GameObject gameObject, Vector3Int tile_position)
+    {
+        // if vehicle has arrived at a city, update the city with arrived vehicles and disable the vehicles
+        destination_type = RouteManager.get_destination_type(tile_position); // get type of destination
+        if (destination_type.Equals("city"))
+        {
+            if (gameObject.tag == "train") // if moving object is a train add it to the city it arrived at
+            {
+                city_manager.add_train_to_board(tile_position, gameObject);
+                City city = CityManager.get_city(new Vector2Int(tile_position.x, tile_position.y)).GetComponent<City>();
+                gameObject.GetComponent<Train>().set_city(city);
+            }
+            //gameObject.SetActive(false); // disable gameobject and components upon reaching the destination
+            return;
+        }
+    }
+
+    public void prepare_for_departure()
+    {
+        // move from the center of the tile (spawn location) to the edge of the tile
+        in_tile = true; // vehicle will move within the tile to the border
+        Vector3 vehicle_departure_point = RouteManager.get_city_boundary_location(tile_position, orientation);
+        print("departure point is " + vehicle_departure_point);
+        StartCoroutine(straight_move(transform.position, vehicle_departure_point));
     }
 
     public override void OnPointerClick(PointerEventData eventData)
@@ -119,6 +126,7 @@ public class MovingObject : EventDetector
 
     public void set_motion(bool is_in_motion)
     {
+        // set true when train gameobject is clicked or train sets boxcars in motion
         in_motion = is_in_motion;
     }
 

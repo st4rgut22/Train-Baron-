@@ -45,13 +45,14 @@ public class VehicleManager : BoardManager
         Vector3Int last_city_location = train.get_city().get_location();
         while (boxcar_depart_id < boxcar_count)
         {
-            Vector3Int adjacent_tile = RouteManager.get_adjacent_tile(last_city_location, train.orientation);
-            if (!is_vehicle_in_cell(adjacent_tile) && !is_vehicle_in_cell(last_city_location)) // if vehicle has already left city (when it touches the boundary of city's adjacent tile), or is still in city
+            if (!is_vehicle_in_cell(last_city_location)) // if vehicle has left city
             {
                 GameObject boxcar = boxcar_list[boxcar_depart_id];
+                MovingObject moving_object = boxcar.GetComponent<MovingObject>();
                 boxcar.SetActive(true); // activate the boxcar.
                 place_vehicle(last_city_location, boxcar);
-                boxcar.GetComponent<Boxcar>().set_motion(true);
+                moving_object.set_motion(true);
+                spawn_moving_object(moving_object);
                 boxcar_depart_id++;
             }
             else
@@ -86,26 +87,29 @@ public class VehicleManager : BoardManager
 
     public void create_vehicle_at_home_base()
     {
-        // buying a new train
+        // buying a new train in MenuManager
         GameObject new_train = Instantiate(Train);
         Train_List.Add(new_train);
         Train train_component = new_train.GetComponent<Train>();
         train_component.set_id(Train_List.Count);
         train_component.set_city(home_base); // new vehicles always created at home base
         Vector3Int home_location = new Vector3Int(home_base_location.x, home_base_location.y, 0);
-        update_vehicle_board(new_train, home_location, new Vector3Int(-1, -1, -1));
         place_vehicle(home_location, new_train);
     }
 
-    public void spawn_moving_object(Vector3Int tile_position, MovingObject moving_object)
+    public void spawn_moving_object(MovingObject moving_object)
     {
+        // position vehicle in center of tile and set first destination
+        Vector3Int tile_position = moving_object.tile_position;
         Vector3 moving_object_position = RouteManager.get_spawn_location(tile_position, moving_object.orientation);
         moving_object.transform.position = moving_object_position;
+        moving_object.GetComponent<SpriteRenderer>().enabled = true;
+        moving_object.prepare_for_departure();
     }
 
     public void place_vehicle(Vector3Int tilemap_position, GameObject moving_gameobject)
     {
-        // initialize orientation and position of vehicle based on user input
+        // initialize orientation and position of vehicle based on user input. Vehicle is not visible as it is idling at the station
         MovingObject moving_object = moving_gameobject.GetComponent<MovingObject>();
         MenuManager menu_manager = GameObject.Find("Store Menu").GetComponent<MenuManager>();
         CityManager city_manager = GameObject.Find("CityManager").GetComponent<CityManager>();
@@ -120,7 +124,7 @@ public class VehicleManager : BoardManager
             {
                 case "N":
                     moving_object.set_orientation(RouteManager.Orientation.North);
-                    spawn_moving_object(tilemap_position, moving_object);                    
+                    moving_gameobject.transform.eulerAngles = new Vector3(0, 0, 0);
                     break;
                 case "E":
                     moving_object.set_orientation(RouteManager.Orientation.East);
@@ -138,8 +142,9 @@ public class VehicleManager : BoardManager
                     print("not a valid user input");
                     break;
             }
-            spawn_moving_object(tilemap_position, moving_object);
         }
+        update_vehicle_board(moving_gameobject, tilemap_position, new Vector3Int(-1, -1, -1));
+        moving_object.GetComponent<SpriteRenderer>().enabled = false;
     }
 
     public void update_vehicle_board(GameObject game_object, Vector3Int position, Vector3Int prev_position)
@@ -158,15 +163,9 @@ public class VehicleManager : BoardManager
                 }
             }
             GameObject city_object = CityManager.get_city(new Vector2Int(position.x, position.y));
-            if (city_object == null) //only add a train object to a tile containing a city to avoid boxcar overwriting train
-            {
-                vehicle_board[position.x, position.y] = game_object;
-                print("updating vehicle board tile at " + position + " with vehicle " + game_object.tag);
-            }
-            else
-            {
-                if (game_object.tag=="train") vehicle_board[position.x, position.y] = game_object;
-            }
+            vehicle_board[position.x, position.y] = game_object;
+            print("updating vehicle board tile at " + position + " with vehicle " + game_object.tag);
+
         }
         catch (IndexOutOfRangeException e)
         {

@@ -67,48 +67,30 @@ public class RouteManager : MonoBehaviour
         return ""; // not a destination
     }
 
-    public static Vector3Int get_adjacent_tile(Vector3Int tile_location, Orientation orientation)
-    {
-        // return tile adjacent to this tile
-        switch (orientation)
-        {
-            case Orientation.North:
-                tile_location.y++;
-                break;
-            case Orientation.East:
-                tile_location.x++;
-                break;
-            case Orientation.West:
-                tile_location.x--;
-                break;
-            case Orientation.South:
-                tile_location.y--;
-                break;
-            default:
-                print("none of the orientations matched");
-                break;
-        }
-        return tile_location;
-    }
-
     public static Vector3 get_spawn_location(Vector3Int tilemap_location, Orientation orientation)
     {
-        Vector3 tile_world_coord = tilemap_location;
+        // Get the center of the city where the vehicle is instantiated
+        Vector3 tile_world_coord = track_tilemap.GetCellCenterWorld(tilemap_location);     
+        return tile_world_coord;
+    }
+
+    public static Vector3 get_city_boundary_location(Vector3Int tile_position, Orientation orientation)
+    {
+        // get edge of city, the first destination for the vehicle
+        Vector3 tile_world_coord = track_tilemap.GetCellCenterWorld(tile_position);
         switch (orientation)
         {
             case Orientation.East:
-                tile_world_coord.x += 1;
-                tile_world_coord.y += .5f;
+                tile_world_coord.x += .5f;
                 break;
             case Orientation.West:
-                tile_world_coord.y += .5f;
+                tile_world_coord.x -= .5f;
                 break;
             case Orientation.North:
-                tile_world_coord.x += .5f;
-                tile_world_coord.y += 1;
+                tile_world_coord.y += .5f;
                 break;
             case Orientation.South:
-                tile_world_coord.x += .5f;
+                tile_world_coord.y -= .5f;
                 break;
             default:
                 print("train orientation is not set. cannot set boxcar position");
@@ -116,6 +98,7 @@ public class RouteManager : MonoBehaviour
         }
         return tile_world_coord;
     }
+
 
     public static Vector2 get_destination(MovingObject moving_thing)
     {

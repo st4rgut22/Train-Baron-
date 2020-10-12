@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 public class ClickManager : MonoBehaviour
 {
+    VehicleManager vehicle_manager;
     public Camera camera;
     // detect clicks on colliders. Useful for interacting with moving objects.
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        vehicle_manager = GameObject.Find("VehicleManager").GetComponent<VehicleManager>();
     }
 
     // Update is called once per frame
@@ -43,6 +44,13 @@ public class ClickManager : MonoBehaviour
                     case "train":
                         Train train_component = clicked_gameobject.GetComponent<Train>();
                         train_component.change_motion(); 
+                        break;
+                    case "Structure Layer": // redundant. Remove when implement the train leave feature for cities
+                        clicked_gameobject = GameObject.Find("train(Clone)");
+                        clicked_gameobject.SetActive(true);
+                        Train red_train_component = clicked_gameobject.GetComponent<Train>();
+                        red_train_component.change_motion();
+                        vehicle_manager.spawn_moving_object(red_train_component);
                         break;
                     case "boxcar":
                         break;

@@ -50,10 +50,13 @@ public class MenuManager : EventDetector
     public override void OnPointerClick(PointerEventData eventData)
     {
         VehicleManager vehicle_manager = GameObject.Find("VehicleManager").GetComponent<VehicleManager>();
-        string item_name = eventData.pointerCurrentRaycast.gameObject.name;
+        GameObject clicked_object = eventData.pointerCurrentRaycast.gameObject;
+        string item_name = clicked_object.name;
         if (item_name == "train")
         {
             vehicle_manager.create_vehicle_at_home_base();
+            //clicked_object.GetComponent<SpriteRenderer>().enabled = false; // hide train sprite until vehicle departs
+
         }
     }
 
