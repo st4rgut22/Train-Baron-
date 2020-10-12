@@ -69,14 +69,34 @@ public class RouteManager : MonoBehaviour
 
     public static Vector3 get_spawn_location(Vector3Int tilemap_location, Orientation orientation)
     {
+        // get the edge of the tile opposite its orientation. Starting here rather than the center of the tile allows
+        // the gap between train and boxcars
+        Vector3 tile_world_coord = track_tilemap.GetCellCenterWorld(tilemap_location);
+        switch (orientation)
+        {
+            case Orientation.East:
+                tile_world_coord.x -= .5f;
+                break;
+            case Orientation.West:
+                tile_world_coord.x += .5f;
+                break;
+            case Orientation.North:
+                tile_world_coord.y -= .5f;
+                break;
+            case Orientation.South:
+                tile_world_coord.y += .5f;
+                break;
+            default:
+                print("train orientation is not set. cannot set boxcar position");
+                break;
+        }
         // Get the center of the city where the vehicle is instantiated
-        Vector3 tile_world_coord = track_tilemap.GetCellCenterWorld(tilemap_location);     
         return tile_world_coord;
     }
 
     public static Vector3 get_city_boundary_location(Vector3Int tile_position, Orientation orientation)
     {
-        // get edge of city, the first destination for the vehicle
+        // get edge of city matching orientation fo the vehicle, the first destination for the vehicle
         Vector3 tile_world_coord = track_tilemap.GetCellCenterWorld(tile_position);
         switch (orientation)
         {

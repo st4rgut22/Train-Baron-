@@ -144,7 +144,7 @@ public class MenuManager : EventDetector
             print(e.StackTrace);
         } catch (MissingReferenceException e)
         {
-            print(e.Message);
+            print(e.Message); // tried to drag something that is not draggable
         }
     }
 
