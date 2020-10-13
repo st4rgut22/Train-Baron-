@@ -1,15 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+
 public class ClickManager : MonoBehaviour
 {
     VehicleManager vehicle_manager;
+    CityManager city_manager;
+    MenuManager menu_manager;
+
     public Camera camera;
     // detect clicks on colliders. Useful for interacting with moving objects.
 
     // Start is called before the first frame update
     void Start()
     {
+        menu_manager = GameObject.Find("Store Menu").GetComponent<MenuManager>();
         vehicle_manager = GameObject.Find("VehicleManager").GetComponent<VehicleManager>();
     }
 
@@ -41,16 +47,25 @@ public class ClickManager : MonoBehaviour
                         break;
                     case "vert":
                         break;
-                    case "train":
+                    case "train": // start/pause a train
                         Train train_component = clicked_gameobject.GetComponent<Train>();
                         train_component.change_motion(); 
                         break;
-                    case "Structure Layer": // redundant. Remove when implement the train leave feature for cities
-                        clicked_gameobject = GameObject.Find("train(Clone)");
-                        clicked_gameobject.SetActive(true);
-                        Train red_train_component = clicked_gameobject.GetComponent<Train>();
-                        red_train_component.change_motion();
-                        vehicle_manager.spawn_moving_object(red_train_component);
+                    case "Structure": // if user clicks on city, create city menu
+                        GameObject city = CityManager.get_city(new Vector2Int((int)mouse_pos.x, (int)mouse_pos.y));
+                        try
+                        {
+                            menu_manager.create_city_menu(city);
+                        } catch (NullReferenceException e)
+                        { // city should not be null
+                            print(e.StackTrace);
+                        }
+                        // TODO: add commented code to the departure method
+                        //clicked_gameobject = GameObject.Find("train(Clone)");
+                        //clicked_gameobject.SetActive(true);
+                        //Train red_train_component = clicked_gameobject.GetComponent<Train>();
+                        //red_train_component.change_motion();
+                        //vehicle_manager.spawn_moving_object(red_train_component);
                         break;
                     case "boxcar":
                         break;

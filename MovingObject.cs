@@ -26,8 +26,6 @@ public class MovingObject : EventDetector
     public RouteManager.Orientation prev_orientation; // orientation during the last idle state
     public Vector3Int tile_position;
     protected const float z_pos = 0;
-    protected bool reached_destination = false;
-    string destination_type = ""; // get destination type. If city, then disable after reaching destination. 
 
     protected CityManager city_manager;
     protected GameManager game_manager;
@@ -86,29 +84,9 @@ public class MovingObject : EventDetector
             {
                 transform.position = next_position;
             }
-        } else // In_motion = false. arrived at a city, or the end of the track. Save the final orientation 
-        {          
-            update_city(gameObject, tile_position); // add train to city if arrived in city. update base
-            prev_orientation = orientation;
         }
     }
 
-    public void update_city(GameObject gameObject, Vector3Int tile_position)
-    {
-        // if vehicle has arrived at a city, update the city with arrived vehicles and disable the vehicles
-        destination_type = RouteManager.get_destination_type(tile_position); // get type of destination
-        if (destination_type.Equals("city"))
-        {
-            if (gameObject.tag == "train") // if moving object is a train add it to the city it arrived at
-            {
-                city_manager.add_train_to_board(tile_position, gameObject);
-                City city = CityManager.get_city(new Vector2Int(tile_position.x, tile_position.y)).GetComponent<City>();
-                gameObject.GetComponent<Train>().set_city(city);
-            }
-            //gameObject.SetActive(false); // disable gameobject and components upon reaching the destination
-            return;
-        }
-    }
 
     public void prepare_for_departure()
     {

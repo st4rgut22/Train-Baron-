@@ -14,6 +14,11 @@ public class City: MonoBehaviour
         return tilemap_position;
     }
 
+    public List<GameObject> get_train_list()
+    {
+        return train_list;
+    }
+
     public void add_train_to_list(GameObject train)
     {
         train_list.Add(train);

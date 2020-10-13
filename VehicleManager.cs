@@ -63,6 +63,11 @@ public class VehicleManager : BoardManager
         }
     }
 
+    public void remove_boxcar(Train train)
+    {
+        train.remove_boxcar();
+    }
+
     public void create_boxcar(Vector3Int tilemap_position)
     {
         // check if the location has an idling train and is a city. Then instantiate a boxcar and deactivate it until train has departed
