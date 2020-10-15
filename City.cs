@@ -24,11 +24,10 @@ public class City: MonoBehaviour
         train_list.Add(train);
     }
 
-    public void remove_train_from_list(int id)
+    public void remove_train_from_list(Train train)
     {
-        //TODO: Implement City object's remove_train_from_list() if leaving a city, which will be initiated in the MenuManager
-
         // remove a train that has departed the city
+        int id = train.get_id();
         int trains_removed = 0;
         for (int t = 0; t < train_list.Count; t++)
         {

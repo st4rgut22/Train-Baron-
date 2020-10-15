@@ -16,7 +16,6 @@ public class MenuManager : EventDetector
     public GameObject vert_track;
     public GameObject train;
     public GameObject boxcar;
-    public GameObject train_count;
     public Camera camera;
 
     public Tile ES_tile;
@@ -28,15 +27,19 @@ public class MenuManager : EventDetector
 
     string item_name;
 
-    static GameObject city_menu;
+    static GameObject train_menu;
     GameObject clicked_item;
     Tile clicked_tile;
 
+    City city;
+
+    //TODO: Split MenuManager into separate managers for Store Menu and Train Menu
     // Start is called before the first frame update
     void Start()
     {
-        city_menu = GameObject.Find("Train Menu");
-        city_menu.SetActive(false);
+        city = null;
+        train_menu = GameObject.Find("Train Menu"); // just a blue background
+        train_menu.SetActive(false);
     }
 
     public Vector3 convert_screen_to_world_coord(Vector3 position)
@@ -46,7 +49,7 @@ public class MenuManager : EventDetector
         return world_position;
     }
 
-    public string get_user_input(Dictionary<string,bool>exit_map)
+    public string get_user_input(Dictionary<string, bool> exit_map)
     {
         // get user select N, E, W, S
         return "N";
@@ -61,40 +64,13 @@ public class MenuManager : EventDetector
         RectTransformExtensions.SetTop(rectTransform, 0);
     }
 
-    public RectTransform create_train_display(GameObject train_object, Vector3Int city_location)
-    {
-        // instantiate new train display and assign it its train
-        Train train = train_object.GetComponent<Train>();
-        GameObject train_display = Instantiate(train_count);
-        train_display.GetComponent<TrainDisplay>().set_location(city_location);
-        train_display.GetComponent<TrainDisplay>().set_train(train);
-        train_display.transform.parent = city_menu.transform;
-        RectTransform rectTransform = train_display.GetComponent<RectTransform>();
-        return rectTransform;
-    }
-
-    public void create_city_menu(GameObject city_object)
+    public void create_train_menu(GameObject city_object)
     {
         //TODO: call in coroutine to update menu as trains arrive
-        city_menu.SetActive(true); // display city menu
-        City city = city_object.GetComponent<City>();
-        List<GameObject> train_list = city.get_train_list();
-        Vector3 train_display_position = new Vector3(0, 0, 0);
-        float padding = .01f;
-        float total_padding = 0;
-        float offset_x = 0;
-        float display_width = .237f;
-        for (int i = 0; i < train_list.Count; i++)
-        {
-            total_padding += padding; // padding between display items
-            offset_x = i * display_width + total_padding;
-            RectTransform rectTransform = create_train_display(train_list[i], city.get_location());
-            rectTransform.anchorMin = new Vector2(offset_x, .01f); // bottom left
-            rectTransform.anchorMax = new Vector2(offset_x + display_width, .11f); // top right
-            zero_margins(rectTransform);
-            rectTransform.localScale = new Vector2(1, 1); // scale ui to match anchors
-            rectTransform.anchoredPosition = Vector2.zero; //move ui to anchors
-        }
+        train_menu.SetActive(true); // display city menu
+        TrainMenuManager train_menu_manager = train_menu.GetComponent<TrainMenuManager>();
+        train_menu_manager.destroy_train_display();
+        train_menu_manager.create_train_menu(city_object);
     }
 
     public override void OnPointerClick(PointerEventData eventData)

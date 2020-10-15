@@ -55,10 +55,10 @@ public class ClickManager : MonoBehaviour
                         GameObject city = CityManager.get_city(new Vector2Int((int)mouse_pos.x, (int)mouse_pos.y));
                         try
                         {
-                            menu_manager.create_city_menu(city);
+                            menu_manager.create_train_menu(city);
                         } catch (NullReferenceException e)
                         { // city should not be null
-                            print(e.StackTrace);
+                            print("Error!" + e.StackTrace);
                         }
                         // TODO: add commented code to the departure method
                         //clicked_gameobject = GameObject.Find("train(Clone)");

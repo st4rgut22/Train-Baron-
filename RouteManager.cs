@@ -133,6 +133,8 @@ public class RouteManager : MonoBehaviour
             {   
                 print("train sees city " + city_tile.name + " final destination is " + tile_world_coord);
                 final_cell_dest = tile_world_coord; // destination is the center of the tile
+                moving_thing.set_motion(false);
+                moving_thing.arrive_at_city(); // when arrive at city, set flag to true 
             }
             string tile_name = track_tile.name;
             switch (tile_name)

@@ -14,6 +14,7 @@ public class MovingObject : EventDetector
     protected Vector2 next_position;
     protected bool in_tile = false; // if an object is in a tile, it is already has a destination
     public bool in_motion = false; // condition to start an object in motion
+    public bool reached_city = true; // flag set to true when vehicle arrives at city
 
     //bezier vertices for a SE turn
     Vector2 p0 = new Vector2(.5f, .5f);
@@ -85,12 +86,44 @@ public class MovingObject : EventDetector
                 transform.position = next_position;
             }
         }
+        //else
+        //{
+        //    if (reached_city) // boolean flag. When a train reaches a city, add train to city once
+        //    {
+        //        string destination_type = RouteManager.get_destination_type(tile_position); // get type of destination
+        //        if (destination_type.Equals("city"))
+        //        {
+        //            SpriteRenderer renderer = gameObject.GetComponent<SpriteRenderer>();
+        //            renderer.enabled = false;
+        //            if (gameObject.tag == "train") update_city();
+        //            reached_city = false;
+        //        }
+        //    }
+        //}
     }
 
+    public void arrive_at_city()
+    {
+        SpriteRenderer renderer = gameObject.GetComponent<SpriteRenderer>();
+        renderer.enabled = false;
+        if (gameObject.tag == "train") update_city();
+        reached_city = false;
+    }
+
+    public void update_city()
+    {
+        // if vehicle has arrived at a city, update the city with arrived vehicles and disable the vehicles
+        city_manager.add_train_to_board(tile_position, gameObject);
+        City city = CityManager.get_city(new Vector2Int(tile_position.x, tile_position.y)).GetComponent<City>();
+        gameObject.GetComponent<Train>().set_city(city);
+        //gameObject.SetActive(false); // disable gameobject and components upon reaching the destination
+        return;
+    }
 
     public void prepare_for_departure()
     {
         // move from the center of the tile (spawn location) to the edge of the tile
+        gameObject.GetComponent<SpriteRenderer>().enabled = true;
         in_tile = true; // vehicle will move within the tile to the border
         Vector3 vehicle_departure_point = RouteManager.get_city_boundary_location(tile_position, orientation);
         print("departure point is " + vehicle_departure_point);
