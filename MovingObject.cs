@@ -14,7 +14,6 @@ public class MovingObject : EventDetector
     protected Vector2 next_position;
     protected bool in_tile = false; // if an object is in a tile, it is already has a destination
     public bool in_motion = false; // condition to start an object in motion
-    public bool reached_city = true; // flag set to true when vehicle arrives at city
 
     //bezier vertices for a SE turn
     Vector2 p0 = new Vector2(.5f, .5f);
@@ -41,7 +40,6 @@ public class MovingObject : EventDetector
         Vector2Int home_base = game_manager.get_home_base();
         tile_position = new Vector3Int(home_base.x, home_base.y, 0); //initialize every vehicle at home base
         target_position = transform.position;
-        orientation = RouteManager.Orientation.North;
     }
 
     // Update is called once per frame
@@ -51,7 +49,7 @@ public class MovingObject : EventDetector
         {
             if (!in_tile) // Reached tile. update destination to next tile
             {
-                orientation = final_orientation;
+                orientation = final_orientation; // TODO: WHY IS ORIENTATION NONE?
                 Vector3Int prev_tile_position = tile_position;
                 if (orientation == RouteManager.Orientation.East)
                 {
@@ -70,9 +68,10 @@ public class MovingObject : EventDetector
                     tile_position = new Vector3Int((int)(transform.position[0]), Mathf.RoundToInt(transform.position[1]) - 1, 0);
                 }
                 print("update " + gameObject.name + " position from " + prev_tile_position + " to " + tile_position);
+
                 vehicle_manager.update_vehicle_board(gameObject, tile_position, prev_tile_position);
                 Vector2 train_dest_xy = RouteManager.get_destination(this); // set the final orientation and destination
-                Vector3 train_destination = new Vector3(train_dest_xy[0], train_dest_xy[1], z_pos);
+                Vector3 train_destination = new Vector3(train_dest_xy[0], train_dest_xy[1], z_pos); 
                 target_position = train_destination;
                 if (orientation != final_orientation) // curved track
                     StartCoroutine(bezier_move(transform, orientation, final_orientation));
@@ -86,20 +85,12 @@ public class MovingObject : EventDetector
                 transform.position = next_position;
             }
         }
-        //else
-        //{
-        //    if (reached_city) // boolean flag. When a train reaches a city, add train to city once
-        //    {
-        //        string destination_type = RouteManager.get_destination_type(tile_position); // get type of destination
-        //        if (destination_type.Equals("city"))
-        //        {
-        //            SpriteRenderer renderer = gameObject.GetComponent<SpriteRenderer>();
-        //            renderer.enabled = false;
-        //            if (gameObject.tag == "train") update_city();
-        //            reached_city = false;
-        //        }
-        //    }
-        //}
+    }
+
+    public void initialize_orientation(RouteManager.Orientation orientation)
+    {
+        // when leaving a city, vehicle orientation be initialized to final orientation (which the user chooses)
+        final_orientation = orientation;
     }
 
     public void arrive_at_city()
@@ -107,7 +98,6 @@ public class MovingObject : EventDetector
         SpriteRenderer renderer = gameObject.GetComponent<SpriteRenderer>();
         renderer.enabled = false;
         if (gameObject.tag == "train") update_city();
-        reached_city = false;
     }
 
     public void update_city()

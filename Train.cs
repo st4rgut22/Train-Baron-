@@ -30,7 +30,6 @@ public class Train : MovingObject
     {
         StartCoroutine(vehicle_manager.Make_All_Boxcars_Depart(boxcar_squad, this)); //TODO: hide train on city tile. Call coroutine from city manager
         in_motion = !in_motion; // if train is moving stop. If train is stopped move.
-        reached_city = false; // whenever in motion, set reached flag to false until vehicle arrives in city
         for (int i = 0; i < boxcar_squad.Count; i++)
         {
             GameObject boxcar = boxcar_squad[i];

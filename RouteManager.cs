@@ -13,6 +13,7 @@ public class RouteManager : MonoBehaviour
 
     public enum Orientation
     {
+        None,
         North,
         East,
         West,
@@ -119,6 +120,94 @@ public class RouteManager : MonoBehaviour
         return tile_world_coord;
     }
 
+    public static bool is_city_adjacent_to_track(Vector3Int track_location, Vector3Int city_location, string trackname)
+    {
+        Vector2Int city_location_2d = new Vector2Int(city_location.x, city_location.y);
+        if (city_location_2d.Equals(new Vector2Int(track_location.x + 1, track_location.y)) || city_location_2d.Equals(new Vector2Int(track_location.x - 1, track_location.y))
+            || city_location_2d.Equals(new Vector2Int(track_location.x, track_location.y+1)) || city_location_2d.Equals(new Vector2Int(track_location.x, track_location.y-1)))
+            return true;
+        else
+        {
+            return false;
+        }
+    }
+
+    public static Orientation get_start_orientation(Vector3Int track_location, City departure_city)
+    {
+        // when a train is instantiated, its orientation must match direction of track
+        Vector3Int depart_city_location = departure_city.get_location();
+
+        Tile track_tile = (Tile)track_tilemap.GetTile(track_location);
+        if (track_tile != null)
+        {
+            // get orientation relative to city
+            string tile_name = track_tile.name.Replace("(Clone)","");
+            bool city_next_to_track = is_city_adjacent_to_track(track_location, depart_city_location, tile_name);
+            if (!city_next_to_track) return Orientation.None; // track must be adjacent to city
+            switch (tile_name)
+            {
+                case "ES":
+                    if (depart_city_location.x > track_location.x)
+                    {
+                        return Orientation.West;
+                    }
+                    else if (depart_city_location.y < track_location.y)
+                    {
+                        return Orientation.North;
+                    }
+                    break;
+                case "NE":
+                    if (depart_city_location.y > track_location.y)
+                    {
+                        return Orientation.South;
+                    }
+                    else if (depart_city_location.x > track_location.x)
+                    {
+                        return Orientation.West;
+                    }
+                    break;
+                case "WN":
+                    if (depart_city_location.y > track_location.y)
+                    {
+                        return Orientation.South;
+                    }
+                    else if (depart_city_location.x < track_location.x)
+                    {
+                        return Orientation.East;
+                    }
+                    break;
+                case "WS":
+                    if (depart_city_location.x < track_location.x)
+                    {
+                        return Orientation.East;
+                    }
+                    else if (depart_city_location.y < track_location.y)
+                    {
+                        return Orientation.North;
+                    }
+                    break;
+                case "vert":
+                    if (depart_city_location.y > track_location.y)
+                    {
+                        return Orientation.South;
+                    }
+                     else {
+                        return Orientation.North;
+                    }
+                case "hor":
+                    if (depart_city_location.x > track_location.x)
+                    {
+                        return Orientation.West;
+                    } else
+                    {
+                        return Orientation.East;
+                    }
+                default:
+                    return Orientation.None;
+            }
+        }
+        return Orientation.None;
+    }
 
     public static Vector2 get_destination(MovingObject moving_thing)
     {

@@ -14,7 +14,7 @@ public class MenuManager : EventDetector
     public GameObject ws_curve;
     public GameObject hor_track;
     public GameObject vert_track;
-    public GameObject train;
+    public GameObject dummy_train; // train sprite without train script for visual purposes
     public GameObject boxcar;
     public Camera camera;
 
@@ -24,22 +24,30 @@ public class MenuManager : EventDetector
     public Tile hor_tile;
     public Tile WS_tile;
     public Tile vert_tile;
+    Tile clicked_tile;
 
     string item_name;
 
-    static GameObject train_menu;
     GameObject clicked_item;
-    Tile clicked_tile;
+    GameObject train_menu;
+
+    protected TrainMenuManager train_menu_manager;
+    protected GameObject train_object; // the train is referenced in TrainDisplay which has MenuManager as a base class
 
     City city;
 
-    //TODO: Split MenuManager into separate managers for Store Menu and Train Menu
     // Start is called before the first frame update
     void Start()
     {
         city = null;
-        train_menu = GameObject.Find("Train Menu"); // just a blue background
+        initialize_train_menu_manager();
         train_menu.SetActive(false);
+    }
+
+    protected void initialize_train_menu_manager()
+    {
+        train_menu = GameObject.Find("Train Menu"); // just a blue background
+        train_menu_manager = train_menu.GetComponent<TrainMenuManager>();
     }
 
     public Vector3 convert_screen_to_world_coord(Vector3 position)
@@ -47,12 +55,6 @@ public class MenuManager : EventDetector
         Vector3 world_position = camera.ScreenToWorldPoint(new Vector3(position.x, position.y, Mathf.Abs(camera.transform.position.z)));
         position.z = 0;
         return world_position;
-    }
-
-    public string get_user_input(Dictionary<string, bool> exit_map)
-    {
-        // get user select N, E, W, S
-        return "N";
     }
 
     public void zero_margins(RectTransform rectTransform)
@@ -66,9 +68,7 @@ public class MenuManager : EventDetector
 
     public void create_train_menu(GameObject city_object)
     {
-        //TODO: call in coroutine to update menu as trains arrive
         train_menu.SetActive(true); // display city menu
-        TrainMenuManager train_menu_manager = train_menu.GetComponent<TrainMenuManager>();
         train_menu_manager.destroy_train_display();
         train_menu_manager.create_train_menu(city_object);
     }
@@ -121,6 +121,9 @@ public class MenuManager : EventDetector
             case "boxcar":
                 clicked_item = Instantiate(boxcar, position, Quaternion.identity);
                 break;
+            case "trainee": // tell the train where to go
+                clicked_item = Instantiate(dummy_train, position, Quaternion.identity);
+                break;
             default:
                 print("This is not a draggable item");
                 break;
@@ -162,6 +165,22 @@ public class MenuManager : EventDetector
             {
                 vehicle_manager.create_boxcar(final_tilemap_position);
             }
+            else if (item_name == "dummy_train")
+            {
+                // verify train is leaving from same city it arrived at
+                // verify train's orientation matchces track direction
+                GameObject city_object = train_menu_manager.get_city_object();
+                City city = city_object.GetComponent<City>();
+                RouteManager.Orientation orientation = RouteManager.get_start_orientation(final_tilemap_position, city);
+                if (orientation != RouteManager.Orientation.None) // place vehicle if the train placement is valid
+                {
+                    Vector3Int city_location = city.get_location();
+                    vehicle_manager.place_vehicle(city_location, train_object, orientation);
+                    Train train = train_object.GetComponent<Train>();
+                    vehicle_manager.depart_station(train, city_object, city);
+                    create_train_menu(city_object); // update train menu
+                }
+            }
             if (clicked_item != null)
             {
                 Destroy(clicked_item);
@@ -177,6 +196,5 @@ public class MenuManager : EventDetector
     // Update is called once per frame
     void Update()
     {
-        
     }
 }

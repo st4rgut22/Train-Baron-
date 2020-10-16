@@ -9,6 +9,8 @@ public class TrainMenuManager : MonoBehaviour
     GameObject train_menu;
     public GameObject train_graphic;
     public Button close_btn;
+    GameObject city_object;
+    City city;
 
     private void Awake()
     {
@@ -25,6 +27,11 @@ public class TrainMenuManager : MonoBehaviour
     void Update()
     {
 
+    }
+
+    public GameObject get_city_object()
+    {
+        return city_object;
     }
 
     public void hide_menu()
@@ -53,14 +60,14 @@ public class TrainMenuManager : MonoBehaviour
         RectTransformExtensions.SetTop(rectTransform, 0);
     }
 
-    public RectTransform create_train_display(GameObject train_object, City city)
+    public RectTransform create_train_display(GameObject train_object)
     {
         // instantiate new train display and assign it its train
         Train train = train_object.GetComponent<Train>();
         GameObject train_display = Instantiate(train_graphic);
         TrainDisplay display = train_display.GetComponent<TrainDisplay>();
-        display.set_city(city);
-        display.set_train(train);
+        display.set_spawn_location(city_object);
+        display.set_train(train_object);
         int boxcar_count = train.get_boxcar_id();
         display.initialize_boxcar_text(boxcar_count);
         train_display.transform.parent = train_menu.transform;
@@ -68,10 +75,10 @@ public class TrainMenuManager : MonoBehaviour
         return rectTransform;
     }
 
-    public void create_train_menu(GameObject city_object)
+    public void create_train_menu(GameObject City_Object)
     {
-        //TODO: call in coroutine to update menu as trains arrive
-        City city = city_object.GetComponent<City>(); // update city
+        this.city_object = City_Object;
+        this.city = City_Object.GetComponent<City>();
         List<GameObject> train_list = city.get_train_list();
         Vector3 train_display_position = new Vector3(0, 0, 0);
         float padding = .01f;
@@ -82,7 +89,7 @@ public class TrainMenuManager : MonoBehaviour
         {
             total_padding += padding; // padding between display items
             offset_x = i * display_width + total_padding;
-            RectTransform rectTransform = create_train_display(train_list[i], city);
+            RectTransform rectTransform = create_train_display(train_list[i]);
             rectTransform.anchorMin = new Vector2(offset_x, .01f); // bottom left
             rectTransform.anchorMax = new Vector2(offset_x + display_width, .11f); // top right
             zero_margins(rectTransform);

@@ -48,8 +48,8 @@ public class ClickManager : MonoBehaviour
                     case "vert":
                         break;
                     case "train": // start/pause a train
-                        Train train_component = clicked_gameobject.GetComponent<Train>();
-                        train_component.change_motion(); 
+                        //Train train_component = clicked_gameobject.GetComponent<Train>();
+                        //train_component.change_motion(); 
                         break;
                     case "Structure": // if user clicks on city, create city menu
                         GameObject city = CityManager.get_city(new Vector2Int((int)mouse_pos.x, (int)mouse_pos.y));
@@ -60,12 +60,6 @@ public class ClickManager : MonoBehaviour
                         { // city should not be null
                             print("Error!" + e.StackTrace);
                         }
-                        // TODO: add commented code to the departure method
-                        //clicked_gameobject = GameObject.Find("train(Clone)");
-                        //clicked_gameobject.SetActive(true);
-                        //Train red_train_component = clicked_gameobject.GetComponent<Train>();
-                        //red_train_component.change_motion();
-                        //vehicle_manager.spawn_moving_object(red_train_component);
                         break;
                     case "boxcar":
                         break;
