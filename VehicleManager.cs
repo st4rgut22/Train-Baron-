@@ -48,11 +48,13 @@ public class VehicleManager : BoardManager
             if (!is_vehicle_in_cell(last_city_location)) // if vehicle has left city
             {
                 GameObject boxcar = boxcar_list[boxcar_depart_id];
-                MovingObject moving_object = boxcar.GetComponent<MovingObject>();
+                Boxcar moving_boxcar = boxcar.GetComponent<Boxcar>();
+                moving_boxcar.set_depart_status(true);
                 boxcar.SetActive(true); // activate the boxcar.
                 place_vehicle(last_city_location, boxcar, train.orientation);
-                moving_object.set_motion(true);
-                spawn_moving_object(moving_object);
+                moving_boxcar.set_motion(true);
+                spawn_moving_object(moving_boxcar);
+                moving_boxcar.set_depart_status(false);
                 boxcar_depart_id++;
             }
             else
@@ -180,6 +182,11 @@ public class VehicleManager : BoardManager
             if (destination_type=="city") // if vehicle arriving at city is a boxcar, don't update tile
             {
                 if (game_object.tag=="train") vehicle_board[position.x, position.y] = game_object; // only trains should be in cities, it stores a list of attached boxcars
+                else if (game_object.tag == "boxcar") // only update city tile with boxcar if the boxcar is departing. 
+                {
+                    bool boxcar_is_departing = game_object.GetComponent<Boxcar>().get_depart_status();
+                    if (boxcar_is_departing) vehicle_board[position.x, position.y] = game_object;
+                }
             }
             else
             {

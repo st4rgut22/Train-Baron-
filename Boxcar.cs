@@ -6,10 +6,21 @@ public class Boxcar : MovingObject
 {
     Train train = null; // the train boxcar is attached to
     int boxcar_id;
+    bool departing = false;
 
     public void set_boxcar_id(int id)
     {
         boxcar_id = id;
+    }
+
+    public void set_depart_status(bool status)
+    {
+        departing = status;
+    }
+
+    public bool get_depart_status()
+    {
+        return departing;
     }
 
     public void attach_to_train(GameObject train_object)
