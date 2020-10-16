@@ -13,8 +13,14 @@ public class Boxcar : MovingObject
         boxcar_id = id;
     }
 
+    public RouteManager.Orientation get_orientation()
+    {
+        return orientation;
+    }
+
     public void set_depart_status(bool status)
     {
+        in_tile = true;
         departing = status;
     }
 
@@ -36,6 +42,7 @@ public class Boxcar : MovingObject
     // Update is called once per frame
     void Update()
     {
-        base.Update();
+        if (!idling)
+            base.Update();
     }
 }

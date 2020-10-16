@@ -14,6 +14,7 @@ public class MovingObject : EventDetector
     protected Vector2 next_position;
     protected bool in_tile = false; // if an object is in a tile, it is already has a destination
     public bool in_motion = false; // condition to start an object in motion
+    public bool idling = true;
 
     //bezier vertices for a SE turn
     Vector2 p0 = new Vector2(.5f, .5f);
@@ -49,7 +50,7 @@ public class MovingObject : EventDetector
         {
             if (!in_tile) // Reached tile. update destination to next tile
             {
-                orientation = final_orientation; // TODO: WHY IS ORIENTATION NONE?
+                orientation = final_orientation; // updating the orientation at every new tile
                 Vector3Int prev_tile_position = tile_position;
                 if (orientation == RouteManager.Orientation.East)
                 {
@@ -77,6 +78,8 @@ public class MovingObject : EventDetector
                     StartCoroutine(bezier_move(transform, orientation, final_orientation));
                 else // straight track
                 {
+                    if (gameObject.tag == "boxcar")
+                        print("break");
                     StartCoroutine(straight_move(transform.position, target_position));
                 }
             }
@@ -97,6 +100,7 @@ public class MovingObject : EventDetector
     {
         SpriteRenderer renderer = gameObject.GetComponent<SpriteRenderer>();
         renderer.enabled = false;
+        idling = true;
         if (gameObject.tag == "train") update_city();
     }
 
@@ -112,12 +116,13 @@ public class MovingObject : EventDetector
 
     public void prepare_for_departure()
     {
-        // move from the center of the tile (spawn location) to the edge of the tile
         gameObject.GetComponent<SpriteRenderer>().enabled = true;
-        in_tile = true; // vehicle will move within the tile to the border
+        in_tile = true; // allow vehicle to move to the border of tile before resuming its route
+        idling = false; // indicates a vehicle is about to leave
         Vector3 vehicle_departure_point = RouteManager.get_city_boundary_location(tile_position, orientation);
         print("departure point is " + vehicle_departure_point);
         StartCoroutine(straight_move(transform.position, vehicle_departure_point));
+
     }
 
     public override void OnPointerClick(PointerEventData eventData)
@@ -249,6 +254,8 @@ public class MovingObject : EventDetector
     {
         in_tile = true;
         next_position = start_position;
+        if (gameObject.tag == "boxcar")
+            print("Destination of Boxcar is " + destination);
         // Move our position a step closer to the target.
         while (Vector2.Distance(next_position, destination) > tolerance)
         {
@@ -257,6 +264,8 @@ public class MovingObject : EventDetector
             next_position = Vector2.MoveTowards(next_position, destination, step);
             yield return new WaitForEndOfFrame();
         }
+        if (gameObject.tag == "boxcar")
+            print("Reached Destination of Boxcar is " + destination);
         in_tile = false;
     }
 }

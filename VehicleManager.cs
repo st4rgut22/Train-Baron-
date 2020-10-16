@@ -49,6 +49,7 @@ public class VehicleManager : BoardManager
             {
                 GameObject boxcar = boxcar_list[boxcar_depart_id];
                 Boxcar moving_boxcar = boxcar.GetComponent<Boxcar>();
+                print("boxcar orientation is " + moving_boxcar.get_orientation());
                 moving_boxcar.set_depart_status(true);
                 boxcar.SetActive(true); // activate the boxcar.
                 place_vehicle(last_city_location, boxcar, train.orientation);
@@ -111,6 +112,7 @@ public class VehicleManager : BoardManager
         Vector3Int tile_position = moving_object.tile_position;
         Vector3 moving_object_position = RouteManager.get_spawn_location(tile_position, moving_object.orientation);
         moving_object.transform.position = moving_object_position;
+        print("Sprite Renderer enabled!");
         moving_object.GetComponent<SpriteRenderer>().enabled = true;
         moving_object.prepare_for_departure();
     }
@@ -131,7 +133,7 @@ public class VehicleManager : BoardManager
         CityManager city_manager = GameObject.Find("CityManager").GetComponent<CityManager>();
         GameObject city_gameobject = city_manager.in_cell(tilemap_position);
         City city = city_gameobject.GetComponent<City>();
-        moving_object.orientation = orientation;
+        moving_object.set_orientation(orientation);
         if (city_gameobject != null) // place the vehicle in a city
         {
             // orient the vehicles in any direction with a track 
@@ -159,6 +161,7 @@ public class VehicleManager : BoardManager
             }
         }
         update_vehicle_board(moving_gameobject, tilemap_position, new Vector3Int(-1, -1, -1));
+        print("Sprite Renderer Disabled for " + moving_object.name);
         moving_object.GetComponent<SpriteRenderer>().enabled = false;
     }
 
