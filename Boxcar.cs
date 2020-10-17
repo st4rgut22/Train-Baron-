@@ -13,6 +13,11 @@ public class Boxcar : MovingObject
         boxcar_id = id;
     }
 
+    public bool get_idle_status()
+    {
+        return idling;
+    }
+
     public RouteManager.Orientation get_orientation()
     {
         return orientation;
@@ -29,9 +34,9 @@ public class Boxcar : MovingObject
         return departing;
     }
 
-    public void attach_to_train(GameObject train_object)
+    public void attach_to_train(Train train)
     {
-        train = train_object.GetComponent<Train>();
+        this.train = train;
     }
 
     void Start()
@@ -42,7 +47,7 @@ public class Boxcar : MovingObject
     // Update is called once per frame
     void Update()
     {
-        if (!idling)
+        if (!idling) // if in city, suspend regular update movement actions. resume when boxcar has completed departure (moving to city tile's edge)
             base.Update();
     }
 }

@@ -50,7 +50,7 @@ public class TrainDisplay : MenuManager
     {
         GameObject add_btn = GameObject.Find("Add Button");
         Text boxcar_count = add_btn.GetComponentInChildren<Text>();
-        vehicle_manager.create_boxcar(spawn_location);
+        vehicle_manager.create_boxcar(spawn_location, train);
         boxcar_count_text.text = train.get_boxcar_id().ToString(); // update number of boxcars
     }
 

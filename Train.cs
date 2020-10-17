@@ -26,6 +26,18 @@ public class Train : MovingObject
         base.Update();
     }
 
+    public bool all_boxcar_arrived()
+    {
+        // check if train's boxcars have arrived before departing. If one boxcar is not idled, that means not all boxcars have arrived yet
+        for (int i = 0; i < boxcar_squad.Count; i++)
+        {
+            Boxcar boxcar = boxcar_squad[i].GetComponent<Boxcar>();
+            bool idle_status = boxcar.get_idle_status();
+            if (!idle_status) return false;
+        }
+        return true;
+    }
+
     public void change_motion()
     {
         StartCoroutine(vehicle_manager.Make_All_Boxcars_Depart(boxcar_squad, this)); //TODO: hide train on city tile. Call coroutine from city manager

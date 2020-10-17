@@ -43,6 +43,7 @@ public class VehicleManager : BoardManager
         int boxcar_count = boxcar_list.Count;
         int boxcar_depart_id = 0; // counter
         Vector3Int last_city_location = train.get_city().get_location();
+        RouteManager.Orientation depart_orientation = train.orientation;
         while (boxcar_depart_id < boxcar_count)
         {
             if (!is_vehicle_in_cell(last_city_location)) // if vehicle has left city
@@ -52,7 +53,7 @@ public class VehicleManager : BoardManager
                 print("boxcar orientation is " + moving_boxcar.get_orientation());
                 moving_boxcar.set_depart_status(true);
                 boxcar.SetActive(true); // activate the boxcar.
-                place_vehicle(last_city_location, boxcar, train.orientation);
+                place_vehicle(last_city_location, boxcar, depart_orientation);
                 moving_boxcar.set_motion(true);
                 spawn_moving_object(moving_boxcar);
                 moving_boxcar.set_depart_status(false);
@@ -71,22 +72,19 @@ public class VehicleManager : BoardManager
         train.remove_boxcar();
     }
 
-    public void create_boxcar(Vector3Int tilemap_position)
+    public void create_boxcar(Vector3Int tilemap_position, Train train)
     {
-        //TODO: boxcar disappears when leaving the second city
-        // check if the location has an idling train and is a city. Then instantiate a boxcar and deactivate it until train has departed
-        GameObject vehicle = vehicle_board[tilemap_position.x, tilemap_position.y]; //TODO: GET rid of vehicle!=null condition
+        // check if the is a city. Then instantiate a boxcar and deactivate it until train has departed
         // save the train on the board, but boxcar will overwrite it 
         GameObject city = CityManager.get_city(new Vector2Int(tilemap_position.x, tilemap_position.y));
-        if (vehicle!=null && city != null)
+        if (city != null)
         {
-            Train train = vehicle.GetComponent<Train>();
             if (!train.is_in_motion()) // if train is idling then add boxcars
             {
                 int boxcar_id = train.get_boxcar_id(); // id is the order in which the boxcar is added (0 being the first one added)
                 GameObject boxcar = Instantiate(Boxcar); // change the orientation and position when train departs
                 Boxcar boxcar_component = boxcar.GetComponent<Boxcar>();
-                boxcar_component.attach_to_train(vehicle);
+                boxcar_component.attach_to_train(train);
                 boxcar_component.set_boxcar_id(boxcar_id);
                 train.GetComponent<Train>().attach_boxcar(boxcar);
                 boxcar.SetActive(false);
@@ -119,6 +117,7 @@ public class VehicleManager : BoardManager
 
     public void depart_station(Train train, GameObject city_object, City city)
     {
+        // remove train from station and depart.
         print("departing station");
         train.change_motion();
         spawn_moving_object(train);
@@ -162,7 +161,7 @@ public class VehicleManager : BoardManager
         }
         update_vehicle_board(moving_gameobject, tilemap_position, new Vector3Int(-1, -1, -1));
         print("Sprite Renderer Disabled for " + moving_object.name);
-        moving_object.GetComponent<SpriteRenderer>().enabled = false;
+        //moving_object.GetComponent<SpriteRenderer>().enabled = false;
     }
 
     public void update_vehicle_board(GameObject game_object, Vector3Int position, Vector3Int prev_position)
@@ -203,6 +202,4 @@ public class VehicleManager : BoardManager
             print(e.Message + " Position: " + position);
         }
     }
-
-
 }
