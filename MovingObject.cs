@@ -30,16 +30,12 @@ public class MovingObject : EventDetector
 
     protected CityManager city_manager;
     protected GameManager game_manager;
-    protected VehicleManager vehicle_manager;
 
     // Start is called before the first frame update
     public virtual void Start()
     {
-        city_manager = GameObject.Find("CityManager").GetComponent<CityManager>();
         game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        vehicle_manager = GameObject.Find("VehicleManager").GetComponent<VehicleManager>();
-        Vector2Int home_base = game_manager.get_home_base();
-        tile_position = new Vector3Int(home_base.x, home_base.y, 0); //initialize every vehicle at home base
+        Vector2Int home_base = BoardManager.home_base_location;
         target_position = transform.position;
     }
 
@@ -70,7 +66,7 @@ public class MovingObject : EventDetector
                 }
                 print("update " + gameObject.name + " position from " + prev_tile_position + " to " + tile_position);
 
-                vehicle_manager.update_vehicle_board(gameObject, tile_position, prev_tile_position);
+                GameManager.vehicle_manager.update_vehicle_board(gameObject, tile_position, prev_tile_position);
                 Vector2 train_dest_xy = RouteManager.get_destination(this); // set the final orientation and destination
                 Vector3 train_destination = new Vector3(train_dest_xy[0], train_dest_xy[1], z_pos); 
                 target_position = train_destination;
@@ -90,6 +86,11 @@ public class MovingObject : EventDetector
         }
     }
 
+    public void initialize_position(Vector3Int position)
+    {
+        this.tile_position = position;
+    }
+
     public void initialize_orientation(RouteManager.Orientation orientation)
     {
         // when leaving a city, vehicle orientation be initialized to final orientation (which the user chooses)
@@ -107,7 +108,7 @@ public class MovingObject : EventDetector
     public void update_city()
     {
         // if vehicle has arrived at a city, update the city with arrived vehicles and disable the vehicles
-        city_manager.add_train_to_board(tile_position, gameObject);
+        GameManager.city_manager.add_train_to_board(tile_position, gameObject);
         City city = CityManager.get_city(new Vector2Int(tile_position.x, tile_position.y)).GetComponent<City>();
         gameObject.GetComponent<Train>().set_city(city);
         //gameObject.SetActive(false); // disable gameobject and components upon reaching the destination
@@ -139,6 +140,11 @@ public class MovingObject : EventDetector
     public bool is_in_motion()
     {
         return in_motion;
+    }
+
+    public void set_position(Vector3Int tile_position)
+    {
+        this.tile_position = tile_position;
     }
 
     public void set_orientation(RouteManager.Orientation orientation)

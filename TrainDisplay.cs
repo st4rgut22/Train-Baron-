@@ -14,14 +14,14 @@ public class TrainDisplay : MenuManager
 
     private void Awake()
     {
-        vehicle_manager = GameObject.Find("VehicleManager").GetComponent<VehicleManager>();
-        camera = GameObject.Find("Camera").GetComponent<Camera>();
-        add_btn = transform.Find("Add Button").GetComponent<Button>();
-        sub_btn = transform.Find("Minus Button").GetComponent<Button>();
-        add_btn.onClick.AddListener(add_boxcar);
-        sub_btn.onClick.AddListener(subtract_boxcar);
-        boxcar_count_text = transform.Find("boxcar background").Find("boxcar").Find("quantity").GetComponent<Text>();
-        initialize_train_menu_manager();
+        //vehicle_manager = GameObject.Find("VehicleManager").GetComponent<VehicleManager>();
+        //camera = GameObject.Find("Camera").GetComponent<Camera>();
+        //add_btn = transform.Find("Add Button").GetComponent<Button>();
+        //sub_btn = transform.Find("Minus Button").GetComponent<Button>();
+        //add_btn.onClick.AddListener(add_boxcar);
+        //sub_btn.onClick.AddListener(subtract_boxcar);
+        //boxcar_count_text = transform.Find("boxcar background").Find("boxcar").Find("quantity").GetComponent<Text>();
+        //initialize_train_menu_manager();
     }
 
     // Start is called before the first frame update
@@ -30,37 +30,37 @@ public class TrainDisplay : MenuManager
    
     }
 
-    public void initialize_boxcar_text(int boxcar_count)
-    {
-        boxcar_count_text.text = boxcar_count.ToString();
-    }
+    //public void initialize_boxcar_text(int boxcar_count)
+    //{
+    //    boxcar_count_text.text = boxcar_count.ToString();
+    //}
 
-    public void set_train(GameObject train_thing)
-    {
-        train_object = train_thing;
-        train = train_object.GetComponent<Train>();
-    }
+    //public void set_train(GameObject train_thing)
+    //{
+    //    train_object = train_thing;
+    //    train = train_object.GetComponent<Train>();
+    //}
 
-    public void set_spawn_location(GameObject city_object)
-    {
-        spawn_location = city_object.GetComponent<City>().get_location();
-    }
+    //public void set_spawn_location(GameObject city_object)
+    //{
+    //    spawn_location = city_object.GetComponent<City>().get_location();
+    //}
 
-    void add_boxcar()
-    {
-        GameObject add_btn = GameObject.Find("Add Button");
-        Text boxcar_count = add_btn.GetComponentInChildren<Text>();
-        vehicle_manager.create_boxcar(spawn_location, train);
-        boxcar_count_text.text = train.get_boxcar_id().ToString(); // update number of boxcars
-    }
+    //void add_boxcar()
+    //{
+    //    GameObject add_btn = GameObject.Find("Add Button");
+    //    Text boxcar_count = add_btn.GetComponentInChildren<Text>();
+    //    vehicle_manager.create_boxcar(spawn_location, train);
+    //    boxcar_count_text.text = train.get_boxcar_id().ToString(); // update number of boxcars
+    //}
 
-    void subtract_boxcar()
-    {
-        GameObject sub_btn = GameObject.Find("Minus Button");
-        Text boxcar_count = sub_btn.GetComponentInChildren<Text>();
-        vehicle_manager.remove_boxcar(train);
-        boxcar_count_text.text = train.get_boxcar_id().ToString(); // update number of boxcars
-    }
+    //void subtract_boxcar()
+    //{
+    //    GameObject sub_btn = GameObject.Find("Minus Button");
+    //    Text boxcar_count = sub_btn.GetComponentInChildren<Text>();
+    //    vehicle_manager.remove_boxcar(train);
+    //    boxcar_count_text.text = train.get_boxcar_id().ToString(); // update number of boxcars
+    //}
 
     // Update is called once per frame
     void Update()

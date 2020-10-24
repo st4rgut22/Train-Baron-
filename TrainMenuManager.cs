@@ -60,41 +60,41 @@ public class TrainMenuManager : MonoBehaviour
         RectTransformExtensions.SetTop(rectTransform, 0);
     }
 
-    public RectTransform create_train_display(GameObject train_object)
-    {
-        // instantiate new train display and assign it its train
-        Train train = train_object.GetComponent<Train>();
-        GameObject train_display = Instantiate(train_graphic);
-        TrainDisplay display = train_display.GetComponent<TrainDisplay>();
-        display.set_spawn_location(city_object);
-        display.set_train(train_object);
-        int boxcar_count = train.get_boxcar_id();
-        display.initialize_boxcar_text(boxcar_count);
-        train_display.transform.parent = train_menu.transform;
-        RectTransform rectTransform = train_display.GetComponent<RectTransform>();
-        return rectTransform;
-    }
+    //public RectTransform create_train_display(GameObject train_object)
+    //{
+    //    // instantiate new train display and assign it its train
+    //    Train train = train_object.GetComponent<Train>();
+    //    GameObject train_display = Instantiate(train_graphic);
+    //    TrainDisplay display = train_display.GetComponent<TrainDisplay>();
+    //    display.set_spawn_location(city_object);
+    //    display.set_train(train_object);
+    //    int boxcar_count = train.get_boxcar_id();
+    //    display.initialize_boxcar_text(boxcar_count);
+    //    train_display.transform.parent = train_menu.transform;
+    //    RectTransform rectTransform = train_display.GetComponent<RectTransform>();
+    //    return rectTransform;
+    //}
 
     public void create_train_menu(GameObject City_Object)
     {
-        this.city_object = City_Object;
-        this.city = City_Object.GetComponent<City>();
-        List<GameObject> train_list = city.get_train_list();
-        Vector3 train_display_position = new Vector3(0, 0, 0);
-        float padding = .01f;
-        float total_padding = 0;
-        float offset_x = 0;
-        float display_width = .237f;
-        for (int i = 0; i < train_list.Count; i++)
-        {
-            total_padding += padding; // padding between display items
-            offset_x = i * display_width + total_padding;
-            RectTransform rectTransform = create_train_display(train_list[i]);
-            rectTransform.anchorMin = new Vector2(offset_x, .01f); // bottom left
-            rectTransform.anchorMax = new Vector2(offset_x + display_width, .11f); // top right
-            zero_margins(rectTransform);
-            rectTransform.localScale = new Vector2(1, 1); // scale ui to match anchors
-            rectTransform.anchoredPosition = Vector2.zero; //move ui to anchors
-        }
+        //this.city_object = City_Object;
+        //this.city = City_Object.GetComponent<City>();
+        //List<GameObject> train_list = city.get_train_list();
+        //Vector3 train_display_position = new Vector3(0, 0, 0);
+        //float padding = .01f;
+        //float total_padding = 0;
+        //float offset_x = 0;
+        //float display_width = .237f;
+        //for (int i = 0; i < train_list.Count; i++)
+        //{
+        //    total_padding += padding; // padding between display items
+        //    offset_x = i * display_width + total_padding;
+        //    RectTransform rectTransform = create_train_display(train_list[i]);
+        //    rectTransform.anchorMin = new Vector2(offset_x, .01f); // bottom left
+        //    rectTransform.anchorMax = new Vector2(offset_x + display_width, .11f); // top right
+        //    zero_margins(rectTransform);
+        //    rectTransform.localScale = new Vector2(1, 1); // scale ui to match anchors
+        //    rectTransform.anchoredPosition = Vector2.zero; //move ui to anchors
+        //}
     }
 }

@@ -38,14 +38,24 @@ public class City: MonoBehaviour
                 trains_removed++;
             }
         }
-        if (trains_removed != 1)
-            throw new Exception("Incorrect number of trains removed :" + trains_removed);
+        print("trains removed = " + trains_removed);
+        //if (trains_removed != 1)
+        //    throw new Exception("Incorrect number of trains removed :" + trains_removed);
     }
 
 
     public void set_location(Vector3Int position)
     {
         tilemap_position = position;
+    }
+
+    public void is_train_turn_on(bool state)
+    {
+        // hide or show trains depending on whether I'm in a shipyard view
+        foreach (GameObject train in train_list)
+        {
+            train.GetComponent<SpriteRenderer>().enabled = state;
+        }
     }
 
     private void Start()

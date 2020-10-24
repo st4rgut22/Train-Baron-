@@ -16,7 +16,7 @@ public class Train : MovingObject
     {
         tile_position = new Vector3Int(0, 0, 0);
         base.Start(); // train instantiated bottom left
-        vehicle_manager.update_vehicle_board(gameObject, tile_position, new Vector3Int(-1, -1, -1));
+        GameManager.vehicle_manager.update_vehicle_board(gameObject, tile_position, new Vector3Int(-1, -1, -1));
         arrive_at_city(); // update home base with instantiated train
     }
 
@@ -40,7 +40,7 @@ public class Train : MovingObject
 
     public void change_motion()
     {
-        StartCoroutine(vehicle_manager.Make_All_Boxcars_Depart(boxcar_squad, this)); //TODO: hide train on city tile. Call coroutine from city manager
+        StartCoroutine(GameManager.vehicle_manager.Make_All_Boxcars_Depart(boxcar_squad, this)); //TODO: hide train on city tile. Call coroutine from city manager
         in_motion = !in_motion; // if train is moving stop. If train is stopped move.
         for (int i = 0; i < boxcar_squad.Count; i++)
         {

@@ -7,6 +7,9 @@ public class VehicleManager : BoardManager
 {
     public GameObject Train; // prefabs
     public List<GameObject> Train_List;
+    public List<GameObject> Bomb_Boxcar_List;
+    public List<GameObject> Troop_Boxcar_List;
+    public List<GameObject> Supply_Boxcar_List;
     public GameObject Boxcar;
     GameObject[,] vehicle_board; //contains moving objects eg trains, boxcars
     City start_city;
@@ -16,7 +19,7 @@ public class VehicleManager : BoardManager
     {
         base.Start();
         prefab_tag = "train";
-        vehicle_board = new GameObject[board_dimension.x, board_dimension.y];
+        vehicle_board = new GameObject[board_width, board_height];
         Train_List = new List<GameObject>();
     }
 
@@ -72,6 +75,19 @@ public class VehicleManager : BoardManager
         train.remove_boxcar();
     }
 
+    public void add_boxcar(string boxcar_type)
+    {
+        //add boxcar to the inventory
+        GameObject boxcar = Instantiate(Boxcar); // change the orientation and position when train departs
+        if (boxcar_type == "bomb")
+            Bomb_Boxcar_List.Add(boxcar);
+        else if (boxcar_type == "supply")
+            Supply_Boxcar_List.Add(boxcar);
+        else if (boxcar_type == "troop")
+            Troop_Boxcar_List.Add(boxcar);
+        else { print("No other type of boxcar");  }
+    }
+
     public void create_boxcar(Vector3Int tilemap_position, Train train)
     {
         // check if the is a city. Then instantiate a boxcar and deactivate it until train has departed
@@ -95,13 +111,20 @@ public class VehicleManager : BoardManager
     public void create_vehicle_at_home_base()
     {
         // buying a new train in MenuManager
+        Vector3Int start_tile_position = new Vector3Int(-1, 0, 0); //TODO: change if this track is occupied
         GameObject new_train = Instantiate(Train);
         Train_List.Add(new_train);
         Train train_component = new_train.GetComponent<Train>();
         train_component.set_id(Train_List.Count);
         train_component.set_city(home_base); // new vehicles always created at home base
-        Vector3Int home_location = new Vector3Int(home_base_location.x, home_base_location.y, 0);
-        //place_vehicle(home_location, new_train, RouteManager.Orientation.North);
+        train_component.set_position(start_tile_position);
+        Vector3Int home_base_location = new Vector3Int(BoardManager.home_base_location.x, BoardManager.home_base_location.y, 0);
+        place_vehicle(home_base_location, new_train, RouteManager.Orientation.East);
+        // verify train is leaving from same city it arrived at
+        // verify train's orientation matchces track direction
+        GameObject city_object = CityManager.get_city(BoardManager.home_base_location);
+        City city = city_object.GetComponent<City>();
+        depart_station(train_component, city_object, city);
     }
 
     public void spawn_moving_object(MovingObject moving_object)
@@ -124,13 +147,13 @@ public class VehicleManager : BoardManager
         city.remove_train_from_list(train);
     }
 
-    public void place_vehicle(Vector3Int tilemap_position, GameObject moving_gameobject, RouteManager.Orientation orientation)
+    public void place_vehicle(Vector3Int city_position, GameObject moving_gameobject, RouteManager.Orientation orientation)
     {
         // initialize orientation and position of vehicle based on user input. Vehicle is not visible as it is idling at the station
+        // vehicle is placed in a shipyard
         MovingObject moving_object = moving_gameobject.GetComponent<MovingObject>();
         moving_object.initialize_orientation(orientation);
-        CityManager city_manager = GameObject.Find("CityManager").GetComponent<CityManager>();
-        GameObject city_gameobject = city_manager.in_cell(tilemap_position);
+        GameObject city_gameobject = GameManager.city_manager.in_cell(city_position);
         City city = city_gameobject.GetComponent<City>();
         moving_object.set_orientation(orientation);
         if (city_gameobject != null) // place the vehicle in a city
@@ -159,7 +182,7 @@ public class VehicleManager : BoardManager
                     break;
             }
         }
-        update_vehicle_board(moving_gameobject, tilemap_position, new Vector3Int(-1, -1, -1));
+        update_vehicle_board(moving_gameobject, city_position, new Vector3Int(-1, -1, -1));
         print("Sprite Renderer Disabled for " + moving_object.name);
         //moving_object.GetComponent<SpriteRenderer>().enabled = false;
     }

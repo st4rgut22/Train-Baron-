@@ -38,25 +38,6 @@ public class RouteManager : MonoBehaviour
         
     }
 
-    public static Dictionary<string, bool> get_exit_track(Vector3Int tilemap_position)
-    {
-        // return a dictionary of routes bordering a tilemap location
-        Dictionary<string, bool> exit_map = new Dictionary<string, bool>(); // key is orientation, value is true if route exists
-        Tile north_tile = (Tile)track_tilemap.GetTile(new Vector3Int(tilemap_position.x, tilemap_position.y + 1, tilemap_position.z));
-        Tile south_tile = (Tile)track_tilemap.GetTile(new Vector3Int(tilemap_position.x, tilemap_position.y - 1, tilemap_position.z));
-        Tile west_tile = (Tile)track_tilemap.GetTile(new Vector3Int(tilemap_position.x - 1, tilemap_position.y, tilemap_position.z));
-        Tile east_tile = (Tile)track_tilemap.GetTile(new Vector3Int(tilemap_position.x + 1, tilemap_position.y, tilemap_position.z));
-        if (north_tile != null) exit_map["N"] = true;
-        else { exit_map["N"] = false; }
-        if (south_tile != null) exit_map["S"] = true;
-        else { exit_map["S"] = false; }
-        if (west_tile != null) exit_map["W"] = true;
-        else { exit_map["W"] = false; }
-        if (east_tile != null) exit_map["E"] = true;
-        else { exit_map["E"] = false; }
-        return exit_map;
-    }
-
     public static string get_destination_type(Vector3Int tile_coord)
     {
         Tile track_tile = (Tile)track_tilemap.GetTile(tile_coord);

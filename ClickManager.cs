@@ -15,7 +15,7 @@ public class ClickManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        menu_manager = GameObject.Find("Store Menu").GetComponent<MenuManager>();
+        menu_manager = GameObject.Find("MenuManager").GetComponent<MenuManager>();
         vehicle_manager = GameObject.Find("VehicleManager").GetComponent<VehicleManager>();
     }
 
@@ -52,10 +52,12 @@ public class ClickManager : MonoBehaviour
                         //train_component.change_motion(); 
                         break;
                     case "Structure": // if user clicks on city, create city menu
-                        GameObject city = CityManager.get_city(new Vector2Int((int)mouse_pos.x, (int)mouse_pos.y));
+                        GameObject city_object = CityManager.get_city(new Vector2Int((int)mouse_pos.x, (int)mouse_pos.y));
                         try
                         {
-                            menu_manager.create_train_menu(city);
+                            GameObject.Find("GameManager").GetComponent<GameManager>().switch_on_shipyard(true);
+                            city_object.GetComponent<City>().is_train_turn_on(true);
+                            MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
                         } catch (NullReferenceException e)
                         { // city should not be null
                             print("Error!" + e.StackTrace);
