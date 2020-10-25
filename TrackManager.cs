@@ -16,7 +16,7 @@ public class TrackManager : BoardManager
     public static int ws_count = 0;
     public static int es_count = 0;
 
-    class Track
+    class Track 
     {
         public Track(string name)
         {

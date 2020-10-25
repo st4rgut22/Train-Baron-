@@ -26,7 +26,11 @@ public class MovingObject : EventDetector
     public RouteManager.Orientation final_orientation; // orientation after moving to a new tile 
     public RouteManager.Orientation prev_orientation; // orientation during the last idle state
     public Vector3Int tile_position;
+    public Vector2Int next_tilemap_position;
     protected const float z_pos = 0;
+
+    public bool in_city;
+    public City city;
 
     protected CityManager city_manager;
     protected GameManager game_manager;
@@ -44,31 +48,25 @@ public class MovingObject : EventDetector
     {
         if (in_motion)
         {
-            if (!in_tile) // Reached tile. update destination to next tile
+            if (!in_tile) // Completed tile route. update destination to next tile
             {
                 orientation = final_orientation; // updating the orientation at every new tile
                 Vector3Int prev_tile_position = tile_position;
-                if (orientation == RouteManager.Orientation.East)
-                {
-                    tile_position = new Vector3Int(Mathf.RoundToInt(transform.position[0]), (int)(transform.position[1]), 0);
-                }
-                else if (orientation == RouteManager.Orientation.West)
-                {
-                    tile_position = new Vector3Int(Mathf.RoundToInt(transform.position[0]) - 1, (int)(transform.position[1]), 0);
-                }
-                else if (orientation == RouteManager.Orientation.North)
-                {
-                    tile_position = new Vector3Int((int)(transform.position[0]), Mathf.RoundToInt(transform.position[1]), 0);
-                }
-                else if (orientation == RouteManager.Orientation.South)
-                {
-                    tile_position = new Vector3Int((int)(transform.position[0]), Mathf.RoundToInt(transform.position[1]) - 1, 0);
-                }
+                tile_position = new Vector3Int(next_tilemap_position.x, next_tilemap_position.y, 0);
                 print("update " + gameObject.name + " position from " + prev_tile_position + " to " + tile_position);
-
-                GameManager.vehicle_manager.update_vehicle_board(gameObject, tile_position, prev_tile_position);
-                Vector2 train_dest_xy = RouteManager.get_destination(this); // set the final orientation and destination
-                Vector3 train_destination = new Vector3(train_dest_xy[0], train_dest_xy[1], z_pos); 
+                Vector2 train_dest_xy = new Vector3(-1, -1); // default value
+                if (!in_city)
+                {
+                    GameManager.vehicle_manager.update_vehicle_board(gameObject, tile_position, prev_tile_position);                    
+                } else {
+                    city.update_city_board(gameObject, tile_position, prev_tile_position);
+                }
+                PositionPair position_pair = RouteManager.get_destination(this); // set the final orientation and destination
+                train_dest_xy = position_pair.abs_dest_pos;
+                next_tilemap_position = position_pair.tile_dest_pos;
+                Vector3 train_destination = new Vector3(train_dest_xy[0], train_dest_xy[1], z_pos);
+                print("Next tilemap position is " + next_tilemap_position);
+                print("next train destination is " + train_destination);
                 target_position = train_destination;
                 if (orientation != final_orientation) // curved track
                     StartCoroutine(bezier_move(transform, orientation, final_orientation));
@@ -102,22 +100,15 @@ public class MovingObject : EventDetector
         SpriteRenderer renderer = gameObject.GetComponent<SpriteRenderer>();
         renderer.enabled = false;
         idling = true;
-        if (gameObject.tag == "train") update_city();
-    }
-
-    public void update_city()
-    {
-        // if vehicle has arrived at a city, update the city with arrived vehicles and disable the vehicles
-        GameManager.city_manager.add_train_to_board(tile_position, gameObject);
-        City city = CityManager.get_city(new Vector2Int(tile_position.x, tile_position.y)).GetComponent<City>();
-        gameObject.GetComponent<Train>().set_city(city);
-        //gameObject.SetActive(false); // disable gameobject and components upon reaching the destination
-        return;
+        in_city = true;
+        city = CityManager.get_city(new Vector2Int(tile_position.x, tile_position.y)).GetComponent<City>();   
+        if (gameObject.tag == "train") GameManager.city_manager.add_train_to_board(tile_position, gameObject);
     }
 
     public void prepare_for_departure()
     {
         gameObject.GetComponent<SpriteRenderer>().enabled = true;
+        in_city = false;
         in_tile = true; // allow vehicle to move to the border of tile before resuming its route
         idling = false; // indicates a vehicle is about to leave
         Vector3 vehicle_departure_point = RouteManager.get_city_boundary_location(tile_position, orientation);

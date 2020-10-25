@@ -11,7 +11,6 @@ public class CityManager : BoardManager
 
     public GameObject City;
     GameObject Activated_City;
-    public GameObject[] City_Object_List;
 
     // Start is called before the first frame update
     void Start()
@@ -19,7 +18,6 @@ public class CityManager : BoardManager
         set_tilemap("city_layer");
         prefab_tag = "city";
         create_cities(); // instantiate cities and save their positions
-        City_Object_List = GameObject.FindGameObjectsWithTag("city");
         base.Start();
     }
 

@@ -36,8 +36,8 @@ public class BoardManager : MonoBehaviour
     public static Vector2Int south_start_2 = new Vector2Int(13,-2);
     public static Vector2Int home_base_location = new Vector2Int(0, 0);
 
-    protected const int board_width = 15;
-    protected const int board_height = 7;
+    protected const int board_width = 17;
+    protected const int board_height = 8;
 
     public void Awake()
     {

@@ -3,11 +3,40 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class City: MonoBehaviour
+public class City: BoardManager
 {
     // track city control as a function of supplies, troops, artillery
     Vector3Int tilemap_position;
     List<GameObject> train_list; // list of trains inside a city
+    GameObject[,] city_board; // contains location of vehicles within city
+
+    private void Start()
+    {
+        // must be a Gameobject for Start() Update() to run
+        train_list = new List<GameObject>();
+        city_board = new GameObject[board_width, board_height]; // zero out the negative tile coordinates
+    }
+
+    private void Update()
+    {
+
+    }
+
+    public void update_city_board(GameObject game_object, Vector3Int tile_position, Vector3Int prev_tile_position)
+    {
+        bool initial_vector = prev_tile_position.Equals(new Vector3Int(-1, -1, -1));
+        if (!initial_vector)
+        {
+            if (city_board[prev_tile_position.x, prev_tile_position.y] == null)
+                print("WARNING. Gameobject " + game_object.name + " not found in previous position " + prev_tile_position);
+            else
+            {
+                if (city_board[prev_tile_position.x, prev_tile_position.y] == game_object) // only remove gameobject references to itself
+                    city_board[prev_tile_position.x, prev_tile_position.y] = null;
+            }
+        }
+        city_board[tile_position.x, tile_position.y] = game_object;
+    }
 
     public Vector3Int get_location()
     {
@@ -56,16 +85,5 @@ public class City: MonoBehaviour
         {
             train.GetComponent<SpriteRenderer>().enabled = state;
         }
-    }
-
-    private void Start()
-    {
-        // must be a Gameobject for Start() Update() to run
-        train_list = new List<GameObject>();
-    }
-
-    private void Update()
-    {
-       
     }
 }

@@ -7,7 +7,6 @@ using UnityEngine.EventSystems;
 public class Train : MovingObject
 {
     List<GameObject> boxcar_squad = new List<GameObject>(); // boxcars attached to this train
-    City start_city;
     int id;
     string destination_type = ""; // get destination type. If city, then disable after reaching destination. 
 
@@ -61,12 +60,12 @@ public class Train : MovingObject
 
     public City get_city()
     {
-        return start_city;
+        return city;
     }
 
     public void set_city(City city)
     { 
-        start_city = city;
+        this.city = city;
     }
 
     public void remove_boxcar() // TODO: remove a specific boxcar
