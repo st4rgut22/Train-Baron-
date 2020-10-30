@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
     public GameObject Shipyard_Base;
     public GameObject Shipyard_Track;
     public GameObject Shipyard_Turntable;
+    public GameObject Shipyard_Turntable_Circle;
     public GameObject Shipyard_Track2;
 
     public static VehicleManager vehicle_manager;
@@ -100,6 +101,7 @@ public class GameManager : MonoBehaviour
         Shipyard_Track.SetActive(state);
         Shipyard_Track2.SetActive(state);
         Shipyard_Turntable.SetActive(state);
+        Shipyard_Turntable_Circle.SetActive(state);
         Track_Layer.SetActive(!state);
         Structure.SetActive(!state);
         Base.SetActive(!state);

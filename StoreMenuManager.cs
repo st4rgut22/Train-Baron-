@@ -38,7 +38,7 @@ public class StoreMenuManager : MonoBehaviour
         foreach (GameObject go in text_game_objects)
         {
             string count = go.GetComponent<Text>().text;
-            string item_name = go.transform.parent.parent.gameObject.name;
+            string item_name = go.transform.parent.parent.gameObject.name;            
             for (int i = 0; i < Int16.Parse(count); i++)
             {
                 switch (item_name)

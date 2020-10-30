@@ -6,23 +6,75 @@ using UnityEngine.EventSystems;
 
 public class Train : MovingObject
 {
-    List<GameObject> boxcar_squad = new List<GameObject>(); // boxcars attached to this train
-    int id;
+    public List<GameObject> boxcar_squad = new List<GameObject>(); // boxcars attached to this train
     string destination_type = ""; // get destination type. If city, then disable after reaching destination. 
+    int id;
+
+    private void Awake()
+    {
+        base.Awake();
+    }
 
     // Start is called before the first frame update
     void Start()
     {
         tile_position = new Vector3Int(0, 0, 0);
         base.Start(); // train instantiated bottom left
-        GameManager.vehicle_manager.update_vehicle_board(gameObject, tile_position, new Vector3Int(-1, -1, -1));
-        arrive_at_city(); // update home base with instantiated train
+        GameManager.vehicle_manager.update_vehicle_board(city.city_board, gameObject, tile_position, new Vector3Int(-1, -1, -1));
     }
 
     // Update is called once per frame
     void Update()
     {
         base.Update();
+        bool train_visible = gameObject.GetComponent<SpriteRenderer>().enabled;
+        if (train_visible) make_all_boxcar_visible(true);
+        else { make_all_boxcar_visible(false);  }
+    }
+
+    public override void arrive_at_city()
+    {
+        base.arrive_at_city();
+        city = CityManager.get_city(new Vector2Int(tile_position.x, tile_position.y)).GetComponent<City>();
+        city.add_train_to_list(gameObject);
+        
+        station_track = city.add_train_to_station(gameObject, orientation);
+        if (station_track != null)
+        {
+            tile_position = station_track.start_location; // A NON-NULLABLE TYPE? ? ? 
+            GameManager.vehicle_manager.depart(gameObject);
+            assign_station_to_boxcar();
+        } else
+        {
+            print("This city has no open stations from " + gameObject.name + " direction");
+        }
+    }
+
+    public void board_turntable(RouteManager.Orientation orientation, bool depart_turntable)
+    {
+        print("board turn table");
+        if (depart_turntable)
+            halt_train(is_halt = false, is_pause = false); // unpause the train
+        else // leaving the turntable
+        {
+            leave_city = true;
+        }
+    }
+
+    public void assign_station_to_boxcar()
+    {
+        foreach (GameObject boxcar_object in boxcar_squad)
+        {
+            boxcar_object.GetComponent<Boxcar>().station_track = station_track;
+        }
+    }
+
+    public void make_all_boxcar_visible(bool state)
+    {
+        foreach (GameObject boxcar_object in boxcar_squad)
+        {
+            boxcar_object.GetComponent<SpriteRenderer>().enabled = state;
+        }
     }
 
     public bool all_boxcar_arrived()
@@ -31,20 +83,23 @@ public class Train : MovingObject
         for (int i = 0; i < boxcar_squad.Count; i++)
         {
             Boxcar boxcar = boxcar_squad[i].GetComponent<Boxcar>();
-            bool idle_status = boxcar.get_idle_status();
-            if (!idle_status) return false;
+            if (is_pause) return false;
         }
         return true;
     }
 
-    public void change_motion()
+    public void halt_train(bool is_halt, bool state)
     {
-        StartCoroutine(GameManager.vehicle_manager.Make_All_Boxcars_Depart(boxcar_squad, this)); //TODO: hide train on city tile. Call coroutine from city manager
-        in_motion = !in_motion; // if train is moving stop. If train is stopped move.
+        // stop the train. await user action or signal
+        // halting the train stops it from going anywhere. Used to await new track.
+        // if false, pause the train. meaning delay the action. Used to stop mid turn/mid motion
+        if (is_halt) this.is_halt = state;
+        else { is_pause = state; }
         for (int i = 0; i < boxcar_squad.Count; i++)
         {
             GameObject boxcar = boxcar_squad[i];
-            boxcar.GetComponent<Boxcar>().set_motion(in_motion);
+            if (is_halt) boxcar.GetComponent<Boxcar>().is_halt = state; 
+            else { boxcar.GetComponent<Boxcar>().is_pause = state; }
         }
     }
 

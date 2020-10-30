@@ -8,14 +8,26 @@ public class Boxcar : MovingObject
     int boxcar_id;
     bool departing = false;
 
+    private void Awake()
+    {
+        base.Awake();
+    }
+
+    void Start()
+    {
+        base.Start();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        //if (!idling) // if in city, suspend regular update movement actions. resume when boxcar has completed departure (moving to city tile's edge)
+            base.Update();
+    }
+
     public void set_boxcar_id(int id)
     {
         boxcar_id = id;
-    }
-
-    public bool get_idle_status()
-    {
-        return idling;
     }
 
     public RouteManager.Orientation get_orientation()
@@ -37,17 +49,5 @@ public class Boxcar : MovingObject
     public void attach_to_train(Train train)
     {
         this.train = train;
-    }
-
-    void Start()
-    {
-        base.Start();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (!idling) // if in city, suspend regular update movement actions. resume when boxcar has completed departure (moving to city tile's edge)
-            base.Update();
     }
 }

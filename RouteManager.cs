@@ -11,7 +11,8 @@ public class RouteManager : MonoBehaviour
     public static Tilemap track_tilemap;
     public static Tilemap city_tilemap;
     public static Tilemap shipyard_track_tilemap;
-    static float cell_width = .88f;
+    public static Tilemap shipyard_track_tilemap2;
+    public static float cell_width = .88f;
 
     public enum Orientation
     {
@@ -19,12 +20,17 @@ public class RouteManager : MonoBehaviour
         North,
         East,
         West,
-        South
+        South,
+        ne_SteepCurve,  // one of the four steep curve tracks
+        nw_SteepCurve,
+        se_SteepCurve,
+        sw_SteepCurve
     }
 
     private void Awake()
     {
         shipyard_track_tilemap = GameObject.Find("Shipyard Track").GetComponent<Tilemap>();
+        shipyard_track_tilemap2 = GameObject.Find("Shipyard Track 2").GetComponent<Tilemap>();
     }
 
     // Start is called before the first frame update
@@ -40,15 +46,19 @@ public class RouteManager : MonoBehaviour
 
     }
 
-    public static string get_destination_type(Vector3Int tile_coord)
+    public static string get_destination_type(Vector3Int tile_coord, bool in_city)
     {
-        Tile track_tile = (Tile)track_tilemap.GetTile(tile_coord);
-        Tile city_tile = (Tile)city_tilemap.GetTile(tile_coord);
-        if (track_tile != null)
-            return "track";
-        if (city_tile != null)
-            return "city";
-        return ""; // not a destination
+        if (in_city)
+        {
+            Tile track_tile = (Tile)track_tilemap.GetTile(tile_coord);
+            Tile city_tile = (Tile)city_tilemap.GetTile(tile_coord);
+            if (track_tile != null) return "track";
+            if (city_tile != null) return "city";
+        } else {
+            Tile shipyard_tile = (Tile)shipyard_track_tilemap.GetTile(tile_coord);
+            if (shipyard_tile != null) return "track";
+        }
+        return ""; // cannot go to this tile
     }
 
     public static Vector3 get_spawn_location(Vector3Int tilemap_location, Orientation orientation)
@@ -192,29 +202,36 @@ public class RouteManager : MonoBehaviour
         return Orientation.None;
     }
 
-    public static PositionPair get_destination(MovingObject moving_thing)
+    public static bool is_curve_steep(Orientation orientation)
     {
-        
+        if (orientation == Orientation.ne_SteepCurve || orientation == Orientation.nw_SteepCurve || orientation == Orientation.sw_SteepCurve || orientation == Orientation.se_SteepCurve)
+            return true;
+        else
+        {
+            print("curve is not steep");
+            return false;
+        }
+    }
+
+    public static PositionPair get_destination(MovingObject moving_thing, Tilemap tilemap)
+    {
         Vector3Int tile_coord = new Vector3Int(moving_thing.tile_position[0], moving_thing.tile_position[1], 0);
-        Tile track_tile = (Tile)track_tilemap.GetTile(tile_coord);
-        Vector2 tile_world_coord = track_tilemap.GetCellCenterWorld(tile_coord);
+        Tile track_tile = (Tile)tilemap.GetTile(tile_coord);
+        Vector2 tile_world_coord = tilemap.GetCellCenterWorld(tile_coord);
         Vector2 final_cell_dest = moving_thing.transform.position;
         Vector2Int next_tilemap_pos = new Vector2Int(tile_coord.x, tile_coord.y);
         try
         {
-            if (!moving_thing.in_city)
+            if (!moving_thing.in_city) //switch tilemaps depending on if vehicle is in city
             {
                 Tile city_tile = (Tile)city_tilemap.GetTile(tile_coord);
-                if (city_tile != null)
+                if (city_tile != null) //check if arriving at city
                 {
                     print("train sees city " + city_tile.name + " final destination is " + tile_world_coord);
                     final_cell_dest = tile_world_coord; // destination is the center of the tile
-                    moving_thing.set_motion(false);
+                    moving_thing.is_halt = true;
                     moving_thing.arrive_at_city(); // when arrive at city, set flag to true 
                 }
-            } else
-            {
-                track_tile = (Tile)shipyard_track_tilemap.GetTile(tile_coord);
             }
             string tile_name = track_tile.name;
             print("Tile name is " + tile_name);
@@ -223,27 +240,23 @@ public class RouteManager : MonoBehaviour
                 case "ES":
                     if (moving_thing.orientation == Orientation.West)
                     {
-                        final_cell_dest = new Vector2(tile_world_coord[0], tile_world_coord[1] - cell_width / 2);
                         moving_thing.final_orientation = Orientation.South;
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x - 1, next_tilemap_pos.y - 1);
+                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x-1, next_tilemap_pos.y);
                     }
                     else
                     {
-                        final_cell_dest = new Vector2(tile_world_coord[0] + cell_width / 2, tile_world_coord[1]);
                         moving_thing.final_orientation = Orientation.East;
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x + 1, next_tilemap_pos.y + 1);
+                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x+1, next_tilemap_pos.y);
                     }
                     break;
                 case "NE":
                     if (moving_thing.orientation == Orientation.South)
                     {
-                        final_cell_dest = new Vector2(tile_world_coord[0] + cell_width / 2, tile_world_coord[1]);
                         moving_thing.final_orientation = Orientation.East;
                         next_tilemap_pos = new Vector2Int(next_tilemap_pos.x + 1, next_tilemap_pos.y - 1);
                     }
                     else
                     {
-                        final_cell_dest = new Vector2(tile_world_coord[0], tile_world_coord[1] + cell_width / 2);
                         moving_thing.final_orientation = Orientation.North;
                         next_tilemap_pos = new Vector2Int(next_tilemap_pos.x - 1, next_tilemap_pos.y + 1);
                     }
@@ -251,30 +264,26 @@ public class RouteManager : MonoBehaviour
                 case "WN":
                     if (moving_thing.orientation == Orientation.East)
                     {
-                        final_cell_dest = new Vector2(tile_world_coord[0], tile_world_coord[1] + cell_width / 2);
                         moving_thing.final_orientation = Orientation.North;
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x + 1, next_tilemap_pos.y + 1);
+                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y + 1);
                     }
                     else
                     {
-                        final_cell_dest = new Vector2(tile_world_coord[0] - cell_width / 2, tile_world_coord[1]);
                         moving_thing.final_orientation = Orientation.West;
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x - 1, next_tilemap_pos.y - 1);
+                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y - 1);
                     }
 
                     break;
                 case "WS":
                     if (moving_thing.orientation == Orientation.East)
                     {
-                        final_cell_dest = new Vector2(tile_world_coord[0], tile_world_coord[1] - cell_width / 2);
                         moving_thing.final_orientation = Orientation.South;
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x + 1, next_tilemap_pos.y - 1);
+                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y - 1);
                     }
                     else
                     {
-                        final_cell_dest = new Vector2(tile_world_coord[0] - cell_width / 2, tile_world_coord[1]);
                         moving_thing.final_orientation = Orientation.West;
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x - 1, next_tilemap_pos.y + 1);
+                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y + 1);
                     }
                     break;
                 case "vert":
@@ -301,14 +310,28 @@ public class RouteManager : MonoBehaviour
                         next_tilemap_pos = new Vector2Int(next_tilemap_pos.x + 1, next_tilemap_pos.y);
                     }
                     break;
+                case "ne_diag":
+                    moving_thing.final_orientation = Orientation.ne_SteepCurve;
+                    break;
+                case "nw_diag":
+                    moving_thing.final_orientation = Orientation.nw_SteepCurve;
+                    break;
+                case "se_diag":
+                    moving_thing.final_orientation = Orientation.se_SteepCurve;
+                    break;
+                case "sw_diag":
+                    moving_thing.final_orientation = Orientation.sw_SteepCurve;
+                    break;
                 default:
+                    moving_thing.final_orientation = Orientation.None;
                     print("none of the track tiles matched"); // return current position
                     break;
             }
         }
         catch (NullReferenceException e)
         {
-            print("Train has reached the end of the track.");
+            final_cell_dest = new Vector2(-10, -10);
+            print("Vehicle has reached the end of the track.");
             print(e.Message);
         }
         return new PositionPair(final_cell_dest, next_tilemap_pos);

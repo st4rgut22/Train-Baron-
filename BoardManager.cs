@@ -15,25 +15,6 @@ public class BoardManager : MonoBehaviour
     protected static Tilemap tilemap;
     protected City home_base;
 
-    public static Vector2Int west_end_1 = new Vector2Int(4, 0);
-    public static Vector2Int west_end_2 = new Vector2Int(4, 1);
-    public static Vector2Int west_start_1 = new Vector2Int(-1,0);
-    public static Vector2Int west_start_2 = new Vector2Int(-1,1);
-
-    public static Vector2Int north_end_1 = new Vector2Int(4, 5);
-    public static Vector2Int north_end_2 = new Vector2Int(4, 6);
-    public static Vector2Int north_start_1 = new Vector2Int(0,7);
-    public static Vector2Int north_start_2 = new Vector2Int(1,7);
-
-    public static Vector2Int east_end_1 = new Vector2Int(10, 5);
-    public static Vector2Int east_end_2 = new Vector2Int(10, 6);
-    public static Vector2Int east_start_1 = new Vector2Int(15,5);
-    public static Vector2Int east_start_2 = new Vector2Int(15,6);
-
-    public static Vector2Int south_end_1 = new Vector2Int(10, 1);
-    public static Vector2Int south_end_2 = new Vector2Int(10, 0);
-    public static Vector2Int south_start_1 = new Vector2Int(14,-2);
-    public static Vector2Int south_start_2 = new Vector2Int(13,-2);
     public static Vector2Int home_base_location = new Vector2Int(0, 0);
 
     protected const int board_width = 17;

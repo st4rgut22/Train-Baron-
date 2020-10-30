@@ -8,34 +8,53 @@ public class City: BoardManager
     // track city control as a function of supplies, troops, artillery
     Vector3Int tilemap_position;
     List<GameObject> train_list; // list of trains inside a city
-    GameObject[,] city_board; // contains location of vehicles within city
+    public GameObject[,] city_board; // contains location of vehicles within city
+    public List<Station> station_list;
+
+    public static Vector2Int west_end_1 = new Vector2Int(4, 0);
+    public static Vector2Int west_end_2 = new Vector2Int(4, 1);
+    public static Vector3Int west_start_1 = new Vector3Int(-1, 0, 0);
+    public static Vector3Int west_start_2 = new Vector3Int(-1, 1, 0);
+
+    public static Vector2Int north_end_2 = new Vector2Int(4, 5);
+    public static Vector2Int north_end_1 = new Vector2Int(4, 6);
+    public static Vector3Int north_start_2 = new Vector3Int(0, 7, 0);
+    public static Vector3Int north_start_1 = new Vector3Int(1, 7, 0);
+
+    public static Vector2Int east_end_2 = new Vector2Int(10, 5);
+    public static Vector2Int east_end_1 = new Vector2Int(10, 6);
+    public static Vector3Int east_start_2 = new Vector3Int(15, 5, 0);
+    public static Vector3Int east_start_1 = new Vector3Int(15, 6, 0);
+
+    public static Vector2Int south_end_1 = new Vector2Int(10, 1);
+    public static Vector2Int south_end_2 = new Vector2Int(10, 0);
+    public static Vector3Int south_start_1 = new Vector3Int(14, -2, 0);
+    public static Vector3Int south_start_2 = new Vector3Int(13, -2, 0);
+
+    Station West_Station = new Station(west_start_1, west_start_2);
+    Station North_Station = new Station(north_start_1, north_start_2);
+    Station East_Station = new Station(east_start_1, east_start_2);
+    Station South_Station = new Station(south_start_1, south_start_2);
+
+    public GameObject Turntable;
+    public GameObject Turntable_Circle;
+    public GameObject turn_table;
+    GameObject turn_table_circle;
 
     private void Start()
     {
         // must be a Gameobject for Start() Update() to run
         train_list = new List<GameObject>();
         city_board = new GameObject[board_width, board_height]; // zero out the negative tile coordinates
+        turn_table = Instantiate(Turntable);
+        turn_table.GetComponent<Turntable>().city = this;
+
+        turn_table_circle = Instantiate(Turntable_Circle);
     }
 
     private void Update()
     {
 
-    }
-
-    public void update_city_board(GameObject game_object, Vector3Int tile_position, Vector3Int prev_tile_position)
-    {
-        bool initial_vector = prev_tile_position.Equals(new Vector3Int(-1, -1, -1));
-        if (!initial_vector)
-        {
-            if (city_board[prev_tile_position.x, prev_tile_position.y] == null)
-                print("WARNING. Gameobject " + game_object.name + " not found in previous position " + prev_tile_position);
-            else
-            {
-                if (city_board[prev_tile_position.x, prev_tile_position.y] == game_object) // only remove gameobject references to itself
-                    city_board[prev_tile_position.x, prev_tile_position.y] = null;
-            }
-        }
-        city_board[tile_position.x, tile_position.y] = game_object;
     }
 
     public Vector3Int get_location()
@@ -51,6 +70,29 @@ public class City: BoardManager
     public void add_train_to_list(GameObject train)
     {
         train_list.Add(train);
+    }
+
+    public void turn_turntable(GameObject train_object, RouteManager.Orientation orientation, bool depart_for_turntable=false)
+    {
+        Turntable t = turn_table.GetComponent<Turntable>();
+        StartCoroutine(t.turn_turntable(train_object, orientation, depart_for_turntable));
+    }
+
+    public Station_Track add_train_to_station(GameObject train_object, RouteManager.Orientation orientation)
+    {
+        switch (orientation)
+        {
+            case RouteManager.Orientation.North:
+                return South_Station.set_station_track(train_object);
+            case RouteManager.Orientation.East:
+                return West_Station.set_station_track(train_object);
+            case RouteManager.Orientation.West:
+                return East_Station.set_station_track(train_object);
+            case RouteManager.Orientation.South:
+                return North_Station.set_station_track(train_object);
+            default:
+                return null;
+        }
     }
 
     public void remove_train_from_list(Train train)
@@ -81,6 +123,8 @@ public class City: BoardManager
     public void is_train_turn_on(bool state)
     {
         // hide or show trains depending on whether I'm in a shipyard view
+        turn_table.SetActive(state);
+        turn_table_circle.SetActive(state);
         foreach (GameObject train in train_list)
         {
             train.GetComponent<SpriteRenderer>().enabled = state;

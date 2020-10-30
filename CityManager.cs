@@ -39,12 +39,6 @@ public class CityManager : BoardManager
         this.Activated_City = city_object;
     }
 
-    public void add_train_to_board(Vector3Int tile_position, GameObject train)
-    {
-        GameObject city_object = gameobject_board[tile_position.x, tile_position.y];
-        city_object.GetComponent<City>().add_train_to_list(train);
-    }
-
     public static GameObject get_city(Vector2Int city_location)
     {
         return gameobject_board[city_location.x, city_location.y];
@@ -68,11 +62,5 @@ public class CityManager : BoardManager
                 }
             }
         }
-    }
-
-    public void activate_city(GameObject city_object, bool state)
-    {
-        city_object.GetComponent<City>().is_train_turn_on(state);
-        city_object.SetActive(state);
     }
 }
