@@ -60,9 +60,9 @@ public class TrackManager : BoardManager
             case RouteManager.Orientation.nw_SteepCurve:
                 return 45;
             case RouteManager.Orientation.se_SteepCurve:
-                return -45f;
-            case RouteManager.Orientation.sw_SteepCurve:
                 return 45f;
+            case RouteManager.Orientation.sw_SteepCurve:
+                return -45f;
             default:
                 throw new Exception("not a valid steep track");
         }

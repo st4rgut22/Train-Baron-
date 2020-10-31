@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.EventSystems;
 
 public class CityManager : BoardManager
 {
@@ -11,6 +12,10 @@ public class CityManager : BoardManager
 
     public GameObject City;
     GameObject Activated_City;
+    public Tilemap exit_north;
+    public Tilemap exit_south;
+    public Tilemap exit_west;
+    public Tilemap exit_east;
 
     // Start is called before the first frame update
     void Start()
@@ -25,6 +30,11 @@ public class CityManager : BoardManager
     void Update()
     {
 
+    }
+
+    public void set_destination_track(RouteManager.Orientation orientation)
+    {
+        this.Activated_City.GetComponent<City>().set_destination_track(orientation);
     }
 
     public void set_activated_city(GameObject city_object=null)

@@ -20,6 +20,10 @@ public class GameManager : MonoBehaviour
     public GameObject Shipyard_Turntable;
     public GameObject Shipyard_Turntable_Circle;
     public GameObject Shipyard_Track2;
+    public GameObject exit_north;
+    public GameObject exit_south;
+    public GameObject exit_west;
+    public GameObject exit_east;
 
     public static VehicleManager vehicle_manager;
     public static CityManager city_manager;
@@ -102,6 +106,10 @@ public class GameManager : MonoBehaviour
         Shipyard_Track2.SetActive(state);
         Shipyard_Turntable.SetActive(state);
         Shipyard_Turntable_Circle.SetActive(state);
+        exit_east.SetActive(state);
+        exit_north.SetActive(state);
+        exit_south.SetActive(state);
+        exit_west.SetActive(state);
         Track_Layer.SetActive(!state);
         Structure.SetActive(!state);
         Base.SetActive(!state);

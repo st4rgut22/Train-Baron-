@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class City: BoardManager
+public class City : BoardManager
 {
     // track city control as a function of supplies, troops, artillery
     Vector3Int tilemap_position;
@@ -41,6 +41,8 @@ public class City: BoardManager
     public GameObject turn_table;
     GameObject turn_table_circle;
 
+    public RouteManager.Orientation destination_orientation;
+
     private void Start()
     {
         // must be a Gameobject for Start() Update() to run
@@ -50,11 +52,17 @@ public class City: BoardManager
         turn_table.GetComponent<Turntable>().city = this;
 
         turn_table_circle = Instantiate(Turntable_Circle);
+        destination_orientation = RouteManager.Orientation.None;
     }
 
     private void Update()
     {
 
+    }
+
+    public void set_destination_track(RouteManager.Orientation orientation)
+    {
+        destination_orientation = orientation;
     }
 
     public Vector3Int get_location()

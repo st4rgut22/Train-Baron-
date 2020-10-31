@@ -92,18 +92,5 @@ public class MenuManager : MonoBehaviour
     //    train_menu_manager.create_train_menu(city_object);
     //}
 
-    //public override void OnPointerClick(PointerEventData eventData)
-    //{
-    //    VehicleManager vehicle_manager = GameObject.Find("VehicleManager").GetComponent<VehicleManager>();
-    //    GameObject clicked_object = eventData.pointerCurrentRaycast.gameObject;
-    //    string item_name = clicked_object.name;
-    //    if (item_name == "train")
-    //    {
-    //        vehicle_manager.create_vehicle_at_home_base();
-    //        //clicked_object.GetComponent<SpriteRenderer>().enabled = false; // hide train sprite until vehicle departs
-
-    //    }
-    //}
-
 
 }

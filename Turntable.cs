@@ -45,38 +45,38 @@ public class Turntable : MonoBehaviour
             (orientation == RouteManager.Orientation.se_SteepCurve && end_orientation == RouteManager.Orientation.East) ||
             (orientation == RouteManager.Orientation.sw_SteepCurve && end_orientation == RouteManager.Orientation.South))
         {
-            rotate = 45; // cc is positive
+            rotate = -135; // cc is positive
         }
         else if ((orientation == RouteManager.Orientation.nw_SteepCurve && end_orientation == RouteManager.Orientation.North) ||
             (orientation == RouteManager.Orientation.ne_SteepCurve && end_orientation == RouteManager.Orientation.East) ||
             (orientation == RouteManager.Orientation.se_SteepCurve && end_orientation == RouteManager.Orientation.South) ||
             (orientation == RouteManager.Orientation.sw_SteepCurve && end_orientation == RouteManager.Orientation.West))
         {
-            rotate = -45f;
+            rotate = 135f;
         }
         else if ((orientation == RouteManager.Orientation.nw_SteepCurve && end_orientation == RouteManager.Orientation.South) ||
             (orientation == RouteManager.Orientation.sw_SteepCurve && end_orientation == RouteManager.Orientation.East) ||
             (orientation == RouteManager.Orientation.se_SteepCurve && end_orientation == RouteManager.Orientation.North) ||
             (orientation == RouteManager.Orientation.ne_SteepCurve && end_orientation == RouteManager.Orientation.West))
         {
-            rotate = -135f;
+            rotate = -45f;
         }
         else if ((orientation == RouteManager.Orientation.nw_SteepCurve && end_orientation == RouteManager.Orientation.East) ||
             (orientation == RouteManager.Orientation.ne_SteepCurve && end_orientation == RouteManager.Orientation.South) ||
             (orientation == RouteManager.Orientation.se_SteepCurve && end_orientation == RouteManager.Orientation.West) ||
             (orientation == RouteManager.Orientation.sw_SteepCurve && end_orientation == RouteManager.Orientation.North))
         {
-            rotate = 135;
+            rotate = 45;
         }
         else if (orientation == RouteManager.Orientation.North || orientation == RouteManager.Orientation.South)
         {
             if (end_orientation == RouteManager.Orientation.ne_SteepCurve || end_orientation == RouteManager.Orientation.sw_SteepCurve)
             {
-                rotate = 45;
+                rotate = -45;
             }
             else if (end_orientation == RouteManager.Orientation.nw_SteepCurve || end_orientation == RouteManager.Orientation.se_SteepCurve)
             {
-                rotate = -45;
+                rotate = 45;
             }
             else
             {

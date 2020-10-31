@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using UnityEngine.Tilemaps;
 
-public class BoardManager : MonoBehaviour
+public class BoardManager : EventDetector
 {
 
     //information about static positions on board

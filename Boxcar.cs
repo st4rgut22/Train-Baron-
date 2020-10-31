@@ -5,7 +5,7 @@ using UnityEngine;
 public class Boxcar : MovingObject
 {
     Train train = null; // the train boxcar is attached to
-    int boxcar_id;
+    public int boxcar_id;
     bool departing = false;
 
     private void Awake()

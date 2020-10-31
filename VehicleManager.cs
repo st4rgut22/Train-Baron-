@@ -111,13 +111,13 @@ public class VehicleManager : BoardManager
         // save the train on the board, but boxcar will overwrite it
         if (train.in_city) // if train is in city then add boxcars //TODO: check train is in same city with boxcars
         {
-            int boxcar_id = train.get_boxcar_id(); // id is the order in which the boxcar is added (0 being the first one added)
             Boxcar boxcar_component = boxcar.GetComponent<Boxcar>();
             boxcar_component.attach_to_train(train);
-            boxcar_component.set_boxcar_id(boxcar_id);
             boxcar_component.city = train.city;
             train.GetComponent<Train>().attach_boxcar(boxcar);
             boxcar.SetActive(false);
+            int boxcar_id = train.get_boxcar_id(); // id is the order in which the boxcar is added (0 being the first one added)
+            boxcar_component.set_boxcar_id(boxcar_id);
         }
     }
 

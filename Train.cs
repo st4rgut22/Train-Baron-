@@ -50,6 +50,15 @@ public class Train : MovingObject
         }
     }
 
+    public bool is_all_car_reach_turntable()
+    {
+        foreach (GameObject boxcar_object in boxcar_squad)
+        {
+            if (boxcar_object.GetComponent<Boxcar>().depart_city_orientation == RouteManager.Orientation.None) return false;
+        }
+        return true;
+    }
+
     public void board_turntable(RouteManager.Orientation orientation, bool depart_turntable)
     {
         print("board turn table");
@@ -58,6 +67,10 @@ public class Train : MovingObject
         else // leaving the turntable
         {
             leave_city = true;
+            foreach (GameObject boxcar_object in boxcar_squad)
+            {
+                boxcar_object.GetComponent<Boxcar>().leave_city = true;
+            }
         }
     }
 
