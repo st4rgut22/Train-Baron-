@@ -62,9 +62,13 @@ public class MenuManager : MonoBehaviour
     {
         //open one menu, set listeners from all other screens off
         //is_open stands for activating a screen versus closing the active one
+        if (menu[0] != game_menu) GameManager.is_train_turn_on(false);
+        else { GameManager.is_train_turn_on(true); }
         foreach (GameObject handler in event_handler_list)
         {
-            if (menu.Contains(handler)) handler.SetActive(true);
+            if (menu.Contains(handler)) {
+                handler.SetActive(true);
+            }
             else { handler.SetActive(false); }
         }
     }

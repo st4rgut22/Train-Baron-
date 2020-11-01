@@ -63,9 +63,12 @@ public class Train : MovingObject
     {
         print("board turn table");
         if (depart_turntable)
+        {
             halt_train(is_halt = false, is_pause = false); // unpause the train
+        }
         else // leaving the turntable
         {
+            this.orientation = city.destination_orientation;
             leave_city = true;
             foreach (GameObject boxcar_object in boxcar_squad)
             {

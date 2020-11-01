@@ -32,6 +32,16 @@ public class GameManager : MonoBehaviour
     public static MenuManager menu_manager;
     //public static StoreMenuManager game_menu_manager;
 
+    public static bool shipyard_state;
+
+    public static List<GameObject> train_list; // list of trains inside the game view
+
+    private void Awake()
+    {
+        train_list = new List<GameObject>();
+        shipyard_state = false;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -98,6 +108,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public static void is_train_turn_on(bool state)
+    {
+        //TODO: fix this. the cars appear in game mode when in shipyard mode
+        foreach (GameObject train in train_list) // hide or show trains depending on whether I'm in a game view
+        {
+            train.GetComponent<SpriteRenderer>().enabled = state;
+        }
+    }
+
     public void switch_on_shipyard(bool state)
     {
         Structure.GetComponent<TilemapCollider2D>().enabled = !state; // turn off colliders for city
@@ -113,5 +132,8 @@ public class GameManager : MonoBehaviour
         Track_Layer.SetActive(!state);
         Structure.SetActive(!state);
         Base.SetActive(!state);
+        if (!state) is_train_turn_on(true); // display trains in game view
+        else { is_train_turn_on(false); }
+        shipyard_state = state;
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.EventSystems;
+using System;
 
 public class CityManager : BoardManager
 {
@@ -11,11 +12,15 @@ public class CityManager : BoardManager
     //oversee routes between cities for to inform decision making
 
     public GameObject City;
-    GameObject Activated_City;
+    public GameObject Activated_City;
     public Tilemap exit_north;
     public Tilemap exit_south;
     public Tilemap exit_west;
     public Tilemap exit_east;
+
+    // distances for train to travel before exiting the city (not before stopping)
+    public static float exit_dest_west_east = 6;
+    public static float exit_dest_north_south = 3;
 
     // Start is called before the first frame update
     void Start()
@@ -47,6 +52,18 @@ public class CityManager : BoardManager
             city_object.GetComponent<City>().is_train_turn_on(true);
         }
         this.Activated_City = city_object;
+    }
+
+    public static float get_exit_dist(RouteManager.Orientation orientation)
+    {
+        if (orientation == RouteManager.Orientation.West || orientation == RouteManager.Orientation.East)
+            return exit_dest_west_east;
+        else if (orientation == RouteManager.Orientation.North || orientation == RouteManager.Orientation.South)
+            return exit_dest_north_south;
+        else
+        {
+            throw new Exception(orientation + " is not a valid exit destination");
+        }
     }
 
     public static GameObject get_city(Vector2Int city_location)

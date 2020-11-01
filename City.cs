@@ -7,7 +7,7 @@ public class City : BoardManager
 {
     // track city control as a function of supplies, troops, artillery
     Vector3Int tilemap_position;
-    List<GameObject> train_list; // list of trains inside a city
+    public List<GameObject> train_list; // list of trains inside a city
     public GameObject[,] city_board; // contains location of vehicles within city
     public List<Station> station_list;
 
@@ -75,9 +75,20 @@ public class City : BoardManager
         return train_list;
     }
 
-    public void add_train_to_list(GameObject train)
+    public void add_train_to_list(GameObject train_object)
     {
-        train_list.Add(train);
+        // if train arrives at city, remove it from game view and add it to the city view
+        train_list.Add(train_object);
+        remove_train_from_list(train_object, GameManager.train_list); 
+    }
+
+    public void delete_train(GameObject train_object)
+    {
+        remove_train_from_list(train_object, train_list);
+        //TODO: repeat line below for when train exits game view. Remove from list and hide
+        if (GameManager.city_manager.Activated_City == gameObject) train_object.GetComponent<SpriteRenderer>().enabled = false;
+        GameManager.train_list.Add(train_object);
+        is_train_turn_on(GameManager.shipyard_state);
     }
 
     public void turn_turntable(GameObject train_object, RouteManager.Orientation orientation, bool depart_for_turntable=false)
@@ -103,9 +114,10 @@ public class City : BoardManager
         }
     }
 
-    public void remove_train_from_list(Train train)
+    public void remove_train_from_list(GameObject train_object, List<GameObject> train_list)
     {
         // remove a train that has departed the city
+        Train train = train_object.GetComponent<Train>();
         int id = train.get_id();
         int trains_removed = 0;
         for (int t = 0; t < train_list.Count; t++)
@@ -118,8 +130,6 @@ public class City : BoardManager
             }
         }
         print("trains removed = " + trains_removed);
-        //if (trains_removed != 1)
-        //    throw new Exception("Incorrect number of trains removed :" + trains_removed);
     }
 
 

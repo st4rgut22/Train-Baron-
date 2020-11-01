@@ -150,6 +150,7 @@ public class VehicleManager : BoardManager
         Train train = train_object.GetComponent<Train>();
         // remove train from station and depart.
         Vector3Int city_location = train.city.get_location();
+        train.tile_position = city_location; 
         place_vehicle(city_location, train_object);
         add_all_boxcar_to_train(train); //TODO: replace with attach_boxcar_to_train()
         print("departing station. Adding all boxcars to the train");
