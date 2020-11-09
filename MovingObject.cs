@@ -9,7 +9,7 @@ public class MovingObject : EventDetector
     // all the vehicle movement math goes here
 
     protected Vector2 target_position;
-    protected float speed = 1f;
+    protected float speed = 2f;
     protected float tolerance = .004f;
     protected Vector2 next_position;
     protected bool in_tile = false; // if an object is in a tile, it is already has a destination
@@ -22,9 +22,10 @@ public class MovingObject : EventDetector
     public Vector2Int next_tilemap_position;
     protected const float z_pos = 0;
 
+    public bool arriving_in_city = false; // next tile position is a city. upon movement completion set in_city=true
     public bool in_city;        //in_city = false; TODO: Set False when leaving the shipyard
     public City city;
-
+    public City prev_city; // used to check whether a city destination is not in fact the city youve just left
     protected CityManager city_manager;
     protected GameManager game_manager;
 
@@ -45,15 +46,19 @@ public class MovingObject : EventDetector
     // Start is called before the first frame update
     public virtual void Awake()
     {
-        orientation = RouteManager.Orientation.East;
-        final_orientation = orientation; 
-        arrive_at_city(); // call immediately on instantiation. Otherwise, in_city = false and the wrong board is updated
+        Vector2Int home_base = BoardManager.home_base_location;
+        tile_position = new Vector3Int(home_base.x, home_base.y, 0);
+        next_tilemap_position = home_base;
+        prev_city = null;
+        orientation = RouteManager.Orientation.South; // undo
+        final_orientation = orientation;
+        City city = CityManager.gameobject_board[home_base.x, home_base.y].GetComponent<City>();
     }
 
     public virtual void Start()
     {
         game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        target_position = transform.position;        
+        target_position = transform.position;
     }
 
     // Update is called once per frame
@@ -66,7 +71,6 @@ public class MovingObject : EventDetector
                 orientation = final_orientation; // updating the orientation at every new tile
                 Vector3Int prev_tile_position = tile_position;
                 tile_position = new Vector3Int(next_tilemap_position.x, next_tilemap_position.y, 0);
-                Vector2 train_dest_xy = transform.position; // default value
                 PositionPair position_pair;
                 if (!in_city)
                 {
@@ -78,12 +82,18 @@ public class MovingObject : EventDetector
                     GameManager.vehicle_manager.update_vehicle_board(city.city_board, gameObject, tile_position, prev_tile_position);
                     position_pair = RouteManager.get_destination(this, station_track.tilemap); // set the final orientation and destination
                 }
-                if (position_pair.abs_dest_pos.Equals(stranded_state) && gameObject.name == train_name)
-                {
-                    gameObject.GetComponent<Train>().halt_train(true, true);
-                    return; // dont move
-                }
-                train_dest_xy = position_pair.abs_dest_pos;
+                //if (position_pair.abs_dest_pos.Equals(stranded_state) && gameObject.name == train_name)
+                //{
+                //    gameObject.GetComponent<Train>().halt_train(true, true);
+                //    return; // dont move
+                //}
+                //print("move " + gameObject.name + " from " + tile_position + " to " + position_pair.tile_dest_pos);
+                //if (arriving_in_city) //(position_pair.abs_dest_pos.Equals(new Vector2(-1, -1)))
+                //{
+                //    print("arriving at city dont execute movement update");
+                //    return;
+                //}
+                Vector2 train_dest_xy = position_pair.abs_dest_pos;
                 next_tilemap_position = position_pair.tile_dest_pos;
                 Vector3 train_destination = new Vector3(train_dest_xy[0], train_dest_xy[1], z_pos);
                 if (orientation != final_orientation) // curved track
@@ -95,9 +105,9 @@ public class MovingObject : EventDetector
                         // train travels to the other end of the turntable
                         leave_turntable = false;
                         float distance_multiplier = 4.5f;
-                        if (gameObject.tag=="boxcar") distance_multiplier -= gameObject.GetComponent<Boxcar>().boxcar_id; // offset boxcar n units away from train
-                        print("train destination of " + gameObject.name + " is " + (-transform.up * RouteManager.cell_width + transform.position));
-                        train_destination = -transform.up * distance_multiplier * RouteManager.cell_width + transform.position; // 5 units in the direction the train is facing
+                        if (gameObject.tag == "boxcar") distance_multiplier -= gameObject.GetComponent<Boxcar>().boxcar_id; // offset boxcar n units away from train
+                        train_destination = transform.up * distance_multiplier * RouteManager.cell_width + transform.position; // 5 units in the direction the train is facing
+                        //}
                         if (gameObject.tag == "train") gameObject.transform.parent = gameObject.GetComponent<Train>().city.turn_table.transform; // make train child of turntable so it rotates with it
                         else { gameObject.transform.parent = gameObject.GetComponent<Boxcar>().city.turn_table.transform; }
                         StartCoroutine(straight_move(transform.position, train_destination, true)); // turn turntable on completion of movement
@@ -106,21 +116,41 @@ public class MovingObject : EventDetector
                     {
                         StartCoroutine(straight_move(transform.position, train_destination, false));
                     }
-                    
+
                 }
             }
         }
         if (leave_city) // train is ready to depart from city
         {
+            int up_multiplier = 0;
             leave_city = false;
             city.set_destination_track(RouteManager.Orientation.None); // reset the destination track for future trains
             gameObject.transform.parent = null; // decouple train from turntable parent
             Vector3 train_destination;
+            if (gameObject.tag == "boxcar") up_multiplier = gameObject.GetComponent<Boxcar>().boxcar_id; // disappear off screen
             if (depart_city_orientation == RouteManager.Orientation.West || depart_city_orientation == RouteManager.Orientation.East)
-                train_destination = -transform.up * 6 * RouteManager.cell_width + transform.position;
-            else { train_destination = -transform.up * 3 * RouteManager.cell_width + transform.position; }
+                up_multiplier += 6;
+            else if (depart_city_orientation==RouteManager.Orientation.North)
+                up_multiplier += 3;
+            else if (depart_city_orientation==RouteManager.Orientation.South)
+                up_multiplier += 3;
+            train_destination = transform.up * up_multiplier * RouteManager.cell_width + transform.position;
             StartCoroutine(straight_move(transform.position, train_destination, false, true)); // turn on exit city flag
         }
+    }
+
+    public static void switch_sprite_renderer(GameObject vehicle_object, bool state)
+    {
+        vehicle_object.GetComponent<SpriteRenderer>().enabled = state;
+    }
+
+    public void reset_departure_flag()
+    {
+        depart_for_turntable = true;
+        leave_turntable = false;
+        leave_city = false;
+        complete_exit = false; // on verge of departing city
+        departure_track_chosen = false;
     }
 
     public void initialize_orientation(RouteManager.Orientation orientation)
@@ -129,20 +159,30 @@ public class MovingObject : EventDetector
         final_orientation = orientation;
     }
 
+    public void prepare_to_arrive_at_city(City city)
+    {
+        if (city == null) throw new Exception("city shouldn't be null");
+        this.city = city;
+        arriving_in_city = true;
+    }
+
     public virtual void arrive_at_city()
     {
-        gameObject.GetComponent<SpriteRenderer>().enabled = false; // hide the vehicle when arrive at a city
+        //print(gameObject.name + " arrived at city");
+        //if (city == null) throw new Exception("city shouldn't be null");
+        //this.city = city;
         in_city = true;
     }
 
     public void prepare_for_departure()
-    {        
+    {
         in_tile = true; // allow vehicle to move to the border of tile before resuming its route
         is_halt = false; // indicates a vehicle is about to leave
         Vector3 vehicle_departure_point = RouteManager.get_city_boundary_location(tile_position, orientation);
-        print("departure point is " + vehicle_departure_point);
+        if (in_city) next_tilemap_position = BoardManager.pos_to_tile(vehicle_departure_point);
+        print("Next tilemap position initialized to " + next_tilemap_position); // if not in city, don't overwrite boxcar's next tile pos
+        print("move " + gameObject.name + " from " + transform.position + " to " + vehicle_departure_point);
         StartCoroutine(straight_move(transform.position, vehicle_departure_point));
-
     }
 
     public override void OnPointerClick(PointerEventData eventData)
@@ -167,15 +207,15 @@ public class MovingObject : EventDetector
         {
             return bezier_position;
         } else if ((orientation == RouteManager.Orientation.South && final_orientation == RouteManager.Orientation.East) ||
-                    final_orientation == RouteManager.Orientation.ne_SteepCurve)
+                    final_orientation == RouteManager.Orientation.ne_SteepCurve || final_orientation == RouteManager.Orientation.ne_LessSteepCurve)
         {
             bezier_position[1] = -bezier_position[1];
         } else if ((orientation == RouteManager.Orientation.North && final_orientation == RouteManager.Orientation.West) ||
-            final_orientation == RouteManager.Orientation.se_SteepCurve)
+            final_orientation == RouteManager.Orientation.sw_SteepCurve || final_orientation == RouteManager.Orientation.sw_LessSteepCurve)
         {
             bezier_position[0] = -bezier_position[0];
         } else if ((orientation == RouteManager.Orientation.South && final_orientation == RouteManager.Orientation.West) ||
-            final_orientation == RouteManager.Orientation.nw_SteepCurve)
+            final_orientation == RouteManager.Orientation.nw_SteepCurve || final_orientation == RouteManager.Orientation.nw_LessSteepCurve)
         {
             bezier_position[0] = -bezier_position[0];
             bezier_position[1] = -bezier_position[1];
@@ -202,7 +242,7 @@ public class MovingObject : EventDetector
             bezier_position[1] = temp_x;
         } else
         {
-            print("none of the orientations match"); // bezier coordinates returned unchanged
+            print(gameObject.name + " none of the orientations match"); // bezier coordinates returned unchanged
         }
         return bezier_position;
     }
@@ -231,9 +271,11 @@ public class MovingObject : EventDetector
         bool final_step = false;
         float start_angle = location.eulerAngles[2]; // rotation about z axis
         float end_angle;
-        bool curve_steep = RouteManager.is_curve_steep(final_orientation);
-        if (curve_steep)
+        RouteManager.Orientation curve_type = RouteManager.is_curve_steep(final_orientation);
+        if (curve_type==RouteManager.Orientation.Less_Steep_Angle || curve_type== RouteManager.Orientation.Steep_Angle) // turntable adjustements
         {
+            if (gameObject.tag == "boxcar")
+                print("stop");
             if (depart_for_turntable && !leave_turntable)
             {
                 if (gameObject.name == "train(Clone)")
@@ -268,13 +310,17 @@ public class MovingObject : EventDetector
                 final_step = true;
             }
             float angle = Mathf.LerpAngle(start_angle, end_angle, interp); // interpolate from [0,1]
-            if (curve_steep) next_position = bezier_equation(t_param, TrackManager.steep_curve);
+            if (curve_type==RouteManager.Orientation.Steep_Angle)
+                next_position = bezier_equation(t_param, TrackManager.steep_curve);
+            else if (curve_type==RouteManager.Orientation.Less_Steep_Angle)
+                next_position = bezier_equation(t_param, TrackManager.less_steep_curve);
             else { next_position = bezier_equation(t_param, TrackManager.right_angle_curve); }
             next_position = transform_curve(next_position, orientation, final_orientation) + position; //offset with current position
             transform.position = next_position;
             location.eulerAngles = new Vector3(0, 0, angle);
             yield return new WaitForEndOfFrame();
         }
+
         in_tile = false;
     }
 
@@ -289,7 +335,7 @@ public class MovingObject : EventDetector
         // Move our position a step closer to the target.
         while (distance > tolerance)
         {
-            if (is_pause)
+            if (is_pause) 
             {
                 yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling
                 continue; // don't execute the code below
@@ -319,18 +365,34 @@ public class MovingObject : EventDetector
                 gameObject.GetComponent<Train>().halt_train(true, true); // prevent orientation from being updated with last tile position (eg se_diag) while rotating
             }
         }
+        in_tile = false;
+        print(gameObject.name + " reached destination " + destination);
         if (exit_dest)
         {
+            in_city = false;
+            city.remove_train_from_station(gameObject);
             if (gameObject.tag == "train")
             {
-                city.delete_train(gameObject);
-                city.is_train_turn_on(true);
                 vehicle_manager = GameObject.Find("VehicleManager").GetComponent<VehicleManager>();
-                vehicle_manager.depart(gameObject);
-                // depart train at correct tile position
+                city.delete_train(gameObject);
+                prev_city = city;
+                Vector3Int city_location = city.get_location();
+                vehicle_manager.depart(gameObject, city_location);
+                
+                print("after moving to city edge. the train tile position is " + next_tilemap_position);// depart train at correct tile position
+            } else
+            {
+                gameObject.GetComponent<Boxcar>().receive_train_order = false; // reset 
+                city.delete_boxcar(gameObject);
             }
+            prev_city = city;
+            next_tilemap_position = RouteManager.get_depart_tile_position(orientation, city.get_location());
+            reset_departure_flag();
         }
-        in_tile = false;
+        if (arriving_in_city)
+        {
+            arrive_at_city();
+            arriving_in_city = false;
+        }
     }
-
 }

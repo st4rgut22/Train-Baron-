@@ -11,14 +11,14 @@ public class BoardManager : EventDetector
     protected GameManager game_manager;
 
     protected string prefab_tag;
-    protected static GameObject[,] gameobject_board;
+    public static GameObject[,] gameobject_board;
     protected static Tilemap tilemap;
     protected City home_base;
 
-    public static Vector2Int home_base_location = new Vector2Int(0, 0);
+    public static Vector2Int home_base_location = new Vector2Int(3,6); // location of city
 
     protected const int board_width = 17;
-    protected const int board_height = 8;
+    protected const int board_height = 10; // size of the shipyard tilemap (usable tiles in track tilemap is slightly smaller)
 
     public void Awake()
     {
@@ -42,13 +42,9 @@ public class BoardManager : EventDetector
         return new Vector2Int(board_width, board_height);
     }
 
-    protected void set_tilemap(string tilemap_name)
+    public static Vector2Int pos_to_tile(Vector3 tile_position)
     {
-        GameObject tilemap_object = GameObject.FindGameObjectsWithTag(tilemap_name)[0];
-        if (tilemap_object != null)
-        {
-            tilemap = tilemap_object.GetComponent<Tilemap>();
-        }
+        return new Vector2Int((int)(tile_position.x / RouteManager.cell_width), (int)(tile_position.y / RouteManager.cell_width));
     }
 
     public GameObject in_cell(Vector3Int position)

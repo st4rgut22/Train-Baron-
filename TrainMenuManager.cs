@@ -37,7 +37,7 @@ public class TrainMenuManager : MonoBehaviour
     public void hide_menu()
     {
         gameObject.SetActive(false);
-        GameManager.is_train_turn_on(true); // update trains
+        GameManager.game_menu_state = true; // update trains
     }
 
     public void destroy_train_display()

@@ -27,7 +27,7 @@ public class StoreMenuManager : MonoBehaviour
         change_item_count();
         game_menu_manager.update_track_inventory();
         MenuManager.activate_default_handler();
-        GameManager.is_train_turn_on(true);
+        GameManager.game_menu_state = true;
     }
 
     void change_item_count()

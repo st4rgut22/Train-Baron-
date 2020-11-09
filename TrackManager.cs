@@ -16,13 +16,20 @@ public class TrackManager : BoardManager
     public static int ws_count = 0;
     public static int es_count = 0;
 
-    //bezier vertices for a SE turn
     static Vector2 p0 = new Vector2(.44f, .44f);
     static Vector2 p1 = new Vector2(.2f, .435f);
     static Vector2 p2 = new Vector2(0, .25f);
     static Vector2 p3 = new Vector2(0, 0);
     public static List<Vector2> right_angle_curve = new List<Vector2> { p0, p1, p2, p3 };
 
+    //bezier vertices for a Less Steep SE turn
+    static Vector2 r0 = new Vector2(.7f, .25f);
+    static Vector2 r1 = new Vector2(.42f, 0.023f);
+    static Vector2 r2 = new Vector2(.2f, 0f);
+    static Vector2 r3 = new Vector2(0, 0);
+    public static List<Vector2> less_steep_curve = new List<Vector2> { r0, r1, r2, r3 };
+
+    //bezier vertices for a SE turn
     static Vector2 q0 = new Vector2(.22f, .66f);
     static Vector2 q1 = new Vector2(0, 0.53f);
     static Vector2 q2 = new Vector2(0, .404f);
@@ -41,7 +48,6 @@ public class TrackManager : BoardManager
     void Start()
     {
         base.Start();
-        set_tilemap("track_layer");
         track_board = new Track[board_width, board_height];
     }
 
@@ -56,12 +62,20 @@ public class TrackManager : BoardManager
         switch (orientation)
         {
             case RouteManager.Orientation.ne_SteepCurve:
-                return -45f;
-            case RouteManager.Orientation.nw_SteepCurve:
-                return 45;
-            case RouteManager.Orientation.se_SteepCurve:
                 return 45f;
+            case RouteManager.Orientation.nw_SteepCurve:
+                return -45;
+            case RouteManager.Orientation.se_SteepCurve:
+                return -45f;
             case RouteManager.Orientation.sw_SteepCurve:
+                return 45f;
+            case RouteManager.Orientation.ne_LessSteepCurve:
+                return -45f;
+            case RouteManager.Orientation.nw_LessSteepCurve:
+                return 45;
+            case RouteManager.Orientation.se_LessSteepCurve:
+                return 45f;
+            case RouteManager.Orientation.sw_LessSteepCurve:
                 return -45f;
             default:
                 throw new Exception("not a valid steep track");

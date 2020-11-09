@@ -22,9 +22,16 @@ public class RouteManager : MonoBehaviour
         West,
         South,
         ne_SteepCurve,  // one of the four steep curve tracks
+        ne_LessSteepCurve,  // one of the four steep curve tracks
         nw_SteepCurve,
+        nw_LessSteepCurve,
         se_SteepCurve,
-        sw_SteepCurve
+        se_LessSteepCurve,
+        sw_SteepCurve,
+        sw_LessSteepCurve,
+        Right_Angle,
+        Steep_Angle,
+        Less_Steep_Angle
     }
 
     private void Awake()
@@ -63,8 +70,6 @@ public class RouteManager : MonoBehaviour
 
     public static Vector3 get_spawn_location(Vector3Int tilemap_location, Orientation orientation)
     {
-        // get the edge of the tile opposite its orientation. Starting here rather than the center of the tile allows
-        // the gap between train and boxcars
         Vector3 tile_world_coord = track_tilemap.GetCellCenterWorld(tilemap_location);
         switch (orientation)
         {
@@ -202,46 +207,74 @@ public class RouteManager : MonoBehaviour
         return Orientation.None;
     }
 
-    public static bool is_curve_steep(Orientation orientation)
+    public static Orientation is_curve_steep(Orientation orientation)
     {
-        if (orientation == Orientation.ne_SteepCurve || orientation == Orientation.nw_SteepCurve || orientation == Orientation.sw_SteepCurve || orientation == Orientation.se_SteepCurve)
-            return true;
+        if (orientation == Orientation.ne_SteepCurve || orientation == Orientation.nw_SteepCurve
+            || orientation == Orientation.sw_SteepCurve || orientation == Orientation.se_SteepCurve)
+            return Orientation.Steep_Angle;
+        else if (orientation == Orientation.ne_LessSteepCurve || orientation == Orientation.nw_LessSteepCurve
+            || orientation == Orientation.sw_LessSteepCurve || orientation == Orientation.se_LessSteepCurve)
+            return Orientation.Less_Steep_Angle;
         else
         {
-            print("curve is not steep");
-            return false;
+            return Orientation.Right_Angle;
+        }
+    }
+
+    public static Vector2Int get_depart_tile_position(Orientation orientation, Vector3Int tile_coord)
+    {
+
+        switch (orientation)
+        {
+            case Orientation.North:
+                return new Vector2Int(tile_coord.x, tile_coord.y + 1);
+            case Orientation.East:
+                return new Vector2Int(tile_coord.x + 1, tile_coord.y);
+            case Orientation.West:
+                return new Vector2Int(tile_coord.x - 1, tile_coord.y);
+            case Orientation.South:
+                return new Vector2Int(tile_coord.x, tile_coord.y - 1);
+            default:
+                return new Vector2Int(tile_coord.x, tile_coord.y);
         }
     }
 
     public static PositionPair get_destination(MovingObject moving_thing, Tilemap tilemap)
-    {
+    {      
         Vector3Int tile_coord = new Vector3Int(moving_thing.tile_position[0], moving_thing.tile_position[1], 0);
         Tile track_tile = (Tile)tilemap.GetTile(tile_coord);
         Vector2 tile_world_coord = tilemap.GetCellCenterWorld(tile_coord);
         Vector2 final_cell_dest = moving_thing.transform.position;
         Vector2Int next_tilemap_pos = new Vector2Int(tile_coord.x, tile_coord.y);
+        Vector3Int city_coord = moving_thing.city.get_location();
+        Transform t = moving_thing.transform;
         try
         {
-            if (!moving_thing.in_city) //switch tilemaps depending on if vehicle is in city
+            if (!moving_thing.in_city) //not inside a city, so check if arrived at city
             {
                 Tile city_tile = (Tile)city_tilemap.GetTile(tile_coord);
                 if (city_tile != null) //check if arriving at city
                 {
-                    print("train sees city " + city_tile.name + " final destination is " + tile_world_coord);
-                    final_cell_dest = tile_world_coord; // destination is the center of the tile
-                    moving_thing.is_halt = true;
-                    moving_thing.arrive_at_city(); // when arrive at city, set flag to true 
+                    City city = CityManager.gameobject_board[tile_coord.x, tile_coord.y].GetComponent<City>(); // check if city arrived at is not the same city we're leaving
+                    if (city != moving_thing.prev_city)
+                    {
+                        final_cell_dest = tile_world_coord; // destination is the center of the tile
+                        //moving_thing.is_halt = true;
+                        moving_thing.prepare_to_arrive_at_city(city);
+                        //moving_thing.arrive_at_city(city); // when arrive at city, set flag to true
+                        //return new PositionPair(new Vector2(-1, -1), next_tilemap_pos); // skip movement update
+                    }
                 }
             }
             string tile_name = track_tile.name;
-            print("Tile name is " + tile_name);
             switch (tile_name)
             {
+                //tricky curve tile updates. the train has already arrived in the tile so only adjust one coordinate
                 case "ES":
                     if (moving_thing.orientation == Orientation.West)
                     {
                         moving_thing.final_orientation = Orientation.South;
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x-1, next_tilemap_pos.y);
+                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y-1);
                     }
                     else
                     {
@@ -253,12 +286,12 @@ public class RouteManager : MonoBehaviour
                     if (moving_thing.orientation == Orientation.South)
                     {
                         moving_thing.final_orientation = Orientation.East;
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x + 1, next_tilemap_pos.y - 1);
+                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x + 1, next_tilemap_pos.y);
                     }
                     else
                     {
                         moving_thing.final_orientation = Orientation.North;
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x - 1, next_tilemap_pos.y + 1);
+                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y + 1);
                     }
                     break;
                 case "WN":
@@ -270,7 +303,7 @@ public class RouteManager : MonoBehaviour
                     else
                     {
                         moving_thing.final_orientation = Orientation.West;
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y - 1);
+                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x-1, next_tilemap_pos.y);
                     }
 
                     break;
@@ -278,12 +311,12 @@ public class RouteManager : MonoBehaviour
                     if (moving_thing.orientation == Orientation.East)
                     {
                         moving_thing.final_orientation = Orientation.South;
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y - 1);
+                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y-1);
                     }
                     else
                     {
                         moving_thing.final_orientation = Orientation.West;
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y + 1);
+                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x-1, next_tilemap_pos.y);
                     }
                     break;
                 case "vert":
@@ -322,6 +355,18 @@ public class RouteManager : MonoBehaviour
                 case "sw_diag":
                     moving_thing.final_orientation = Orientation.sw_SteepCurve;
                     break;
+                case "less_diag_ne_turn":
+                    moving_thing.final_orientation = Orientation.ne_LessSteepCurve;
+                    break;
+                case "less_diag_nw_turn":
+                    moving_thing.final_orientation = Orientation.nw_LessSteepCurve;
+                    break;
+                case "less_diag_se_turn":
+                    moving_thing.final_orientation = Orientation.se_LessSteepCurve;
+                    break;
+                case "less_diag_sw_turn":
+                    moving_thing.final_orientation = Orientation.sw_LessSteepCurve;
+                    break;
                 default:
                     moving_thing.final_orientation = Orientation.None;
                     print("none of the track tiles matched"); // return current position
@@ -330,8 +375,8 @@ public class RouteManager : MonoBehaviour
         }
         catch (NullReferenceException e)
         {
-            final_cell_dest = new Vector2(-10, -10);
-            print("Vehicle has reached the end of the track.");
+            final_cell_dest = tile_world_coord;
+            print("Vehicle has reached the end of the track. tilemap position of " + moving_thing.name + " is " + moving_thing.tile_position);
             print(e.Message);
         }
         return new PositionPair(final_cell_dest, next_tilemap_pos);

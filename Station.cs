@@ -6,6 +6,7 @@ using System;
 
 public class Station_Track
 {
+    // tilemap for each station track, because some tracks may overlap
     public Tilemap tilemap;
     public Vector3Int start_location;
     public GameObject train;
@@ -13,8 +14,21 @@ public class Station_Track
 
 public class Station
 {
+    public RouteManager.Orientation orientation;
     Station_Track outer_track;
     Station_Track inner_track;
+
+    public void remove_train_from_station_track(GameObject train)
+    {
+        if (inner_track.train == train)
+        {
+            inner_track.train = null;
+        }
+        else if (outer_track.train == train)
+        {
+            outer_track.train = null;
+        }
+    }
 
     public Station_Track set_station_track(GameObject train)
     {
@@ -51,5 +65,6 @@ public class Station
         inner_track.tilemap = RouteManager.shipyard_track_tilemap;
         inner_track.start_location = inner_start;
         inner_track.train = null;
+
     }
 }

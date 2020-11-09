@@ -18,7 +18,6 @@ public class Train : MovingObject
     // Start is called before the first frame update
     void Start()
     {
-        tile_position = new Vector3Int(0, 0, 0);
         base.Start(); // train instantiated bottom left
         GameManager.vehicle_manager.update_vehicle_board(city.city_board, gameObject, tile_position, new Vector3Int(-1, -1, -1));
     }
@@ -27,22 +26,28 @@ public class Train : MovingObject
     void Update()
     {
         base.Update();
-        bool train_visible = gameObject.GetComponent<SpriteRenderer>().enabled;
-        if (train_visible) make_all_boxcar_visible(true);
-        else { make_all_boxcar_visible(false);  }
+    }
+
+    public void turn_on_train(bool is_train_on)
+    {
+        MovingObject.switch_sprite_renderer(gameObject, is_train_on); 
+        foreach (GameObject boxcar_object in boxcar_squad)
+        {
+            MovingObject.switch_sprite_renderer(boxcar_object, is_train_on); 
+        }
     }
 
     public override void arrive_at_city()
     {
         base.arrive_at_city();
-        city = CityManager.get_city(new Vector2Int(tile_position.x, tile_position.y)).GetComponent<City>();
         city.add_train_to_list(gameObject);
-        
+        print("add train with orientation " + orientation + " to station");
         station_track = city.add_train_to_station(gameObject, orientation);
         if (station_track != null)
         {
-            tile_position = station_track.start_location; // A NON-NULLABLE TYPE? ? ? 
-            GameManager.vehicle_manager.depart(gameObject);
+            Vector3Int station_tile_position = station_track.start_location; // A NON-NULLABLE TYPE? ? ?
+            print("station track start location is " + station_tile_position);
+            GameManager.vehicle_manager.depart(gameObject, station_tile_position, city.city_board);
             assign_station_to_boxcar();
         } else
         {
@@ -69,10 +74,14 @@ public class Train : MovingObject
         else // leaving the turntable
         {
             this.orientation = city.destination_orientation;
+            this.final_orientation = this.orientation; // dont overwrite orientation with shipyard orientation after departing city
             leave_city = true;
             foreach (GameObject boxcar_object in boxcar_squad)
             {
-                boxcar_object.GetComponent<Boxcar>().leave_city = true;
+                Boxcar boxcar = boxcar_object.GetComponent<Boxcar>();
+                boxcar.leave_city = true;
+                boxcar.orientation = this.orientation;
+                boxcar.final_orientation = this.orientation;
             }
         }
     }
@@ -82,14 +91,6 @@ public class Train : MovingObject
         foreach (GameObject boxcar_object in boxcar_squad)
         {
             boxcar_object.GetComponent<Boxcar>().station_track = station_track;
-        }
-    }
-
-    public void make_all_boxcar_visible(bool state)
-    {
-        foreach (GameObject boxcar_object in boxcar_squad)
-        {
-            boxcar_object.GetComponent<SpriteRenderer>().enabled = state;
         }
     }
 

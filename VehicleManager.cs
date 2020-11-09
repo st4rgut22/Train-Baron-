@@ -32,6 +32,20 @@ public class VehicleManager : BoardManager
 
     }
 
+    public void create_vehicle_at_home_base()
+    {
+        // buying a new train in MenuManager
+        GameObject new_train = Instantiate(Train);
+        Train_List.Add(new_train);
+        Train train_component = new_train.GetComponent<Train>();
+        train_component.in_city = true;
+        train_component.set_id(Train_List.Count);
+        train_component.set_city(home_base); // new vehicles always created at home base
+        add_all_boxcar_to_train(train_component);
+        place_vehicle(new_train); // place the vehicle, which proceeds to depart
+        train_component.arrive_at_city(); // call immediately on instantiation. Otherwise, in_city = false and the wrong board is updated        
+    }
+
     public void add_all_boxcar_to_train(Train train)
     {
         foreach (GameObject bomb_boxcar in Bomb_Boxcar_Inventory)
@@ -60,22 +74,23 @@ public class VehicleManager : BoardManager
 
     public IEnumerator Make_All_Boxcars_Depart(GameObject[,] board, List<GameObject> boxcar_list, Train train)
     {
-        // start coroutine when a train departs a city
+        // start coroutine when a train departs or arrives at a city
         int boxcar_count = boxcar_list.Count;
         int boxcar_depart_id = 0; // counter
-        Vector3Int last_city_location = train.get_city().get_location();
+        Vector3Int last_location = train.tile_position;
         RouteManager.Orientation depart_orientation = train.orientation;
+        GameObject boxcar = boxcar_list[boxcar_depart_id];
+        Boxcar moving_boxcar = boxcar.GetComponent<Boxcar>();
         if (train.in_city) board = train.get_city().city_board;
-        while (boxcar_depart_id < boxcar_count)
+        while (boxcar_depart_id < boxcar_count) 
         {
-            if (!is_vehicle_in_cell(last_city_location, board)) // if vehicle has left city
+            if (!is_vehicle_in_cell(last_location, board) && moving_boxcar.in_city == train.in_city) // dont depart until boxcar has arrived at city
             {
-                GameObject boxcar = boxcar_list[boxcar_depart_id];
-                Boxcar moving_boxcar = boxcar.GetComponent<Boxcar>();
-                print("boxcar orientation is " + moving_boxcar.get_orientation());
+                print("Make Boxcar depart. boxcar orientation is " + moving_boxcar.get_orientation() + " tile position is " + last_location);
                 moving_boxcar.set_depart_status(true);
-                boxcar.SetActive(true); // activate the boxcar.
-                place_vehicle(last_city_location, boxcar);
+                if (train.in_city) moving_boxcar.receive_train_order = true;
+                moving_boxcar.tile_position = last_location;
+                place_vehicle(boxcar);
                 moving_boxcar.is_halt = false;
                 spawn_moving_object(moving_boxcar);
                 moving_boxcar.set_depart_status(false);
@@ -114,26 +129,11 @@ public class VehicleManager : BoardManager
             Boxcar boxcar_component = boxcar.GetComponent<Boxcar>();
             boxcar_component.attach_to_train(train);
             boxcar_component.city = train.city;
+            boxcar_component.arrive_at_city();
             train.GetComponent<Train>().attach_boxcar(boxcar);
-            boxcar.SetActive(false);
             int boxcar_id = train.get_boxcar_id(); // id is the order in which the boxcar is added (0 being the first one added)
             boxcar_component.set_boxcar_id(boxcar_id);
         }
-    }
-
-    public void create_vehicle_at_home_base()
-    {
-        // buying a new train in MenuManager
-        Vector3Int start_tile_position = new Vector3Int(-1, 0, 0); //TODO: change if this track is occupied
-        GameObject new_train = Instantiate(Train);
-        Train_List.Add(new_train);
-        Train train_component = new_train.GetComponent<Train>();
-        train_component.in_city = true;
-        train_component.set_id(Train_List.Count);
-        train_component.set_city(home_base); // new vehicles always created at home base
-        train_component.set_position(start_tile_position);
-        Vector3Int home_base_location = new Vector3Int(BoardManager.home_base_location.x, BoardManager.home_base_location.y, 0);
-        place_vehicle(home_base_location, new_train);
     }
 
     public void spawn_moving_object(MovingObject moving_object)
@@ -145,38 +145,29 @@ public class VehicleManager : BoardManager
         moving_object.prepare_for_departure();
     }
 
-    public void depart(GameObject train_object)
+    public void depart(GameObject train_object, Vector3Int new_tile_position, GameObject[,] board=null)
     {
+        print(gameObject.name + " departing to new tile position " + new_tile_position);
         Train train = train_object.GetComponent<Train>();
         // remove train from station and depart.
-        Vector3Int city_location = train.city.get_location();
-        train.tile_position = city_location; 
-        place_vehicle(city_location, train_object);
-        add_all_boxcar_to_train(train); //TODO: replace with attach_boxcar_to_train()
+        train.tile_position = new_tile_position; //TODO: depart should update vehicle's position to track position in TrackManager
+        place_vehicle(train_object);
+        //add_all_boxcar_to_train(train);
         print("departing station. Adding all boxcars to the train");
-        StartCoroutine(Make_All_Boxcars_Depart(vehicle_board, train.boxcar_squad, train)); //TODO: hide train on city tile. Call coroutine from city manager
+        //assign the type of board depending on if leaving or arriving
+        if (board==null) StartCoroutine(Make_All_Boxcars_Depart(vehicle_board, train.boxcar_squad, train));
+        else { StartCoroutine(Make_All_Boxcars_Depart(board, train.boxcar_squad, train)); }
         spawn_moving_object(train);
         //city.remove_train_from_list(train); 
     }
 
-    public void attach_boxcar_to_train()
+    public void place_vehicle(GameObject moving_gameobject)
     {
-        //TODO: allow users to add boxcars in the shipyard
-    }
-
-    public void depart_shipyard()
-    {
-        //TODO: Remove train from list AFTER it has left the shipyard
-    }
-
-    public void place_vehicle(Vector3Int city_position, GameObject moving_gameobject)
-    {
-        // initialize orientation and position of vehicle based on user input. Vehicle is not visible as it is idling at the station
-        // vehicle is placed in a shipyard
+        // place vehicle on entering or exiting a city
         MovingObject moving_object = moving_gameobject.GetComponent<MovingObject>();
-        GameObject city_gameobject = GameManager.city_manager.in_cell(city_position);
-        City city = city_gameobject.GetComponent<City>();
-        if (city_gameobject != null) // place the vehicle in a city
+        Vector3Int city_position = moving_object.city.get_location();
+        Vector3Int station_start_position = moving_object.tile_position;
+        if (moving_object.city != null) // place the vehicle in a city
         {
             // orient the vehicles in any direction with a track 
             switch (moving_object.orientation)
@@ -187,7 +178,7 @@ public class VehicleManager : BoardManager
                     break;
                 case RouteManager.Orientation.East:
                     moving_object.set_orientation(RouteManager.Orientation.East);
-                    moving_gameobject.transform.eulerAngles = new Vector3(0, 0, 90);
+                    moving_gameobject.transform.eulerAngles = new Vector3(0, 0, -90);
                     break;
                 case RouteManager.Orientation.South:
                     moving_object.set_orientation(RouteManager.Orientation.South);
@@ -195,20 +186,24 @@ public class VehicleManager : BoardManager
                     break;
                 case RouteManager.Orientation.West:
                     moving_object.set_orientation(RouteManager.Orientation.West);
-                    moving_gameobject.transform.eulerAngles = new Vector3(0, 0, 270);
+                    moving_gameobject.transform.eulerAngles = new Vector3(0, 0, -270);
                     break;
                 default:
                     print("invalid orientation");
                     break;
             }
         }
-        if (moving_object.in_city) update_vehicle_board(moving_object.city.city_board, moving_gameobject, city_position, new Vector3Int(-1, -1, -1));
+        // if not in city update vehicle position with city position
+        if (moving_object.in_city)
+        {
+            update_vehicle_board(moving_object.city.city_board, moving_gameobject, station_start_position, new Vector3Int(-1, -1, -1));
+        }
         else { update_vehicle_board(vehicle_board, moving_gameobject, city_position, new Vector3Int(-1, -1, -1));  }
     }
 
     public void update_vehicle_board(GameObject[,] vehicle_board, GameObject game_object, Vector3Int position, Vector3Int prev_position)
     {
-        print("move " + game_object.name + " to position " + position);
+        print("Update Vehicle Board with object " + game_object.name + " to position " + position);
         try
         {
             bool initial_vector = prev_position.Equals(new Vector3Int(-1, -1, -1));

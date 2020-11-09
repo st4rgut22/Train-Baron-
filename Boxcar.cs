@@ -7,9 +7,10 @@ public class Boxcar : MovingObject
     Train train = null; // the train boxcar is attached to
     public int boxcar_id;
     bool departing = false;
+    public bool receive_train_order = true;
 
     private void Awake()
-    {
+    {      
         base.Awake();
     }
 
@@ -21,8 +22,14 @@ public class Boxcar : MovingObject
     // Update is called once per frame
     void Update()
     {
-        //if (!idling) // if in city, suspend regular update movement actions. resume when boxcar has completed departure (moving to city tile's edge)
+        if (!in_city || (in_city && receive_train_order)) // delay movement updates until train orders boxcar to depart
             base.Update();
+    }
+
+    public override void arrive_at_city()
+    {
+        base.arrive_at_city();
+        city.add_boxcar(gameObject);
     }
 
     public void set_boxcar_id(int id)

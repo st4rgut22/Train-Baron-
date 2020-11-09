@@ -11,53 +11,59 @@ public class City : BoardManager
     public GameObject[,] city_board; // contains location of vehicles within city
     public List<Station> station_list;
 
-    public static Vector2Int west_end_1 = new Vector2Int(4, 0);
-    public static Vector2Int west_end_2 = new Vector2Int(4, 1);
-    public static Vector3Int west_start_1 = new Vector3Int(-1, 0, 0);
-    public static Vector3Int west_start_2 = new Vector3Int(-1, 1, 0);
+    public static Vector2Int west_end_1 = new Vector2Int(4, 2);
+    public static Vector2Int west_end_2 = new Vector2Int(4, 3);
+    public static Vector3Int west_start_1 = new Vector3Int(0, 2, 0);
+    public static Vector3Int west_start_2 = new Vector3Int(0, 3, 0);
 
     public static Vector2Int north_end_2 = new Vector2Int(4, 5);
     public static Vector2Int north_end_1 = new Vector2Int(4, 6);
-    public static Vector3Int north_start_2 = new Vector3Int(0, 7, 0);
-    public static Vector3Int north_start_1 = new Vector3Int(1, 7, 0);
+    public static Vector3Int north_start_2 = new Vector3Int(1, 9, 0);
+    public static Vector3Int north_start_1 = new Vector3Int(2, 9, 0);
 
     public static Vector2Int east_end_2 = new Vector2Int(10, 5);
     public static Vector2Int east_end_1 = new Vector2Int(10, 6);
-    public static Vector3Int east_start_2 = new Vector3Int(15, 5, 0);
-    public static Vector3Int east_start_1 = new Vector3Int(15, 6, 0);
+    public static Vector3Int east_start_2 = new Vector3Int(16, 7, 0);
+    public static Vector3Int east_start_1 = new Vector3Int(16, 8, 0);
 
     public static Vector2Int south_end_1 = new Vector2Int(10, 1);
     public static Vector2Int south_end_2 = new Vector2Int(10, 0);
-    public static Vector3Int south_start_1 = new Vector3Int(14, -2, 0);
-    public static Vector3Int south_start_2 = new Vector3Int(13, -2, 0);
+    public static Vector3Int south_start_1 = new Vector3Int(14, 0, 0);
+    public static Vector3Int south_start_2 = new Vector3Int(15, 0, 0);
 
     Station West_Station = new Station(west_start_1, west_start_2);
     Station North_Station = new Station(north_start_1, north_start_2);
     Station East_Station = new Station(east_start_1, east_start_2);
     Station South_Station = new Station(south_start_1, south_start_2);
 
-    public GameObject Turntable;
-    public GameObject Turntable_Circle;
+    public GameObject Turn_Table;
+    public GameObject Turn_Table_Circle;
     public GameObject turn_table;
     GameObject turn_table_circle;
 
     public RouteManager.Orientation destination_orientation;
+
+    public int prev_train_list_length = 0;
 
     private void Start()
     {
         // must be a Gameobject for Start() Update() to run
         train_list = new List<GameObject>();
         city_board = new GameObject[board_width, board_height]; // zero out the negative tile coordinates
-        turn_table = Instantiate(Turntable);
+        turn_table = Instantiate(Turn_Table);
         turn_table.GetComponent<Turntable>().city = this;
+        turn_table.GetComponent<SpriteRenderer>().enabled = false;
 
-        turn_table_circle = Instantiate(Turntable_Circle);
+        turn_table_circle = Instantiate(Turn_Table_Circle);
+        turn_table_circle.GetComponent<SpriteRenderer>().enabled = false;
         destination_orientation = RouteManager.Orientation.None;
+
+        game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     private void Update()
     {
-
+        enable_train_for_screen();
     }
 
     public void set_destination_track(RouteManager.Orientation orientation)
@@ -75,21 +81,47 @@ public class City : BoardManager
         return train_list;
     }
 
-    public void add_train_to_list(GameObject train_object)
+    public void show_turntable(bool state)
     {
-        // if train arrives at city, remove it from game view and add it to the city view
-        train_list.Add(train_object);
-        remove_train_from_list(train_object, GameManager.train_list); 
+        turn_table.GetComponent<SpriteRenderer>().enabled = state;
+        turn_table_circle.GetComponent<SpriteRenderer>().enabled = state;
     }
 
     public void delete_train(GameObject train_object)
     {
         remove_train_from_list(train_object, train_list);
         //TODO: repeat line below for when train exits game view. Remove from list and hide
-        if (GameManager.city_manager.Activated_City == gameObject) train_object.GetComponent<SpriteRenderer>().enabled = false;
-        GameManager.train_list.Add(train_object);
-        is_train_turn_on(GameManager.shipyard_state);
+        if (GameManager.city_manager.Activated_City == gameObject) MovingObject.switch_sprite_renderer(train_object, false);
+        if (GameManager.game_menu_state) MovingObject.switch_sprite_renderer(train_object, true);
+        game_manager.train_list.Add(train_object);
     }
+
+    public void delete_boxcar(GameObject boxcar_object)
+    {   // delete boxcar after it has left the city (delayed from train)
+        if (GameManager.city_manager.Activated_City == gameObject) MovingObject.switch_sprite_renderer(boxcar_object, false);
+        if (GameManager.game_menu_state) MovingObject.switch_sprite_renderer(boxcar_object, true);
+    }
+
+    public void add_boxcar(GameObject boxcar_object)
+    {   // add boxcar after it has entered the city (delayed from train)
+        if (GameManager.city_manager.Activated_City == gameObject) MovingObject.switch_sprite_renderer(boxcar_object, true);
+        if (GameManager.game_menu_state) MovingObject.switch_sprite_renderer(boxcar_object, false); 
+    }
+
+    public void add_train_to_list(GameObject train_object)
+    {
+        // add train to the city
+        train_list.Add(train_object); 
+        remove_train_from_list(train_object, game_manager.train_list); // remove train from the game manager list
+        if (GameManager.city_manager.Activated_City == gameObject) // city screen is on, containing the relvant vehicle
+        {
+            MovingObject.switch_sprite_renderer(train_object, true);
+            train_object.GetComponent<Train>().turn_on_train(true);
+        }
+        if (GameManager.game_menu_state) // this is not causing boxcar to disappear prematurely
+            MovingObject.switch_sprite_renderer(train_object, false);
+    }
+
 
     public void turn_turntable(GameObject train_object, RouteManager.Orientation orientation, bool depart_for_turntable=false)
     {
@@ -114,6 +146,14 @@ public class City : BoardManager
         }
     }
 
+    public void remove_train_from_station(GameObject train_object)
+    {
+        South_Station.remove_train_from_station_track(train_object);
+        West_Station.remove_train_from_station_track(train_object);
+        East_Station.remove_train_from_station_track(train_object);
+        North_Station.remove_train_from_station_track(train_object);
+    }
+
     public void remove_train_from_list(GameObject train_object, List<GameObject> train_list)
     {
         // remove a train that has departed the city
@@ -129,23 +169,28 @@ public class City : BoardManager
                 trains_removed++;
             }
         }
-        print("trains removed = " + trains_removed);
     }
-
 
     public void set_location(Vector3Int position)
     {
         tilemap_position = position;
     }
 
-    public void is_train_turn_on(bool state)
+    public void enable_train_for_screen()
     {
-        // hide or show trains depending on whether I'm in a shipyard view
-        turn_table.SetActive(state);
-        turn_table_circle.SetActive(state);
-        foreach (GameObject train in train_list)
+        //update renderer when the screen changes
+        if (GameManager.city_menu_state != GameManager.prev_city_menu_state) // change game view
         {
-            train.GetComponent<SpriteRenderer>().enabled = state;
+            // if city view open, only update if city matches activated city. If city closed, hide trains 
+            if (GameManager.city_manager.Activated_City==gameObject)
+            {
+                foreach (GameObject train in train_list) // hide or show trains depending on whether I'm in a game view
+                {
+                    train.GetComponent<Train>().turn_on_train(GameManager.city_menu_state);
+                }
+                GameManager.prev_city_menu_state = GameManager.city_menu_state;
+            }
         }
     }
+
 }

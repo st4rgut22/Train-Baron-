@@ -22,11 +22,12 @@ public class CityManager : BoardManager
     public static float exit_dest_west_east = 6;
     public static float exit_dest_north_south = 3;
 
-    // Start is called before the first frame update
+    private void Awake()
+    {
+    }
+
     void Start()
     {
-        set_tilemap("city_layer");
-        prefab_tag = "city";
         create_cities(); // instantiate cities and save their positions
         base.Start();
     }
@@ -46,11 +47,15 @@ public class CityManager : BoardManager
     {
         if (city_object == null) // hide shipyard
         {
-            this.Activated_City.GetComponent<City>().is_train_turn_on(false);
-        } else // show shipyard
-        {
-            city_object.GetComponent<City>().is_train_turn_on(true);
+            GameManager.city_menu_state = false;
+            Activated_City.GetComponent<City>().enable_train_for_screen(); // hide trains before setting activated city to null
         }
+        else // show shipyard
+        {
+            GameManager.city_menu_state = true;
+        }
+        if (city_object == null) this.Activated_City.GetComponent<City>().show_turntable(false);
+        else { city_object.GetComponent<City>().show_turntable(true); }
         this.Activated_City = city_object;
     }
 
@@ -80,7 +85,7 @@ public class CityManager : BoardManager
             for (int c = 0; c < board_height; c++)
             {
                 Vector3Int cell_position = new Vector3Int(r, c, 0);
-                Tile structure_tile = (Tile) tilemap.GetTile(cell_position);
+                Tile structure_tile = (Tile) GameManager.Structure.GetComponent<Tilemap>().GetTile(cell_position);
                 if (structure_tile != null)
                 {
                     GameObject city = Instantiate(City);
