@@ -79,11 +79,11 @@ public class VehicleManager : BoardManager
         int boxcar_depart_id = 0; // counter
         Vector3Int last_location = train.tile_position;
         RouteManager.Orientation depart_orientation = train.orientation;
-        GameObject boxcar = boxcar_list[boxcar_depart_id];
-        Boxcar moving_boxcar = boxcar.GetComponent<Boxcar>();
         if (train.in_city) board = train.get_city().city_board;
         while (boxcar_depart_id < boxcar_count) 
         {
+            GameObject boxcar = boxcar_list[boxcar_depart_id];
+            Boxcar moving_boxcar = boxcar.GetComponent<Boxcar>();
             if (!is_vehicle_in_cell(last_location, board) && moving_boxcar.in_city == train.in_city) // dont depart until boxcar has arrived at city
             {
                 print("Make Boxcar depart. boxcar orientation is " + moving_boxcar.get_orientation() + " tile position is " + last_location);

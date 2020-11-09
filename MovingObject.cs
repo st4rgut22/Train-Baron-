@@ -50,7 +50,7 @@ public class MovingObject : EventDetector
         tile_position = new Vector3Int(home_base.x, home_base.y, 0);
         next_tilemap_position = home_base;
         prev_city = null;
-        orientation = RouteManager.Orientation.South; // undo
+        orientation = RouteManager.Orientation.East; // undo
         final_orientation = orientation;
         City city = CityManager.gameobject_board[home_base.x, home_base.y].GetComponent<City>();
     }

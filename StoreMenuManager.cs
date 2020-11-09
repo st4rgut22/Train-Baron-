@@ -28,6 +28,12 @@ public class StoreMenuManager : MonoBehaviour
         game_menu_manager.update_track_inventory();
         MenuManager.activate_default_handler();
         GameManager.game_menu_state = true;
+
+        // TESTING
+        //GameManager game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        //GameObject city_object = CityManager.get_city(new Vector2Int(3,6));
+        //game_manager.switch_on_shipyard(true);
+        //GameManager.city_manager.set_activated_city(city_object);
     }
 
     void change_item_count()
