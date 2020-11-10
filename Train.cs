@@ -43,6 +43,7 @@ public class Train : MovingObject
         city.add_train_to_list(gameObject);
         print("add train with orientation " + orientation + " to station");
         station_track = city.add_train_to_station(gameObject, orientation);
+        city.turn_table.GetComponent<Turntable>().add_train_to_queue(gameObject);
         if (station_track != null)
         {
             Vector3Int station_tile_position = station_track.start_location; // A NON-NULLABLE TYPE? ? ?

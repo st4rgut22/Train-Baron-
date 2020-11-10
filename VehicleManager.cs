@@ -60,6 +60,9 @@ public class VehicleManager : BoardManager
         {
             create_boxcar(train, supply_boxcar);
         }
+        Bomb_Boxcar_Inventory.Clear();
+        Troop_Boxcar_Inventory.Clear();
+        Supply_Boxcar_Inventory.Clear();
     }
 
     public bool is_vehicle_in_cell(Vector3Int location, GameObject[,] board)

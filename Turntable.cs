@@ -7,6 +7,7 @@ public class Turntable : MonoBehaviour
 
     public City city;
     public RouteManager.Orientation orientation;
+    Queue<GameObject> train_queue;
 
     private void Awake()
     {
@@ -16,13 +17,31 @@ public class Turntable : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        train_queue = new Queue<GameObject>();
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    public bool is_train_turn(GameObject train)
+    {
+        if (train == train_queue.Peek()) return true;
+        else
+            return false;
+    }
+
+    public void remove_train_from_queue(GameObject train)
+    {
+        if (train != train_queue.Peek()) throw new Exception("train should be first in queue, and first to remove");
+        train_queue.Dequeue();
+    }
+
+    public void add_train_to_queue(GameObject train)
+    {
+        train_queue.Enqueue(train);
     }
 
     public IEnumerator turn_turntable(GameObject train_object, RouteManager.Orientation end_orientation, bool depart_for_turntable)

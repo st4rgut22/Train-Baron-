@@ -281,6 +281,14 @@ public class MovingObject : EventDetector
                 if (gameObject.name == "train(Clone)")
                 {
                     gameObject.GetComponent<Train>().halt_train(false, true); // will pause the train until the turntable has arrived
+                    // wait for train's turn
+                    while (true)
+                    {
+                        bool is_train_turn = city.turn_table.GetComponent<Turntable>().is_train_turn(gameObject);
+                        if (is_train_turn) break;
+                        else
+                            yield return new WaitForEndOfFrame();
+                    }
                     city.turn_turntable(gameObject, final_orientation, depart_for_turntable);
                 }
                 depart_for_turntable = false;
@@ -378,7 +386,7 @@ public class MovingObject : EventDetector
                 prev_city = city;
                 Vector3Int city_location = city.get_location();
                 vehicle_manager.depart(gameObject, city_location);
-                
+                city.turn_table.GetComponent<Turntable>().remove_train_from_queue(gameObject);
                 print("after moving to city edge. the train tile position is " + next_tilemap_position);// depart train at correct tile position
             } else
             {

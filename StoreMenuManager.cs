@@ -31,7 +31,7 @@ public class StoreMenuManager : MonoBehaviour
 
         // TESTING
         //GameManager game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        //GameObject city_object = CityManager.get_city(new Vector2Int(3,6));
+        //GameObject city_object = CityManager.get_city(new Vector2Int(3, 6));
         //game_manager.switch_on_shipyard(true);
         //GameManager.city_manager.set_activated_city(city_object);
     }
