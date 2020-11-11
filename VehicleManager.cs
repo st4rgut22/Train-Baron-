@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.Tilemaps;
 
 public class VehicleManager : BoardManager
 {
@@ -41,7 +42,10 @@ public class VehicleManager : BoardManager
         train_component.in_city = true;
         train_component.set_id(Train_List.Count);
         train_component.set_city(home_base); // new vehicles always created at home base
-        add_all_boxcar_to_train(train_component);
+
+        // TESTING
+        //add_all_boxcar_to_train(train_component);
+
         place_vehicle(new_train); // place the vehicle, which proceeds to depart
         train_component.arrive_at_city(); // call immediately on instantiation. Otherwise, in_city = false and the wrong board is updated        
     }
@@ -129,13 +133,25 @@ public class VehicleManager : BoardManager
         // save the train on the board, but boxcar will overwrite it
         if (train.in_city) // if train is in city then add boxcars //TODO: check train is in same city with boxcars
         {
+            Tilemap tilemap = train.station_track.tilemap;
             Boxcar boxcar_component = boxcar.GetComponent<Boxcar>();
             boxcar_component.attach_to_train(train);
+            MovingObject last_vehicle = train.get_last_vehicle_added().GetComponent<MovingObject>();
+            // initalize boxcar position
+            PositionPair pos_pair = RouteManager.get_initial_destination(last_vehicle, tilemap);
+            //TODO: clean up, too long
+            boxcar_component.tile_position = new Vector3Int(pos_pair.tile_dest_pos.x, pos_pair.tile_dest_pos.y, 0);
+            boxcar_component.next_tilemap_position = pos_pair.tile_dest_pos;
+            boxcar_component.transform.position = pos_pair.abs_dest_pos;
+            boxcar_component.orientation = pos_pair.orientation;
+            boxcar_component.final_orientation = pos_pair.orientation;
+            set_initial_angle(boxcar, boxcar_component);
             boxcar_component.city = train.city;
+            boxcar_component.station_track = train.station_track;
             boxcar_component.arrive_at_city();
-            train.GetComponent<Train>().attach_boxcar(boxcar);
             int boxcar_id = train.get_boxcar_id(); // id is the order in which the boxcar is added (0 being the first one added)
             boxcar_component.set_boxcar_id(boxcar_id);
+            train.boxcar_squad.Add(boxcar);
         }
     }
 
@@ -164,6 +180,32 @@ public class VehicleManager : BoardManager
         //city.remove_train_from_list(train); 
     }
 
+    public void set_initial_angle(GameObject moving_gameobject, MovingObject moving_object)
+    {
+        switch (moving_object.orientation)
+        {
+            case RouteManager.Orientation.North:
+                moving_object.set_orientation(RouteManager.Orientation.North);
+                moving_gameobject.transform.eulerAngles = new Vector3(0, 0, 0);
+                break;
+            case RouteManager.Orientation.East:
+                moving_object.set_orientation(RouteManager.Orientation.East);
+                moving_gameobject.transform.eulerAngles = new Vector3(0, 0, -90);
+                break;
+            case RouteManager.Orientation.South:
+                moving_object.set_orientation(RouteManager.Orientation.South);
+                moving_gameobject.transform.eulerAngles = new Vector3(0, 0, 180);
+                break;
+            case RouteManager.Orientation.West:
+                moving_object.set_orientation(RouteManager.Orientation.West);
+                moving_gameobject.transform.eulerAngles = new Vector3(0, 0, -270);
+                break;
+            default:
+                print("invalid orientation");
+                break;
+        }
+    }
+
     public void place_vehicle(GameObject moving_gameobject)
     {
         // place vehicle on entering or exiting a city
@@ -173,28 +215,7 @@ public class VehicleManager : BoardManager
         if (moving_object.city != null) // place the vehicle in a city
         {
             // orient the vehicles in any direction with a track 
-            switch (moving_object.orientation)
-            {
-                case RouteManager.Orientation.North:
-                    moving_object.set_orientation(RouteManager.Orientation.North);
-                    moving_gameobject.transform.eulerAngles = new Vector3(0, 0, 0);
-                    break;
-                case RouteManager.Orientation.East:
-                    moving_object.set_orientation(RouteManager.Orientation.East);
-                    moving_gameobject.transform.eulerAngles = new Vector3(0, 0, -90);
-                    break;
-                case RouteManager.Orientation.South:
-                    moving_object.set_orientation(RouteManager.Orientation.South);
-                    moving_gameobject.transform.eulerAngles = new Vector3(0, 0, 180);
-                    break;
-                case RouteManager.Orientation.West:
-                    moving_object.set_orientation(RouteManager.Orientation.West);
-                    moving_gameobject.transform.eulerAngles = new Vector3(0, 0, -270);
-                    break;
-                default:
-                    print("invalid orientation");
-                    break;
-            }
+            set_initial_angle(moving_gameobject, moving_object);
         }
         // if not in city update vehicle position with city position
         if (moving_object.in_city)

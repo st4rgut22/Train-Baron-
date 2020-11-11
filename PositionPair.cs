@@ -6,6 +6,7 @@ public class PositionPair
 {
     public Vector2 abs_dest_pos;
     public Vector2Int tile_dest_pos;
+    public RouteManager.Orientation orientation; // used to initialize orientation of new boxcars
     public PositionPair(Vector2 abs_dest_pos, Vector2Int tile_dest_pos)
     {
         this.tile_dest_pos = tile_dest_pos;

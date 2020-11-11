@@ -28,6 +28,12 @@ public class Train : MovingObject
         base.Update();
     }
 
+    public GameObject get_last_vehicle_added()
+    {
+        if (boxcar_squad.Count == 0) return gameObject;
+        return boxcar_squad[boxcar_squad.Count - 1];
+    }
+
     public void turn_on_train(bool is_train_on)
     {
         MovingObject.switch_sprite_renderer(gameObject, is_train_on); 
@@ -68,8 +74,11 @@ public class Train : MovingObject
     public void board_turntable(RouteManager.Orientation orientation, bool depart_turntable)
     {
         print("board turn table");
+        //TODO: create dedicated function for adding boxcars
         if (depart_turntable)
         {
+            GameManager.vehicle_manager.add_all_boxcar_to_train(gameObject.GetComponent<Train>()); //TODO: allow user to select vehicle to add boxcars to 
+            halt_train(true, false); //unhalt the boxcars
             halt_train(is_halt = false, is_pause = false); // unpause the train
         }
         else // leaving the turntable
@@ -158,6 +167,6 @@ public class Train : MovingObject
 
     public int get_boxcar_id()
     {
-        return boxcar_squad.Count;       
+        return boxcar_squad.Count+1;       
     }
 }

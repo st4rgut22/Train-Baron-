@@ -57,6 +57,103 @@ public class TrackManager : BoardManager
 
     }
 
+    public static RouteManager.Orientation flip_straight_orientation(RouteManager.Orientation orientation)
+    {
+        switch (orientation)
+        {
+            case RouteManager.Orientation.East:
+                return RouteManager.Orientation.West;
+            case RouteManager.Orientation.West:
+                return RouteManager.Orientation.East;
+            case RouteManager.Orientation.North:
+                return RouteManager.Orientation.South;
+            case RouteManager.Orientation.South:
+                return RouteManager.Orientation.North;
+            default:
+                return RouteManager.Orientation.None;
+        }
+    }
+
+    public static void set_opposite_direction(string track_name, MovingObject vehicle)
+    {
+        switch (track_name)
+        {
+            //tricky curve tile updates. the train has already arrived in the tile so only adjust one coordinate
+            case "ES":
+                if (vehicle.orientation == RouteManager.Orientation.West)
+                {
+                    vehicle.orientation = RouteManager.Orientation.North;
+                }
+                else
+                {
+                    vehicle.orientation = RouteManager.Orientation.West;
+                }
+                return;
+            case "NE":
+                if (vehicle.orientation==RouteManager.Orientation.West)
+                {
+                    vehicle.orientation = RouteManager.Orientation.South;
+                }
+                else
+                {
+                    vehicle.orientation = RouteManager.Orientation.West;
+                }
+                return;
+            case "WN":
+                if (vehicle.orientation == RouteManager.Orientation.East)
+                {
+                    vehicle.orientation = RouteManager.Orientation.South;
+                }
+                else
+                {
+                    vehicle.orientation = RouteManager.Orientation.East;
+                }
+                return;
+            case "WS":
+                if (vehicle.orientation == RouteManager.Orientation.East)
+                {
+                    vehicle.orientation = RouteManager.Orientation.North;
+                }
+                else
+                {
+                    vehicle.orientation = RouteManager.Orientation.East;
+                }
+                return;
+            case "vert":
+                vehicle.orientation = flip_straight_orientation(vehicle.orientation);
+                return;
+            case "hor":
+                vehicle.orientation = flip_straight_orientation(vehicle.orientation);
+                return;
+            case "less_diag_ne_turn":
+                vehicle.orientation = RouteManager.Orientation.West;
+                return;
+            case "less_diag_nw_turn":
+                vehicle.orientation = RouteManager.Orientation.East;
+                return;
+            case "less_diag_se_turn":
+                vehicle.orientation = RouteManager.Orientation.West;
+                return;
+            case "less_diag_sw_turn":
+                vehicle.orientation = RouteManager.Orientation.East;
+                return;
+            case "ne_diag":
+                vehicle.orientation = RouteManager.Orientation.North;
+                break;
+            case "nw_diag":
+                vehicle.orientation = RouteManager.Orientation.North;
+                break;
+            case "se_diag":
+                vehicle.orientation = RouteManager.Orientation.South;
+                break;
+            case "sw_diag":
+                vehicle.orientation = RouteManager.Orientation.South;
+                break;
+            default:
+                throw new Exception("none of the track tiles matched");
+        }
+    }
+
     public static float get_steep_angle_rotation(RouteManager.Orientation orientation)
     {
         switch (orientation)
