@@ -88,6 +88,34 @@ public class TrackManager : BoardManager
         }
     }
 
+    public static string is_track_tile_exit(Vector2Int tile_pos)
+    {
+        // check if a track tile in the shipyard view is an exit route
+        int x_pos = tile_pos.x;
+        int y_pos = tile_pos.y;
+        if (y_pos == 5 && x_pos >= 0 && x_pos <= 5) return "Shipyard Track Exit West";
+        else if (y_pos == 5 && x_pos >= 11 && x_pos <= 16) return "Shipyard Track Exit East";
+        else if (x_pos == 8 && y_pos >= 0 && y_pos <= 2) return "Shipyard Track Exit South";
+        else if (x_pos == 8 && y_pos >= 8 && y_pos <= 9) return "Shipyard Track Exit North";
+        else
+        {
+            return null;
+        }
+    }
+
+    public static float get_exit_track_rotation(string exit_track_type)
+    {
+        // rotate from the NORTH orientation
+        if (exit_track_type == "Shipyard Track Exit West")
+            return 90f;
+        else if (exit_track_type == "Shipyard Track Exit East")
+            return -90f;
+        else if (exit_track_type == "Shipyard Track Exit South")
+            return 180f;
+        else { return 0f;  }
+    }
+
+
     public static void set_opposite_direction(string track_name, MovingObject vehicle)
     {
         switch (track_name)

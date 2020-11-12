@@ -6,7 +6,7 @@ using System;
 
 public class GameManager : MonoBehaviour
 {
-    public Camera camera;
+    public static Camera camera;
     // manage score, game state 
 
     const int cell_width = 1;
@@ -50,6 +50,7 @@ public class GameManager : MonoBehaviour
         Track_Layer = GameObject.Find("Track Layer");
         Structure = GameObject.Find("Structure");
         Base = GameObject.Find("Base");
+        camera = GameObject.Find("Camera").GetComponent<Camera>();
         Shipyard_Base = GameObject.Find("Shipyard Base");
         Shipyard_Track = GameObject.Find("Shipyard Track");
         Shipyard_Track2 = GameObject.Find("Shipyard Track 2");
@@ -70,20 +71,33 @@ public class GameManager : MonoBehaviour
         switch_on_shipyard(false);
     }
 
+    public static Collider2D get_object_at_cursor(Vector3 cursor_pos)
+    {
+        Vector3 position = new Vector3(cursor_pos.x, cursor_pos.y, Mathf.Abs(camera.transform.position.z));
+        Vector3 mouse_pos = camera.ScreenToWorldPoint(position);
+        Vector2 mouse_pos_2d = new Vector2(mouse_pos.x, mouse_pos.y);
+        RaycastHit2D hit = Physics2D.Raycast(mouse_pos_2d, Vector2.zero);
+        return hit.collider;
+    }
+
+    public static Vector2Int get_selected_tile()
+    {
+        Vector3 position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Mathf.Abs(camera.transform.position.z));
+        Vector3 mouse_pos = camera.ScreenToWorldPoint(position);
+        Vector2Int selected_tile = new Vector2Int((int)(mouse_pos.x / RouteManager.cell_width), (int)(mouse_pos.y / RouteManager.cell_width));
+        return selected_tile;
+    }
+
     // Update is called once per frame
     void Update()
     {
         enable_train_for_screen();
         if (Input.GetMouseButtonDown(0))
         {
-            Vector3 position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Mathf.Abs(camera.transform.position.z));
-            Vector3 mouse_pos = camera.ScreenToWorldPoint(position);
-            Vector2 mouse_pos_2d = new Vector2(mouse_pos.x, mouse_pos.y);
-            RaycastHit2D hit = Physics2D.Raycast(mouse_pos_2d, Vector2.zero);
-            Vector2Int selected_tile = new Vector2Int((int)(mouse_pos.x / RouteManager.cell_width), (int)(mouse_pos.y / RouteManager.cell_width));
-            if (hit.collider != null)
+            Collider2D selected_object = get_object_at_cursor(Input.mousePosition);
+            if (selected_object != null)
             {
-                GameObject clicked_gameobject = hit.collider.gameObject;
+                GameObject clicked_gameobject = selected_object.gameObject;
                 string object_name = clicked_gameobject.name.Replace("(Clone)", "");
                 switch (object_name)
                 {
@@ -104,6 +118,7 @@ public class GameManager : MonoBehaviour
                         //train_component.change_motion(); 
                         break;
                     case "Structure": // if user clicks on city, create city menu
+                        Vector2Int selected_tile = get_selected_tile();
                         GameObject city_object = CityManager.get_city(selected_tile);
                         switch_on_shipyard(true);                        
                         city_manager.set_activated_city(city_object);

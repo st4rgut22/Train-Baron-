@@ -100,11 +100,11 @@ public class MovingObject : EventDetector
                         //}
                         if (gameObject.tag == "train") gameObject.transform.parent = gameObject.GetComponent<Train>().city.turn_table.transform; // make train child of turntable so it rotates with it
                         else { gameObject.transform.parent = gameObject.GetComponent<Boxcar>().city.turn_table.transform; }
-                        StartCoroutine(straight_move(transform.position, train_destination, true)); 
+                        StartCoroutine(straight_move(transform.position, train_destination, true, false)); 
                     }
                     else
                     {
-                        StartCoroutine(straight_move(transform.position, train_destination, false));
+                        StartCoroutine(straight_move(transform.position, train_destination, false, false));
                     }
 
                 }
@@ -259,6 +259,7 @@ public class MovingObject : EventDetector
         float start_angle = location.eulerAngles[2]; // rotation about z axis
         float end_angle;
         RouteManager.Orientation curve_type = TrackManager.is_curve_steep(final_orientation);
+        in_tile = true;
         if (curve_type==RouteManager.Orientation.Less_Steep_Angle || curve_type== RouteManager.Orientation.Steep_Angle) // turntable adjustements
         {
             if (depart_for_turntable && !leave_turntable)
@@ -287,7 +288,6 @@ public class MovingObject : EventDetector
             end_angle = start_angle + TrackManager.get_right_angle_rotation(orientation, final_orientation); //end_angle is a static field for steep curves
         }
         print("Start angle is " + start_angle + " End angle is " + end_angle);
-        in_tile = true;
         while (!final_step)
         {
             if (is_pause)
@@ -364,14 +364,15 @@ public class MovingObject : EventDetector
             {
                 Train train = gameObject.GetComponent<Train>();
                 train.halt_train(true, true); // prevent orientation from being updated with last tile position (eg se_diag) while rotating
-                while (!train.is_all_car_reach_turntable()) // wait for all boxcars to arrive before spinning the turntable
+                while (!train.is_all_car_reach_turntable()) 
                 {
                     yield return new WaitForEndOfFrame();
                 }
-                city.turn_turntable(gameObject, depart_city_orientation);
+                city.turn_turntable(gameObject, depart_city_orientation); // turntable turns to destination track
             }
             else // reset boxcar speed multiplier after it has been created
             {
+                is_halt = true;
                 speed_multiplier = 1.0f; 
             }
         }

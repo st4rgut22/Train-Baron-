@@ -28,6 +28,7 @@ public class Turntable : MonoBehaviour
 
     public bool is_train_turn(GameObject train)
     {
+        if (train_queue.Count == 0) return false; // prevent empty queue exception
         if (train == train_queue.Peek()) return true;
         else
             return false;

@@ -7,6 +7,7 @@ using UnityEngine.Tilemaps;
 public class VehicleManager : BoardManager
 {
     public GameObject Train; // prefabs
+    public GameObject Train_Placeholder; // missing component
     public List<GameObject> Train_List;
     public List<GameObject> Bomb_Boxcar_Inventory;
     public List<GameObject> Troop_Boxcar_Inventory;
