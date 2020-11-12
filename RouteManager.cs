@@ -207,20 +207,6 @@ public class RouteManager : MonoBehaviour
         return Orientation.None;
     }
 
-    public static Orientation is_curve_steep(Orientation orientation)
-    {
-        if (orientation == Orientation.ne_SteepCurve || orientation == Orientation.nw_SteepCurve
-            || orientation == Orientation.sw_SteepCurve || orientation == Orientation.se_SteepCurve)
-            return Orientation.Steep_Angle;
-        else if (orientation == Orientation.ne_LessSteepCurve || orientation == Orientation.nw_LessSteepCurve
-            || orientation == Orientation.sw_LessSteepCurve || orientation == Orientation.se_LessSteepCurve)
-            return Orientation.Less_Steep_Angle;
-        else
-        {
-            return Orientation.Right_Angle;
-        }
-    }
-
     public static Vector2Int get_depart_tile_position(Orientation orientation, Vector3Int tile_coord)
     {
 

@@ -10,6 +10,7 @@ public class MovingObject : EventDetector
 
     protected Vector2 target_position;
     protected float speed = 2f;
+    protected float speed_multiplier = 1f;
     protected float tolerance = .004f;
     protected Vector2 next_position;
     protected bool in_tile = false; // if an object is in a tile, it is already has a destination
@@ -257,11 +258,9 @@ public class MovingObject : EventDetector
         bool final_step = false;
         float start_angle = location.eulerAngles[2]; // rotation about z axis
         float end_angle;
-        RouteManager.Orientation curve_type = RouteManager.is_curve_steep(final_orientation);
+        RouteManager.Orientation curve_type = TrackManager.is_curve_steep(final_orientation);
         if (curve_type==RouteManager.Orientation.Less_Steep_Angle || curve_type== RouteManager.Orientation.Steep_Angle) // turntable adjustements
         {
-            if (gameObject.tag == "boxcar")
-                print("stop");
             if (depart_for_turntable && !leave_turntable)
             {
                 if (gameObject.name == "train(Clone)")
@@ -276,9 +275,7 @@ public class MovingObject : EventDetector
                         else
                             yield return new WaitForEndOfFrame();
                     }
-
                     city.turn_turntable(gameObject, final_orientation, depart_for_turntable);
-                    //TODO: user decides when train boards turntable to allow time for adding boxcars
                 }
                 depart_for_turntable = false;
                 leave_turntable = true;
@@ -299,7 +296,13 @@ public class MovingObject : EventDetector
                 continue; // don't execute the code below
             }
             float interp = 1.0f - t_param;
-            t_param -= Time.deltaTime  * speed; // 1.5 speed multiplier ensures adjacent cars dont intersect
+            if (gameObject.tag=="boxcar")
+                t_param -= Time.deltaTime * speed * speed_multiplier; // use the speed multiplier when boxcar is first instantiated due to gap between train and lead boxcar
+            else
+            {
+                t_param -= Time.deltaTime * speed; 
+            }
+
             if (t_param < 0) // set t_param to 0 to get bezier coordinates closer to the destination (and be within tolerance)
             {
                 interp = 1;
@@ -337,13 +340,19 @@ public class MovingObject : EventDetector
                 yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling
                 continue; // don't execute the code below
             }
-            float step = speed * Time.deltaTime; // calculate distance to move
+            float step;
+            if (gameObject.tag == "boxcar")
+                step = speed * Time.deltaTime * speed_multiplier; // calculate distance to move
+            else
+            {
+                step = speed * Time.deltaTime; // calculate distance to move
+            }
             next_position = Vector2.MoveTowards(next_position, destination, step);
             transform.position = next_position;
             distance = Vector2.Distance(next_position, destination);
             yield return new WaitForEndOfFrame();
         }
-        if (turntable_dest) // train reaches other end of turntable // PROBLEM FOR BOXCAR!!!
+        if (turntable_dest) // train reaches other end of turntable
         {
             // wait for user input to choose depart track
             // city knows which train is on the turntable
@@ -360,6 +369,10 @@ public class MovingObject : EventDetector
                     yield return new WaitForEndOfFrame();
                 }
                 city.turn_turntable(gameObject, depart_city_orientation);
+            }
+            else // reset boxcar speed multiplier after it has been created
+            {
+                speed_multiplier = 1.0f; 
             }
         }
         in_tile = false;

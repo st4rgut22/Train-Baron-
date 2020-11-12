@@ -128,10 +128,19 @@ public class VehicleManager : BoardManager
         else { print("No other type of boxcar");  }
     }
 
+    public void initialize_position(MovingObject moving_object, PositionPair pos_pair)
+    {
+        moving_object.tile_position = new Vector3Int(pos_pair.tile_dest_pos.x, pos_pair.tile_dest_pos.y, 0);
+        moving_object.next_tilemap_position = pos_pair.tile_dest_pos;
+        moving_object.transform.position = pos_pair.abs_dest_pos;
+        moving_object.orientation = pos_pair.orientation;
+        moving_object.final_orientation = pos_pair.orientation;
+    }
+
     public void create_boxcar(Train train, GameObject boxcar)
     {
         // save the train on the board, but boxcar will overwrite it
-        if (train.in_city) // if train is in city then add boxcars //TODO: check train is in same city with boxcars
+        if (train.in_city) // if train is in city then add boxcars 
         {
             Tilemap tilemap = train.station_track.tilemap;
             Boxcar boxcar_component = boxcar.GetComponent<Boxcar>();
@@ -139,18 +148,13 @@ public class VehicleManager : BoardManager
             MovingObject last_vehicle = train.get_last_vehicle_added().GetComponent<MovingObject>();
             // initalize boxcar position
             PositionPair pos_pair = RouteManager.get_initial_destination(last_vehicle, tilemap);
-            //TODO: clean up, too long
-            boxcar_component.tile_position = new Vector3Int(pos_pair.tile_dest_pos.x, pos_pair.tile_dest_pos.y, 0);
-            boxcar_component.next_tilemap_position = pos_pair.tile_dest_pos;
-            boxcar_component.transform.position = pos_pair.abs_dest_pos;
-            boxcar_component.orientation = pos_pair.orientation;
-            boxcar_component.final_orientation = pos_pair.orientation;
+            initialize_position(boxcar_component, pos_pair);
             set_initial_angle(boxcar, boxcar_component);
             boxcar_component.city = train.city;
             boxcar_component.station_track = train.station_track;
             boxcar_component.arrive_at_city();
             int boxcar_id = train.get_boxcar_id(); // id is the order in which the boxcar is added (0 being the first one added)
-            boxcar_component.set_boxcar_id(boxcar_id);
+            boxcar_component.initialize_boxcar(boxcar_id);
             train.boxcar_squad.Add(boxcar);
         }
     }
@@ -171,7 +175,6 @@ public class VehicleManager : BoardManager
         // remove train from station and depart.
         train.tile_position = new_tile_position; //TODO: depart should update vehicle's position to track position in TrackManager
         place_vehicle(train_object);
-        //add_all_boxcar_to_train(train);
         print("departing station. Adding all boxcars to the train");
         //assign the type of board depending on if leaving or arriving
         if (board==null) StartCoroutine(Make_All_Boxcars_Depart(vehicle_board, train.boxcar_squad, train));

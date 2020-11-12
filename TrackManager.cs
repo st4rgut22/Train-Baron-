@@ -74,6 +74,20 @@ public class TrackManager : BoardManager
         }
     }
 
+    public static RouteManager.Orientation is_curve_steep(RouteManager.Orientation orientation)
+    {
+        if (orientation == RouteManager.Orientation.ne_SteepCurve || orientation == RouteManager.Orientation.nw_SteepCurve
+            || orientation == RouteManager.Orientation.sw_SteepCurve || orientation == RouteManager.Orientation.se_SteepCurve)
+            return RouteManager.Orientation.Steep_Angle;
+        else if (orientation == RouteManager.Orientation.ne_LessSteepCurve || orientation == RouteManager.Orientation.nw_LessSteepCurve
+            || orientation == RouteManager.Orientation.sw_LessSteepCurve || orientation == RouteManager.Orientation.se_LessSteepCurve)
+            return RouteManager.Orientation.Less_Steep_Angle;
+        else
+        {
+            return RouteManager.Orientation.Right_Angle;
+        }
+    }
+
     public static void set_opposite_direction(string track_name, MovingObject vehicle)
     {
         switch (track_name)

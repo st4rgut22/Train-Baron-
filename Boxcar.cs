@@ -26,15 +26,16 @@ public class Boxcar : MovingObject
             base.Update();
     }
 
+    public void initialize_boxcar(int id)
+    {
+        boxcar_id = id;
+        speed_multiplier = 1.03f; // when boxcar is created go a little faster so it can keep up with train
+    }
+
     public override void arrive_at_city()
     {
         base.arrive_at_city();
         city.add_boxcar(gameObject);
-    }
-
-    public void set_boxcar_id(int id)
-    {
-        boxcar_id = id;
     }
 
     public RouteManager.Orientation get_orientation()
