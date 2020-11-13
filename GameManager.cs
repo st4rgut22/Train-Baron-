@@ -119,7 +119,7 @@ public class GameManager : MonoBehaviour
                         break;
                     case "Structure": // if user clicks on city, create city menu
                         Vector2Int selected_tile = get_selected_tile();
-                        GameObject city_object = CityManager.get_city(selected_tile);
+                        GameObject city_object = city_manager.get_city(selected_tile);
                         switch_on_shipyard(true);                        
                         city_manager.set_activated_city(city_object);
                         MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });

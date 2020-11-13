@@ -42,7 +42,7 @@ public class VehicleManager : BoardManager
         Train train_component = new_train.GetComponent<Train>();
         train_component.in_city = true;
         train_component.set_id(Train_List.Count);
-        train_component.set_city(home_base); // new vehicles always created at home base
+        train_component.set_city(CityManager.home_base); // new vehicles always created at home base
 
         // TESTING
         //add_all_boxcar_to_train(train_component);
@@ -53,6 +53,7 @@ public class VehicleManager : BoardManager
 
     public void add_all_boxcar_to_train(Train train)
     {
+        // add all boxcars in inventory to a train. Revise to select boxcars to add to a train
         foreach (GameObject bomb_boxcar in Bomb_Boxcar_Inventory)
         {
             create_boxcar(train, bomb_boxcar);
@@ -246,7 +247,7 @@ public class VehicleManager : BoardManager
                 }
             }
             bool in_city = game_object.GetComponent<MovingObject>().in_city;
-            GameObject city_object = CityManager.get_city(new Vector2Int(position.x, position.y));
+            GameObject city_object = GameManager.city_manager.get_city(new Vector2Int(position.x, position.y));
             string destination_type = RouteManager.get_destination_type(position, in_city);
             if (destination_type=="city" && !in_city) // if vehicle arriving at city is a boxcar, don't update tile
             {

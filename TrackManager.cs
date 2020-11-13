@@ -8,7 +8,6 @@ public class TrackManager : BoardManager
 {
     //responsible for placing tracks on tilemaps, switching tracks, etc.
 
-    Track[,] track_board;
     public static int hor_count = 0;
     public static int wn_count = 0;
     public static int vert_count = 0;
@@ -36,19 +35,12 @@ public class TrackManager : BoardManager
     static Vector2 q3 = new Vector2(0, 0);
     public static List<Vector2> steep_curve = new List<Vector2> { q0, q1, q2, q3 };
 
-    class Track 
-    {
-        public Track(string name)
-        {
-            string track_name = name;
-        }
-    }
-
     // Start is called before the first frame update
     void Start()
     {
         base.Start();
-        track_board = new Track[board_width, board_height];
+        gameobject_board = new GameObject[board_width, board_height];
+        tilemap = GameObject.Find("Track Layer").GetComponent<Tilemap>();
     }
 
     // Update is called once per frame
@@ -263,15 +255,4 @@ public class TrackManager : BoardManager
                 break;
         }
     }
-
-    public void place_tile(Vector3Int tilemap_position, string tile_name, Tile tile)
-    {
-        print("place tile " + tile_name + " at position " + tilemap_position);
-        tilemap.SetTile(tilemap_position, tile);
-        if (tile_name != "train(Clone)" && tile_name!="boxcar(Clone") // if track is clicked, add it to track map
-            track_board[tilemap_position.x, tilemap_position.y] = new Track(tile_name);
-    }
-
-
-
 }

@@ -47,13 +47,12 @@ public class MovingObject : EventDetector
     // Start is called before the first frame update
     public virtual void Awake()
     {
-        Vector2Int home_base = BoardManager.home_base_location;
+        Vector2Int home_base = CityManager.home_base_location;
         tile_position = new Vector3Int(home_base.x, home_base.y, 0);
         next_tilemap_position = home_base;
         prev_city = null;
         orientation = RouteManager.Orientation.East; // undo
         final_orientation = orientation;
-        City city = CityManager.gameobject_board[home_base.x, home_base.y].GetComponent<City>();
     }
 
     public virtual void Start()

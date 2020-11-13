@@ -11,6 +11,9 @@ public class CityManager : BoardManager
     //maintain lists of allied / enemy cities
     //oversee routes between cities for to inform decision making
 
+    public static City home_base;
+    public static Vector2Int home_base_location = new Vector2Int(3, 6); // location of city
+
     public GameObject City;
     public GameObject Activated_City;
     public Tilemap exit_north;
@@ -28,8 +31,9 @@ public class CityManager : BoardManager
 
     void Start()
     {
-        create_cities(); // instantiate cities and save their positions
         base.Start();
+        create_cities(); // instantiate cities and save their positions
+        home_base = get_city(home_base_location).GetComponent<City>();
     }
 
     // Update is called once per frame
@@ -71,21 +75,21 @@ public class CityManager : BoardManager
         }
     }
 
-    public static GameObject get_city(Vector2Int city_location)
+    public GameObject get_city(Vector2Int city_location)
     {
         return gameobject_board[city_location.x, city_location.y];
     }
 
     public void create_cities()
     {
-        gameobject_board = new GameObject[board_width, board_height];
         // initialize board with stationary tiles eg cities
+        Tilemap structure_tilemap = GameManager.Structure.GetComponent<Tilemap>();
         for (int r = 0; r < board_width; r++)
         {
             for (int c = 0; c < board_height; c++)
             {
                 Vector3Int cell_position = new Vector3Int(r, c, 0);
-                Tile structure_tile = (Tile) GameManager.Structure.GetComponent<Tilemap>().GetTile(cell_position);
+                Tile structure_tile = (Tile)structure_tilemap.GetTile(cell_position);
                 if (structure_tile != null)
                 {
                     GameObject city = Instantiate(City);

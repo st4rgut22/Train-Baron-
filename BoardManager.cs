@@ -11,12 +11,8 @@ public class BoardManager : EventDetector
     protected GameManager game_manager;
 
     protected string prefab_tag;
-    public static GameObject[,] gameobject_board;
+    public GameObject[,] gameobject_board;
     protected static Tilemap tilemap;
-    protected City home_base;
-
-    public static Vector2Int home_base_location = new Vector2Int(3,6); // location of city
-
     protected const int board_width = 17;
     protected const int board_height = 10; // size of the shipyard tilemap (usable tiles in track tilemap is slightly smaller)
 
@@ -28,13 +24,25 @@ public class BoardManager : EventDetector
     // Start is called before the first frame update
     protected void Start()
     {
-        home_base = CityManager.get_city(home_base_location).GetComponent<City>();
+        gameobject_board = new GameObject[board_width, board_height];
     }
 
     // Update is called once per frame
     void Update()
     {
 
+    }
+
+    public virtual void place_tile(Vector3Int tilemap_position, GameObject tile_object, Tile tile)
+    {
+        // place a tile if no tile already exists
+        print("place tile " + tile_object.name + " at position " + tilemap_position);
+        GameObject existing_tile = gameobject_board[tilemap_position.x, tilemap_position.y];
+        if (existing_tile == null)
+        {
+            tilemap.SetTile(tilemap_position, tile);
+            gameobject_board[tilemap_position.x, tilemap_position.y] = tile_object;
+        }
     }
 
     public Vector2Int get_board_dimension()

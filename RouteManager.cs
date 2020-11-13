@@ -423,7 +423,7 @@ public class RouteManager : MonoBehaviour
             Tile city_tile = (Tile)city_tilemap.GetTile(tile_coord);
             if (city_tile != null) //check if arriving at city
             {
-                City city = CityManager.gameobject_board[tile_coord.x, tile_coord.y].GetComponent<City>(); // check if city arrived at is not the same city we're leaving
+                City city = GameManager.city_manager.gameobject_board[tile_coord.x, tile_coord.y].GetComponent<City>(); // check if city arrived at is not the same city we're leaving
                 if (city != moving_thing.prev_city)
                 {
                     pos_pair.abs_dest_pos = tile_world_coord; // destination is the center of the tile
