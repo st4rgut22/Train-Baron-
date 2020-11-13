@@ -145,15 +145,15 @@ public class GameMenuManager : EventDetector
         // REVISE ME!!!
         VehicleManager vehicle_manager = GameObject.Find("VehicleManager").GetComponent<VehicleManager>();
         TrackManager track_manager = GameObject.Find("TrackManager").GetComponent<TrackManager>();
-        Vector3 final_world_position = MenuManager.convert_screen_to_world_coord(eventData.position);
-        Vector3Int final_tilemap_position = new Vector3Int((int)final_world_position.x, (int)final_world_position.y, (int)final_world_position.z);
+        //Vector3 final_world_position = MenuManager.convert_screen_to_world_coord(eventData.position);
+        Vector2Int final_tilemap_position = GameManager.get_selected_tile(eventData.position);
         print("final tilemap position of tile is " + final_tilemap_position);
         try
         {
             string item_name = clicked_item.name.Replace("(Clone)", ""); // remove clone from the game object name
             if (item_name == "ES" || item_name == "NE" || item_name == "WN" || item_name == "WS" || item_name == "hor" || item_name == "vert")
             {
-                track_manager.place_tile(final_tilemap_position, clicked_item, clicked_tile);
+                track_manager.place_tile(final_tilemap_position, clicked_item, clicked_tile, true);
             }
             //else if (item_name == "dummy_train")
             //{

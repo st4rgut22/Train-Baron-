@@ -64,7 +64,7 @@ public class Train : MovingObject
             {
                 Vector3 world_position = MenuManager.convert_screen_to_world_coord(eventData.position);
                 clone_train.transform.position = world_position;
-                Vector2Int selected_tile = GameManager.get_selected_tile();
+                Vector2Int selected_tile = GameManager.get_selected_tile(Input.mousePosition);
                 exit_track_tile_type = TrackManager.is_track_tile_exit(selected_tile);
                 if (exit_track_tile_type != null)
                 {

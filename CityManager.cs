@@ -53,10 +53,12 @@ public class CityManager : BoardManager
         {
             GameManager.city_menu_state = false;
             Activated_City.GetComponent<City>().enable_train_for_screen(); // hide trains before setting activated city to null
+            Activated_City.GetComponent<City>().display_boxcar(false);
         }
         else // show shipyard
         {
             GameManager.city_menu_state = true;
+            city_object.GetComponent<City>().display_boxcar(true);
         }
         if (city_object == null) this.Activated_City.GetComponent<City>().show_turntable(false);
         else { city_object.GetComponent<City>().show_turntable(true); }

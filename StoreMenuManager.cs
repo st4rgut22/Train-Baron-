@@ -25,6 +25,7 @@ public class StoreMenuManager : MonoBehaviour
     {
         GameMenuManager game_menu_manager = MenuManager.game_menu.GetComponent<GameMenuManager>();
         change_item_count();
+        //reset item count
         game_menu_manager.update_track_inventory();
         MenuManager.activate_default_handler();
         GameManager.game_menu_state = true;

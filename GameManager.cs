@@ -80,9 +80,9 @@ public class GameManager : MonoBehaviour
         return hit.collider;
     }
 
-    public static Vector2Int get_selected_tile()
+    public static Vector2Int get_selected_tile(Vector3 pos)
     {
-        Vector3 position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Mathf.Abs(camera.transform.position.z));
+        Vector3 position = new Vector3(pos.x, pos.y, Mathf.Abs(camera.transform.position.z));
         Vector3 mouse_pos = camera.ScreenToWorldPoint(position);
         Vector2Int selected_tile = new Vector2Int((int)(mouse_pos.x / RouteManager.cell_width), (int)(mouse_pos.y / RouteManager.cell_width));
         return selected_tile;
@@ -118,8 +118,9 @@ public class GameManager : MonoBehaviour
                         //train_component.change_motion(); 
                         break;
                     case "Structure": // if user clicks on city, create city menu
-                        Vector2Int selected_tile = get_selected_tile();
+                        Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
                         GameObject city_object = city_manager.get_city(selected_tile);
+                        // display boxcars
                         switch_on_shipyard(true);                        
                         city_manager.set_activated_city(city_object);
                         MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });

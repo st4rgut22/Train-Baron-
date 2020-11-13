@@ -2,11 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.Tilemaps;
 
 public class City : BoardManager
 {
     // track city control as a function of supplies, troops, artillery
     Vector3Int tilemap_position;
+    public GameObject dummy_bomb_boxcar;
+    public GameObject dummy_supply_boxcar;
+    public GameObject dummy_troop_boxcar;
+    public Tile bomb_boxcar_tile;
+    public Tile supply_boxcar_tile;
+    public Tile troop_boxcar_tile;
+
     public List<GameObject> train_list; // list of trains inside a city
     public GameObject[,] city_board; // contains location of vehicles within city
     public List<Station> station_list;
@@ -47,6 +55,7 @@ public class City : BoardManager
 
     private void Start()
     {
+        base.Start();
         // must be a Gameobject for Start() Update() to run
         train_list = new List<GameObject>();
         city_board = new GameObject[board_width, board_height]; // zero out the negative tile coordinates
@@ -85,6 +94,62 @@ public class City : BoardManager
     {
         turn_table.GetComponent<SpriteRenderer>().enabled = state;
         turn_table_circle.GetComponent<SpriteRenderer>().enabled = state;
+    }
+
+    public Vector2Int find_parking_spot(int y, int start_x, int end_x)
+    {
+        // traverse row until an empty parking spot is found and return its location
+        for (int i=start_x; i<=end_x; i++)
+        {
+            if (gameobject_board[i, y] == null)
+            {
+                return new Vector2Int(i, y);
+            }
+        }
+        return new Vector2Int(-1,-1); // no parking spot available
+    }
+
+    public Vector2Int get_parking_spot()
+    {
+        Vector2Int parking_spot = BoardManager.invalid_tile;
+        int[,] parking_coord = { { 4, 0, 5 }, { 4, 11, 16 }, { 6, 11, 16 }, { 6, 0, 4 } };
+        for (int i = 0; i < parking_coord.Length; i++)
+        {
+            parking_spot = find_parking_spot(parking_coord[i,0],parking_coord[i,1],parking_coord[i,2]);
+            if (!parking_spot.Equals(BoardManager.invalid_tile)) break;
+        }
+        return parking_spot;
+    }
+
+    public void add_boxcar_to_tilemap(GameObject boxcar_object)
+    {
+        // called when displaying a city
+        Vector2Int parking_spot = get_parking_spot();
+        gameobject_board[parking_spot.x, parking_spot.y] = boxcar_object;
+    }
+
+    public void display_boxcar(bool display)
+    {
+        Tilemap shipyard_base = GameManager.Shipyard_Track.GetComponent<Tilemap>();
+        for (int i = 0; i < gameobject_board.GetLength(0); i++)
+        {
+            for (int j = 0; j < gameobject_board.GetLength(1); j++)
+            {
+                GameObject boxcar_object = gameobject_board[i, j];
+                if (boxcar_object != null)
+                {
+                    Vector2Int tile_pos = new Vector2Int(i, j);
+                    string boxcar_name = boxcar_object.name.Replace("(Clone)", "");
+                    if (boxcar_name == "bomb boxcar") place_tile(tile_pos, boxcar_object, bomb_boxcar_tile, shipyard_base, display);
+                    else if (boxcar_name == "supply boxcar") place_tile(tile_pos, boxcar_object, supply_boxcar_tile, shipyard_base, display);
+                    else if (boxcar_name == "troop boxcar") place_tile(tile_pos, boxcar_object, troop_boxcar_tile, shipyard_base, display);
+                    else
+                    {
+                        throw new Exception("not a valid boxcar to store");
+                    }
+                }
+            }
+        }
     }
 
     public void delete_train(GameObject train_object)

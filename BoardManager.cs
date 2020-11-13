@@ -12,10 +12,11 @@ public class BoardManager : EventDetector
 
     protected string prefab_tag;
     public GameObject[,] gameobject_board;
-    protected static Tilemap tilemap;
+    //protected static Tilemap tilemap;
+    public static Vector2Int invalid_tile = new Vector2Int(-1, -1);
     protected const int board_width = 17;
     protected const int board_height = 10; // size of the shipyard tilemap (usable tiles in track tilemap is slightly smaller)
-
+    
     public void Awake()
     {
         game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -33,16 +34,24 @@ public class BoardManager : EventDetector
 
     }
 
-    public virtual void place_tile(Vector3Int tilemap_position, GameObject tile_object, Tile tile)
+    public virtual void place_tile(Vector2Int tilemap_position, GameObject tile_object, Tile tile, Tilemap tilemap, bool display)
     {
         // place a tile if no tile already exists
         print("place tile " + tile_object.name + " at position " + tilemap_position);
         GameObject existing_tile = gameobject_board[tilemap_position.x, tilemap_position.y];
-        if (existing_tile == null)
+        //if (existing_tile == null)
+        //{
+        if (display)
         {
-            tilemap.SetTile(tilemap_position, tile);
+            tilemap.SetTile((Vector3Int)tilemap_position, tile);
             gameobject_board[tilemap_position.x, tilemap_position.y] = tile_object;
         }
+        else
+        {
+            tilemap.SetTile((Vector3Int)tilemap_position, null); // remove tile (eg hiding the boxcar)
+        }
+
+        //}
     }
 
     public Vector2Int get_board_dimension()

@@ -120,14 +120,29 @@ public class VehicleManager : BoardManager
 
     public void add_boxcar(string boxcar_type)
     {
-        //add boxcar to the inventory
+        GameObject boxcar;
+        //add boxcar to the inventory after exiting store
         if (boxcar_type == "bomb")
-            Bomb_Boxcar_Inventory.Add(Instantiate(Bomb_Boxcar));
+        {
+            boxcar = Instantiate(Bomb_Boxcar);
+            Bomb_Boxcar_Inventory.Add(boxcar);
+        }
         else if (boxcar_type == "supply")
-            Supply_Boxcar_Inventory.Add(Instantiate(Supply_Boxcar));
+        {
+            boxcar = Instantiate(Supply_Boxcar);
+            Supply_Boxcar_Inventory.Add(boxcar);
+        }
         else if (boxcar_type == "troop")
-            Troop_Boxcar_Inventory.Add(Instantiate(Troop_Boxcar));
-        else { print("No other type of boxcar");  }
+        {
+            boxcar = Instantiate(Troop_Boxcar);
+            Troop_Boxcar_Inventory.Add(boxcar);
+        }
+        else {
+            print("No other type of boxcar");
+            return;
+        }
+        boxcar.GetComponent<SpriteRenderer>().enabled = false;
+        CityManager.home_base.add_boxcar_to_tilemap(boxcar);
     }
 
     public void initialize_position(MovingObject moving_object, PositionPair pos_pair)

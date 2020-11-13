@@ -35,18 +35,25 @@ public class TrackManager : BoardManager
     static Vector2 q3 = new Vector2(0, 0);
     public static List<Vector2> steep_curve = new List<Vector2> { q0, q1, q2, q3 };
 
+    public Tilemap track_tilemap;
+
     // Start is called before the first frame update
     void Start()
     {
         base.Start();
         gameobject_board = new GameObject[board_width, board_height];
-        tilemap = GameObject.Find("Track Layer").GetComponent<Tilemap>();
+        track_tilemap = GameObject.Find("Track Layer").GetComponent<Tilemap>();
     }
 
     // Update is called once per frame
     void Update()
     {
 
+    }
+
+    public void place_tile(Vector2Int tilemap_position, GameObject tile_object, Tile tile, bool display)
+    {
+        base.place_tile(tilemap_position, tile_object, tile, track_tilemap, display);
     }
 
     public static RouteManager.Orientation flip_straight_orientation(RouteManager.Orientation orientation)
