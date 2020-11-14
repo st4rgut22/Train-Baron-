@@ -43,13 +43,16 @@ public class CityManager : BoardManager
 
     }
 
-    public bool add_boxcar_to_station(string boxcar_type, Vector2Int tile_pos)
+    public bool add_boxcar_to_station(string boxcar_type, Vector2Int tile_pos, Vector2Int boxcar_tile_pos)
     {
         // Activated City
-        GameObject train_object = Activated_City.GetComponent<City>().get_station_train(tile_pos);
+        City activated_city = Activated_City.GetComponent<City>();
+        GameObject train_object = activated_city.get_station_train(tile_pos);
         if (train_object != null)
         {
             GameManager.vehicle_manager.add_boxcar_to_train(train_object.GetComponent<Train>(), boxcar_type);
+            activated_city.remove_boxcar_from_inventory(boxcar_tile_pos); // after adding a boxcar to train, remove it from inventory
+            gameobject_board[boxcar_tile_pos.x, boxcar_tile_pos.y] = null;
             return true;
         }
         else {

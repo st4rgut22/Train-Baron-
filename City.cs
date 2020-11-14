@@ -130,9 +130,15 @@ public class City : BoardManager
         gameobject_board[parking_spot.x, parking_spot.y] = boxcar_object;
     }
 
+    public void remove_boxcar_from_inventory(Vector2Int tile_pos)
+    {
+        Tilemap shipyard_inventory = GameManager.Shipyard_Inventory.GetComponent<Tilemap>();
+        shipyard_inventory.SetTile((Vector3Int)tile_pos, null);
+    }
+
     public void display_boxcar(bool display)
     {
-        Tilemap shipyard_base = GameManager.Shipyard_Inventory.GetComponent<Tilemap>();
+        Tilemap shipyard_inventory = GameManager.Shipyard_Inventory.GetComponent<Tilemap>();
         for (int i = 0; i < gameobject_board.GetLength(0); i++)
         {
             for (int j = 0; j < gameobject_board.GetLength(1); j++)
@@ -142,9 +148,9 @@ public class City : BoardManager
                 {
                     Vector2Int tile_pos = new Vector2Int(i, j);
                     string boxcar_name = boxcar_object.name.Replace("(Clone)", "");
-                    if (boxcar_name == "bomb boxcar") place_tile(tile_pos, boxcar_object, bomb_boxcar_tile, shipyard_base, display);
-                    else if (boxcar_name == "supply boxcar") place_tile(tile_pos, boxcar_object, supply_boxcar_tile, shipyard_base, display);
-                    else if (boxcar_name == "troop boxcar") place_tile(tile_pos, boxcar_object, troop_boxcar_tile, shipyard_base, display);
+                    if (boxcar_name == "bomb boxcar") place_tile(tile_pos, boxcar_object, bomb_boxcar_tile, shipyard_inventory, display);
+                    else if (boxcar_name == "supply boxcar") place_tile(tile_pos, boxcar_object, supply_boxcar_tile, shipyard_inventory, display);
+                    else if (boxcar_name == "troop boxcar") place_tile(tile_pos, boxcar_object, troop_boxcar_tile, shipyard_inventory, display);
                     else
                     {
                         throw new Exception("not a valid boxcar to store");

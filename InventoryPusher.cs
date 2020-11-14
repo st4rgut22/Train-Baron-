@@ -12,6 +12,7 @@ public class InventoryPusher : EventDetector
     public GameObject dummy_supply_boxcar;
     public GameObject dummy_troop_boxcar;
     bool tile_in_station;
+    Vector2Int boxcar_selected_tile_pos;
     Vector2Int selected_tile_pos;
     Tile selected_tile;
 
@@ -30,8 +31,8 @@ public class InventoryPusher : EventDetector
 
     public override void OnBeginDrag(PointerEventData eventData)
     {
-        Vector2Int selected_tile_pos = GameManager.get_selected_tile(Input.mousePosition);
-        selected_tile = (Tile) inventory_tilemap.GetTile((Vector3Int)selected_tile_pos);
+        boxcar_selected_tile_pos = GameManager.get_selected_tile(Input.mousePosition);
+        selected_tile = (Tile) inventory_tilemap.GetTile((Vector3Int)boxcar_selected_tile_pos);
         print("begin drag inventory " + selected_tile.name);
         if (selected_tile.name=="supply_boxcar")
         {
@@ -65,7 +66,7 @@ public class InventoryPusher : EventDetector
         print("end drag inventory");
         if (tile_in_station)
         {
-            GameManager.city_manager.add_boxcar_to_station(selected_tile.name, selected_tile_pos);
+            GameManager.city_manager.add_boxcar_to_station(selected_tile.name, selected_tile_pos, boxcar_selected_tile_pos);
             // add boxcar to stations
         }
         Destroy(dummy_boxcar);
