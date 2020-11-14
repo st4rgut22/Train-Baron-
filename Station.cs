@@ -10,11 +10,12 @@ public class Station_Track
     public Tilemap tilemap;
     public Vector3Int start_location;
     public GameObject train;
+    public Station station;
 }
 
 public class Station
 {
-    public RouteManager.Orientation orientation;
+    public RouteManager.Orientation orientation; // orientation to rotate the boxcars when initialized
     public Station_Track outer_track;
     public Station_Track inner_track;
 
@@ -55,16 +56,20 @@ public class Station
         }
     }
 
-    public Station(Vector3Int outer_start, Vector3Int inner_start){
+    public Station(Vector3Int outer_start, Vector3Int inner_start, RouteManager.Orientation orientation){
+        this.orientation = orientation;
+
         outer_track = new Station_Track();
         outer_track.tilemap = RouteManager.shipyard_track_tilemap2;
         outer_track.start_location = outer_start;
         outer_track.train = null;
+        outer_track.station = this;
 
         inner_track = new Station_Track();
         inner_track.tilemap = RouteManager.shipyard_track_tilemap;
         inner_track.start_location = inner_start;
         inner_track.train = null;
+        inner_track.station = this;
 
     }
 }

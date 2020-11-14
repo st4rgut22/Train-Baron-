@@ -53,6 +53,22 @@ public class RouteManager : MonoBehaviour
 
     }
 
+    public static Orientation get_destination_track_orientation(string exit_track_name)
+    {
+        if (exit_track_name == "Shipyard Track Exit North")
+            return Orientation.North;
+        else if (exit_track_name == "Shipyard Track Exit South")
+            return Orientation.South;
+        else if (exit_track_name == "Shipyard Track Exit West")
+            return Orientation.West;
+        else if (exit_track_name == "Shipyard Track Exit East")
+            return Orientation.East;
+        else
+        {
+            return Orientation.None;
+        }
+    }
+
     public static void set_destination_track(string exit_track_name)
     {
         if (exit_track_name == "Shipyard Track Exit North")
@@ -124,7 +140,7 @@ public class RouteManager : MonoBehaviour
                 tile_world_coord.y -= cell_width / 2;
                 break;
             default:
-                print("train orientation is not set. cannot set boxcar position");
+                throw new Exception("train orientation should be set upon leaving city");
                 break;
         }
         return tile_world_coord;
@@ -386,7 +402,7 @@ public class RouteManager : MonoBehaviour
         catch (NullReferenceException e)
         {
             final_cell_dest = tile_world_coord;
-            print("Vehicle has reached the end of the track. tilemap position of " + moving_thing.name + " is " + moving_thing.tile_position);
+            print("Vehicle has reached the end of the track. tilemap " + tilemap + " position of " + moving_thing.name + " is " + moving_thing.tile_position);
             print(e.Message);
         }
         return new PositionPair(final_cell_dest, next_tilemap_pos);

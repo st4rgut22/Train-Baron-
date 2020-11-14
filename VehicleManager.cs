@@ -110,6 +110,7 @@ public class VehicleManager : BoardManager
         int boxcar_count = boxcar_list.Count;
         int boxcar_depart_id = 0; // counter
         Vector3Int last_location = train.tile_position;
+        print("train last location is " + last_location);
         RouteManager.Orientation depart_orientation = train.orientation;
         if (train.in_city) board = train.get_city().city_board;
         while (boxcar_depart_id < boxcar_count) 
@@ -163,7 +164,7 @@ public class VehicleManager : BoardManager
         else {
             print("No other type of boxcar");
             return;
-        }
+        }        
         boxcar.GetComponent<SpriteRenderer>().enabled = false;
         CityManager.home_base.add_boxcar_to_tilemap(boxcar);
     }

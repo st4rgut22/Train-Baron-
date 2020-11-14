@@ -36,10 +36,10 @@ public class City : BoardManager
     public static Vector3Int south_start_1 = new Vector3Int(14, 0, 0);
     public static Vector3Int south_start_2 = new Vector3Int(15, 0, 0);
 
-    static Station West_Station = new Station(west_start_1, west_start_2);
-    static Station North_Station = new Station(north_start_1, north_start_2);
-    static Station East_Station = new Station(east_start_1, east_start_2);
-    static Station South_Station = new Station(south_start_1, south_start_2);
+    static Station West_Station;
+    static Station North_Station;
+    static Station East_Station;
+    static Station South_Station;
 
     public GameObject Turn_Table;
     public GameObject Turn_Table_Circle;
@@ -66,10 +66,10 @@ public class City : BoardManager
 
         game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
 
-        West_Station = new Station(west_start_1, west_start_2);
-        North_Station = new Station(north_start_1, north_start_2);
-        East_Station = new Station(east_start_1, east_start_2);
-        South_Station = new Station(south_start_1, south_start_2);
+        West_Station = new Station(west_start_1, west_start_2, RouteManager.Orientation.West);
+        North_Station = new Station(north_start_1, north_start_2, RouteManager.Orientation.North);
+        East_Station = new Station(east_start_1, east_start_2,RouteManager.Orientation.East);
+        South_Station = new Station(south_start_1, south_start_2, RouteManager.Orientation.South);
     }
 
     private void Update()
@@ -134,6 +134,7 @@ public class City : BoardManager
     {
         Tilemap shipyard_inventory = GameManager.Shipyard_Inventory.GetComponent<Tilemap>();
         shipyard_inventory.SetTile((Vector3Int)tile_pos, null);
+        gameobject_board[tile_pos.x, tile_pos.y] = null;
     }
 
     public void display_boxcar(bool display)
@@ -160,36 +161,36 @@ public class City : BoardManager
         }
     }
 
-    public GameObject get_station_train(Vector2Int tile_pos)
+    public Station_Track get_station_track(Vector2Int tile_pos)
     {
-        GameObject train = null;
+        Station_Track station_track = null;
         if (tile_pos.y < 4)
         {
             if (tile_pos.x < 7)
             {
-                if (tile_pos.y == 2) train = West_Station.outer_track.train;
-                else { train = West_Station.inner_track.train; }
+                if (tile_pos.y == 2) return West_Station.outer_track;
+                else { return West_Station.inner_track; }
             }
             else
             {
-                if (tile_pos.y == 2 || tile_pos.x == 14) train = South_Station.inner_track.train;
-                else { train = South_Station.outer_track.train; }
+                if (tile_pos.y == 2 || tile_pos.x == 14) return South_Station.inner_track;
+                else { return South_Station.outer_track; }
             }
         }
         else
         {
             if (tile_pos.x < 7)
             {
-                if (tile_pos.y == 7 || tile_pos.x == 2) train = North_Station.outer_track.train;
-                else { train = North_Station.inner_track.train; }
+                if (tile_pos.y == 7 || tile_pos.x == 2) return North_Station.outer_track;
+                else { return North_Station.inner_track; }
             }
             else
             {
-                if (tile_pos.y==7) train = East_Station.inner_track.train;
-                else { train = East_Station.outer_track.train; }
+                if (tile_pos.y==7) return East_Station.inner_track;
+                else { return East_Station.outer_track; }
             }
         }
-        return train;
+        return station_track;
     }
 
     public void delete_train(GameObject train_object)

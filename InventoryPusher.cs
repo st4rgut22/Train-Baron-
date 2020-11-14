@@ -59,6 +59,22 @@ public class InventoryPusher : EventDetector
         dummy_boxcar.transform.position = world_position;
         selected_tile_pos = GameManager.get_selected_tile(Input.mousePosition);
         tile_in_station = CityManager.is_tile_in_station(selected_tile_pos);
+        if (tile_in_station)
+        {
+            RouteManager.Orientation orientation = CityManager.get_station_orientation(selected_tile_pos);
+            if (orientation==RouteManager.Orientation.North || orientation == RouteManager.Orientation.West)
+            {
+                dummy_boxcar.transform.eulerAngles = new Vector3(0, 0, -90);
+            }
+            else
+            {
+                dummy_boxcar.transform.eulerAngles = new Vector3(0, 0, 90);
+            }
+        }
+        else
+        {
+            dummy_boxcar.transform.eulerAngles = new Vector3(0, 0, 0);
+        }
     }
 
     public override void OnEndDrag(PointerEventData eventData)

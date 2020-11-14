@@ -43,6 +43,7 @@ public class MovingObject : EventDetector
     public bool departure_track_chosen = false;
     public string train_name = "train(Clone)";
     VehicleManager vehicle_manager;
+    public RouteManager.Orientation exit_track_orientation = RouteManager.Orientation.None;
 
     // Start is called before the first frame update
     public virtual void Awake()
@@ -113,15 +114,15 @@ public class MovingObject : EventDetector
         {
             int up_multiplier = 0;
             leave_city = false;
-            city.set_destination_track(RouteManager.Orientation.None); // reset the destination track for future trains
+            //city.set_destination_track(RouteManager.Orientation.None); // reset the destination track for future trains
             gameObject.transform.parent = null; // decouple train from turntable parent
             Vector3 train_destination;
             if (gameObject.tag == "boxcar") up_multiplier = gameObject.GetComponent<Boxcar>().boxcar_id; // disappear off screen
-            if (depart_city_orientation == RouteManager.Orientation.West || depart_city_orientation == RouteManager.Orientation.East)
+            if (exit_track_orientation == RouteManager.Orientation.West || exit_track_orientation == RouteManager.Orientation.East)
                 up_multiplier += 6;
-            else if (depart_city_orientation==RouteManager.Orientation.North)
+            else if (exit_track_orientation == RouteManager.Orientation.North)
                 up_multiplier += 3;
-            else if (depart_city_orientation==RouteManager.Orientation.South)
+            else if (exit_track_orientation == RouteManager.Orientation.South)
                 up_multiplier += 3;
             train_destination = transform.up * up_multiplier * RouteManager.cell_width + transform.position;
             StartCoroutine(straight_move(transform.position, train_destination, false, true)); // turn on exit city flag
@@ -355,10 +356,11 @@ public class MovingObject : EventDetector
         {
             // wait for user input to choose depart track
             // city knows which train is on the turntable
-            while (city.destination_orientation == RouteManager.Orientation.None)
+
+            while (exit_track_orientation == RouteManager.Orientation.None)
                 yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling
-            print("city destination orientation is " + city.destination_orientation);
-            depart_city_orientation = city.destination_orientation;
+            print("city destination orientation is " + exit_track_orientation);
+            //depart_city_orientation = city.destination_orientation; // unique to train!!!
             if (gameObject.tag == "train")
             {
                 Train train = gameObject.GetComponent<Train>();
@@ -367,7 +369,7 @@ public class MovingObject : EventDetector
                 {
                     yield return new WaitForEndOfFrame();
                 }
-                city.turn_turntable(gameObject, depart_city_orientation); // turntable turns to destination track
+                city.turn_turntable(gameObject, exit_track_orientation); // turntable turns to destination track
             }
             else // reset boxcar speed multiplier after it has been created
             {
@@ -381,6 +383,8 @@ public class MovingObject : EventDetector
         {
             in_city = false;
             city.remove_train_from_station(gameObject);
+            orientation = exit_track_orientation;
+            final_orientation = orientation;
             if (gameObject.tag == "train")
             {
                 vehicle_manager = GameObject.Find("VehicleManager").GetComponent<VehicleManager>();
@@ -396,7 +400,8 @@ public class MovingObject : EventDetector
                 city.delete_boxcar(gameObject);
             }
             prev_city = city;
-            next_tilemap_position = RouteManager.get_depart_tile_position(orientation, city.get_location());
+            next_tilemap_position = RouteManager.get_depart_tile_position(orientation, city.get_location()); // otherwise get stuck on track
+            exit_track_orientation = RouteManager.Orientation.None;
             reset_departure_flag();
         }
         if (arriving_in_city)

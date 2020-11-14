@@ -8,7 +8,7 @@ public class Train : MovingObject
 {
     public List<GameObject> boxcar_squad = new List<GameObject>(); // boxcars attached to this train
     GameObject clone_train; // used for dragging onto destination track
-    string exit_track_tile_type;
+    public string exit_track_tile_type;
     string destination_type = ""; // get destination type. If city, then disable after reaching destination.
     int id;
 
@@ -94,9 +94,20 @@ public class Train : MovingObject
             // queue up train
             if (exit_track_tile_type != null)
             {
-                RouteManager.set_destination_track(exit_track_tile_type);
+                exit_track_orientation = RouteManager.get_destination_track_orientation(exit_track_tile_type);
+                print("train exit track orientation is " + exit_track_orientation);
+                //RouteManager.set_destination_track(exit_track_tile_type);
                 city.turn_table.GetComponent<Turntable>().add_train_to_queue(gameObject);
+                set_boxcar_exit_track_orientation(exit_track_orientation);
             }
+        }
+    }
+
+    public void set_boxcar_exit_track_orientation(RouteManager.Orientation orientation)
+    {
+        foreach (GameObject boxcar_object in boxcar_squad)
+        {
+            boxcar_object.GetComponent<Boxcar>().exit_track_orientation = orientation;
         }
     }
 
@@ -123,7 +134,7 @@ public class Train : MovingObject
     {
         foreach (GameObject boxcar_object in boxcar_squad)
         {
-            if (boxcar_object.GetComponent<Boxcar>().depart_city_orientation == RouteManager.Orientation.None) return false;
+            if (boxcar_object.GetComponent<Boxcar>().exit_track_orientation == RouteManager.Orientation.None) return false;
         }
         return true;
     }
