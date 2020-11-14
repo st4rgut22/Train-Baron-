@@ -128,13 +128,15 @@ public class Train : MovingObject
         return true;
     }
 
+
+
     public void board_turntable(RouteManager.Orientation orientation, bool depart_turntable)
     {
         print("board turn table");
         //TODO: create dedicated function for adding boxcars
         if (depart_turntable)
         {
-            GameManager.vehicle_manager.add_all_boxcar_to_train(gameObject.GetComponent<Train>()); //TODO: allow user to select vehicle to add boxcars to 
+            //GameManager.vehicle_manager.add_all_boxcar_to_train(gameObject.GetComponent<Train>()); //TODO: allow user to select vehicle to add boxcars to 
             halt_train(true, false); //unhalt the boxcars
             halt_train(is_halt = false, is_pause = false); // unpause the train
         }

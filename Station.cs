@@ -15,8 +15,8 @@ public class Station_Track
 public class Station
 {
     public RouteManager.Orientation orientation;
-    Station_Track outer_track;
-    Station_Track inner_track;
+    public Station_Track outer_track;
+    public Station_Track inner_track;
 
     public void remove_train_from_station_track(GameObject train)
     {

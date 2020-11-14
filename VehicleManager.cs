@@ -51,7 +51,30 @@ public class VehicleManager : BoardManager
         train_component.arrive_at_city(); // call immediately on instantiation. Otherwise, in_city = false and the wrong board is updated        
     }
 
-    public void add_all_boxcar_to_train(Train train)
+    public void add_boxcar_to_train(Train train, string boxcar_type) //Temporary
+    {
+        // add all boxcars in inventory to a train. Revise to select boxcars to add to a train
+        GameObject boxcar_object;
+        if (boxcar_type=="supply_boxcar")
+        {
+            boxcar_object = Instantiate(Supply_Boxcar);
+        }
+        else if (boxcar_type=="bomb_boxcar")
+        {
+            boxcar_object = Instantiate(Bomb_Boxcar);
+        }
+        else if (boxcar_type=="troop_boxcar")
+        {
+            boxcar_object = Instantiate(Troop_Boxcar);
+        }
+        else
+        {
+            throw new Exception("no such boxcar exists");
+        }
+        create_boxcar(train, boxcar_object);
+    }
+
+    public void add_all_boxcar_to_train(Train train) //Temporary
     {
         // add all boxcars in inventory to a train. Revise to select boxcars to add to a train
         foreach (GameObject bomb_boxcar in Bomb_Boxcar_Inventory)
@@ -145,7 +168,7 @@ public class VehicleManager : BoardManager
         CityManager.home_base.add_boxcar_to_tilemap(boxcar);
     }
 
-    public void initialize_position(MovingObject moving_object, PositionPair pos_pair)
+    public static void initialize_position(MovingObject moving_object, PositionPair pos_pair)
     {
         moving_object.tile_position = new Vector3Int(pos_pair.tile_dest_pos.x, pos_pair.tile_dest_pos.y, 0);
         moving_object.next_tilemap_position = pos_pair.tile_dest_pos;
@@ -154,7 +177,7 @@ public class VehicleManager : BoardManager
         moving_object.final_orientation = pos_pair.orientation;
     }
 
-    public void create_boxcar(Train train, GameObject boxcar)
+    public static void create_boxcar(Train train, GameObject boxcar)
     {
         // save the train on the board, but boxcar will overwrite it
         if (train.in_city) // if train is in city then add boxcars 
@@ -200,7 +223,7 @@ public class VehicleManager : BoardManager
         //city.remove_train_from_list(train); 
     }
 
-    public void set_initial_angle(GameObject moving_gameobject, MovingObject moving_object)
+    public static void set_initial_angle(GameObject moving_gameobject, MovingObject moving_object)
     {
         switch (moving_object.orientation)
         {

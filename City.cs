@@ -8,9 +8,6 @@ public class City : BoardManager
 {
     // track city control as a function of supplies, troops, artillery
     Vector3Int tilemap_position;
-    public GameObject dummy_bomb_boxcar;
-    public GameObject dummy_supply_boxcar;
-    public GameObject dummy_troop_boxcar;
     public Tile bomb_boxcar_tile;
     public Tile supply_boxcar_tile;
     public Tile troop_boxcar_tile;
@@ -29,7 +26,7 @@ public class City : BoardManager
     public static Vector3Int north_start_2 = new Vector3Int(1, 9, 0);
     public static Vector3Int north_start_1 = new Vector3Int(2, 9, 0);
 
-    public static Vector2Int east_end_2 = new Vector2Int(10, 5);
+    public static Vector2Int east_end_2 = new Vector2Int(10, 5); //wrong
     public static Vector2Int east_end_1 = new Vector2Int(10, 6);
     public static Vector3Int east_start_2 = new Vector3Int(16, 7, 0);
     public static Vector3Int east_start_1 = new Vector3Int(16, 8, 0);
@@ -39,10 +36,10 @@ public class City : BoardManager
     public static Vector3Int south_start_1 = new Vector3Int(14, 0, 0);
     public static Vector3Int south_start_2 = new Vector3Int(15, 0, 0);
 
-    Station West_Station = new Station(west_start_1, west_start_2);
-    Station North_Station = new Station(north_start_1, north_start_2);
-    Station East_Station = new Station(east_start_1, east_start_2);
-    Station South_Station = new Station(south_start_1, south_start_2);
+    static Station West_Station = new Station(west_start_1, west_start_2);
+    static Station North_Station = new Station(north_start_1, north_start_2);
+    static Station East_Station = new Station(east_start_1, east_start_2);
+    static Station South_Station = new Station(south_start_1, south_start_2);
 
     public GameObject Turn_Table;
     public GameObject Turn_Table_Circle;
@@ -68,6 +65,11 @@ public class City : BoardManager
         destination_orientation = RouteManager.Orientation.None;
 
         game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
+
+        West_Station = new Station(west_start_1, west_start_2);
+        North_Station = new Station(north_start_1, north_start_2);
+        East_Station = new Station(east_start_1, east_start_2);
+        South_Station = new Station(south_start_1, south_start_2);
     }
 
     private void Update()
@@ -112,7 +114,7 @@ public class City : BoardManager
     public Vector2Int get_parking_spot()
     {
         Vector2Int parking_spot = BoardManager.invalid_tile;
-        int[,] parking_coord = { { 4, 0, 5 }, { 4, 11, 16 }, { 6, 11, 16 }, { 6, 0, 4 } };
+        int[,] parking_coord = { { 4, 0, 5 }, { 4, 11, 16 }, { 6, 11, 16 }, { 6, 0, 4 } }; // y, x start, x end
         for (int i = 0; i < parking_coord.Length; i++)
         {
             parking_spot = find_parking_spot(parking_coord[i,0],parking_coord[i,1],parking_coord[i,2]);
@@ -130,7 +132,7 @@ public class City : BoardManager
 
     public void display_boxcar(bool display)
     {
-        Tilemap shipyard_base = GameManager.Shipyard_Track.GetComponent<Tilemap>();
+        Tilemap shipyard_base = GameManager.Shipyard_Inventory.GetComponent<Tilemap>();
         for (int i = 0; i < gameobject_board.GetLength(0); i++)
         {
             for (int j = 0; j < gameobject_board.GetLength(1); j++)
@@ -152,24 +154,56 @@ public class City : BoardManager
         }
     }
 
+    public GameObject get_station_train(Vector2Int tile_pos)
+    {
+        GameObject train = null;
+        if (tile_pos.y < 4)
+        {
+            if (tile_pos.x < 7)
+            {
+                if (tile_pos.y == 2) train = West_Station.outer_track.train;
+                else { train = West_Station.inner_track.train; }
+            }
+            else
+            {
+                if (tile_pos.y == 2 || tile_pos.x == 14) train = South_Station.inner_track.train;
+                else { train = South_Station.outer_track.train; }
+            }
+        }
+        else
+        {
+            if (tile_pos.x < 7)
+            {
+                if (tile_pos.y == 7 || tile_pos.x == 2) train = North_Station.outer_track.train;
+                else { train = North_Station.inner_track.train; }
+            }
+            else
+            {
+                if (tile_pos.y==7) train = East_Station.inner_track.train;
+                else { train = East_Station.outer_track.train; }
+            }
+        }
+        return train;
+    }
+
     public void delete_train(GameObject train_object)
     {
         remove_train_from_list(train_object, train_list);
         //TODO: repeat line below for when train exits game view. Remove from list and hide
-        if (GameManager.city_manager.Activated_City == gameObject) MovingObject.switch_sprite_renderer(train_object, false);
+        if (CityManager.Activated_City == gameObject) MovingObject.switch_sprite_renderer(train_object, false);
         if (GameManager.game_menu_state) MovingObject.switch_sprite_renderer(train_object, true);
         game_manager.train_list.Add(train_object);
     }
 
     public void delete_boxcar(GameObject boxcar_object)
     {   // delete boxcar after it has left the city (delayed from train)
-        if (GameManager.city_manager.Activated_City == gameObject) MovingObject.switch_sprite_renderer(boxcar_object, false);
+        if (CityManager.Activated_City == gameObject) MovingObject.switch_sprite_renderer(boxcar_object, false);
         if (GameManager.game_menu_state) MovingObject.switch_sprite_renderer(boxcar_object, true);
     }
 
     public void add_boxcar(GameObject boxcar_object)
     {   // add boxcar after it has entered the city (delayed from train)
-        if (GameManager.city_manager.Activated_City == gameObject) MovingObject.switch_sprite_renderer(boxcar_object, true);
+        if (CityManager.Activated_City == gameObject) MovingObject.switch_sprite_renderer(boxcar_object, true);
         if (GameManager.game_menu_state) MovingObject.switch_sprite_renderer(boxcar_object, false); 
     }
 
@@ -178,7 +212,7 @@ public class City : BoardManager
         // add train to the city
         train_list.Add(train_object); 
         remove_train_from_list(train_object, game_manager.train_list); // remove train from the game manager list
-        if (GameManager.city_manager.Activated_City == gameObject) // city screen is on, containing the relvant vehicle
+        if (CityManager.Activated_City == gameObject) // city screen is on, containing the relvant vehicle
         {
             MovingObject.switch_sprite_renderer(train_object, true);
             train_object.GetComponent<Train>().turn_on_train(true);
@@ -247,7 +281,7 @@ public class City : BoardManager
         if (GameManager.city_menu_state != GameManager.prev_city_menu_state) // change game view
         {
             // if city view open, only update if city matches activated city. If city closed, hide trains 
-            if (GameManager.city_manager.Activated_City==gameObject)
+            if (CityManager.Activated_City==gameObject)
             {
                 foreach (GameObject train in train_list) // hide or show trains depending on whether I'm in a game view
                 {

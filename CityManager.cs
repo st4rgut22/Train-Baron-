@@ -15,11 +15,12 @@ public class CityManager : BoardManager
     public static Vector2Int home_base_location = new Vector2Int(3, 6); // location of city
 
     public GameObject City;
-    public GameObject Activated_City;
+    public static GameObject Activated_City;
     public Tilemap exit_north;
     public Tilemap exit_south;
     public Tilemap exit_west;
     public Tilemap exit_east;
+    static City cit;
 
     // distances for train to travel before exiting the city (not before stopping)
     public static float exit_dest_west_east = 6;
@@ -42,9 +43,35 @@ public class CityManager : BoardManager
 
     }
 
+    public bool add_boxcar_to_station(string boxcar_type, Vector2Int tile_pos)
+    {
+        // Activated City
+        GameObject train_object = Activated_City.GetComponent<City>().get_station_train(tile_pos);
+        if (train_object != null)
+        {
+            GameManager.vehicle_manager.add_boxcar_to_train(train_object.GetComponent<Train>(), boxcar_type);
+            return true;
+        }
+        else {
+            print("no train found in this track");
+            return false;
+        }
+    }
+
+    public static bool is_tile_in_station(Vector2Int tile_pos)
+    {
+        // check if a boxcar is being placed on a valid station
+        Tile shipyard_track_tile = (Tile)GameManager.Shipyard_Track.GetComponent<Tilemap>().GetTile((Vector3Int)tile_pos);
+        Tile shipyard_track_2_tile = (Tile)GameManager.Shipyard_Track2.GetComponent<Tilemap>().GetTile((Vector3Int)tile_pos);
+        if (shipyard_track_tile != null || shipyard_track_2_tile != null)
+            return true;
+        else
+            return false;
+    }
+
     public void set_destination_track(RouteManager.Orientation orientation)
     {
-        this.Activated_City.GetComponent<City>().set_destination_track(orientation);
+        Activated_City.GetComponent<City>().set_destination_track(orientation);
     }
 
     public void set_activated_city(GameObject city_object=null)
@@ -60,9 +87,9 @@ public class CityManager : BoardManager
             GameManager.city_menu_state = true;
             city_object.GetComponent<City>().display_boxcar(true);
         }
-        if (city_object == null) this.Activated_City.GetComponent<City>().show_turntable(false);
+        if (city_object == null) Activated_City.GetComponent<City>().show_turntable(false);
         else { city_object.GetComponent<City>().show_turntable(true); }
-        this.Activated_City = city_object;
+        Activated_City = city_object;
     }
 
     public static float get_exit_dist(RouteManager.Orientation orientation)

@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
     public static GameObject Shipyard_Base;
     public static GameObject Shipyard_Track;
     public static GameObject Shipyard_Track2;
+    public static GameObject Shipyard_Inventory;
     public static GameObject exit_north;
     public static GameObject exit_south;
     public static GameObject exit_west;
@@ -54,6 +55,7 @@ public class GameManager : MonoBehaviour
         Shipyard_Base = GameObject.Find("Shipyard Base");
         Shipyard_Track = GameObject.Find("Shipyard Track");
         Shipyard_Track2 = GameObject.Find("Shipyard Track 2");
+        Shipyard_Inventory = GameObject.Find("Shipyard Inventory");
         exit_north = GameObject.Find("Shipyard Track Exit North");
         exit_south = GameObject.Find("Shipyard Track Exit South");
         exit_west = GameObject.Find("Shipyard Track Exit West");
@@ -97,8 +99,10 @@ public class GameManager : MonoBehaviour
             Collider2D selected_object = get_object_at_cursor(Input.mousePosition);
             if (selected_object != null)
             {
+                Vector2Int selected_tile;
                 GameObject clicked_gameobject = selected_object.gameObject;
                 string object_name = clicked_gameobject.name.Replace("(Clone)", "");
+                print("selected " + object_name);
                 switch (object_name)
                 {
                     case "ES":
@@ -118,7 +122,7 @@ public class GameManager : MonoBehaviour
                         //train_component.change_motion(); 
                         break;
                     case "Structure": // if user clicks on city, create city menu
-                        Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
+                        selected_tile = get_selected_tile(Input.mousePosition);
                         GameObject city_object = city_manager.get_city(selected_tile);
                         // display boxcars
                         switch_on_shipyard(true);                        
