@@ -21,6 +21,11 @@ public class MenuManager : MonoBehaviour
 
     static Camera camera;
 
+    private void Awake()
+    {
+        
+    }
+
     // Start is called before the first frame update
     void Start()
     {

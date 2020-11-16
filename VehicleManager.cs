@@ -18,12 +18,19 @@ public class VehicleManager : BoardManager
     public static GameObject[,] vehicle_board; //contains moving objects eg trains, boxcars
     City start_city;
 
+    static int orient_count = 0; // for testing
+
+    private void Awake()
+    {
+        base.Awake();
+        vehicle_board = new GameObject[board_width, board_height];
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         base.Start();
         prefab_tag = "train";
-        vehicle_board = new GameObject[board_width, board_height];
         Train_List = new List<GameObject>();
     }
 
@@ -32,6 +39,15 @@ public class VehicleManager : BoardManager
     {
         // check if train has left the station, and reveal boxcars in the order added to the train
 
+    }
+
+    public static RouteManager.Orientation round_robin_orientation()
+    {
+        // TEMPORARY: FOR TESTING!
+        RouteManager.Orientation[] orient_list = { RouteManager.Orientation.North, RouteManager.Orientation.East, RouteManager.Orientation.West, RouteManager.Orientation.South };
+        RouteManager.Orientation orientation = orient_list[orient_count % 4];
+        orient_count++;
+        return orientation;
     }
 
     public void create_vehicle_at_home_base()

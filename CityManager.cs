@@ -28,13 +28,14 @@ public class CityManager : BoardManager
 
     private void Awake()
     {
+        base.Awake();
+        create_cities(); // instantiate cities and save their positions
+        home_base = get_city(home_base_location).GetComponent<City>();
     }
 
     void Start()
     {
         base.Start();
-        create_cities(); // instantiate cities and save their positions
-        home_base = get_city(home_base_location).GetComponent<City>();
     }
 
     // Update is called once per frame

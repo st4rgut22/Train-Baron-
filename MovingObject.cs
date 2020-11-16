@@ -9,7 +9,7 @@ public class MovingObject : EventDetector
     // all the vehicle movement math goes here
 
     protected Vector2 target_position;
-    protected float speed = 2f;
+    protected float speed = 1f; // Temporary. changed from 2f
     protected float speed_multiplier = 1f;
     protected float tolerance = .004f;
     protected Vector2 next_position;
@@ -44,6 +44,7 @@ public class MovingObject : EventDetector
     public string train_name = "train(Clone)";
     VehicleManager vehicle_manager;
     public RouteManager.Orientation exit_track_orientation = RouteManager.Orientation.None;
+    public RouteManager.Orientation steep_angle_orientation = RouteManager.Orientation.None;
 
     // Start is called before the first frame update
     public virtual void Awake()
@@ -52,7 +53,8 @@ public class MovingObject : EventDetector
         tile_position = new Vector3Int(home_base.x, home_base.y, 0);
         next_tilemap_position = home_base;
         prev_city = null;
-        orientation = RouteManager.Orientation.East; // undo
+        orientation = VehicleManager.round_robin_orientation(); // TEMPORARY, TESTING create train display!
+        //orientation = RouteManager.Orientation.East; // RESTORE ! 
         final_orientation = orientation;
     }
 
@@ -262,6 +264,7 @@ public class MovingObject : EventDetector
         in_tile = true;
         if (curve_type==RouteManager.Orientation.Less_Steep_Angle || curve_type== RouteManager.Orientation.Steep_Angle) // turntable adjustements
         {
+            steep_angle_orientation = final_orientation;
             if (depart_for_turntable && !leave_turntable)
             {
                 if (gameObject.name == "train(Clone)")
@@ -283,7 +286,7 @@ public class MovingObject : EventDetector
             }
             end_angle = start_angle + TrackManager.get_steep_angle_rotation(final_orientation);
         }
-        else
+        else // a 90 degree curve
         {
             end_angle = start_angle + TrackManager.get_right_angle_rotation(orientation, final_orientation); //end_angle is a static field for steep curves
         }
@@ -402,6 +405,7 @@ public class MovingObject : EventDetector
             prev_city = city;
             next_tilemap_position = RouteManager.get_depart_tile_position(orientation, city.get_location()); // otherwise get stuck on track
             exit_track_orientation = RouteManager.Orientation.None;
+            //steep_angle_orientation = RouteManager.Orientation.None;
             reset_departure_flag();
         }
         if (arriving_in_city)

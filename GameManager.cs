@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System;
+using UnityEngine.UI;
+
 
 public class GameManager : MonoBehaviour
 {
@@ -36,8 +38,8 @@ public class GameManager : MonoBehaviour
     public static bool game_menu_state = true;
     public static bool prev_game_menu_state = true;
     public static int prev_train_list_length = 0;
-
-
+    public Button test_btn;
+   
     //public static StoreMenuManager game_menu_manager;
 
     public static bool shipyard_state;
@@ -60,6 +62,8 @@ public class GameManager : MonoBehaviour
         exit_south = GameObject.Find("Shipyard Track Exit South");
         exit_west = GameObject.Find("Shipyard Track Exit West");
         exit_east = GameObject.Find("Shipyard Track Exit East");
+
+        test_btn.onClick.AddListener(activate_train);
     }
 
     // Start is called before the first frame update
@@ -71,6 +75,15 @@ public class GameManager : MonoBehaviour
         menu_manager = GameObject.Find("MenuManager").GetComponent<MenuManager>();
         //game_menu_manager = GameObject.Find("Store Menu").GetComponent<StoreMenuManager>();
         switch_on_shipyard(false);
+
+    }
+
+    public void activate_train()
+    {
+        for (int i = 0; i < 8; i++) // TEMPORARY testing train display UI
+        {
+            vehicle_manager.create_vehicle_at_home_base();
+        }
     }
 
     public static Collider2D get_object_at_cursor(Vector3 cursor_pos)
@@ -128,6 +141,9 @@ public class GameManager : MonoBehaviour
                         switch_on_shipyard(true);                        
                         city_manager.set_activated_city(city_object);
                         MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
+                        TrainMenuManager train_menu_manager = MenuManager.shipyard_exit_menu.GetComponent<TrainMenuManager>(); // updates queue graphic for activated city
+                        City activated_city = city_object.GetComponent<City>();
+                        train_menu_manager.update_train_menu(activated_city);
                         break;
                     case "boxcar":
                         break;
@@ -155,19 +171,19 @@ public class GameManager : MonoBehaviour
     public void switch_on_shipyard(bool state)
     {
 
-        Structure.GetComponent<TilemapCollider2D>().enabled = !state; // turn off colliders for city
-        Shipyard_Base.GetComponent<TilemapRenderer>().enabled = state;
-        Shipyard_Track.GetComponent<TilemapRenderer>().enabled = state;
-        Shipyard_Track2.GetComponent<TilemapRenderer>().enabled = state;
+        Structure.SetActive(!state); // turn off colliders for city
+        Shipyard_Base.SetActive(state);
+        Shipyard_Track.SetActive(state);
+        Shipyard_Track2.SetActive(state);
 
-        exit_east.GetComponent<TilemapRenderer>().enabled = state;
-        exit_north.GetComponent<TilemapRenderer>().enabled = state;
-        exit_south.GetComponent<TilemapRenderer>().enabled = state;
-        exit_west.GetComponent<TilemapRenderer>().enabled = state;
+        exit_east.SetActive(state);
+        exit_north.SetActive(state);
+        exit_south.SetActive(state);
+        exit_west.SetActive(state);
 
-        Track_Layer.GetComponent<TilemapRenderer>().enabled = !state;
-        Structure.GetComponent<TilemapRenderer>().enabled = !state;
-        Base.GetComponent<TilemapRenderer>().enabled = !state;
+        Track_Layer.SetActive(!state);
+        Structure.SetActive(!state);
+        Base.SetActive(!state);
 
         game_menu_state = !state;
         city_menu_state = state;

@@ -2,19 +2,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class TrainMenuManager : MonoBehaviour
 {
 
     GameObject train_menu;
-    public GameObject train_graphic;
     public Button close_btn;
+    public GameObject ne_less_steep;
+    public GameObject ne_steep;
+    public GameObject nw_less_steep;
+    public GameObject nw_steep;
+    public GameObject se_less_steep;
+    public GameObject se_steep;
+    public GameObject sw_less_steep;
+    public GameObject sw_steep;
     GameObject city_object;
     City city;
 
     private void Awake()
     {
-        train_menu = GameObject.Find("Train Menu"); // just a blue background
+        train_menu = GameObject.Find("Exit Bck"); // just a blue background
     }
 
     // Start is called before the first frame update
@@ -61,41 +69,78 @@ public class TrainMenuManager : MonoBehaviour
         RectTransformExtensions.SetTop(rectTransform, 0);
     }
 
-    //public RectTransform create_train_display(GameObject train_object)
-    //{
-    //    // instantiate new train display and assign it its train
-    //    Train train = train_object.GetComponent<Train>();
-    //    GameObject train_display = Instantiate(train_graphic);
-    //    TrainDisplay display = train_display.GetComponent<TrainDisplay>();
-    //    display.set_spawn_location(city_object);
-    //    display.set_train(train_object);
-    //    int boxcar_count = train.get_boxcar_id();
-    //    display.initialize_boxcar_text(boxcar_count);
-    //    train_display.transform.parent = train_menu.transform;
-    //    RectTransform rectTransform = train_display.GetComponent<RectTransform>();
-    //    return rectTransform;
-    //}
-
-    public void create_train_menu(GameObject City_Object)
+    public GameObject get_train_display(RouteManager.Orientation orientation)
     {
-        //this.city_object = City_Object;
-        //this.city = City_Object.GetComponent<City>();
-        //List<GameObject> train_list = city.get_train_list();
-        //Vector3 train_display_position = new Vector3(0, 0, 0);
-        //float padding = .01f;
-        //float total_padding = 0;
-        //float offset_x = 0;
-        //float display_width = .237f;
-        //for (int i = 0; i < train_list.Count; i++)
-        //{
-        //    total_padding += padding; // padding between display items
-        //    offset_x = i * display_width + total_padding;
-        //    RectTransform rectTransform = create_train_display(train_list[i]);
-        //    rectTransform.anchorMin = new Vector2(offset_x, .01f); // bottom left
-        //    rectTransform.anchorMax = new Vector2(offset_x + display_width, .11f); // top right
-        //    zero_margins(rectTransform);
-        //    rectTransform.localScale = new Vector2(1, 1); // scale ui to match anchors
-        //    rectTransform.anchoredPosition = Vector2.zero; //move ui to anchors
-        //}
+        GameObject train_display;
+        print("orientation is " + orientation);
+        switch (orientation)
+        {
+            case RouteManager.Orientation.ne_SteepCurve:
+                train_display = Instantiate(ne_steep);
+                break;
+            case RouteManager.Orientation.ne_LessSteepCurve:
+                train_display = Instantiate(ne_less_steep);
+                break;
+            case RouteManager.Orientation.nw_SteepCurve:
+                train_display = Instantiate(nw_steep);
+                break;
+            case RouteManager.Orientation.nw_LessSteepCurve:
+                train_display = Instantiate(nw_less_steep);
+                break;
+            case RouteManager.Orientation.se_LessSteepCurve:
+                train_display = Instantiate(se_less_steep);
+                break;
+            case RouteManager.Orientation.se_SteepCurve:
+                train_display = Instantiate(se_steep);
+                break;
+            case RouteManager.Orientation.sw_SteepCurve:
+                train_display = Instantiate(sw_steep);
+                break;
+            case RouteManager.Orientation.sw_LessSteepCurve:
+                train_display = Instantiate(sw_less_steep);
+                break;
+            default:
+                throw new Exception("should be a steep angle unless the train has departed, in which case it is already removed from queue");
+        }
+        return train_display;
+    }
+
+    public RectTransform create_train_display(GameObject train_object)
+    {
+        // instantiate new train display and assign it its train
+        Train train = train_object.GetComponent<Train>();
+        RouteManager.Orientation orientation = train.steep_angle_orientation;
+        GameObject train_display = get_train_display(orientation);
+        train_display.transform.SetParent(train_menu.transform);
+        RectTransform rectTransform = train_display.GetComponent<RectTransform>();
+        return rectTransform;
+    }
+
+    public void update_train_menu(City activated_city)
+    {
+        Queue<GameObject> train_queue = activated_city.turn_table.GetComponent<Turntable>().train_queue;
+        List<GameObject> train_list = new List<GameObject>(train_queue); // cast queue to list to iterate over all elements
+        float padding = .005f;
+        float total_padding = 0;
+        float offset_x = 0;
+        float display_width = .12f;
+        for (int i = 0; i < train_list.Count; i++)
+        {
+            total_padding += padding; // padding between display items
+            offset_x = i * display_width + total_padding;
+            try
+            {
+                RectTransform rectTransform = create_train_display(train_list[i]);
+                rectTransform.anchorMin = new Vector2(offset_x, 0f); // bottom left of parent transform
+                rectTransform.anchorMax = new Vector2(offset_x + display_width, 1); // top right of parent transform
+                zero_margins(rectTransform);
+                rectTransform.localScale = new Vector2(1, 1); // scale ui to match anchors
+                rectTransform.anchoredPosition = Vector2.zero; //move ui to anchors
+            }
+            catch (System.NullReferenceException e)
+            {
+                print("train has already departed, dont add train display");
+            }
+        }
     }
 }

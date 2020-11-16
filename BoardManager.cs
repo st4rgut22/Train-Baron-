@@ -17,15 +17,15 @@ public class BoardManager : EventDetector
     protected const int board_width = 17;
     protected const int board_height = 10; // size of the shipyard tilemap (usable tiles in track tilemap is slightly smaller)
     
-    public void Awake()
+    protected void Awake()
     {
         game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        gameobject_board = new GameObject[board_width, board_height];
     }
 
     // Start is called before the first frame update
     protected void Start()
     {
-        gameobject_board = new GameObject[board_width, board_height];
     }
 
     // Update is called once per frame

@@ -50,12 +50,21 @@ public class City : BoardManager
 
     public int prev_train_list_length = 0;
 
+    private void Awake()
+    {
+        base.Awake();
+        West_Station = new Station(west_start_1, west_start_2, RouteManager.Orientation.West);
+        North_Station = new Station(north_start_1, north_start_2, RouteManager.Orientation.North);
+        East_Station = new Station(east_start_1, east_start_2, RouteManager.Orientation.East);
+        South_Station = new Station(south_start_1, south_start_2, RouteManager.Orientation.South);
+        city_board = new GameObject[board_width, board_height]; // zero out the negative tile coordinates
+    }
+
     private void Start()
     {
         base.Start();
         // must be a Gameobject for Start() Update() to run
         train_list = new List<GameObject>();
-        city_board = new GameObject[board_width, board_height]; // zero out the negative tile coordinates
         turn_table = Instantiate(Turn_Table);
         turn_table.GetComponent<Turntable>().city = this;
         turn_table.GetComponent<SpriteRenderer>().enabled = false;
@@ -65,11 +74,6 @@ public class City : BoardManager
         destination_orientation = RouteManager.Orientation.None;
 
         game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
-
-        West_Station = new Station(west_start_1, west_start_2, RouteManager.Orientation.West);
-        North_Station = new Station(north_start_1, north_start_2, RouteManager.Orientation.North);
-        East_Station = new Station(east_start_1, east_start_2,RouteManager.Orientation.East);
-        South_Station = new Station(south_start_1, south_start_2, RouteManager.Orientation.South);
     }
 
     private void Update()

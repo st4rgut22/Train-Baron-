@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+
 public class Turntable : MonoBehaviour
 {
 
     public City city;
     public RouteManager.Orientation orientation;
-    Queue<GameObject> train_queue;
+    public Queue<GameObject> train_queue;
 
     private void Awake()
     {
