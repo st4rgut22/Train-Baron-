@@ -36,10 +36,10 @@ public class City : BoardManager
     public static Vector3Int south_start_1 = new Vector3Int(14, 0, 0);
     public static Vector3Int south_start_2 = new Vector3Int(15, 0, 0);
 
-    static Station West_Station;
-    static Station North_Station;
-    static Station East_Station;
-    static Station South_Station;
+    Station West_Station;
+    Station North_Station;
+    Station East_Station;
+    Station South_Station;
 
     public GameObject Turn_Table;
     public GameObject Turn_Table_Circle;
@@ -78,7 +78,7 @@ public class City : BoardManager
 
     private void Update()
     {
-        enable_train_for_screen();
+        //enable_train_for_screen(); causes lag
     }
 
     public void set_destination_track(RouteManager.Orientation orientation)
@@ -302,5 +302,4 @@ public class City : BoardManager
             }
         }
     }
-
 }

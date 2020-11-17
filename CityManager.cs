@@ -101,7 +101,10 @@ public class CityManager : BoardManager
         else { city_object.GetComponent<City>().show_turntable(true); }
         Activated_City = city_object;
         if (Activated_City == null) Activated_City_Component = null;
-        else { Activated_City_Component = Activated_City.GetComponent<City>(); }
+        else {
+            Activated_City_Component = Activated_City.GetComponent<City>();
+            Activated_City_Component.enable_train_for_screen(); // hide trains before setting activated city to null
+        }
     }
 
     public static float get_exit_dist(RouteManager.Orientation orientation)

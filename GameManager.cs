@@ -107,7 +107,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        enable_train_for_screen();
+        //enable_train_for_screen();
         if (Input.GetMouseButtonDown(0))
         {
             Collider2D selected_object = get_object_at_cursor(Input.mousePosition);
