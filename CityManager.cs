@@ -16,6 +16,7 @@ public class CityManager : BoardManager
 
     public GameObject City;
     public static GameObject Activated_City;
+    public static City Activated_City_Component;
     public Tilemap exit_north;
     public Tilemap exit_south;
     public Tilemap exit_west;
@@ -99,6 +100,8 @@ public class CityManager : BoardManager
         if (city_object == null) Activated_City.GetComponent<City>().show_turntable(false);
         else { city_object.GetComponent<City>().show_turntable(true); }
         Activated_City = city_object;
+        if (Activated_City == null) Activated_City_Component = null;
+        else { Activated_City_Component = Activated_City.GetComponent<City>(); }
     }
 
     public static float get_exit_dist(RouteManager.Orientation orientation)

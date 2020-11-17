@@ -116,6 +116,14 @@ public class TrainMenuManager : MonoBehaviour
         return rectTransform;
     }
 
+    public void destroy_old_train_menu()
+    {
+        foreach (Transform t in train_menu.transform)
+        {
+            Destroy(t.gameObject);
+        }
+    }
+
     public void update_train_menu(City activated_city)
     {
         Queue<GameObject> train_queue = activated_city.turn_table.GetComponent<Turntable>().train_queue;
@@ -124,6 +132,7 @@ public class TrainMenuManager : MonoBehaviour
         float total_padding = 0;
         float offset_x = 0;
         float display_width = .12f;
+        destroy_old_train_menu();
         for (int i = 0; i < train_list.Count; i++)
         {
             total_padding += padding; // padding between display items

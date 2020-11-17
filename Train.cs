@@ -99,6 +99,7 @@ public class Train : MovingObject
                 //RouteManager.set_destination_track(exit_track_tile_type);
                 city.turn_table.GetComponent<Turntable>().add_train_to_queue(gameObject);
                 set_boxcar_exit_track_orientation(exit_track_orientation);
+                if (city==CityManager.Activated_City_Component) GameManager.train_menu_manager.update_train_menu(city);
             }
         }
     }

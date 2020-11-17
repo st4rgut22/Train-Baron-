@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
     public static RouteManager route_manager;
     public static TrackManager track_manager;
     public static MenuManager menu_manager;
+    public static TrainMenuManager train_menu_manager;
 
     public static bool city_menu_state = false;
     public static bool prev_city_menu_state = false;
@@ -49,6 +50,7 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         train_list = new List<GameObject>();
+        train_menu_manager = GameObject.Find("Exit Bar").GetComponent<TrainMenuManager>();
         shipyard_state = false;
         Track_Layer = GameObject.Find("Track Layer");
         Structure = GameObject.Find("Structure");
@@ -62,7 +64,6 @@ public class GameManager : MonoBehaviour
         exit_south = GameObject.Find("Shipyard Track Exit South");
         exit_west = GameObject.Find("Shipyard Track Exit West");
         exit_east = GameObject.Find("Shipyard Track Exit East");
-
         test_btn.onClick.AddListener(activate_train);
     }
 
@@ -141,7 +142,6 @@ public class GameManager : MonoBehaviour
                         switch_on_shipyard(true);                        
                         city_manager.set_activated_city(city_object);
                         MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
-                        TrainMenuManager train_menu_manager = MenuManager.shipyard_exit_menu.GetComponent<TrainMenuManager>(); // updates queue graphic for activated city
                         City activated_city = city_object.GetComponent<City>();
                         train_menu_manager.update_train_menu(activated_city);
                         break;
