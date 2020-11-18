@@ -14,7 +14,6 @@ public class GameManager : MonoBehaviour
     const int cell_width = 1;
     const int cell_height = 1;
 
-    public static GameObject Track_Layer;
     public static GameObject Structure;
     public static GameObject Base;
     public static GameObject Shipyard_Base;
@@ -52,7 +51,6 @@ public class GameManager : MonoBehaviour
         train_list = new List<GameObject>();
         train_menu_manager = GameObject.Find("Exit Bar").GetComponent<TrainMenuManager>();
         shipyard_state = false;
-        Track_Layer = GameObject.Find("Track Layer");
         Structure = GameObject.Find("Structure");
         Base = GameObject.Find("Base");
         camera = GameObject.Find("Camera").GetComponent<Camera>();
@@ -117,39 +115,27 @@ public class GameManager : MonoBehaviour
                 GameObject clicked_gameobject = selected_object.gameObject;
                 string object_name = clicked_gameobject.name.Replace("(Clone)", "");
                 print("selected " + object_name);
-                switch (object_name)
+                if (object_name == "Track Layer" || object_name == "Track Layer 2" || object_name == "Track Layer 3")
                 {
-                    case "ES":
-                        break;
-                    case "NE":
-                        break;
-                    case "WN":
-                        break;
-                    case "WS":
-                        break;
-                    case "hor":
-                        break;
-                    case "vert":
-                        break;
-                    case "train": // start/pause a train
-                        //Train train_component = clicked_gameobject.GetComponent<Train>();
-                        //train_component.change_motion(); 
-                        break;
-                    case "Structure": // if user clicks on city, create city menu
-                        selected_tile = get_selected_tile(Input.mousePosition);
-                        GameObject city_object = city_manager.get_city(selected_tile);
-                        // display boxcars
-                        switch_on_shipyard(true);                        
-                        city_manager.set_activated_city(city_object);
-                        MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
-                        City activated_city = city_object.GetComponent<City>();
-                        train_menu_manager.update_train_menu(activated_city);
-                        break;
-                    case "boxcar":
-                        break;
-                    default:
-                        print("You did not click a gameobject. Object name is " + object_name);
-                        break;
+                    // "ES" || object_name == "NE" || object_name == "WN" || object_name == "WS" || object_name == "hor" || object_name == "vert"
+                    selected_tile = get_selected_tile(Input.mousePosition);
+                    GameManager.track_manager.toggle_on_train_track(selected_tile);
+                }
+                else if(object_name == "Structure")
+                {
+                    selected_tile = get_selected_tile(Input.mousePosition);
+                    GameObject city_object = city_manager.get_city(selected_tile);
+                    // display boxcars
+                    switch_on_shipyard(true);
+                    city_manager.set_activated_city(city_object);
+                    MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
+                    City activated_city = city_object.GetComponent<City>();
+                    train_menu_manager.update_train_menu(activated_city);
+                }
+                else
+                {
+                    print("You did not click a gameobject. Object name is " + object_name);
+
                 }
             }
         }
@@ -181,7 +167,10 @@ public class GameManager : MonoBehaviour
         exit_south.SetActive(state);
         exit_west.SetActive(state);
 
-        Track_Layer.SetActive(!state);
+        RouteManager.Track_Layer.SetActive(!state);
+        RouteManager.Track_Layer_2.SetActive(!state);
+        RouteManager.Track_Layer_3.SetActive(!state);
+
         Structure.SetActive(!state);
         Base.SetActive(!state);
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System;
+using UnityEngine.Tilemaps;
 
 public class MovingObject : EventDetector
 {
@@ -24,7 +25,7 @@ public class MovingObject : EventDetector
     protected const float z_pos = 0;
 
     public bool arriving_in_city = false; // next tile position is a city. upon movement completion set in_city=true
-    public bool in_city;        //in_city = false; TODO: Set False when leaving the shipyard
+    public bool in_city;        //in_city = false; 
     public City city;
     public City prev_city; // used to check whether a city destination is not in fact the city youve just left
     protected CityManager city_manager;
@@ -77,8 +78,9 @@ public class MovingObject : EventDetector
                 PositionPair position_pair;
                 if (!in_city)
                 {
+                    Tilemap toggled_tilemap = GameManager.track_manager.get_toggled_tilemap((Vector2Int)tile_position);
                     GameManager.vehicle_manager.update_vehicle_board(VehicleManager.vehicle_board, gameObject, tile_position, prev_tile_position);
-                    position_pair = RouteManager.get_destination(this, RouteManager.track_tilemap); // set the final orientation and destination
+                    position_pair = RouteManager.get_destination(this, toggled_tilemap); // set the final orientation and destination
                 }
                 else
                 {
@@ -396,7 +398,7 @@ public class MovingObject : EventDetector
                 Vector3Int city_location = city.get_location();
                 vehicle_manager.depart(gameObject, city_location);
                 city.turn_table.GetComponent<Turntable>().remove_train_from_queue(gameObject);
-                if (city == CityManager.Activated_City_Component) GameManager.train_menu_manager.update_train_menu(city);
+            if (city==CityManager.Activated_City_Component) GameManager.train_menu_manager.update_train_menu(city);
                 print("after moving to city edge. the train tile position is " + next_tilemap_position);// depart train at correct tile position
             } else
             {

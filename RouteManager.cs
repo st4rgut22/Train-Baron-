@@ -8,7 +8,14 @@ public class RouteManager : MonoBehaviour
 {
     // all functions for routing moving objects
 
+
+    public static GameObject Track_Layer;
+    public static GameObject Track_Layer_2;
+    public static GameObject Track_Layer_3;
+
     public static Tilemap track_tilemap;
+    public static Tilemap track_tilemap_2;
+    public static Tilemap track_tilemap_3;
     public static Tilemap city_tilemap;
     public static Tilemap shipyard_track_tilemap;
     public static Tilemap shipyard_track_tilemap2;
@@ -36,6 +43,9 @@ public class RouteManager : MonoBehaviour
 
     private void Awake()
     {
+        Track_Layer = GameObject.Find("Track Layer");
+        Track_Layer_2 = GameObject.Find("Track Layer 2");
+        Track_Layer_3 = GameObject.Find("Track Layer 3");
         shipyard_track_tilemap = GameObject.Find("Shipyard Track").GetComponent<Tilemap>();
         shipyard_track_tilemap2 = GameObject.Find("Shipyard Track 2").GetComponent<Tilemap>();
     }
@@ -43,7 +53,9 @@ public class RouteManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        track_tilemap = GameObject.Find("Track Layer").GetComponent<Tilemap>();
+        track_tilemap = Track_Layer.GetComponent<Tilemap>();
+        track_tilemap_2 = Track_Layer_2.GetComponent<Tilemap>();
+        track_tilemap_3 = Track_Layer_3.GetComponent<Tilemap>();
         city_tilemap = GameObject.Find("Structure").GetComponent<Tilemap>();
     }
 

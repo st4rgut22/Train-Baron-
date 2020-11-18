@@ -34,24 +34,10 @@ public class BoardManager : EventDetector
 
     }
 
-    public virtual void place_tile(Vector2Int tilemap_position, GameObject tile_object, Tile tile, Tilemap tilemap, bool display)
+    public virtual void place_tile(Vector2Int tilemap_position, GameObject tile_object, Tile tile, Tilemap tilemap)
     {
-        // place a tile if no tile already exists
-        print("place tile " + tile_object.name + " at position " + tilemap_position);
-        GameObject existing_tile = gameobject_board[tilemap_position.x, tilemap_position.y];
-        //if (existing_tile == null)
-        //{
-        if (display)
-        {
-            tilemap.SetTile((Vector3Int)tilemap_position, tile);
-            gameobject_board[tilemap_position.x, tilemap_position.y] = tile_object;
-        }
-        else
-        {
-            tilemap.SetTile((Vector3Int)tilemap_position, null); // remove tile (eg hiding the boxcar)
-        }
-
-        //}
+        tilemap.SetTile((Vector3Int)tilemap_position, tile);
+        gameobject_board[tilemap_position.x, tilemap_position.y] = tile_object;
     }
 
     public Vector2Int get_board_dimension()

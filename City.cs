@@ -153,9 +153,9 @@ public class City : BoardManager
                 {
                     Vector2Int tile_pos = new Vector2Int(i, j);
                     string boxcar_name = boxcar_object.name.Replace("(Clone)", "");
-                    if (boxcar_name == "bomb boxcar") place_tile(tile_pos, boxcar_object, bomb_boxcar_tile, shipyard_inventory, display);
-                    else if (boxcar_name == "supply boxcar") place_tile(tile_pos, boxcar_object, supply_boxcar_tile, shipyard_inventory, display);
-                    else if (boxcar_name == "troop boxcar") place_tile(tile_pos, boxcar_object, troop_boxcar_tile, shipyard_inventory, display);
+                    if (boxcar_name == "bomb boxcar") place_tile(tile_pos, boxcar_object, bomb_boxcar_tile, shipyard_inventory);
+                    else if (boxcar_name == "supply boxcar") place_tile(tile_pos, boxcar_object, supply_boxcar_tile, shipyard_inventory);
+                    else if (boxcar_name == "troop boxcar") place_tile(tile_pos, boxcar_object, troop_boxcar_tile, shipyard_inventory);
                     else
                     {
                         throw new Exception("not a valid boxcar to store");

@@ -155,22 +155,6 @@ public class GameMenuManager : EventDetector
             {
                 track_manager.place_tile(final_tilemap_position, clicked_item, clicked_tile, true);
             }
-            //else if (item_name == "dummy_train")
-            //{
-            //    // verify train is leaving from same city it arrived at
-            //    // verify train's orientation matchces track direction
-            //    GameObject city_object = train_menu_manager.get_city_object();
-            //    City city = city_object.GetComponent<City>();
-            //    RouteManager.Orientation orientation = RouteManager.get_start_orientation(final_tilemap_position, city);
-            //    Train train = train_object.GetComponent<Train>();
-            //    if (orientation != RouteManager.Orientation.None && train.all_boxcar_arrived()) // place vehicle if the train placement is valid and boxcars are not enroute
-            //    {
-            //        Vector3Int city_location = city.get_location();
-            //        vehicle_manager.place_vehicle(city_location, train_object, orientation);
-            //        vehicle_manager.depart_station(train, city_object, city);
-            //        create_train_menu(city_object); // update train menu
-            //    }
-            //}
             if (clicked_item != null)
             {
                 Destroy(clicked_item);
