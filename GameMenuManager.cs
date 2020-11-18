@@ -153,7 +153,7 @@ public class GameMenuManager : EventDetector
             string item_name = clicked_item.name.Replace("(Clone)", ""); // remove clone from the game object name
             if (item_name == "ES" || item_name == "NE" || item_name == "WN" || item_name == "WS" || item_name == "hor" || item_name == "vert")
             {
-                track_manager.place_tile(final_tilemap_position, clicked_item, clicked_tile, true);
+                track_manager.place_tile(final_tilemap_position, clicked_tile, true);
             }
             if (clicked_item != null)
             {

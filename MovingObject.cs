@@ -79,6 +79,10 @@ public class MovingObject : EventDetector
                 if (!in_city)
                 {
                     Tilemap toggled_tilemap = GameManager.track_manager.get_toggled_tilemap((Vector2Int)tile_position);
+                    print("toggled tilemap is " + toggled_tilemap + " at " + tile_position);
+                    if (tile_position.Equals(new Vector3Int(8, 6, 0))){
+                        print("break");
+                    }
                     GameManager.vehicle_manager.update_vehicle_board(VehicleManager.vehicle_board, gameObject, tile_position, prev_tile_position);
                     position_pair = RouteManager.get_destination(this, toggled_tilemap); // set the final orientation and destination
                 }

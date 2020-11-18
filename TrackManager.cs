@@ -50,7 +50,7 @@ public class TrackManager : BoardManager
 
     const int max_track_per_cell = 3;
 
-    public List<GameObject>[,] track_grid = new List<GameObject>[board_width, board_height]; // store tracks added to a particular cell
+    public List<Tile>[,] track_grid = new List<Tile>[board_width, board_height]; // store tracks added to a particular cell
     public static int[,] toggle_count_grid = new int[board_width, board_height];//store the toggle count, initially 0 (first track in the list). off tiles are grey, on tiles are color
     private void Awake()
     {
@@ -66,9 +66,10 @@ public class TrackManager : BoardManager
         {
             for (int j=0; j< board_height; j++)
             {
-                track_grid[i, j] = new List<GameObject>();                
+                track_grid[i, j] = new List<Tile>();                
             }
         }
+        initialize_track_layer();
     }
 
     // Update is called once per frame
@@ -77,10 +78,25 @@ public class TrackManager : BoardManager
 
     }
 
+    public void initialize_track_layer()
+    {
+        // add tracks that pre-exist to the grid
+        for (int i = 0; i < board_width; i++)
+        {
+            for (int j = 0; j < board_height; j++)
+            {
+                Vector3Int tile_pos = new Vector3Int(i, j, 0);
+                Tile tile = (Tile) RouteManager.track_tilemap.GetTile(tile_pos);
+                if (tile != null) track_grid[i, j].Add(tile);
+            }
+        }
+    }
+
     public Tilemap get_toggled_tilemap(Vector2Int tilemap_position)
     {
         // TODO: when vehicle gets next position, return the current next tile
         int toggle_count = toggle_count_grid[tilemap_position.x, tilemap_position.y];
+        print("toggled tilemap count is " + toggle_count + " at position " + tilemap_position);
         if (toggle_count == 0) return RouteManager.track_tilemap;
         else if (toggle_count == 1) return RouteManager.track_tilemap_2;
         else if (toggle_count == 2) return RouteManager.track_tilemap_3;
@@ -103,7 +119,7 @@ public class TrackManager : BoardManager
     public Tile inactivate_track_tile(string tile_name)
     {
         // if track is on, turn off and vise versa
-        if (tile_name == "vert_track_gray" || tile_name=="vert_track") return vert_tile_gray;
+        if (tile_name == "vert_track_gray" || tile_name=="vert") return vert_tile_gray;
         else if (tile_name == "hor_track_gray" || tile_name=="hor") return hor_tile_gray;
         else if (tile_name == "curve_NE_gray" || tile_name=="NE") return NE_tile_gray;
         else if (tile_name == "curve_ES_gray" || tile_name=="ES") return ES_tile_gray;
@@ -123,10 +139,11 @@ public class TrackManager : BoardManager
 
     public void toggle_on_train_track(Vector2Int tilemap_position)
     {
-        List<GameObject> track_list = track_grid[tilemap_position.x, tilemap_position.y];
+        List<Tile> track_list = track_grid[tilemap_position.x, tilemap_position.y];
         // click on tile to toggle tracks. called from GameManager
         int toggle_count = toggle_count_grid[tilemap_position.x, tilemap_position.y];
-        toggle_count_grid[tilemap_position.x, tilemap_position.y] = (toggle_count + 1) % track_list.Count;
+        toggle_count = (toggle_count + 1) % track_list.Count; // increment toggle count to activate the next track tile
+        toggle_count_grid[tilemap_position.x, tilemap_position.y] = toggle_count;
         print("toggle count " + toggle_count);
         Tilemap track_tilemap;
         for (int i = 0; i < track_list.Count; i++) // inactivate all track tiles, except for the one toggled on
@@ -145,12 +162,12 @@ public class TrackManager : BoardManager
         }
     }
 
-    public void place_tile(Vector2Int tilemap_position, GameObject tile_object, Tile tile, bool display)
+    public void place_tile(Vector2Int tilemap_position, Tile tile, bool display)
     {
         //add to appropriate track tilemap
-        List<GameObject> track_list = track_grid[tilemap_position.x, tilemap_position.y];
+        List<Tile> track_list = track_grid[tilemap_position.x, tilemap_position.y];
         int track_count = track_list.Count;
-        track_list.Add(tile_object);
+        track_list.Add(tile);
         Tilemap track_tilemap = get_tilemap(track_count);
         if (track_tilemap == null)
         {
@@ -159,7 +176,7 @@ public class TrackManager : BoardManager
         }
         // activate tile (default) if it is the first tile in the cell, otherwise toggle off
         if (track_count != 0) tile = inactivate_track_tile(tile.name); // toggle off, gray out tile
-        base.place_tile(tilemap_position, tile_object, tile, track_tilemap);
+        track_tilemap.SetTile((Vector3Int)tilemap_position, tile);
     }
 
     public static RouteManager.Orientation flip_straight_orientation(RouteManager.Orientation orientation)
