@@ -85,6 +85,7 @@ public class MovingObject : EventDetector
                     }
                     GameManager.vehicle_manager.update_vehicle_board(VehicleManager.vehicle_board, gameObject, tile_position, prev_tile_position);
                     position_pair = RouteManager.get_destination(this, toggled_tilemap); // set the final orientation and destination
+                    print("destination is " + position_pair.abs_dest_pos);
                 }
                 else
                 {

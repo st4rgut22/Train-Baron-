@@ -249,7 +249,6 @@ public class RouteManager : MonoBehaviour
 
     public static Vector2Int get_depart_tile_position(Orientation orientation, Vector3Int tile_coord)
     {
-
         switch (orientation)
         {
             case Orientation.North:
@@ -267,6 +266,7 @@ public class RouteManager : MonoBehaviour
 
     public static Vector2 get_straight_final_dest(Orientation orientation, Vector2 tile_world_coord)
     {
+        //destination absolute position is offset from center of destination tile
         switch (orientation)
         {
             case Orientation.North:
