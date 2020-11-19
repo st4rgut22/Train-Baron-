@@ -56,6 +56,7 @@ public class CityManager : BoardManager
         // Activated City
         City activated_city = Activated_City.GetComponent<City>();
         GameObject train_object = activated_city.get_station_track(tile_pos).train;
+        print("train id is " + train_object.GetComponent<Train>().get_id());
         if (train_object != null)
         {
             GameManager.vehicle_manager.add_boxcar_to_train(train_object.GetComponent<Train>(), boxcar_type);

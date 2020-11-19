@@ -56,17 +56,17 @@ public class Station
         }
     }
 
-    public Station(Vector3Int outer_start, Vector3Int inner_start, RouteManager.Orientation orientation){
+    public Station(Vector3Int outer_start, Vector3Int inner_start, RouteManager.Orientation orientation, Tilemap outer_track_tilemap, Tilemap inner_track_tilemap){
         this.orientation = orientation;
 
         outer_track = new Station_Track();
-        outer_track.tilemap = RouteManager.shipyard_track_tilemap2;
+        outer_track.tilemap = outer_track_tilemap;
         outer_track.start_location = outer_start;
         outer_track.train = null;
         outer_track.station = this;
 
         inner_track = new Station_Track();
-        inner_track.tilemap = RouteManager.shipyard_track_tilemap;
+        inner_track.tilemap = inner_track_tilemap;
         inner_track.start_location = inner_start;
         inner_track.train = null;
         inner_track.station = this;

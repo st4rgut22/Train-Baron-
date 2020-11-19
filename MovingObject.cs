@@ -55,7 +55,7 @@ public class MovingObject : EventDetector
         next_tilemap_position = home_base;
         prev_city = null;
         orientation = VehicleManager.round_robin_orientation(); // TEMPORARY, TESTING create train display!
-        //orientation = RouteManager.Orientation.East; // RESTORE ! 
+        //orientation = RouteManager.Orientation.North; // RESTORE ! 
         final_orientation = orientation;
     }
 
@@ -85,7 +85,6 @@ public class MovingObject : EventDetector
                     }
                     GameManager.vehicle_manager.update_vehicle_board(VehicleManager.vehicle_board, gameObject, tile_position, prev_tile_position);
                     position_pair = RouteManager.get_destination(this, toggled_tilemap); // set the final orientation and destination
-                    print("destination is " + position_pair.abs_dest_pos);
                 }
                 else
                 {
@@ -94,6 +93,11 @@ public class MovingObject : EventDetector
                 }
                 Vector2 train_dest_xy = position_pair.abs_dest_pos;
                 next_tilemap_position = position_pair.tile_dest_pos;
+                // stop the train here if track ends
+                if (!in_city && gameObject.tag == "train")
+                {
+                    if (is_end_of_track(next_tilemap_position)) return;
+                }
                 Vector3 train_destination = new Vector3(train_dest_xy[0], train_dest_xy[1], z_pos);
                  if (orientation != final_orientation) // curved track
                     StartCoroutine(bezier_move(transform, orientation, final_orientation));
@@ -136,6 +140,24 @@ public class MovingObject : EventDetector
             train_destination = transform.up * up_multiplier * RouteManager.cell_width + transform.position;
             StartCoroutine(straight_move(transform.position, train_destination, false, true)); // turn on exit city flag
         }
+    }
+
+    public bool is_end_of_track(Vector2Int next_tilmap_position)
+    {
+        Tilemap next_tilemap = GameManager.track_manager.get_toggled_tilemap(next_tilemap_position);
+        if (next_tilemap.GetTile((Vector3Int)next_tilemap_position) == null)
+        {
+            GameObject city_object = GameManager.city_manager.get_city(next_tilemap_position);
+            if (city_object == null)
+            {
+                // pause the train until a new track is placed
+                print("next tile is null at position " + next_tilemap_position + " halt the train");
+                gameObject.GetComponent<Train>().halt_train(true, true); // pause the train
+                StartCoroutine(gameObject.GetComponent<Train>().wait_for_track_placement(next_tilemap_position));
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void switch_sprite_renderer(GameObject vehicle_object, bool state)

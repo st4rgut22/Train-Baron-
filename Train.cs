@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.EventSystems;
+using UnityEngine.Tilemaps;
 
 public class Train : MovingObject
 {
@@ -199,6 +200,18 @@ public class Train : MovingObject
             if (is_halt) boxcar.GetComponent<Boxcar>().is_halt = state; 
             else { boxcar.GetComponent<Boxcar>().is_pause = state; }
         }
+    }
+
+    public IEnumerator wait_for_track_placement(Vector2Int next_tile_pos)
+    {
+        while (true)
+        {
+            Tilemap tilemap = GameManager.track_manager.get_toggled_tilemap(next_tile_pos);
+            Tile tile = (Tile) tilemap.GetTile((Vector3Int)next_tile_pos);
+            if (tile != null) break;
+            else { yield return new WaitForEndOfFrame(); }
+        }
+        halt_train(true, false); // unhalt the train
     }
 
     public void set_id(int id)

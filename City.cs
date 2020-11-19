@@ -16,6 +16,7 @@ public class City : BoardManager
     public GameObject[,] city_board; // contains location of vehicles within city
     public List<Station> station_list;
 
+    //outside track comes first
     public static Vector2Int west_end_1 = new Vector2Int(4, 2);
     public static Vector2Int west_end_2 = new Vector2Int(4, 3);
     public static Vector3Int west_start_1 = new Vector3Int(0, 2, 0);
@@ -23,8 +24,8 @@ public class City : BoardManager
 
     public static Vector2Int north_end_2 = new Vector2Int(4, 5);
     public static Vector2Int north_end_1 = new Vector2Int(4, 6);
-    public static Vector3Int north_start_2 = new Vector3Int(1, 9, 0);
-    public static Vector3Int north_start_1 = new Vector3Int(2, 9, 0);
+    public static Vector3Int north_start_1 = new Vector3Int(1, 9, 0);
+    public static Vector3Int north_start_2 = new Vector3Int(2, 9, 0);
 
     public static Vector2Int east_end_2 = new Vector2Int(10, 5); //wrong
     public static Vector2Int east_end_1 = new Vector2Int(10, 6);
@@ -33,8 +34,8 @@ public class City : BoardManager
 
     public static Vector2Int south_end_1 = new Vector2Int(10, 1);
     public static Vector2Int south_end_2 = new Vector2Int(10, 0);
-    public static Vector3Int south_start_1 = new Vector3Int(14, 0, 0);
-    public static Vector3Int south_start_2 = new Vector3Int(15, 0, 0);
+    public static Vector3Int south_start_1 = new Vector3Int(15, 0, 0);
+    public static Vector3Int south_start_2 = new Vector3Int(14, 0, 0); 
 
     Station West_Station;
     Station North_Station;
@@ -53,10 +54,10 @@ public class City : BoardManager
     private void Awake()
     {
         base.Awake();
-        West_Station = new Station(west_start_1, west_start_2, RouteManager.Orientation.West);
-        North_Station = new Station(north_start_1, north_start_2, RouteManager.Orientation.North);
-        East_Station = new Station(east_start_1, east_start_2, RouteManager.Orientation.East);
-        South_Station = new Station(south_start_1, south_start_2, RouteManager.Orientation.South);
+        West_Station = new Station(west_start_1, west_start_2, RouteManager.Orientation.West, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
+        North_Station = new Station(north_start_1, north_start_2, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
+        East_Station = new Station(east_start_1, east_start_2, RouteManager.Orientation.East, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
+        South_Station = new Station(south_start_1, south_start_2, RouteManager.Orientation.South, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
         city_board = new GameObject[board_width, board_height]; // zero out the negative tile coordinates
     }
 
@@ -167,7 +168,6 @@ public class City : BoardManager
 
     public Station_Track get_station_track(Vector2Int tile_pos)
     {
-        Station_Track station_track = null;
         if (tile_pos.y < 4)
         {
             if (tile_pos.x < 7)
@@ -194,7 +194,6 @@ public class City : BoardManager
                 else { return East_Station.outer_track; }
             }
         }
-        return station_track;
     }
 
     public void delete_train(GameObject train_object)

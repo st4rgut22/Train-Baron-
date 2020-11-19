@@ -415,7 +415,7 @@ public class RouteManager : MonoBehaviour
                     print("none of the track tiles matched"); // return current position
                     break;
             }
-            if (tile_name == "ne_diag" || tile_name == "nw_diag" || tile_name == "se_diag" || tile_name == "less_diag_ne_turn" ||
+            if (tile_name == "ne_diag" || tile_name == "nw_diag" || tile_name == "se_diag" || tile_name == "sw_diag" || tile_name == "less_diag_ne_turn" ||
                 tile_name == "less_diag_nw_turn" || tile_name == "less_diag_se_turn" || tile_name == "less_diag_sw_turn")
             {
                 final_cell_dest = get_straight_final_dest(moving_thing.orientation, tile_world_coord);
@@ -425,7 +425,7 @@ public class RouteManager : MonoBehaviour
         catch (NullReferenceException e)
         {
             final_cell_dest = tile_world_coord;
-            print("Vehicle has reached the end of the track. tilemap " + tilemap + " position of " + moving_thing.name + " is " + moving_thing.tile_position);
+            print("Vehicle Should not reach end of track due to look ahead. tilemap " + tilemap + " position of " + moving_thing.name + " is " + moving_thing.tile_position);
             print(e.Message);
         }
         return new PositionPair(final_cell_dest, next_tilemap_pos);
