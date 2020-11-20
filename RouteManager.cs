@@ -317,7 +317,7 @@ public class RouteManager : MonoBehaviour
                         final_cell_dest = get_straight_final_dest(Orientation.South, tile_world_coord);
                         next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y - 1);
                     }
-                    else if (moving_thing.orientation == Orientation.North)
+                    else if (moving_thing.orientation == Orientation.North || moving_thing.orientation == Orientation.East) // 2nd condition is for opposite direction when placing boxcars using flipped orientation
                     {
                         moving_thing.final_orientation = Orientation.East;
                         final_cell_dest = get_straight_final_dest(Orientation.East, tile_world_coord);
@@ -326,7 +326,7 @@ public class RouteManager : MonoBehaviour
                     else { throw new NullReferenceException(); }
                     break;
                 case "NE":
-                    if (moving_thing.orientation == Orientation.South)
+                    if (moving_thing.orientation == Orientation.South || moving_thing.orientation == Orientation.East)
                     {
                         moving_thing.final_orientation = Orientation.East;
                         final_cell_dest = get_straight_final_dest(Orientation.East, tile_world_coord);
@@ -347,7 +347,7 @@ public class RouteManager : MonoBehaviour
                         final_cell_dest = get_straight_final_dest(Orientation.North, tile_world_coord);
                         next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y + 1);
                     }
-                    else if (moving_thing.orientation == Orientation.South)
+                    else if (moving_thing.orientation == Orientation.South || moving_thing.orientation == Orientation.West)
                     {
                         moving_thing.final_orientation = Orientation.West;
                         final_cell_dest = get_straight_final_dest(Orientation.West, tile_world_coord);
@@ -362,7 +362,7 @@ public class RouteManager : MonoBehaviour
                         final_cell_dest = get_straight_final_dest(Orientation.South, tile_world_coord);
                         next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y - 1);
                     }
-                    else if (moving_thing.orientation == Orientation.North)
+                    else if (moving_thing.orientation == Orientation.North || moving_thing.orientation == Orientation.West)
                     {
                         moving_thing.final_orientation = Orientation.West;
                         final_cell_dest = get_straight_final_dest(Orientation.West, tile_world_coord);
@@ -437,13 +437,17 @@ public class RouteManager : MonoBehaviour
         Orientation original_final_orientation = vehicle.final_orientation;
         Tile track_tile = (Tile)tilemap.GetTile(vehicle.tile_position);
         string track_name = track_tile.name;
+        print("track name is " + track_name);
+        print("original direction is " + vehicle.orientation);
         vehicle.orientation = TrackManager.flip_straight_orientation(vehicle.orientation);
+        print("opposite direction is " + vehicle.orientation);
         PositionPair prev_pos_pair = get_next_tile_pos(tilemap, track_tile, vehicle, vehicle.tile_position); // opposite direction of train to get prev tile
         Vector3Int prev_tile_coord = (Vector3Int)prev_pos_pair.tile_dest_pos; 
         track_tile = (Tile)tilemap.GetTile(prev_tile_coord);
         track_name = track_tile.name;
         PositionPair pos_pair = get_next_tile_pos(tilemap, track_tile, vehicle, prev_tile_coord); // go in direction opposite of train
         TrackManager.set_opposite_direction(track_name, vehicle); // set direction same as train
+        print("final direction is " + vehicle.orientation);
         pos_pair.tile_dest_pos = prev_pos_pair.tile_dest_pos; // use previous tile, not the previous previous tile
         pos_pair.orientation = vehicle.orientation;
         vehicle.orientation = original_orientation; // restore original orientation

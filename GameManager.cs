@@ -105,6 +105,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //print("train list is this long " + train_list.Count);
         //enable_train_for_screen();
         if (Input.GetMouseButtonDown(0))
         {

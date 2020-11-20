@@ -79,46 +79,53 @@ public class GameMenuManager : EventDetector
 
     public override void OnBeginDrag(PointerEventData eventData)
     {
-        item_name = eventData.pointerCurrentRaycast.gameObject.name;
-        print("Clicked: " + eventData.pointerCurrentRaycast.gameObject.name);
-        Vector3 position = MenuManager.convert_screen_to_world_coord(eventData.position);
-        clicked_tile = null; // reset this variable
-        switch (item_name)
+        try
         {
-            case "ES":
-                clicked_item = Instantiate(es_curve, position, Quaternion.identity);
-                clicked_tile = ES_tile;
-                break;
-            case "NE":
-                clicked_item = Instantiate(ne_curve, position, Quaternion.identity);
-                clicked_tile = NE_tile;
-                break;
-            case "WN":
-                clicked_item = Instantiate(wn_curve, position, Quaternion.identity);
-                clicked_tile = WN_tile;
-                break;
-            case "WS":
-                clicked_item = Instantiate(ws_curve, position, Quaternion.identity);
-                clicked_tile = WS_tile;
-                break;
-            case "hor":
-                clicked_item = Instantiate(hor_track, position, Quaternion.identity);
-                clicked_tile = hor_tile;
-                break;
-            case "vert":
-                clicked_item = Instantiate(vert_track, position, Quaternion.identity);
-                clicked_tile = vert_tile;
-                break;
-            case "boxcar":
-                clicked_item = Instantiate(boxcar, position, Quaternion.identity);
-                break;
-            case "trainee": // tell the train where to go
-                clicked_item = Instantiate(dummy_train, position, Quaternion.identity);
-                break;
-            default:
-                print("This is not a draggable item");
-                break;
+            item_name = eventData.pointerCurrentRaycast.gameObject.name;
+            print("Clicked: " + eventData.pointerCurrentRaycast.gameObject.name);
+            Vector3 position = MenuManager.convert_screen_to_world_coord(eventData.position);
+            clicked_tile = null; // reset this variable
+            switch (item_name)
+            {
+                case "ES":
+                    clicked_item = Instantiate(es_curve, position, Quaternion.identity);
+                    clicked_tile = ES_tile;
+                    break;
+                case "NE":
+                    clicked_item = Instantiate(ne_curve, position, Quaternion.identity);
+                    clicked_tile = NE_tile;
+                    break;
+                case "WN":
+                    clicked_item = Instantiate(wn_curve, position, Quaternion.identity);
+                    clicked_tile = WN_tile;
+                    break;
+                case "WS":
+                    clicked_item = Instantiate(ws_curve, position, Quaternion.identity);
+                    clicked_tile = WS_tile;
+                    break;
+                case "hor":
+                    clicked_item = Instantiate(hor_track, position, Quaternion.identity);
+                    clicked_tile = hor_tile;
+                    break;
+                case "vert":
+                    clicked_item = Instantiate(vert_track, position, Quaternion.identity);
+                    clicked_tile = vert_tile;
+                    break;
+                case "boxcar":
+                    clicked_item = Instantiate(boxcar, position, Quaternion.identity);
+                    break;
+                case "trainee": // tell the train where to go
+                    clicked_item = Instantiate(dummy_train, position, Quaternion.identity);
+                    break;
+                default:
+                    print("This is not a draggable item");
+                    break;
+            }
+        } catch (NullReferenceException)
+        {
+            print("null");
         }
+
     }
 
     public override void OnDrag(PointerEventData eventData)

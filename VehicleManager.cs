@@ -8,6 +8,9 @@ public class VehicleManager : BoardManager
 {
     public GameObject Train; // prefabs
     public GameObject Train_Placeholder; // missing component
+    public GameObject Red_Boxcar_Placeholder; // missing component
+    public GameObject Blue_Boxcar_Placeholder; // missing component
+    public GameObject Green_Boxcar_Placeholder; // missing component
     public List<GameObject> Train_List;
     public List<GameObject> Bomb_Boxcar_Inventory;
     public List<GameObject> Troop_Boxcar_Inventory;
@@ -39,6 +42,18 @@ public class VehicleManager : BoardManager
     {
         // check if train has left the station, and reveal boxcars in the order added to the train
 
+    }
+
+    public GameObject get_boxcar_placeholder(string boxcar_name)
+    {
+        boxcar_name = boxcar_name.Replace("(Clone)", "");
+        if (boxcar_name == "bomb boxcar placeholder") return Red_Boxcar_Placeholder;
+        else if (boxcar_name == "troop boxcar placeholder") return Green_Boxcar_Placeholder;
+        else if (boxcar_name == "supply boxcar placeholder") return Blue_Boxcar_Placeholder;
+        else
+        {
+            throw new Exception("not a valid boxcar placeholder");
+        }
     }
 
     public static RouteManager.Orientation round_robin_orientation()
@@ -90,6 +105,23 @@ public class VehicleManager : BoardManager
         create_boxcar(train, boxcar_object);
     }
 
+    public void boxcar_fill_void(Train train, int removed_boxcar_id, Vector3 next_boxcar_position)
+    {
+        // called when boxcar is undocked from a train. other boxcars move forward to fill in the gap
+        List<GameObject> boxcar_squad = train.boxcar_squad;
+        Boxcar prev_boxcar = boxcar_squad[removed_boxcar_id - 1].GetComponent<Boxcar>();
+        for (int i=removed_boxcar_id; i < boxcar_squad.Count; i++)
+        {
+            Vector3 start_position = boxcar_squad[i].transform.position;
+            Boxcar boxcar = boxcar_squad[i].GetComponent<Boxcar>();
+            StartCoroutine(boxcar.straight_move(start_position, next_boxcar_position));
+            boxcar.tile_position = prev_boxcar.tile_position;
+            boxcar.next_tilemap_position = prev_boxcar.next_tilemap_position;
+            next_boxcar_position = start_position;
+            prev_boxcar = boxcar;
+        }
+    }
+
     public void add_all_boxcar_to_train(Train train) //Temporary
     {
         // add all boxcars in inventory to a train. Revise to select boxcars to add to a train
@@ -125,7 +157,14 @@ public class VehicleManager : BoardManager
         // start coroutine when a train departs or arrives at a city
         int boxcar_count = boxcar_list.Count;
         int boxcar_depart_id = 0; // counter
-        Vector3Int last_location = train.tile_position;
+        // 1. train departs
+        // 2. train is placed in city tile
+        // 3. train calls Boxcar Depart Coroutine
+        // 4. train moves to city boundary
+        // 5. train updates tile position
+        // 6. train confirms end of track is next tile
+        // 7. train stops and tells boxcars to stop
+        Vector3Int last_location = train.tile_position; //todo? // 3,6,0 && 4,6,0 dont work
         print("train last location is " + last_location);
         RouteManager.Orientation depart_orientation = train.orientation;
         if (train.in_city) board = train.get_city().city_board;
@@ -133,14 +172,14 @@ public class VehicleManager : BoardManager
         {
             GameObject boxcar = boxcar_list[boxcar_depart_id];
             Boxcar moving_boxcar = boxcar.GetComponent<Boxcar>();
-            if (!is_vehicle_in_cell(last_location, board) && moving_boxcar.in_city == train.in_city) // dont depart until boxcar has arrived at city
+            if (!is_vehicle_in_cell(last_location, board) && moving_boxcar.in_city == train.in_city && !moving_boxcar.is_pause) // dont depart until boxcar has arrived at city
             {
                 print("Make Boxcar depart. boxcar orientation is " + moving_boxcar.get_orientation() + " tile position is " + last_location);
                 moving_boxcar.set_depart_status(true);
                 if (train.in_city) moving_boxcar.receive_train_order = true;
                 moving_boxcar.tile_position = last_location;
                 place_vehicle(boxcar);
-                moving_boxcar.is_halt = false;
+                moving_boxcar.set_halt(false); 
                 spawn_moving_object(moving_boxcar);
                 moving_boxcar.set_depart_status(false);
                 boxcar_depart_id++;
@@ -234,7 +273,7 @@ public class VehicleManager : BoardManager
         place_vehicle(train_object);
         print("departing station. Adding all boxcars to the train");
         //assign the type of board depending on if leaving or arriving
-        if (board==null) StartCoroutine(Make_All_Boxcars_Depart(vehicle_board, train.boxcar_squad, train));
+        if (board==null) StartCoroutine(Make_All_Boxcars_Depart(vehicle_board, train.boxcar_squad, train)); // last location????
         else { StartCoroutine(Make_All_Boxcars_Depart(board, train.boxcar_squad, train)); }
         spawn_moving_object(train);
         //city.remove_train_from_list(train); 

@@ -141,7 +141,19 @@ public class Train : MovingObject
         return true;
     }
 
-
+    public int get_distance_from_train(int boxcar_id)
+    {
+        for (int i = 0; i < boxcar_squad.Count; i++)
+        {
+            Boxcar boxcar = boxcar_squad[i].GetComponent<Boxcar>();
+            if (boxcar.boxcar_id == boxcar_id)
+            {
+                print("distance from train is " + (i + 1));
+                return i + 1;
+            }
+        }
+        throw new Exception("boxcar with id " + boxcar_id + " should belong to train");
+    }
 
     public void board_turntable(RouteManager.Orientation orientation, bool depart_turntable)
     {
@@ -161,6 +173,7 @@ public class Train : MovingObject
             foreach (GameObject boxcar_object in boxcar_squad)
             {
                 Boxcar boxcar = boxcar_object.GetComponent<Boxcar>();
+                bool halt = boxcar.is_halt;
                 boxcar.leave_city = true;
                 boxcar.orientation = this.orientation;
                 boxcar.final_orientation = this.orientation;
@@ -192,12 +205,12 @@ public class Train : MovingObject
         // stop the train. await user action or signal
         // halting the train stops it from going anywhere. Used to await new track.
         // if false, pause the train. meaning delay the action. Used to stop mid turn/mid motion
-        if (is_halt) this.is_halt = state;
+        if (is_halt) set_halt(state); 
         else { is_pause = state; }
         for (int i = 0; i < boxcar_squad.Count; i++)
         {
             GameObject boxcar = boxcar_squad[i];
-            if (is_halt) boxcar.GetComponent<Boxcar>().is_halt = state; 
+            if (is_halt) boxcar.GetComponent<Boxcar>().set_halt(state); 
             else { boxcar.GetComponent<Boxcar>().is_pause = state; }
         }
     }
@@ -211,7 +224,7 @@ public class Train : MovingObject
             if (tile != null) break;
             else { yield return new WaitForEndOfFrame(); }
         }
-        halt_train(true, false); // unhalt the train
+        halt_train(false, false); // unhalt the train
     }
 
     public void set_id(int id)
@@ -234,12 +247,13 @@ public class Train : MovingObject
         this.city = city;
     }
 
-    public void remove_boxcar() // TODO: remove a specific boxcar
+    public void remove_boxcar(int count = -1) // TODO: remove a specific boxcar
     {
-        if (boxcar_squad.Count > 0)
+        if (count == -1) count = boxcar_squad.Count; // remove last boxcar by default
+        if (count > 0)
         {
-            GameObject boxcar = boxcar_squad[boxcar_squad.Count - 1];
-            boxcar_squad.RemoveAt(boxcar_squad.Count - 1); // remove last boxcar
+            GameObject boxcar = boxcar_squad[count - 1];
+            boxcar_squad.RemoveAt(count - 1); // remove last boxcar
             Destroy(boxcar);
         }
     }
