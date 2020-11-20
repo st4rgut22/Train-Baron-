@@ -39,7 +39,7 @@ public class GameManager : MonoBehaviour
     public static bool prev_game_menu_state = true;
     public static int prev_train_list_length = 0;
     public Button test_btn;
-   
+
     //public static StoreMenuManager game_menu_manager;
 
     public static bool shipyard_state;
@@ -122,7 +122,7 @@ public class GameManager : MonoBehaviour
                     selected_tile = get_selected_tile(Input.mousePosition);
                     GameManager.track_manager.toggle_on_train_track(selected_tile);
                 }
-                else if(object_name == "Structure")
+                else if (object_name == "Structure")
                 {
                     selected_tile = get_selected_tile(Input.mousePosition);
                     GameObject city_object = city_manager.get_city(selected_tile);
@@ -142,6 +142,25 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public static void enable_vehicle_for_screen(GameObject boxcar_object)
+    {
+        //allow turn on vehicles individually instead of all trains
+        print("enable vehicle " + boxcar_object.tag);
+        // like enable_train_for_screen() except focus on vehicle exiting or entering the screen
+        MovingObject boxcar = boxcar_object.GetComponent<MovingObject>();
+        if (game_menu_state)
+            if (!boxcar.in_city)
+                MovingObject.switch_sprite_renderer(boxcar_object, true);
+            else { MovingObject.switch_sprite_renderer(boxcar_object, false); }
+        if (city_menu_state)
+        {
+            MovingObject.switch_sprite_renderer(boxcar_object, false);
+            if (boxcar.in_city)
+                if (boxcar.city == CityManager.Activated_City_Component)
+                    MovingObject.switch_sprite_renderer(boxcar_object, true);
+        }
+    }
+
     public void enable_train_for_screen()
     {
         //rendering trains
@@ -157,7 +176,6 @@ public class GameManager : MonoBehaviour
 
     public void switch_on_shipyard(bool state)
     {
-
         Structure.SetActive(!state); // turn off colliders for city
         Shipyard_Base.SetActive(state);
         Shipyard_Track.SetActive(state);
@@ -177,5 +195,7 @@ public class GameManager : MonoBehaviour
 
         game_menu_state = !state;
         city_menu_state = state;
+
+        enable_train_for_screen(); // switch on trains if exit shipyard
     }
 }

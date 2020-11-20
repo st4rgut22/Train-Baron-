@@ -8,7 +8,7 @@ public class Boxcar : MovingObject
     public Train train = null; // the train boxcar is attached to
     Vector3 idling_position; // boxcar's default position while waiting for turntable to arrive
     public int boxcar_id;
-    bool departing = false;
+    public bool departing = false;
     public bool receive_train_order = true;
 
     private void Awake()
@@ -20,6 +20,7 @@ public class Boxcar : MovingObject
     {
         base.Start();
         idling_position = new Vector3(-1, -1, -1);
+        departing = false;
     }
 
     // Update is called once per frame
@@ -38,6 +39,7 @@ public class Boxcar : MovingObject
     public override void arrive_at_city()
     {
         base.arrive_at_city();
+        departing = true;
         city.add_boxcar(gameObject);
     }
 

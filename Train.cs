@@ -39,10 +39,20 @@ public class Train : MovingObject
 
     public void turn_on_train(bool is_train_on)
     {
+        
         MovingObject.switch_sprite_renderer(gameObject, is_train_on); 
         foreach (GameObject boxcar_object in boxcar_squad)
         {
-            MovingObject.switch_sprite_renderer(boxcar_object, is_train_on); 
+            // todo: wait until boxcars have entered the city
+            Boxcar boxcar = boxcar_object.GetComponent<Boxcar>();
+            if (!boxcar.departing)
+            {
+                MovingObject.switch_sprite_renderer(boxcar_object, is_train_on);
+            }
+            else
+            {
+                MovingObject.switch_sprite_renderer(boxcar_object, !is_train_on); // if train is shown, hide boxcars. if train is hidden. show boxcars
+            }
         }
     }
 
@@ -116,7 +126,7 @@ public class Train : MovingObject
     public override void arrive_at_city()
     {
         base.arrive_at_city();
-        city.add_train_to_list(gameObject);
+        //city.add_train_to_list(gameObject);
         print("add train with orientation " + orientation + " to station");
         station_track = city.add_train_to_station(gameObject, orientation);
         //city.turn_table.GetComponent<Turntable>().add_train_to_queue(gameObject);
@@ -130,6 +140,7 @@ public class Train : MovingObject
         {
             print("This city has no open stations from " + gameObject.name + " direction");
         }
+        city.add_train_to_list(gameObject);
     }
 
     public bool is_all_car_reach_turntable()

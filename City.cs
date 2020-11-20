@@ -171,7 +171,7 @@ public class City : BoardManager
         }
     }
 
-    public void display_boxcar(bool display)
+    public void display_boxcar()
     {
         for (int i = 0; i < gameobject_board.GetLength(0); i++)
         {
@@ -220,9 +220,9 @@ public class City : BoardManager
     public void delete_train(GameObject train_object)
     {
         remove_train_from_list(train_object, train_list);
-        //TODO: repeat line below for when train exits game view. Remove from list and hide
-        if (CityManager.Activated_City == gameObject) MovingObject.switch_sprite_renderer(train_object, false);
-        if (GameManager.game_menu_state) MovingObject.switch_sprite_renderer(train_object, true);
+        ////TODO: repeat line below for when train exits game view. Remove from list and hide
+        //if (CityManager.Activated_City == gameObject) MovingObject.switch_sprite_renderer(train_object, false);
+        //if (GameManager.game_menu_state) MovingObject.switch_sprite_renderer(train_object, true);
         game_manager.train_list.Add(train_object);
     }
 
@@ -245,7 +245,6 @@ public class City : BoardManager
         remove_train_from_list(train_object, game_manager.train_list); // remove train from the game manager list
         if (CityManager.Activated_City == gameObject) // city screen is on, containing the relvant vehicle
         {
-            MovingObject.switch_sprite_renderer(train_object, true);
             train_object.GetComponent<Train>().turn_on_train(true);
         }
         if (GameManager.game_menu_state) // this is not causing boxcar to disappear prematurely

@@ -438,18 +438,21 @@ public class MovingObject : EventDetector
                 Vector3Int city_location = city.get_location();
                 vehicle_manager.depart(gameObject, city_location);
                 city.turn_table.GetComponent<Turntable>().remove_train_from_queue(gameObject);
-            if (city==CityManager.Activated_City_Component) GameManager.train_menu_manager.update_train_menu(city);
+                GameManager.enable_vehicle_for_screen(gameObject);
+                if (city==CityManager.Activated_City_Component) GameManager.train_menu_manager.update_train_menu(city);
                 print("after moving to city edge. the train tile position is " + next_tilemap_position);// depart train at correct tile position
             } else
             {
                 gameObject.GetComponent<Boxcar>().receive_train_order = false; // reset 
-                city.delete_boxcar(gameObject);
+                gameObject.GetComponent<Boxcar>().departing = true;
+                //city.delete_boxcar(gameObject);
             }
             prev_city = city;
             next_tilemap_position = RouteManager.get_depart_tile_position(orientation, city.get_location()); // otherwise get stuck on track
             exit_track_orientation = RouteManager.Orientation.None;
             steep_angle_orientation = RouteManager.Orientation.None;
             reset_departure_flag();
+            // disable until given the goahead
         }
         if (arriving_in_city)
         {

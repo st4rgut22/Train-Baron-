@@ -167,22 +167,25 @@ public class VehicleManager : BoardManager
         Vector3Int last_location = train.tile_position; //todo? // 3,6,0 && 4,6,0 dont work
         print("train last location is " + last_location);
         RouteManager.Orientation depart_orientation = train.orientation;
-        if (train.in_city) board = train.get_city().city_board;
+        if (train.in_city) board = train.get_city().city_board;      
         while (boxcar_depart_id < boxcar_count) 
         {
             GameObject boxcar = boxcar_list[boxcar_depart_id];
             Boxcar moving_boxcar = boxcar.GetComponent<Boxcar>();
+            moving_boxcar.departing = true;
             if (!is_vehicle_in_cell(last_location, board) && moving_boxcar.in_city == train.in_city && !moving_boxcar.is_pause) // dont depart until boxcar has arrived at city
             {
+                moving_boxcar.departing = false; 
                 print("Make Boxcar depart. boxcar orientation is " + moving_boxcar.get_orientation() + " tile position is " + last_location);
                 moving_boxcar.set_depart_status(true);
                 if (train.in_city) moving_boxcar.receive_train_order = true;
                 moving_boxcar.tile_position = last_location;
                 place_vehicle(boxcar);
-                moving_boxcar.set_halt(false); 
+                moving_boxcar.set_halt(false);
                 spawn_moving_object(moving_boxcar);
                 moving_boxcar.set_depart_status(false);
                 boxcar_depart_id++;
+                GameManager.enable_vehicle_for_screen(boxcar); // switch on when boxcar is departing from the city. Dont show entire train cargo.
             }
             else
             {
