@@ -167,12 +167,11 @@ public class VehicleManager : BoardManager
         Vector3Int last_location = train.tile_position; //todo? // 3,6,0 && 4,6,0 dont work
         print("train last location is " + last_location);
         RouteManager.Orientation depart_orientation = train.orientation;
-        if (train.in_city) board = train.get_city().city_board;      
+        if (train.in_city) board = train.get_city().city_board;
         while (boxcar_depart_id < boxcar_count) 
         {
             GameObject boxcar = boxcar_list[boxcar_depart_id];
             Boxcar moving_boxcar = boxcar.GetComponent<Boxcar>();
-            moving_boxcar.departing = true;
             if (!is_vehicle_in_cell(last_location, board) && moving_boxcar.in_city == train.in_city && !moving_boxcar.is_pause) // dont depart until boxcar has arrived at city
             {
                 moving_boxcar.departing = false; 

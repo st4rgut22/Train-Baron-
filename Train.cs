@@ -140,6 +140,10 @@ public class Train : MovingObject
         {
             print("This city has no open stations from " + gameObject.name + " direction");
         }
+        foreach (GameObject boxcar_object in boxcar_squad)
+        {
+            boxcar_object.GetComponent<Boxcar>().departing = true;
+        }
         city.add_train_to_list(gameObject);
     }
 

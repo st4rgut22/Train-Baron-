@@ -39,8 +39,8 @@ public class Boxcar : MovingObject
     public override void arrive_at_city()
     {
         base.arrive_at_city();
-        departing = true;
-        city.add_boxcar(gameObject);
+        //departing = true;
+        //city.add_boxcar(gameObject);
     }
 
     public RouteManager.Orientation get_orientation()
