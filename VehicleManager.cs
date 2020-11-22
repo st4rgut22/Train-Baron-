@@ -142,8 +142,9 @@ public class VehicleManager : BoardManager
         Supply_Boxcar_Inventory.Clear();
     }
 
-    public bool is_vehicle_in_cell(Vector3Int location, GameObject[,] board)
+    public bool is_vehicle_in_cell(Vector3Int unadjusted_location, GameObject[,] board)
     {
+        Vector3Int location = new Vector3Int(unadjusted_location.x+1, unadjusted_location.y+1, unadjusted_location.z);
         GameObject vehicle_object = board[location.x, location.y];
         if (vehicle_object != null)
         {
@@ -326,8 +327,10 @@ public class VehicleManager : BoardManager
         else { update_vehicle_board(vehicle_board, moving_gameobject, city_position, new Vector3Int(-1, -1, -1));  }
     }
 
-    public void update_vehicle_board(GameObject[,] vehicle_board, GameObject game_object, Vector3Int position, Vector3Int prev_position)
+    public void update_vehicle_board(GameObject[,] vehicle_board, GameObject game_object, Vector3Int unadjusted_position, Vector3Int unadjusted_prev_position)
     {
+        Vector3Int position = new Vector3Int(unadjusted_position.x + 1, unadjusted_position.y + 1, unadjusted_position.z);
+        Vector3Int prev_position = new Vector3Int(unadjusted_prev_position.x + 1, unadjusted_prev_position.y + 1, unadjusted_prev_position.z);
         print("Update Vehicle Board with object " + game_object.name + " to position " + position);
         try
         {

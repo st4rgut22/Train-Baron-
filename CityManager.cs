@@ -45,6 +45,32 @@ public class CityManager : BoardManager
 
     }
 
+    public bool hide_exit_route(RouteManager.Orientation orientation, City city, Tilemap exit_tilemap)
+    {
+        Vector3Int city_loc = city.get_location();
+        Vector3Int loc;
+        if (orientation == RouteManager.Orientation.North)
+            loc = new Vector3Int(city_loc.x, city_loc.y + 1, city_loc.z);
+        else if (orientation == RouteManager.Orientation.East)
+            loc = new Vector3Int(city_loc.x + 1, city_loc.y, city_loc.z);
+        else if (orientation == RouteManager.Orientation.West)
+            loc = new Vector3Int(city_loc.x - 1, city_loc.y, city_loc.z);
+        else if (orientation == RouteManager.Orientation.South)
+            loc = new Vector3Int(city_loc.x, city_loc.y - 1, city_loc.z);
+        else { throw new Exception("not a valid orientation"); }
+        Tilemap track_tilemap = GameManager.track_manager.get_toggled_tilemap((Vector2Int)loc);
+        Tile tile_type = (Tile)track_tilemap.GetTile(loc);
+        if (tile_type == null)
+        {
+            exit_tilemap.GetComponent<TilemapRenderer>().enabled = false;
+            return true;
+        }
+        else {
+            exit_tilemap.GetComponent<TilemapRenderer>().enabled = true;
+            return false;
+        }
+    }
+
     public static RouteManager.Orientation get_station_orientation(Vector2Int tile_pos)
     {
         City activated_city = Activated_City.GetComponent<City>();
@@ -54,17 +80,25 @@ public class CityManager : BoardManager
     public bool add_boxcar_to_station(string boxcar_type, Vector2Int tile_pos, Vector2Int boxcar_tile_pos)
     {
         // Activated City
-        City activated_city = Activated_City.GetComponent<City>();
-        GameObject train_object = activated_city.get_station_track(tile_pos).train;
-        print("train id is " + train_object.GetComponent<Train>().get_id());
-        if (train_object != null)
+        try
         {
-            GameManager.vehicle_manager.add_boxcar_to_train(train_object.GetComponent<Train>(), boxcar_type);
-            activated_city.remove_boxcar_from_inventory(boxcar_tile_pos); // after adding a boxcar to train, remove it from inventory
-            return true;
-        }
-        else {
-            print("no train found in this track");
+            City activated_city = Activated_City.GetComponent<City>();
+            GameObject train_object = activated_city.get_station_track(tile_pos).train;
+            print("train id is " + train_object.GetComponent<Train>().get_id());
+            if (train_object != null)
+            {
+                GameManager.vehicle_manager.add_boxcar_to_train(train_object.GetComponent<Train>(), boxcar_type);
+                activated_city.remove_boxcar_from_inventory(boxcar_tile_pos); // after adding a boxcar to train, remove it from inventory
+                return true;
+            }
+            else
+            {
+                print("no train found in this track");
+                return false;
+            }
+        } catch (NullReferenceException)
+        {
+            print("no train available  to add boxcar to at tile position " + tile_pos);
             return false;
         }
     }
@@ -109,7 +143,12 @@ public class CityManager : BoardManager
         else // show shipyard
         {
             GameManager.city_menu_state = true;
-            city_object.GetComponent<City>().display_boxcar();
+            City city = city_object.GetComponent<City>();
+            city.display_boxcar();
+            hide_exit_route(RouteManager.Orientation.North, city, RouteManager.exit_north_tilemap);
+            hide_exit_route(RouteManager.Orientation.East, city, RouteManager.exit_east_tilemap);
+            hide_exit_route(RouteManager.Orientation.West, city, RouteManager.exit_west_tilemap);
+            hide_exit_route(RouteManager.Orientation.South, city, RouteManager.exit_south_tilemap);
         }
         if (city_object == null) Activated_City.GetComponent<City>().show_turntable(false);
         else { city_object.GetComponent<City>().show_turntable(true); }

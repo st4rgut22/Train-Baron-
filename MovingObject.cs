@@ -141,11 +141,11 @@ public class MovingObject : EventDetector
             Boxcar boxcar = gameObject.GetComponent<Boxcar>();
             if (gameObject.tag == "boxcar") up_multiplier = boxcar.train.get_distance_from_train(boxcar.boxcar_id); // disappear off screen
             if (exit_track_orientation == RouteManager.Orientation.West || exit_track_orientation == RouteManager.Orientation.East)
-                up_multiplier += 6;
+                up_multiplier += 7;
             else if (exit_track_orientation == RouteManager.Orientation.North)
                 up_multiplier += 3;
             else if (exit_track_orientation == RouteManager.Orientation.South)
-                up_multiplier += 3;
+                up_multiplier += 4;
             train_destination = transform.up * up_multiplier * RouteManager.cell_width + transform.position;
             StartCoroutine(straight_move(transform.position, train_destination, false, true)); // turn on exit city flag
         }
@@ -382,8 +382,11 @@ public class MovingObject : EventDetector
         {
             if (is_pause) 
             {
-                yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling
-                continue; // don't execute the code below
+                if (gameObject.tag != "boxcar" || !gameObject.GetComponent<Boxcar>().departing)
+                {
+                    yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling
+                    continue; // don't execute the code below
+                }
             }
             float step;
             if (gameObject.tag == "boxcar")
@@ -439,6 +442,7 @@ public class MovingObject : EventDetector
                 vehicle_manager.depart(gameObject, city_location);
                 city.turn_table.GetComponent<Turntable>().remove_train_from_queue(gameObject);
                 GameManager.enable_vehicle_for_screen(gameObject);
+                gameObject.GetComponent<Train>().set_boxcar_to_depart(); // set depart = true so boxcars leave city
                 if (city==CityManager.Activated_City_Component) GameManager.train_menu_manager.update_train_menu(city);
                 print("after moving to city edge. the train tile position is " + next_tilemap_position);// depart train at correct tile position
             } else

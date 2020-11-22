@@ -19,6 +19,10 @@ public class RouteManager : MonoBehaviour
     public static Tilemap city_tilemap;
     public static Tilemap shipyard_track_tilemap;
     public static Tilemap shipyard_track_tilemap2;
+    public static Tilemap exit_north_tilemap;
+    public static Tilemap exit_south_tilemap;
+    public static Tilemap exit_east_tilemap;
+    public static Tilemap exit_west_tilemap;
     public static float cell_width = .88f;
 
     public enum Orientation
@@ -49,6 +53,10 @@ public class RouteManager : MonoBehaviour
         track_tilemap = Track_Layer.GetComponent<Tilemap>();
         track_tilemap_2 = Track_Layer_2.GetComponent<Tilemap>();
         track_tilemap_3 = Track_Layer_3.GetComponent<Tilemap>();
+        exit_north_tilemap = GameObject.Find("Shipyard Track Exit North").GetComponent<Tilemap>();
+        exit_south_tilemap = GameObject.Find("Shipyard Track Exit South").GetComponent<Tilemap>();
+        exit_west_tilemap = GameObject.Find("Shipyard Track Exit West").GetComponent<Tilemap>();
+        exit_east_tilemap = GameObject.Find("Shipyard Track Exit East").GetComponent<Tilemap>();
         shipyard_track_tilemap = GameObject.Find("Shipyard Track").GetComponent<Tilemap>();
         shipyard_track_tilemap2 = GameObject.Find("Shipyard Track 2").GetComponent<Tilemap>();
         city_tilemap = GameObject.Find("Structure").GetComponent<Tilemap>();

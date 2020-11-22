@@ -19,23 +19,23 @@ public class City : BoardManager
     //outside track comes first
     public static Vector2Int west_end_1 = new Vector2Int(4, 2);
     public static Vector2Int west_end_2 = new Vector2Int(4, 3);
-    public static Vector3Int west_start_1 = new Vector3Int(0, 2, 0);
-    public static Vector3Int west_start_2 = new Vector3Int(0, 3, 0);
+    public static Vector3Int west_start_1 = new Vector3Int(-1, 2, 0);
+    public static Vector3Int west_start_2 = new Vector3Int(-1, 3, 0);
 
     public static Vector2Int north_end_2 = new Vector2Int(4, 5);
     public static Vector2Int north_end_1 = new Vector2Int(4, 6);
-    public static Vector3Int north_start_1 = new Vector3Int(1, 9, 0);
-    public static Vector3Int north_start_2 = new Vector3Int(2, 9, 0);
+    public static Vector3Int north_start_1 = new Vector3Int(1, 10, 0);
+    public static Vector3Int north_start_2 = new Vector3Int(2, 10, 0);
 
     public static Vector2Int east_end_2 = new Vector2Int(10, 5); //wrong
     public static Vector2Int east_end_1 = new Vector2Int(10, 6);
-    public static Vector3Int east_start_2 = new Vector3Int(16, 7, 0);
-    public static Vector3Int east_start_1 = new Vector3Int(16, 8, 0);
+    public static Vector3Int east_start_2 = new Vector3Int(17, 7, 0);
+    public static Vector3Int east_start_1 = new Vector3Int(17, 8, 0);
 
     public static Vector2Int south_end_1 = new Vector2Int(10, 1);
     public static Vector2Int south_end_2 = new Vector2Int(10, 0);
-    public static Vector3Int south_start_1 = new Vector3Int(15, 0, 0);
-    public static Vector3Int south_start_2 = new Vector3Int(14, 0, 0); 
+    public static Vector3Int south_start_1 = new Vector3Int(15, -1, 0);
+    public static Vector3Int south_start_2 = new Vector3Int(14, -1, 0); 
 
     Station West_Station;
     Station North_Station;
@@ -198,8 +198,8 @@ public class City : BoardManager
             }
             else
             {
-                if (tile_pos.y == 2 || tile_pos.x == 14) return South_Station.inner_track;
-                else { return South_Station.outer_track; }
+                if (tile_pos.y == 3 || tile_pos.x == 15) return South_Station.outer_track;
+                else { return South_Station.inner_track; }
             }
         }
         else
