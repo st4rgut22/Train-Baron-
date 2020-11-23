@@ -114,15 +114,13 @@ public class GameManager : MonoBehaviour
             {
                 Vector2Int selected_tile;
                 GameObject clicked_gameobject = selected_object.gameObject;
-                string object_name = clicked_gameobject.name.Replace("(Clone)", "");
-                print("selected " + object_name);
-                if (object_name == "Track Layer" || object_name == "Track Layer 2" || object_name == "Track Layer 3")
+                string object_tag = clicked_gameobject.tag;
+                if (object_tag == "track_layer")
                 {
-                    // "ES" || object_name == "NE" || object_name == "WN" || object_name == "WS" || object_name == "hor" || object_name == "vert"
                     selected_tile = get_selected_tile(Input.mousePosition);
                     GameManager.track_manager.toggle_on_train_track(selected_tile);
                 }
-                else if (object_name == "Structure")
+                else if (object_tag == "structure")
                 {
                     selected_tile = get_selected_tile(Input.mousePosition);
                     GameObject city_object = city_manager.get_city(selected_tile);
@@ -135,7 +133,7 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    print("You did not click a gameobject. Object name is " + object_name);
+                    print("You did not click a gameobject. Object tag is " + object_tag);
 
                 }
             }
@@ -186,9 +184,12 @@ public class GameManager : MonoBehaviour
         exit_south.SetActive(state);
         exit_west.SetActive(state);
 
-        RouteManager.Track_Layer.SetActive(!state);
-        RouteManager.Track_Layer_2.SetActive(!state);
-        RouteManager.Track_Layer_3.SetActive(!state);
+        track_manager.bottom_tilemap_go_1.SetActive(!state);
+        track_manager.bottom_tilemap_go_2.SetActive(!state);
+        track_manager.bottom_tilemap_go_3.SetActive(!state);
+        track_manager.bottom_tilemap_go_4.SetActive(!state);
+        track_manager.bottom_tilemap_go_5.SetActive(!state);
+        track_manager.top_tilemap_go.SetActive(!state);
 
         Structure.SetActive(!state);
         Base.SetActive(!state);

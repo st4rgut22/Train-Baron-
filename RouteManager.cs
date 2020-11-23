@@ -47,12 +47,7 @@ public class RouteManager : MonoBehaviour
 
     private void Awake()
     {
-        Track_Layer = GameObject.Find("Track Layer");
-        Track_Layer_2 = GameObject.Find("Track Layer 2");
-        Track_Layer_3 = GameObject.Find("Track Layer 3");
-        track_tilemap = Track_Layer.GetComponent<Tilemap>();
-        track_tilemap_2 = Track_Layer_2.GetComponent<Tilemap>();
-        track_tilemap_3 = Track_Layer_3.GetComponent<Tilemap>();
+        Track_Layer = GameObject.Find("Top Track Layer");
         exit_north_tilemap = GameObject.Find("Shipyard Track Exit North").GetComponent<Tilemap>();
         exit_south_tilemap = GameObject.Find("Shipyard Track Exit South").GetComponent<Tilemap>();
         exit_west_tilemap = GameObject.Find("Shipyard Track Exit West").GetComponent<Tilemap>();

@@ -52,6 +52,23 @@ public class TrackManager : BoardManager
 
     public List<Tile>[,] track_grid = new List<Tile>[board_width, board_height]; // store tracks added to a particular cell
     public static int[,] toggle_count_grid = new int[board_width, board_height];//store the toggle count, initially 0 (first track in the list). off tiles are grey, on tiles are color
+
+    public GameObject bottom_tilemap_go_1;
+    public GameObject bottom_tilemap_go_2;
+    public GameObject bottom_tilemap_go_3;
+    public GameObject bottom_tilemap_go_4;
+    public GameObject bottom_tilemap_go_5;
+    public GameObject top_tilemap_go;
+    public GameObject[] bottom_tilemap_go_list;
+
+    public Tilemap bottom_tilemap_1;
+    public Tilemap bottom_tilemap_2;
+    public Tilemap bottom_tilemap_3;
+    public Tilemap bottom_tilemap_4;
+    public Tilemap bottom_tilemap_5;
+    public Tilemap top_tilemap;
+    public Tilemap[] bottom_tilemap_list;
+
     private void Awake()
     {
         base.Awake();
@@ -61,6 +78,9 @@ public class TrackManager : BoardManager
     void Start()
     {
         base.Start();
+        bottom_tilemap_list = new Tilemap[] { bottom_tilemap_1, bottom_tilemap_2, bottom_tilemap_3, bottom_tilemap_4, bottom_tilemap_5 };
+        bottom_tilemap_go_list = new GameObject[] { bottom_tilemap_go_1, bottom_tilemap_go_2, bottom_tilemap_go_3, bottom_tilemap_go_4, bottom_tilemap_go_5 };
+
         gameobject_board = new GameObject[board_width, board_height];
         for (int i = 0; i < board_width; i++)
         {
@@ -86,8 +106,9 @@ public class TrackManager : BoardManager
             for (int j = 0; j < board_height; j++)
             {
                 Vector3Int tile_pos = new Vector3Int(i, j, 0);
-                Tile tile = (Tile) RouteManager.track_tilemap.GetTile(tile_pos);
-                if (tile != null) track_grid[i, j].Add(tile);
+                Tile tile = (Tile) top_tilemap.GetTile(tile_pos);
+                if (tile != null)
+                    track_grid[i, j].Add(tile);
             }
         }
     }
@@ -145,19 +166,26 @@ public class TrackManager : BoardManager
         toggle_count = (toggle_count + 1) % track_list.Count; // increment toggle count to activate the next track tile
         toggle_count_grid[tilemap_position.x, tilemap_position.y] = toggle_count;
         print("toggle count " + toggle_count);
-        Tilemap track_tilemap;
+        int bottom_tilemap_idx = 0;
         for (int i = 0; i < track_list.Count; i++) // inactivate all track tiles, except for the one toggled on
         {
-            track_tilemap = get_tilemap(i);
-            Tile tile = (Tile)track_tilemap.GetTile((Vector3Int)tilemap_position);
+            Tile tile = track_list[i];
             string tile_name = tile.name;
-            Tile toggled_track = inactivate_track_tile(tile_name);
-            track_tilemap.SetTile((Vector3Int)tilemap_position, toggled_track);
+            //track_tilemap.SetTile((Vector3Int)tilemap_position, toggled_track);
+
+            // todo: set tile belonging to the tilemap first in sort order
+
             // inactivate the tracks that are not toggled on
-            if (i == toggle_count)
+            if (i != toggle_count) // not an activated track
             {
-                toggled_track = activate_track_tile(toggled_track.name);
+                Tile toggled_track = inactivate_track_tile(tile_name);
+                Tilemap track_tilemap = bottom_tilemap_list[bottom_tilemap_idx];
                 track_tilemap.SetTile((Vector3Int)tilemap_position, toggled_track);
+                bottom_tilemap_idx += 1;
+            }
+            else
+            {
+                top_tilemap.SetTile((Vector3Int)tilemap_position, tile);
             }
         }
     }
@@ -167,16 +195,27 @@ public class TrackManager : BoardManager
         //add to appropriate track tilemap
         List<Tile> track_list = track_grid[tilemap_position.x, tilemap_position.y];
         int track_count = track_list.Count;
-        track_list.Add(tile);
-        Tilemap track_tilemap = get_tilemap(track_count);
-        if (track_tilemap == null)
+        if (track_count < 6)
         {
-            print("max track limit reached for this cell ");
-            return;
+            foreach (Tile track_tile in track_list)
+            {
+                if (tile == track_tile)
+                    return;
+            }
+            track_list.Add(tile);
+            track_count = track_list.Count;
+            if (track_count > 1)
+            {
+                Tilemap track_tilemap = bottom_tilemap_list[track_count - 2];
+                // activate tile (default) if it is the first tile in the cell, otherwise toggle off
+                tile = inactivate_track_tile(tile.name); // toggle off, gray out tile
+                track_tilemap.SetTile((Vector3Int)tilemap_position, tile);
+            } else
+            {
+                top_tilemap.SetTile((Vector3Int)tilemap_position, tile);
+            }
+
         }
-        // activate tile (default) if it is the first tile in the cell, otherwise toggle off
-        if (track_count != 0) tile = inactivate_track_tile(tile.name); // toggle off, gray out tile
-        track_tilemap.SetTile((Vector3Int)tilemap_position, tile);
     }
 
     public static RouteManager.Orientation flip_straight_orientation(RouteManager.Orientation orientation)
