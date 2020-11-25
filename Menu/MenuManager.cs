@@ -93,13 +93,4 @@ public class MenuManager : MonoBehaviour
         RectTransformExtensions.SetRight(rectTransform, 0);
         RectTransformExtensions.SetTop(rectTransform, 0);
     }
-
-    //public void create_train_menu(GameObject city_object)
-    //{
-    //    train_menu.SetActive(true); // display city menu
-    //    train_menu_manager.destroy_train_display();
-    //    train_menu_manager.create_train_menu(city_object);
-    //}
-
-
 }

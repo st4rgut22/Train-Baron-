@@ -53,21 +53,28 @@ public class TrackManager : BoardManager
     public List<Tile>[,] track_grid = new List<Tile>[board_width, board_height]; // store tracks added to a particular cell
     public static int[,] toggle_count_grid = new int[board_width, board_height];//store the toggle count, initially 0 (first track in the list). off tiles are grey, on tiles are color
 
+    public GameObject top_tilemap_go;
     public GameObject bottom_tilemap_go_1;
     public GameObject bottom_tilemap_go_2;
     public GameObject bottom_tilemap_go_3;
     public GameObject bottom_tilemap_go_4;
     public GameObject bottom_tilemap_go_5;
-    public GameObject top_tilemap_go;
     public GameObject[] bottom_tilemap_go_list;
 
+    public Tilemap top_tilemap;
     public Tilemap bottom_tilemap_1;
     public Tilemap bottom_tilemap_2;
     public Tilemap bottom_tilemap_3;
     public Tilemap bottom_tilemap_4;
     public Tilemap bottom_tilemap_5;
-    public Tilemap top_tilemap;
     public Tilemap[] bottom_tilemap_list;
+
+    public static int[,] parking_coord = { { 4, 0, 5 }, { 4, 11, 16 }, { 6, 11, 16 }, { 6, 0, 5 } }; // y, x start, x end 
+    public static Dictionary<RouteManager.Orientation, List<int>> parking_coord_map;
+    public static Dictionary<RouteManager.Orientation, int[,,]> unloading_coord_map; // positions of all unloading coordinates
+    public static Dictionary<RouteManager.Orientation, List<List<int[]>>> add_to_train_coord_map;
+    public static Dictionary<RouteManager.Orientation, List<int[]>> exit_track_map; // positions of all exit tiles
+
 
     private void Awake()
     {
@@ -78,6 +85,46 @@ public class TrackManager : BoardManager
     void Start()
     {
         base.Start();
+
+        parking_coord_map = new Dictionary<RouteManager.Orientation, List<int>>
+        { // {{coordinates of loading tiles for outer track},{coordinates of loading tiles for inner track}}
+            { RouteManager.Orientation.North, new List<int>{6,0,5} },
+            { RouteManager.Orientation.East, new List<int>{6,11,16} },
+            { RouteManager.Orientation.West, new List<int> {4,0,5} },
+            { RouteManager.Orientation.South, new List<int> {4,11,16} }
+        };
+
+        unloading_coord_map = new Dictionary<RouteManager.Orientation, int[,,]>()
+        { // {{coordinates of loading tiles for outer track},{coordinates of loading tiles for inner track}}
+            { RouteManager.Orientation.North, new int[,,] { { { 0, 7 }, { 0, 8 }, { 0, 9 } }, { { 3, 9 }, { 4, 9 }, { 5, 9 } } } },
+            { RouteManager.Orientation.East, new int[,,] { { { 17, 8 }, { 16, 8 }, { 15, 8 }, { 14, 8 }, { 13, 8 }, { 12, 8 }, { 11, 8 } }, { { 17, 8 }, { 16, 8 }, { 15, 8 }, { 14, 8 }, { 13, 8 }, { 12, 8 }, { 11, 8 } } } },
+            { RouteManager.Orientation.West, new int[,,] { { { 0, 2 }, { 1, 2 }, { 2, 2 }, { 3, 2 }, { 4, 2 }, { 5, 2 } }, { { 0, 2 }, { 1, 2 }, { 2, 2 }, { 3, 2 }, { 4, 2 }, { 5, 2 } } }  },
+            { RouteManager.Orientation.South, new int[,,] { { { 16, 2 }, { 16, 1 }, { 16, 0 } }, { { 14, 1 }, { 13, 1 }, { 12, 1 } } } }
+
+        };
+
+        List<int[]> west_outer_track = new List<int[]> { new int[]{ -1, 1 }, new int[] { 0, 1 }, new int[] { 1, 1 }, new int[] { 2, 1 }, new int[] { 3, 1 }, new int[] { 4, 1 }, new int[] { 5, 1 }, new int[] { 6, 1 }, new int[] { 6, 2 } };
+        List<int[]> west_inner_track = new List<int[]> { new int[] { -1, 3 }, new int[] { 0, 3 }, new int[] { 1, 3 }, new int[] { 2, 3 }, new int[] { 3, 3 }, new int[] { 4, 3 }, new int[] { 5, 3 }, new int[] { 6, 3 } };
+        List<int[]> east_outer_track = new List<int[]> { new int[] { 17, 9 }, new int[] { 16, 9 }, new int[] { 15, 9 }, new int[] { 14, 9 }, new int[] { 13, 9 }, new int[] { 12, 9 }, new int[] { 11, 9 }, new int[] { 10, 9 }, new int[] { 10, 8 } };
+        List<int[]> east_inner_track = new List<int[]> { new int[] { 17, 7 }, new int[] { 16, 7 }, new int[] { 15, 7 }, new int[] { 14, 7 }, new int[] { 13, 7 }, new int[] { 12, 7 }, new int[] { 11, 7 }, new int[] { 10, 7 } };
+        List<int[]> north_outer_track = new List<int[]> { new int[] { 1, 9 }, new int[] { 1, 8 }, new int[] { 1, 7 }, new int[] { 2, 7 }, new int[] { 3, 7 }, new int[] { 4, 7 }, new int[] { 5, 7 }, new int[] { 6, 7 } };
+        List<int[]> north_inner_track = new List<int[]> { new int[] { 2, 9 }, new int[] { 2, 8 }, new int[] { 3, 8 }, new int[] { 4, 8 }, new int[] { 5, 8 }, new int[] { 6, 8 } };
+        List<int[]> south_outer_track = new List<int[]> { new int[] { 10, 3 }, new int[] { 11, 3 }, new int[] { 12, 3 }, new int[] { 13, 3 }, new int[] { 14, 3 }, new int[] { 15, 3 }, new int[] { 15, 2 }, new int[] { 15, 1 }, new int[] { 15, 0 } };
+        List<int[]> south_inner_track = new List<int[]> { new int[] { 10, 2 }, new int[] { 11, 2 }, new int[] { 12, 2 }, new int[] { 13, 2 }, new int[] { 14, 2 }, new int[] { 14, 1 }, new int[] { 14, 0 } };
+        add_to_train_coord_map = new Dictionary<RouteManager.Orientation, List<List<int[]>>>();
+        add_to_train_coord_map[RouteManager.Orientation.West] = new List<List<int[]>>() { west_outer_track, west_inner_track };
+        add_to_train_coord_map[RouteManager.Orientation.North] = new List<List<int[]>>() { north_outer_track, north_inner_track };
+        add_to_train_coord_map[RouteManager.Orientation.East] = new List<List<int[]>>() { east_outer_track, east_inner_track };
+        add_to_train_coord_map[RouteManager.Orientation.South] = new List<List<int[]>>() { south_outer_track, south_inner_track };
+
+        exit_track_map = new Dictionary<RouteManager.Orientation, List<int[]>>
+        { // {{coordinates of loading tiles for outer track},{coordinates of loading tiles for inner track}}
+            { RouteManager.Orientation.West, new List<int[]> { new int[] { -1, 5 }, new int[] { 0,5 }, new int[] { 1,5 }, new int[]{2,5 }, new int[]{3,5 }, new int[]{4,5 }, new int[]{5,5 }}},
+            { RouteManager.Orientation.East, new List<int[]> { new int[] { 11,5 }, new int[] { 12,5 }, new int[]{13,5 }, new int[]{14,5 }, new int[]{15,5 }, new int[]{16,5 }}},
+            { RouteManager.Orientation.South, new List<int[]> { new int[] { 8,0 }, new int[] { 8,1 }, new int[]{8,2 }} },
+            { RouteManager.Orientation.North, new List<int[]> { new int[] { 8,8 }, new int[] { 8,9 }} }
+        } ;
+
         bottom_tilemap_list = new Tilemap[] { bottom_tilemap_1, bottom_tilemap_2, bottom_tilemap_3, bottom_tilemap_4, bottom_tilemap_5 };
         bottom_tilemap_go_list = new GameObject[] { bottom_tilemap_go_1, bottom_tilemap_go_2, bottom_tilemap_go_3, bottom_tilemap_go_4, bottom_tilemap_go_5 };
 
@@ -113,17 +160,6 @@ public class TrackManager : BoardManager
         }
     }
 
-    public Tilemap get_toggled_tilemap(Vector2Int tilemap_position)
-    {
-        // TODO: when vehicle gets next position, return the current next tile
-        int toggle_count = toggle_count_grid[tilemap_position.x, tilemap_position.y];
-        print("toggled tilemap count is " + toggle_count + " at position " + tilemap_position);
-        if (toggle_count == 0) return RouteManager.track_tilemap;
-        else if (toggle_count == 1) return RouteManager.track_tilemap_2;
-        else if (toggle_count == 2) return RouteManager.track_tilemap_3;
-        else { throw new Exception("toggle count is not between 0 and 2"); }
-    }
-
     public Tile activate_track_tile(string tile_name)
     {
         // if track is on, turn off and vise versa
@@ -150,14 +186,6 @@ public class TrackManager : BoardManager
             throw new Exception("cant place track tile because existing tile is unknown: " + tile_name);
     }
 
-    public Tilemap get_tilemap(int index)
-    {
-        if (index == 0) return RouteManager.track_tilemap;
-        else if (index == 1) return RouteManager.track_tilemap_2;
-        else if (index == 2) return RouteManager.track_tilemap_3;
-        return null;
-    }
-
     public void toggle_on_train_track(Vector2Int tilemap_position)
     {
         List<Tile> track_list = track_grid[tilemap_position.x, tilemap_position.y];
@@ -165,7 +193,7 @@ public class TrackManager : BoardManager
         int toggle_count = toggle_count_grid[tilemap_position.x, tilemap_position.y];
         toggle_count = (toggle_count + 1) % track_list.Count; // increment toggle count to activate the next track tile
         toggle_count_grid[tilemap_position.x, tilemap_position.y] = toggle_count;
-        print("toggle count " + toggle_count);
+        //print("toggle count " + toggle_count);
         int bottom_tilemap_idx = 0;
         for (int i = 0; i < track_list.Count; i++) // inactivate all track tiles, except for the one toggled on
         {
@@ -249,20 +277,20 @@ public class TrackManager : BoardManager
         }
     }
 
-    public static string is_track_tile_exit(Vector2Int tile_pos)
-    {
-        // check if a track tile in the shipyard view is an exit route
-        int x_pos = tile_pos.x;
-        int y_pos = tile_pos.y;
-        if (y_pos == 5 && x_pos >= 0 && x_pos <= 5) return "Shipyard Track Exit West";
-        else if (y_pos == 5 && x_pos >= 11 && x_pos <= 16) return "Shipyard Track Exit East";
-        else if (x_pos == 8 && y_pos >= 0 && y_pos <= 2) return "Shipyard Track Exit South";
-        else if (x_pos == 8 && y_pos >= 8 && y_pos <= 9) return "Shipyard Track Exit North";
-        else
-        {
-            return null;
-        }
-    }
+    //public static RouteManager.Orientation is_track_tile_exit(Vector2Int tile_pos)
+    //{
+    //  // check if a track tile in the shipyard view is an exit route
+    //    int x_pos = tile_pos.x;
+    //    int y_pos = tile_pos.y;
+    //    if (y_pos == 5 && x_pos >= -1 && x_pos <= 5) return RouteManager.Orientation.West;
+    //    else if (y_pos == 5 && x_pos >= 11 && x_pos <= 17) return RouteManager.Orientation.East;
+    //    else if (x_pos== 8 && y_pos >= -1 && y_pos <= 2) return RouteManager.Orientation.South;
+    //    else if (x_pos == 8 && y_pos >= 8 && y_pos <= 10) return RouteManager.Orientation.North;
+    //    else
+    //    {
+    //        return RouteManager.Orientation.None;
+    //    }
+    //}
 
     public static float get_exit_track_rotation(string exit_track_type)
     {

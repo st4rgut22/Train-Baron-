@@ -11,6 +11,7 @@ public class Station_Track
     public Vector3Int start_location;
     public GameObject train;
     public Station station;
+    public int inner;
 }
 
 public class Station
@@ -60,16 +61,17 @@ public class Station
         this.orientation = orientation;
 
         outer_track = new Station_Track();
+        outer_track.inner = 0;
         outer_track.tilemap = outer_track_tilemap;
         outer_track.start_location = outer_start;
         outer_track.train = null;
         outer_track.station = this;
 
         inner_track = new Station_Track();
+        inner_track.inner = 1;
         inner_track.tilemap = inner_track_tilemap;
         inner_track.start_location = inner_start;
         inner_track.train = null;
         inner_track.station = this;
-
     }
 }

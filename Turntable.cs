@@ -48,7 +48,7 @@ public class Turntable : MonoBehaviour
 
     public IEnumerator turn_turntable(GameObject train_object, RouteManager.Orientation end_orientation, bool depart_for_turntable)
     {
-        print("end orientation of turntable is " + end_orientation);
+        //print("end orientation of turntable is " + end_orientation);
         float turn_angle = get_turntable_rotation(end_orientation);
         float t_param = 0;
         float start_angle = transform.eulerAngles.z;
@@ -133,7 +133,7 @@ public class Turntable : MonoBehaviour
         {
             throw new Exception("not a valid orientation for turntable");
         }
-        print("orientation is " + orientation + " end orientation is " + end_orientation + "rotate " + rotate);
+        //print("orientation is " + orientation + " end orientation is " + end_orientation + "rotate " + rotate);
 
         orientation = end_orientation;
         return rotate;

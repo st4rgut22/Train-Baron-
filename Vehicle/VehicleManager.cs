@@ -105,20 +105,27 @@ public class VehicleManager : BoardManager
         create_boxcar(train, boxcar_object);
     }
 
-    public void boxcar_fill_void(Train train, int removed_boxcar_id, Vector3 next_boxcar_position)
+    public void boxcar_fill_void(GameObject boxcar_object)
     {
+        Boxcar boxcar = boxcar_object.GetComponent<Boxcar>();
+        Train train = boxcar.train;
+        int removed_boxcar_id = boxcar.boxcar_id;
+        Vector3 next_boxcar_position = boxcar_object.transform.position;
         // called when boxcar is undocked from a train. other boxcars move forward to fill in the gap
         List<GameObject> boxcar_squad = train.boxcar_squad;
-        Boxcar prev_boxcar = boxcar_squad[removed_boxcar_id - 1].GetComponent<Boxcar>();
-        for (int i=removed_boxcar_id; i < boxcar_squad.Count; i++)
+        if (removed_boxcar_id > 0)
         {
-            Vector3 start_position = boxcar_squad[i].transform.position;
-            Boxcar boxcar = boxcar_squad[i].GetComponent<Boxcar>();
-            StartCoroutine(boxcar.straight_move(start_position, next_boxcar_position));
-            boxcar.tile_position = prev_boxcar.tile_position;
-            boxcar.next_tilemap_position = prev_boxcar.next_tilemap_position;
-            next_boxcar_position = start_position;
-            prev_boxcar = boxcar;
+            Boxcar prev_boxcar = boxcar_squad[removed_boxcar_id - 1].GetComponent<Boxcar>();
+            for (int i = removed_boxcar_id; i < boxcar_squad.Count; i++)
+            {
+                Vector3 start_position = boxcar_squad[i].transform.position;
+                boxcar = boxcar_squad[i].GetComponent<Boxcar>();
+                StartCoroutine(boxcar.straight_move(start_position, next_boxcar_position));
+                boxcar.tile_position = prev_boxcar.tile_position;
+                boxcar.next_tilemap_position = prev_boxcar.next_tilemap_position;
+                next_boxcar_position = start_position;
+                prev_boxcar = boxcar;
+            }
         }
     }
 
@@ -166,7 +173,7 @@ public class VehicleManager : BoardManager
         // 6. train confirms end of track is next tile
         // 7. train stops and tells boxcars to stop
         Vector3Int last_location = train.tile_position; //todo? // 3,6,0 && 4,6,0 dont work
-        print("train last location is " + last_location);
+        //print("train last location is " + last_location);
         RouteManager.Orientation depart_orientation = train.orientation;
         if (train.in_city) board = train.get_city().city_board;
         while (boxcar_depart_id < boxcar_count) 
@@ -176,7 +183,7 @@ public class VehicleManager : BoardManager
             if (!is_vehicle_in_cell(last_location, board) && moving_boxcar.in_city == train.in_city && !moving_boxcar.is_pause) // dont depart until boxcar has arrived at city
             {
                 moving_boxcar.departing = false; 
-                print("Make Boxcar depart. boxcar orientation is " + moving_boxcar.get_orientation() + " tile position is " + last_location);
+                //print("Make Boxcar depart. boxcar orientation is " + moving_boxcar.get_orientation() + " tile position is " + last_location);
                 moving_boxcar.set_depart_status(true);
                 if (train.in_city) moving_boxcar.receive_train_order = true;
                 moving_boxcar.tile_position = last_location;
@@ -187,10 +194,10 @@ public class VehicleManager : BoardManager
                 boxcar_depart_id++;
                 GameManager.enable_vehicle_for_screen(boxcar); // switch on when boxcar is departing from the city. Dont show entire train cargo.
             }
-            else
-            {
-                print("Can't activate boxcar, there is a vehicle departing the city");
-            }
+            //else
+            //{
+            //    print("Can't activate boxcar, there is a vehicle departing the city");
+            //}
             yield return new WaitForEndOfFrame();
         }
     }
@@ -220,7 +227,7 @@ public class VehicleManager : BoardManager
             Troop_Boxcar_Inventory.Add(boxcar);
         }
         else {
-            print("No other type of boxcar");
+            //print("No other type of boxcar");
             return;
         }        
         boxcar.GetComponent<SpriteRenderer>().enabled = false;
@@ -269,12 +276,11 @@ public class VehicleManager : BoardManager
 
     public void depart(GameObject train_object, Vector3Int new_tile_position, GameObject[,] board=null)
     {
-        print(gameObject.name + " departing to new tile position " + new_tile_position);
+        //print(gameObject.name + " departing to new tile position " + new_tile_position);
         Train train = train_object.GetComponent<Train>();
         // remove train from station and depart.
         train.tile_position = new_tile_position; //TODO: depart should update vehicle's position to track position in TrackManager
         place_vehicle(train_object);
-        print("departing station. Adding all boxcars to the train");
         //assign the type of board depending on if leaving or arriving
         if (board==null) StartCoroutine(Make_All_Boxcars_Depart(vehicle_board, train.boxcar_squad, train)); // last location????
         else { StartCoroutine(Make_All_Boxcars_Depart(board, train.boxcar_squad, train)); }
@@ -303,7 +309,7 @@ public class VehicleManager : BoardManager
                 moving_gameobject.transform.eulerAngles = new Vector3(0, 0, -270);
                 break;
             default:
-                print("invalid orientation");
+                //print("invalid orientation");
                 break;
         }
     }
@@ -331,14 +337,16 @@ public class VehicleManager : BoardManager
     {
         Vector3Int position = new Vector3Int(unadjusted_position.x + 1, unadjusted_position.y + 1, unadjusted_position.z);
         Vector3Int prev_position = new Vector3Int(unadjusted_prev_position.x + 1, unadjusted_prev_position.y + 1, unadjusted_prev_position.z);
-        print("Update Vehicle Board with object " + game_object.name + " to position " + position);
+        //print("Update Vehicle Board with object " + game_object.name + " to position " + position);
         try
         {
             bool initial_vector = prev_position.Equals(new Vector3Int(-1, -1, -1));
             if (!initial_vector)
             {
                 if (vehicle_board[prev_position.x, prev_position.y] == null)
-                    print("WARNING. Gameobject " + game_object.name + " not found in previous position " + prev_position);
+                {
+                    //print("WARNING. Gameobject " + game_object.name + " not found in previous position " + prev_position);
+                }
                 else
                 {
                     if (vehicle_board[prev_position.x, prev_position.y] == game_object) // only remove gameobject references to itself
@@ -361,7 +369,7 @@ public class VehicleManager : BoardManager
             {
                 vehicle_board[position.x, position.y] = game_object;  
             }
-            print("updating vehicle board tile at " + position + " with vehicle " + game_object.tag);
+            //print("updating vehicle board tile at " + position + " with vehicle " + game_object.tag);
 
         }
         catch (IndexOutOfRangeException e)

@@ -8,16 +8,19 @@ public class EventDetector : MonoBehaviour, IPointerDownHandler, IPointerClickHa
     public virtual void OnBeginDrag(PointerEventData eventData)
     {
         //Debug.Log("Drag Begin");
+        print("drag base began " + Input.mousePosition);
     }
 
     public virtual void OnDrag(PointerEventData eventData)
     {
         //Debug.Log("Dragging");
+        print("drag base " + Input.mousePosition);
     }
 
     public virtual void OnEndDrag(PointerEventData eventData)
     {
         //Debug.Log("Drag Ended");
+        print("drag base ended " + Input.mousePosition);
     }
 
     public virtual void OnPointerClick(PointerEventData eventData)
@@ -28,7 +31,6 @@ public class EventDetector : MonoBehaviour, IPointerDownHandler, IPointerClickHa
 
     protected void pointer_clicked(PointerEventData eventData)
     {
-        print("protected click");
     }
 
     public virtual void OnPointerDown(PointerEventData eventData)

@@ -21,7 +21,11 @@ public class CityManager : BoardManager
     public Tilemap exit_south;
     public Tilemap exit_west;
     public Tilemap exit_east;
-    static City cit;
+    //static City cit;
+
+    public GameObject city_tilemap_go;
+    public Tilemap city_tilemap; // building placed on city tilemap
+
 
     // distances for train to travel before exiting the city (not before stopping)
     public static float exit_dest_west_east = 6;
@@ -45,6 +49,24 @@ public class CityManager : BoardManager
 
     }
 
+    public static bool is_exit_route_shown(RouteManager.Orientation orientation)
+    {
+        //todo
+        switch (orientation)
+        {
+            case RouteManager.Orientation.North:
+                return RouteManager.exit_north_tilemap.GetComponent<TilemapRenderer>().enabled;
+            case RouteManager.Orientation.East:
+                return RouteManager.exit_east_tilemap.GetComponent<TilemapRenderer>().enabled;
+            case RouteManager.Orientation.West:
+                return RouteManager.exit_west_tilemap.GetComponent<TilemapRenderer>().enabled;
+            case RouteManager.Orientation.South:
+                return RouteManager.exit_south_tilemap.GetComponent<TilemapRenderer>().enabled;
+            default:
+                return false;
+        }
+    }
+
     public bool hide_exit_route(RouteManager.Orientation orientation, City city, Tilemap exit_tilemap)
     {
         Vector3Int city_loc = city.get_location();
@@ -58,9 +80,9 @@ public class CityManager : BoardManager
         else if (orientation == RouteManager.Orientation.South)
             loc = new Vector3Int(city_loc.x, city_loc.y - 1, city_loc.z);
         else { throw new Exception("not a valid orientation"); }
-        Tilemap track_tilemap = GameManager.track_manager.get_toggled_tilemap((Vector2Int)loc);
+        Tilemap track_tilemap = GameManager.track_manager.top_tilemap;
         Tile tile_type = (Tile)track_tilemap.GetTile(loc);
-        if (tile_type == null)
+        if (tile_type == null) // todo: an additional check that exit track orientation is correct
         {
             exit_tilemap.GetComponent<TilemapRenderer>().enabled = false;
             return true;
@@ -84,7 +106,6 @@ public class CityManager : BoardManager
         {
             City activated_city = Activated_City.GetComponent<City>();
             GameObject train_object = activated_city.get_station_track(tile_pos).train;
-            print("train id is " + train_object.GetComponent<Train>().get_id());
             if (train_object != null)
             {
                 GameManager.vehicle_manager.add_boxcar_to_train(train_object.GetComponent<Train>(), boxcar_type);
@@ -93,12 +114,12 @@ public class CityManager : BoardManager
             }
             else
             {
-                print("no train found in this track");
+                //print("no train found in this track");
                 return false;
             }
         } catch (NullReferenceException)
         {
-            print("no train available  to add boxcar to at tile position " + tile_pos);
+            //print("no train available  to add boxcar to at tile position " + tile_pos);
             return false;
         }
     }
@@ -121,7 +142,6 @@ public class CityManager : BoardManager
 
     public void hide_shipyard_inventory()
     {
-        print("hide shipyard inventory");
         Tilemap tilemap = GameManager.Shipyard_Inventory.GetComponent<Tilemap>();
         for (int i = 0; i < board_width; i++)
         {
@@ -130,25 +150,30 @@ public class CityManager : BoardManager
                 tilemap.SetTile(new Vector3Int(i, j, 0), null);
             }
         }
-    }
+    }  
 
     public void set_activated_city(GameObject city_object=null)
     {
         if (city_object == null) // hide shipyard
         {
+            city_tilemap_go.SetActive(false);
             GameManager.city_menu_state = false;
             Activated_City.GetComponent<City>().enable_train_for_screen(); // hide trains before setting activated city to null
             hide_shipyard_inventory();
         }
         else // show shipyard
         {
+            city_tilemap_go.SetActive(true);
+            // populate city tilemap
             GameManager.city_menu_state = true;
             City city = city_object.GetComponent<City>();
+            city.populate_city_tilemap(city_tilemap);
             city.display_boxcar();
             hide_exit_route(RouteManager.Orientation.North, city, RouteManager.exit_north_tilemap);
             hide_exit_route(RouteManager.Orientation.East, city, RouteManager.exit_east_tilemap);
             hide_exit_route(RouteManager.Orientation.West, city, RouteManager.exit_west_tilemap);
             hide_exit_route(RouteManager.Orientation.South, city, RouteManager.exit_south_tilemap);
+
         }
         if (city_object == null) Activated_City.GetComponent<City>().show_turntable(false);
         else { city_object.GetComponent<City>().show_turntable(true); }
@@ -177,6 +202,7 @@ public class CityManager : BoardManager
         return gameobject_board[city_location.x, city_location.y];
     }
 
+    
     public void create_cities()
     {
         // initialize board with stationary tiles eg cities
@@ -189,8 +215,10 @@ public class CityManager : BoardManager
                 Tile structure_tile = (Tile)structure_tilemap.GetTile(cell_position);
                 if (structure_tile != null)
                 {
-                    GameObject city = Instantiate(City);
+                    string city_type = structure_tile.name;
+                    GameObject city = Instantiate(City);                    
                     city.GetComponent<City>().set_location(cell_position);
+                    city.GetComponent<City>().city_type = city_type;
                     gameobject_board[r, c] = city;
                 }
             }

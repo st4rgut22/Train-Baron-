@@ -6,6 +6,17 @@ using UnityEngine.Tilemaps;
 
 public class City : BoardManager
 {
+    public Tile business_tile;
+    public Tile residential_tile;
+    public Tile hospital_tile;
+    public Tile lab_tile;
+    public City_Building[,] city_building_grid;
+    public int building_id;
+    public GameObject city_icon; // icon viewable in game view
+    public bool occupied;
+    public string city_type;
+    public Vector2Int first_structure_location;
+
     // track city control as a function of supplies, troops, artillery
     Vector3Int tilemap_position;
     public Tile bomb_boxcar_tile;
@@ -19,7 +30,7 @@ public class City : BoardManager
     //outside track comes first
     public static Vector2Int west_end_1 = new Vector2Int(4, 2);
     public static Vector2Int west_end_2 = new Vector2Int(4, 3);
-    public static Vector3Int west_start_1 = new Vector3Int(-1, 2, 0);
+    public static Vector3Int west_start_1 = new Vector3Int(-1, 1, 0);
     public static Vector3Int west_start_2 = new Vector3Int(-1, 3, 0);
 
     public static Vector2Int north_end_2 = new Vector2Int(4, 5);
@@ -30,12 +41,12 @@ public class City : BoardManager
     public static Vector2Int east_end_2 = new Vector2Int(10, 5); //wrong
     public static Vector2Int east_end_1 = new Vector2Int(10, 6);
     public static Vector3Int east_start_2 = new Vector3Int(17, 7, 0);
-    public static Vector3Int east_start_1 = new Vector3Int(17, 8, 0);
+    public static Vector3Int east_start_1 = new Vector3Int(17, 9, 0);
 
     public static Vector2Int south_end_1 = new Vector2Int(10, 1);
     public static Vector2Int south_end_2 = new Vector2Int(10, 0);
     public static Vector3Int south_start_1 = new Vector3Int(15, -1, 0);
-    public static Vector3Int south_start_2 = new Vector3Int(14, -1, 0); 
+    public static Vector3Int south_start_2 = new Vector3Int(14, -1, 0);
 
     Station West_Station;
     Station North_Station;
@@ -51,10 +62,9 @@ public class City : BoardManager
 
     public int prev_train_list_length = 0;
 
-    int[,] parking_coord = { { 4, 0, 5 }, { 4, 11, 16 }, { 6, 11, 16 }, { 6, 0, 4 } }; // y, x start, x end
-
     private void Awake()
     {
+        city_building_grid = new City_Building[board_width, board_height]; // save location of structures in a city
         base.Awake();
         West_Station = new Station(west_start_1, west_start_2, RouteManager.Orientation.West, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
         North_Station = new Station(north_start_1, north_start_2, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
@@ -76,12 +86,66 @@ public class City : BoardManager
         turn_table_circle.GetComponent<SpriteRenderer>().enabled = false;
         destination_orientation = RouteManager.Orientation.None;
 
+        occupied = false;
         game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        first_structure_location = new Vector2Int(5, 2);
+        initialize_city_tilemap(); // with the first structure location
+        building_id = 1;
     }
 
     private void Update()
     {
         //enable_train_for_screen(); causes lag
+    }
+
+    public City_Building get_city_building()
+    {
+        if (city_type == "Business")
+        {
+            return new City_Building(business_tile, new Business(building_id)); ;
+        }
+        else if (city_type == "Residential")
+        {
+            return new City_Building(residential_tile, new Residential(building_id));
+        }
+        else if (city_type == "Hospital")
+        {
+            return new City_Building(hospital_tile, new Hospital(building_id)); ;
+        }
+        else if (city_type == "Lab")
+        {
+            return new City_Building(lab_tile, new Laboratory(building_id));
+        }
+        else
+        {
+            throw new Exception("not a valid tile");
+        }
+    }
+
+    public void initialize_city_tilemap()
+    {
+        // add all tiles to the grid. then set tiles in tilemap.
+        City_Building building = get_city_building();
+        city_building_grid[first_structure_location.x, first_structure_location.y] = building;
+    }
+
+    public void populate_city_tilemap(Tilemap city_tilemap)
+    {
+        // draw building sprites in the appropriate tiles
+        for (int i=0; i<board_width; i++)
+        {
+            for (int j=0; j<board_height; j++)
+            {
+                City_Building cb = city_building_grid[i, j];
+                Vector3Int tile_pos = new Vector3Int(i, j, 0);
+                if (cb == null)
+                    city_tilemap.SetTile(tile_pos, null); 
+                else
+                {
+                    city_tilemap.SetTile(tile_pos, cb.tile);
+                }
+            }
+        }
     }
 
     public void set_destination_track(RouteManager.Orientation orientation)
@@ -105,15 +169,20 @@ public class City : BoardManager
         turn_table_circle.GetComponent<SpriteRenderer>().enabled = state;
     }
 
+    public void parking_validator()
+    {
+        // is available?
+    }
+
     public bool is_parking_spot_available(Vector2Int tile_pos)
     {
         // first check if parking spot is valid, then check if is available
         bool is_valid = false;
-        for (int i = 0; i < parking_coord.GetLength(0); i++)
+        for (int i = 0; i < TrackManager.parking_coord.GetLength(0); i++)
         {
-            int y = parking_coord[i, 0];
-            int start_x = parking_coord[i, 1];
-            int end_x = parking_coord[i, 2];
+            int y = TrackManager.parking_coord[i, 0];
+            int start_x = TrackManager.parking_coord[i, 1];
+            int end_x = TrackManager.parking_coord[i, 2];
             if (y == tile_pos.y && tile_pos.x >= start_x && tile_pos.x <= end_x) is_valid = true;
         }
         if (is_valid && gameobject_board[tile_pos.x, tile_pos.y] == null) return true;
@@ -136,9 +205,9 @@ public class City : BoardManager
     public Vector2Int get_parking_spot()
     {
         Vector2Int parking_spot = BoardManager.invalid_tile;
-        for (int i = 0; i < parking_coord.GetLength(0); i++)
+        for (int i = 0; i < TrackManager.parking_coord.GetLength(0); i++)
         {
-            parking_spot = find_parking_spot(parking_coord[i,0],parking_coord[i,1],parking_coord[i,2]);
+            parking_spot = find_parking_spot(TrackManager.parking_coord[i,0], TrackManager.parking_coord[i,1], TrackManager.parking_coord[i,2]);
             if (!parking_spot.Equals(BoardManager.invalid_tile)) break;
         }
         return parking_spot;
@@ -187,13 +256,46 @@ public class City : BoardManager
         }
     }
 
-    public Station_Track get_station_track(Vector2Int tile_pos)
+    public bool is_train_on_track(Vector2Int tile_pos, bool get_outer)
     {
-        if (tile_pos.y < 4)
+        Station_Track station_track;
+        if (tile_pos.y <= 4)
         {
             if (tile_pos.x < 7)
             {
-                if (tile_pos.y == 2) return West_Station.outer_track;
+                if (get_outer) station_track = West_Station.outer_track;
+                else { station_track = West_Station.inner_track; }
+            }
+            else
+            {
+                if (get_outer) station_track = South_Station.outer_track;
+                else { station_track = South_Station.inner_track; }
+            }
+        }
+        else
+        {
+            if (tile_pos.x < 7)
+            {
+                if (get_outer) station_track = North_Station.outer_track;
+                else { station_track = North_Station.inner_track; }
+            }
+            else
+            {
+                if (get_outer) station_track = East_Station.inner_track;
+                else { station_track = East_Station.outer_track; }
+            }
+        }
+        if (station_track.train != null) return true;
+        return false;
+    }
+
+    public Station_Track get_station_track(Vector2Int tile_pos)
+    {
+        if (tile_pos.y <= 4)
+        {
+            if (tile_pos.x < 7)
+            {
+                if (tile_pos.y == 1) return West_Station.outer_track;
                 else { return West_Station.inner_track; }
             }
             else
@@ -206,7 +308,7 @@ public class City : BoardManager
         {
             if (tile_pos.x < 7)
             {
-                if (tile_pos.y == 7 || tile_pos.x == 2) return North_Station.outer_track;
+                if (tile_pos.y == 7 || tile_pos.x == 1) return North_Station.outer_track;
                 else { return North_Station.inner_track; }
             }
             else
@@ -220,9 +322,6 @@ public class City : BoardManager
     public void delete_train(GameObject train_object)
     {
         remove_train_from_list(train_object, train_list);
-        ////TODO: repeat line below for when train exits game view. Remove from list and hide
-        //if (CityManager.Activated_City == gameObject) MovingObject.switch_sprite_renderer(train_object, false);
-        //if (GameManager.game_menu_state) MovingObject.switch_sprite_renderer(train_object, true);
         game_manager.train_list.Add(train_object);
     }
 

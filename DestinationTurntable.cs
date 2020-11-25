@@ -18,7 +18,6 @@ public class DestinationTurntable : EventDetector
 
     public override void OnPointerClick(PointerEventData eventData)
     {
-        print("pointer clicked " + gameObject.name);
         if (gameObject.name == "Shipyard Track Exit North")
             GameManager.city_manager.set_destination_track(RouteManager.Orientation.North);
         else if (gameObject.name == "Shipyard Track Exit South")

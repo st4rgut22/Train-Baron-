@@ -11,9 +11,15 @@ public class GameManager : MonoBehaviour
     public static Camera camera;
     // manage score, game state 
 
+    public static int macro_morale; // effected by health and economy
+    public static int macro_health;
+    public static int macro_economy;
+    public static int day;
+
     const int cell_width = 1;
     const int cell_height = 1;
-
+    public Tilemap hint_tilemap;
+    public Tile hint_tile;
     public static GameObject Structure;
     public static GameObject Base;
     public static GameObject Shipyard_Base;
@@ -40,6 +46,9 @@ public class GameManager : MonoBehaviour
     public static int prev_train_list_length = 0;
     public Button test_btn;
 
+    public static List<string> hint_context_list;
+    public static GameObject hint_gameobject;
+    public static List<List<int[]>> hint_context_pos_list;
     //public static StoreMenuManager game_menu_manager;
 
     public static bool shipyard_state;
@@ -49,6 +58,8 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         train_list = new List<GameObject>();
+        hint_context_list = new List<string>();
+        hint_context_pos_list = new List<List<int[]>>();
         train_menu_manager = GameObject.Find("Exit Bar").GetComponent<TrainMenuManager>();
         shipyard_state = false;
         Structure = GameObject.Find("Structure");
@@ -74,7 +85,10 @@ public class GameManager : MonoBehaviour
         menu_manager = GameObject.Find("MenuManager").GetComponent<MenuManager>();
         //game_menu_manager = GameObject.Find("Store Menu").GetComponent<StoreMenuManager>();
         switch_on_shipyard(false);
-
+        macro_morale = 50;
+        macro_economy = 50;
+        macro_health = 50;
+        day = 1;
     }
 
     public void activate_train()
@@ -102,48 +116,142 @@ public class GameManager : MonoBehaviour
         return selected_tile;
     }
 
+    public void clean_up_hint(List<List<int[]>> tilemap_pos_list)
+    {
+        foreach (List<int[]> tilemap_pos_arr_list in tilemap_pos_list)
+        {
+            foreach (int[] tilemap_pos_arr in tilemap_pos_arr_list)
+            {
+                Vector2Int tilemap_pos = new Vector2Int(tilemap_pos_arr[0], tilemap_pos_arr[1]);
+                hint_tilemap.SetTile((Vector3Int)tilemap_pos, null);
+            }
+        }
+    }
+
+    public IEnumerator show_hint(List<List<int[]>> tilemap_pos_list)
+    {
+        clean_up_hint(tilemap_pos_list);
+        foreach (List<int[]> tilemap_pos_arr_list in tilemap_pos_list)
+        {
+            foreach (int[] tilemap_pos_arr in tilemap_pos_arr_list)
+            {
+                Vector2Int tilemap_pos = new Vector2Int(tilemap_pos_arr[0], tilemap_pos_arr[1]);
+                hint_tilemap.SetTile((Vector3Int)tilemap_pos, hint_tile);
+            }
+        }
+        yield return new WaitForSeconds(1);
+        clean_up_hint(tilemap_pos_list);
+        // after 1 second, unhighlight the tiles
+    }
+
+
+    public void mark_tile_as_eligible(List<List<int[]>> tilemap_pos_list, List<string> hint_context, GameObject go, bool hint_mode = true) // turn off false for gameplay
+    {
+        // if hint mode is on, highlight the valid tiles
+        GameManager.hint_context_list = hint_context;
+        GameManager.hint_gameobject = go;
+        GameManager.hint_context_pos_list = tilemap_pos_list; // save the affected tiles to detect future clicks on these tiles
+        if (hint_mode)
+        {
+            StartCoroutine(show_hint(tilemap_pos_list));
+        }
+    }
+
+    public int is_selected_tile_in_context(Vector2Int selected_tile)
+    {
+        // is the pressed tile receiving an action from the user (specified by the previous touch)?
+        if (hint_context_list.Count > 0)
+        {
+            int[] selection = new int[] { selected_tile.x, selected_tile.y };
+            for (int i=0;i<hint_context_pos_list.Count; i++)
+            {
+                List<int[]> hint_context = hint_context_pos_list[i];
+                foreach (int[] coord in hint_context)
+                {
+                    if (coord[0] == selected_tile.x && coord[1] == selected_tile.y) return i;
+                }
+            }
+        }
+        return -1;
+    }
+
     // Update is called once per frame
     void Update()
     {
-        //print("train list is this long " + train_list.Count);
-        //enable_train_for_screen();
         if (Input.GetMouseButtonDown(0))
         {
             Collider2D selected_object = get_object_at_cursor(Input.mousePosition);
-            if (selected_object != null)
+            Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
+            print("selected tile is " + selected_tile);
+            int hint_index = is_selected_tile_in_context(selected_tile);
+            if (hint_index != -1)
             {
-                Vector2Int selected_tile;
-                GameObject clicked_gameobject = selected_object.gameObject;
-                string object_tag = clicked_gameobject.tag;
-                if (object_tag == "track_layer")
+                string hint_context = hint_context_list[hint_index];
+                if (hint_context == "add") // ADD BOXCAR
                 {
-                    selected_tile = get_selected_tile(Input.mousePosition);
-                    GameManager.track_manager.toggle_on_train_track(selected_tile);
+                    print("add");
+                    InventoryPusher ip = GameObject.Find("Shipyard Inventory").GetComponent<InventoryPusher>();
+                    city_manager.add_boxcar_to_station(ip.selected_tile.name, selected_tile, ip.selected_tile_pos);
                 }
-                else if (object_tag == "structure")
+                else if (hint_context == "unload" || hint_context == "park") // UNLOAD OR PARK BOXCAR
                 {
-                    selected_tile = get_selected_tile(Input.mousePosition);
-                    GameObject city_object = city_manager.get_city(selected_tile);
-                    // display boxcars
-                    switch_on_shipyard(true);
-                    city_manager.set_activated_city(city_object);
-                    MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
-                    City activated_city = city_object.GetComponent<City>();
-                    train_menu_manager.update_train_menu(activated_city);
+                    Boxcar boxcar = hint_gameobject.GetComponent<Boxcar>();
+                    if (hint_context == "unload")
+                    {
+                        print("unload");
+                    }
+                    if (hint_context == "park")
+                    {
+                        print("park");
+                        //todo
+                        boxcar.city.place_boxcar_tile(hint_gameobject, selected_tile);
+                        GameManager.vehicle_manager.boxcar_fill_void(hint_gameobject); // move boxcars behind this one forward
+                        boxcar.train.remove_boxcar(boxcar.boxcar_id);
+                    }
+                }
+                else if (hint_context == "north exit" || hint_context == "east exit" || hint_context == "west exit" || hint_context == "south exit") // DEPART TRAIN
+                {
+                    hint_gameobject.GetComponent<Train>().exit_city(hint_context);
+                }
+                else if (hint_context == "track") // PLACE TILE
+                {
+                    Tile clicked_tile = hint_gameobject.GetComponent<GameMenuManager>().clicked_tile;
+                    track_manager.place_tile(selected_tile, clicked_tile, true);
                 }
                 else
                 {
-                    print("You did not click a gameobject. Object tag is " + object_tag);
-
+                    throw new Exception("not a valid hint context");
                 }
             }
+            else
+            {
+                if (selected_object != null)
+                {
+                    GameObject clicked_gameobject = selected_object.gameObject;
+                    string object_tag = clicked_gameobject.tag;
+                    if (object_tag == "track_layer")
+                    {
+                        GameManager.track_manager.toggle_on_train_track(selected_tile);
+                    }
+                    else if (object_tag == "structure")
+                    {
+                        GameObject city_object = city_manager.get_city(selected_tile);
+                        // display boxcars
+                        switch_on_shipyard(true);
+                        city_manager.set_activated_city(city_object);
+                        MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
+                        City activated_city = city_object.GetComponent<City>();
+                        train_menu_manager.update_train_menu(activated_city);
+                    }
+                }
+            }
+            hint_context_list.Clear(); // after completing or failing to complete an action, remove context to prepare for new context
         }
     }
 
     public static void enable_vehicle_for_screen(GameObject boxcar_object)
     {
         //allow turn on vehicles individually instead of all trains
-        print("enable vehicle " + boxcar_object.tag);
         // like enable_train_for_screen() except focus on vehicle exiting or entering the screen
         MovingObject boxcar = boxcar_object.GetComponent<MovingObject>();
         if (game_menu_state)

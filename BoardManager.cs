@@ -14,8 +14,11 @@ public class BoardManager : EventDetector
     public GameObject[,] gameobject_board;
     //protected static Tilemap tilemap;
     public static Vector2Int invalid_tile = new Vector2Int(-1, -1);
-    protected const int board_width = 19; // add 2 to board with and height, to accomodate tiles outside of the view (entry point to city)
-    protected const int board_height = 12; // size of the shipyard tilemap (usable tiles in track tilemap is slightly smaller)
+    public const int board_width = 19; // add 2 to board with and height, to accomodate tiles outside of the view (entry point to city)
+    public const int board_height = 12; // size of the shipyard tilemap (usable tiles in track tilemap is slightly smaller)
+
+    public static int track_width = 17; // size of the board that tracks can be placed on
+    public static int track_height = 10; 
     
     protected void Awake()
     {

@@ -96,8 +96,8 @@ public class StoreMenuManager : MonoBehaviour
             cur_count++;
         else if (item_name == "minus" && cur_count >= 0)
             cur_count--;
-        else
-            print("UNSUPPORTED btn action");
+        //else
+        //    print("UNSUPPORTED btn action");
         item_count.text = cur_count.ToString();
     }
 

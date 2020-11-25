@@ -46,7 +46,7 @@ public class TrainMenuManager : MonoBehaviour
     {
         // exiting the city view
         gameObject.SetActive(false);        
-        GameManager.game_menu_state = true; // update trains todo
+        GameManager.game_menu_state = true;
     }
 
     public void destroy_train_display()
@@ -73,7 +73,7 @@ public class TrainMenuManager : MonoBehaviour
     public GameObject get_train_display(RouteManager.Orientation orientation)
     {
         GameObject train_display;
-        print("orientation is " + orientation);
+        //print("orientation is " + orientation);
         switch (orientation)
         {
             case RouteManager.Orientation.ne_SteepCurve:

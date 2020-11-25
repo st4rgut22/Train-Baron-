@@ -10,12 +10,8 @@ public class RouteManager : MonoBehaviour
 
 
     public static GameObject Track_Layer;
-    public static GameObject Track_Layer_2;
-    public static GameObject Track_Layer_3;
-
     public static Tilemap track_tilemap;
-    public static Tilemap track_tilemap_2;
-    public static Tilemap track_tilemap_3;
+
     public static Tilemap city_tilemap;
     public static Tilemap shipyard_track_tilemap;
     public static Tilemap shipyard_track_tilemap2;
@@ -48,6 +44,7 @@ public class RouteManager : MonoBehaviour
     private void Awake()
     {
         Track_Layer = GameObject.Find("Top Track Layer");
+        track_tilemap = Track_Layer.GetComponent<Tilemap>();
         exit_north_tilemap = GameObject.Find("Shipyard Track Exit North").GetComponent<Tilemap>();
         exit_south_tilemap = GameObject.Find("Shipyard Track Exit South").GetComponent<Tilemap>();
         exit_west_tilemap = GameObject.Find("Shipyard Track Exit West").GetComponent<Tilemap>();
@@ -70,14 +67,14 @@ public class RouteManager : MonoBehaviour
 
     public static Orientation get_destination_track_orientation(string exit_track_name)
     {
-        if (exit_track_name == "Shipyard Track Exit North")
+        if (exit_track_name == "north exit")
             return Orientation.North;
-        else if (exit_track_name == "Shipyard Track Exit South")
-            return Orientation.South;
-        else if (exit_track_name == "Shipyard Track Exit West")
-            return Orientation.West;
-        else if (exit_track_name == "Shipyard Track Exit East")
+        else if (exit_track_name == "east exit")
             return Orientation.East;
+        else if (exit_track_name == "west exit")
+            return Orientation.West;
+        else if (exit_track_name == "south exit")
+            return Orientation.South;
         else
         {
             return Orientation.None;
@@ -129,7 +126,7 @@ public class RouteManager : MonoBehaviour
                 tile_world_coord.y += cell_width / 2;
                 break;
             default:
-                print("train orientation is not set. cannot set boxcar position");
+                //print("train orientation is not set. cannot set boxcar position");
                 break;
         }
         // Get the center of the city where the vehicle is instantiated
@@ -415,7 +412,7 @@ public class RouteManager : MonoBehaviour
                     break;
                 default:
                     moving_thing.final_orientation = Orientation.None;
-                    print("none of the track tiles matched"); // return current position
+                    //print("none of the track tiles matched"); // return current position
                     break;
             }
             if (tile_name == "ne_diag" || tile_name == "nw_diag" || tile_name == "se_diag" || tile_name == "sw_diag" || tile_name == "less_diag_ne_turn" ||
@@ -428,7 +425,7 @@ public class RouteManager : MonoBehaviour
         catch (NullReferenceException e)
         {
             final_cell_dest = tile_world_coord;
-            print("Vehicle Should not reach end of track due to look ahead. tilemap " + tilemap + " position of " + moving_thing.name + " is " + moving_thing.tile_position);
+            //print("Vehicle Should not reach end of track due to look ahead. tilemap " + tilemap + " position of " + moving_thing.name + " is " + moving_thing.tile_position);
             print(e.Message);
         }
         return new PositionPair(final_cell_dest, next_tilemap_pos);
@@ -440,17 +437,17 @@ public class RouteManager : MonoBehaviour
         Orientation original_final_orientation = vehicle.final_orientation;
         Tile track_tile = (Tile)tilemap.GetTile(vehicle.tile_position);
         string track_name = track_tile.name;
-        print("track name is " + track_name);
-        print("original direction is " + vehicle.orientation);
+        //print("track name is " + track_name);
+        //print("original direction is " + vehicle.orientation);
         vehicle.orientation = TrackManager.flip_straight_orientation(vehicle.orientation);
-        print("opposite direction is " + vehicle.orientation);
+        //print("opposite direction is " + vehicle.orientation);
         PositionPair prev_pos_pair = get_next_tile_pos(tilemap, track_tile, vehicle, vehicle.tile_position); // opposite direction of train to get prev tile
         Vector3Int prev_tile_coord = (Vector3Int)prev_pos_pair.tile_dest_pos; 
         track_tile = (Tile)tilemap.GetTile(prev_tile_coord);
         track_name = track_tile.name;
         PositionPair pos_pair = get_next_tile_pos(tilemap, track_tile, vehicle, prev_tile_coord); // go in direction opposite of train
         TrackManager.set_opposite_direction(track_name, vehicle); // set direction same as train
-        print("final direction is " + vehicle.orientation);
+        //print("final direction is " + vehicle.orientation);
         pos_pair.tile_dest_pos = prev_pos_pair.tile_dest_pos; // use previous tile, not the previous previous tile
         pos_pair.orientation = vehicle.orientation;
         vehicle.orientation = original_orientation; // restore original orientation
