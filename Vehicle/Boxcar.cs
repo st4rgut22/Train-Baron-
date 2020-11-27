@@ -8,17 +8,22 @@ public class Boxcar : MovingObject
     public Train train = null; // the train boxcar is attached to
     Vector3 idling_position; // boxcar's default position while waiting for turntable to arrive
     public int boxcar_id;
+    public string boxcar_type;
     public bool departing = false;
     public bool receive_train_order = true;
+    List<Cargo> cargo_list; // accomodate different cargo, people, vaccine, etc.
 
     private void Awake()
     {      
         base.Awake();
+        cargo_list = new List<Cargo>();
+
     }
 
     void Start()
     {
         base.Start();
+        boxcar_type = gameObject.name.Replace("(Clone)", "");
         idling_position = new Vector3(-1, -1, -1);
         departing = false;
     }
@@ -64,12 +69,12 @@ public class Boxcar : MovingObject
         this.train = train;
     }
 
-    public override void OnPointerClick(PointerEventData eventData)
+    public void click_boxcar(PointerEventData eventData)
     {
-        print("clicked " + gameObject.name);
         List<List<int[]>> boxcar_action_coord = new List<List<int[]>>();
-        if (train!=null && in_city && train.is_pause)
+        if (GameManager.hint_context_list.Count == 0 && train !=null && in_city && train.is_pause)
         {
+            print("set boxcar hint");
             RouteManager.Orientation station_orientation = station_track.station.orientation;
             int is_inner = station_track.inner;
             int[,,] loading_coord = TrackManager.unloading_coord_map[station_orientation];
@@ -82,6 +87,11 @@ public class Boxcar : MovingObject
             List<string> hint_context_list = new List<string>() { "unload", "park"};
             game_manager.mark_tile_as_eligible(boxcar_action_coord, hint_context_list, gameObject, true);
         }
+    }
+
+    public List<Cargo> retrieve_cargo()
+    {
+        return cargo_list;
     }
 
     public List<int[]> filter_available_parking_spot(List<int[]> parking_spots)
@@ -121,39 +131,49 @@ public class Boxcar : MovingObject
         // valid pos is an array of 3 ints: y coord, x_start, x_end
         List<int[]> unloading_pos_list = new List<int[]>();
         City_Building[,] city_building_matrix = city.city_building_grid;
+        // todo: if cargo_list.Count > 0  condition 2badded after loading function is tested and completed
         for (int c = 0; c < valid_pos.GetLength(1); c++)
         {
             int x = valid_pos[is_inner, c, 0];
             int y = valid_pos[is_inner, c, 1];
-            if (city_building_matrix[x, y] != null)
+            City_Building cb = city_building_matrix[x, y];
+            if (cb != null)
             {
-                unloading_pos_list.Add(new int[] { x, y });
+                string building_type = cb.building.building_type; // check if the building type matches the cargo
+                List<string> valid_structure_list = CityManager.cargo_to_structure[boxcar_type];
+                if (valid_structure_list.Contains(building_type))
+                {
+                    unloading_pos_list.Add(new int[] { x, y });
+                } else
+                {
+                    print("boxcar cargo type " + boxcar_type + " does not match building type " + building_type);
+                }
             }
         }
         return unloading_pos_list;
     }
 
-    public override void OnBeginDrag(PointerEventData eventData)
-    {
-        if (in_city && train.is_pause) // waiting for turntable to arrive
-        {
-            base.OnBeginDrag(eventData);
-            idling_position = transform.position; // if train departs before placing a boxcar in parking spot, then boxcar departs too
-        }
-    }
+    //public override void OnBeginDrag(PointerEventData eventData)
+    //{
+    //    if (in_city && train.is_pause) // waiting for turntable to arrive
+    //    {
+    //        base.OnBeginDrag(eventData);
+    //        idling_position = transform.position; // if train departs before placing a boxcar in parking spot, then boxcar departs too
+    //    }
+    //}
 
-    public override void OnDrag(PointerEventData eventData)
-    {
-        if (in_city && train.is_pause) // waiting for turntable to arrive
-        {
-            Vector3 world_position = MenuManager.convert_screen_to_world_coord(eventData.position);
-            transform.position = world_position;
-        } else
-        {
-            // TODO: abort drag, if the train is departing
+    //public override void OnDrag(PointerEventData eventData)
+    //{
+    //    if (in_city && train.is_pause) // waiting for turntable to arrive
+    //    {
+    //        Vector3 world_position = MenuManager.convert_screen_to_world_coord(eventData.position);
+    //        transform.position = world_position;
+    //    } else
+    //    {
+    //        // TODO: abort drag, if the train is departing
 
-        }
-    }
+    //    }
+    //}
 
     //public override void OnEndDrag(PointerEventData eventData)
     //{

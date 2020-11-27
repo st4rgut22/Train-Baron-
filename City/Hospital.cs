@@ -1,6 +1,6 @@
 ﻿public class Hospital : Building
 {
-    public Hospital(int id) : base(id)
+    public Hospital(int id, string type) : base(id, type)
     {
 
     }

@@ -142,7 +142,7 @@ public class TrackManager : BoardManager
     // Update is called once per frame
     void Update()
     {
-
+        
     }
 
     public void initialize_track_layer()
@@ -158,6 +158,28 @@ public class TrackManager : BoardManager
                     track_grid[i, j].Add(tile);
             }
         }
+    }
+
+    public static bool[] is_city_building_inner(Vector2Int cb_tile, RouteManager.Orientation orientation)
+    {
+        // determine if city building is adjacent to inner tile or not
+        int[,,] unloading_station_coord = unloading_coord_map[orientation];
+        bool[] outer_inner_arr = new bool[] { false, false }; // index 0 means outer track, index 1 means inner track
+        for (int i = 0; i < unloading_station_coord.GetLength(0); i++)
+        {
+            // i stands for outer (0) or inner(1)
+            for (int j=0; j < unloading_station_coord.GetLength(1); j++)
+            {
+                // j stands for coordinate pairs
+                if (cb_tile.x == unloading_station_coord[i,j,0] && cb_tile.y == unloading_station_coord[i, j, 1])
+                {
+                    outer_inner_arr[i] = true;
+                }
+            }
+        }
+        if (!outer_inner_arr[0] && !outer_inner_arr[1])
+            throw new Exception("the city building could not be found in the list of coordinates in unloading_coord_map dictionary");
+        return outer_inner_arr;
     }
 
     public Tile activate_track_tile(string tile_name)

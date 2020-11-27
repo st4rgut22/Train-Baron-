@@ -8,24 +8,20 @@ public class EventDetector : MonoBehaviour, IPointerDownHandler, IPointerClickHa
     public virtual void OnBeginDrag(PointerEventData eventData)
     {
         //Debug.Log("Drag Begin");
-        print("drag base began " + Input.mousePosition);
     }
 
     public virtual void OnDrag(PointerEventData eventData)
     {
         //Debug.Log("Dragging");
-        print("drag base " + Input.mousePosition);
     }
 
     public virtual void OnEndDrag(PointerEventData eventData)
     {
         //Debug.Log("Drag Ended");
-        print("drag base ended " + Input.mousePosition);
     }
 
     public virtual void OnPointerClick(PointerEventData eventData)
     {
-        Debug.Log("Clicked: " + eventData.pointerCurrentRaycast.gameObject.name);
         pointer_clicked(eventData);
     }
 

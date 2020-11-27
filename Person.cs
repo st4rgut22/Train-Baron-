@@ -1,4 +1,4 @@
-﻿public class Person
+﻿public class Person:Cargo
 {
     public int health;
     public int wealth;

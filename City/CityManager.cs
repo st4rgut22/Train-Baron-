@@ -30,6 +30,7 @@ public class CityManager : BoardManager
     // distances for train to travel before exiting the city (not before stopping)
     public static float exit_dest_west_east = 6;
     public static float exit_dest_north_south = 3;
+    public static Dictionary<string, List<string>> cargo_to_structure;
 
     private void Awake()
     {
@@ -41,6 +42,13 @@ public class CityManager : BoardManager
     void Start()
     {
         base.Start();
+        cargo_to_structure = new Dictionary<string, List<string>>
+        //todo replace keys with names of actual cargo (by changing boxcar names?)
+        { // {{coordinates of loading tiles for outer track},{coordinates of loading tiles for inner track}}
+            { "bomb boxcar",new List<string>(){ "Business","Hospital","Lab","Residential"} }, //people
+            { "troop boxcar",new List<string>(){ "Hospital"} }, // medicine
+            { "supply boxcar",new List<string>(){ "Business","Hospital","Lab","Residential"} }, // food
+        };
     }
 
     // Update is called once per frame

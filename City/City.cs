@@ -102,19 +102,19 @@ public class City : BoardManager
     {
         if (city_type == "Business")
         {
-            return new City_Building(business_tile, new Business(building_id)); ;
+            return new City_Building(business_tile, new Business(building_id, city_type)); ;
         }
         else if (city_type == "Residential")
         {
-            return new City_Building(residential_tile, new Residential(building_id));
+            return new City_Building(residential_tile, new Residential(building_id, city_type));
         }
         else if (city_type == "Hospital")
         {
-            return new City_Building(hospital_tile, new Hospital(building_id)); ;
+            return new City_Building(hospital_tile, new Hospital(building_id, city_type)); ;
         }
         else if (city_type == "Lab")
         {
-            return new City_Building(lab_tile, new Laboratory(building_id));
+            return new City_Building(lab_tile, new Laboratory(building_id, city_type));
         }
         else
         {
@@ -295,7 +295,7 @@ public class City : BoardManager
         {
             if (tile_pos.x < 7)
             {
-                if (tile_pos.y == 1) return West_Station.outer_track;
+                if (tile_pos.y == 1 || tile_pos.y == 2) return West_Station.outer_track;
                 else { return West_Station.inner_track; }
             }
             else

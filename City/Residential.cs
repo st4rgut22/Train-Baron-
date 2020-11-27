@@ -3,7 +3,7 @@
     // Start is called before the first frame update
     public Person person;
 
-    public Residential(int id) : base(id)
+    public Residential(int id, string type) : base(id, type)
     {
         person = new Person();
     }

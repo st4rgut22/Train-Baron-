@@ -4,9 +4,9 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using System;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-
-public class GameManager : MonoBehaviour
+public class GameManager : EventDetector
 {
     public static Camera camera;
     // manage score, game state 
@@ -99,13 +99,22 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public static Collider2D get_object_at_cursor(Vector3 cursor_pos)
+    public static RaycastHit2D get_object_at_cursor(Vector3 cursor_pos)
     {
         Vector3 position = new Vector3(cursor_pos.x, cursor_pos.y, Mathf.Abs(camera.transform.position.z));
         Vector3 mouse_pos = camera.ScreenToWorldPoint(position);
         Vector2 mouse_pos_2d = new Vector2(mouse_pos.x, mouse_pos.y);
         RaycastHit2D hit = Physics2D.Raycast(mouse_pos_2d, Vector2.zero);
-        return hit.collider;
+        return hit;
+    }
+
+    public static RaycastHit2D[] get_all_object_at_cursor(Vector3 cursor_pos)
+    {
+        Vector3 position = new Vector3(cursor_pos.x, cursor_pos.y, Mathf.Abs(camera.transform.position.z));
+        Vector3 mouse_pos = camera.ScreenToWorldPoint(position);
+        Vector2 mouse_pos_2d = new Vector2(mouse_pos.x, mouse_pos.y);
+        RaycastHit2D[] hit = Physics2D.RaycastAll(mouse_pos_2d, Vector2.zero);
+        return hit;
     }
 
     public static Vector2Int get_selected_tile(Vector3 pos)
@@ -157,7 +166,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public int is_selected_tile_in_context(Vector2Int selected_tile)
+    public static int is_selected_tile_in_context(Vector2Int selected_tile)
     {
         // is the pressed tile receiving an action from the user (specified by the previous touch)?
         if (hint_context_list.Count > 0)
@@ -175,59 +184,98 @@ public class GameManager : MonoBehaviour
         return -1;
     }
 
-    // Update is called once per frame
-    void Update()
+    public override void OnPointerClick(PointerEventData eventData)
     {
-        if (Input.GetMouseButtonDown(0))
+        print("clicked testy");
+        // use the previous hint context to do something, called on click anywhere in board 
+        print("game manager on pointer down in fame " + Time.frameCount);
+        Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
+        int hint_index = is_selected_tile_in_context(selected_tile);
+
+        RaycastHit2D selected_object = get_object_at_cursor(Input.mousePosition);
+        RaycastHit2D[] all_selected_object = get_all_object_at_cursor(Input.mousePosition);
+        if (selected_object != null)
         {
-            Collider2D selected_object = get_object_at_cursor(Input.mousePosition);
-            Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
-            print("selected tile is " + selected_tile);
-            int hint_index = is_selected_tile_in_context(selected_tile);
-            if (hint_index != -1)
+            if (selected_object.collider != null)
             {
-                string hint_context = hint_context_list[hint_index];
-                if (hint_context == "add") // ADD BOXCAR
+                // call pointer events for boxcar and city from GameManager using Raycast data on the UI event detector
+                string object_name = selected_object.collider.tag;
+                print("object name is " + object_name);
+                if (object_name == "city_building") 
                 {
-                    print("add");
-                    InventoryPusher ip = GameObject.Find("Shipyard Inventory").GetComponent<InventoryPusher>();
-                    city_manager.add_boxcar_to_station(ip.selected_tile.name, selected_tile, ip.selected_tile_pos);
+                    selected_object.collider.gameObject.GetComponent<CityDetector>().click_city(eventData);
                 }
-                else if (hint_context == "unload" || hint_context == "park") // UNLOAD OR PARK BOXCAR
+                if (object_name == "boxcar")
                 {
-                    Boxcar boxcar = hint_gameobject.GetComponent<Boxcar>();
-                    if (hint_context == "unload")
-                    {
-                        print("unload");
-                    }
-                    if (hint_context == "park")
-                    {
-                        print("park");
-                        //todo
-                        boxcar.city.place_boxcar_tile(hint_gameobject, selected_tile);
-                        GameManager.vehicle_manager.boxcar_fill_void(hint_gameobject); // move boxcars behind this one forward
-                        boxcar.train.remove_boxcar(boxcar.boxcar_id);
-                    }
+                    selected_object.collider.gameObject.GetComponent<Boxcar>().click_boxcar(eventData);
                 }
-                else if (hint_context == "north exit" || hint_context == "east exit" || hint_context == "west exit" || hint_context == "south exit") // DEPART TRAIN
+                if (object_name == "train")
                 {
-                    hint_gameobject.GetComponent<Train>().exit_city(hint_context);
+                    selected_object.collider.gameObject.GetComponent<Train>().click_train(eventData);
                 }
-                else if (hint_context == "track") // PLACE TILE
+            }
+        }
+        if (hint_index != -1)
+        {
+            string hint_context = hint_context_list[hint_index];
+            if (hint_context == "add") // ADD BOXCAR
+            {
+                print("add");
+                InventoryPusher ip = GameObject.Find("Shipyard Inventory").GetComponent<InventoryPusher>();
+                city_manager.add_boxcar_to_station(ip.selected_tile.name, selected_tile, ip.selected_tile_pos);
+            }
+            else if (hint_context == "unload" || hint_context == "park" || hint_context == "board") // UNLOAD OR PARK BOXCAR
+            {
+                Boxcar boxcar = hint_gameobject.GetComponent<Boxcar>();
+                if (hint_context == "unload")
                 {
-                    Tile clicked_tile = hint_gameobject.GetComponent<GameMenuManager>().clicked_tile;
-                    track_manager.place_tile(selected_tile, clicked_tile, true);
+                    print("unload from boxcar to city");
+                    //Tile struct_tile = (Tile) GameObject.Find("City").GetComponent<Tilemap>().GetTile((Vector3Int)selected_tile);
+                    //List<Cargo> cargo_list = boxcar.retrieve_cargo();
                 }
-                else
+                else if (hint_context == "board")
                 {
-                    throw new Exception("not a valid hint context");
+                    print("board from city to boxcar");
                 }
+                else if (hint_context == "park")
+                {
+                    print("park");
+                    //todo
+                    boxcar.city.place_boxcar_tile(hint_gameobject, selected_tile);
+                    GameManager.vehicle_manager.boxcar_fill_void(hint_gameobject); // move boxcars behind this one forward
+                    boxcar.train.remove_boxcar(boxcar.boxcar_id);
+                }
+            }
+            else if (hint_context == "north exit" || hint_context == "east exit" || hint_context == "west exit" || hint_context == "south exit") // DEPART TRAIN
+            {
+                hint_gameobject.GetComponent<Train>().exit_city(hint_context);
+            }
+            else if (hint_context == "track") // PLACE TILE
+            {
+                Tile clicked_tile = hint_gameobject.GetComponent<GameMenuManager>().clicked_tile;
+                track_manager.place_tile(selected_tile, clicked_tile, true);
             }
             else
             {
-                if (selected_object != null)
+                throw new Exception("not a valid hint context");
+            }
+            StartCoroutine(clear_hint_list()); // clearn hint list so no other hints get triggered during executing of this hint
+        }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0) && hint_context_list.Count == 0)
+        {
+            Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
+            RaycastHit2D selected_object = get_object_at_cursor(Input.mousePosition);
+            if (selected_object != null)
+            {
+                Collider2D collided_object = selected_object.collider;
+                if (collided_object != null) // the first collided object will be in the clickDetector Layer, which sould be ignored for non-hint clicks
                 {
-                    GameObject clicked_gameobject = selected_object.gameObject;
+                    GameObject clicked_gameobject = collided_object.gameObject;
                     string object_tag = clicked_gameobject.tag;
                     if (object_tag == "track_layer")
                     {
@@ -245,8 +293,16 @@ public class GameManager : MonoBehaviour
                     }
                 }
             }
-            hint_context_list.Clear(); // after completing or failing to complete an action, remove context to prepare for new context
         }
+
+    }
+
+    public static IEnumerator clear_hint_list()
+    {
+        // clear the hint list after all input events for this frame are over to avoid confusing the execution of a hint for the start of another one
+        yield return new WaitForEndOfFrame();
+        print("hint list cleared in frame " + Time.frameCount);
+        hint_context_list.Clear(); // after completing or failing to complete an action, remove context to prepare for new context
     }
 
     public static void enable_vehicle_for_screen(GameObject boxcar_object)

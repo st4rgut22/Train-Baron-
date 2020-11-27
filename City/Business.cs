@@ -4,7 +4,7 @@
     int pay_rate;
 
     // Start is called before the first frame update
-    public Business(int id) : base(id)
+    public Business(int id, string type) : base(id, type)
     {
         occupied = false;
         pay_rate = 1;
