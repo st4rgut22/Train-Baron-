@@ -10,7 +10,8 @@ public class City : BoardManager
     public Tile residential_tile;
     public Tile hospital_tile;
     public Tile lab_tile;
-    public City_Building[,] city_building_grid;
+    public Building[,] city_building_grid;
+    public Tile city_tile;
     public int building_id;
     public GameObject city_icon; // icon viewable in game view
     public bool occupied;
@@ -58,24 +59,44 @@ public class City : BoardManager
     public GameObject turn_table;
     GameObject turn_table_circle;
 
+    public GameObject Business;
+    public GameObject Residential;
+    public GameObject Hospital;
+    public GameObject Lab;
+
     public RouteManager.Orientation destination_orientation;
 
     public int prev_train_list_length = 0;
 
+    Dictionary<string, Building_Lot> building_map;
+    string initial_building_lot;
+
     private void Awake()
     {
-        city_building_grid = new City_Building[board_width, board_height]; // save location of structures in a city
+        initial_building_lot = "Building Lot West";
+        city_building_grid = new Building[board_width, board_height]; // save location of structures in a city
         base.Awake();
         West_Station = new Station(west_start_1, west_start_2, RouteManager.Orientation.West, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
         North_Station = new Station(north_start_1, north_start_2, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
         East_Station = new Station(east_start_1, east_start_2, RouteManager.Orientation.East, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
         South_Station = new Station(south_start_1, south_start_2, RouteManager.Orientation.South, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
         city_board = new GameObject[board_width, board_height]; // zero out the negative tile coordinates
+
+        building_map = new Dictionary<string, Building_Lot>()
+        {
+            { "Building Lot North 1", new Building_Lot(new Vector2Int(0,7),3, RouteManager.Orientation.North) },
+            { "Building Lot North 2", new Building_Lot(new Vector2Int(3,9),3, RouteManager.Orientation.North) },
+            { "Building Lot East", new Building_Lot(new Vector2Int(11,8),4, RouteManager.Orientation.East) },
+            { "Building Lot West", new Building_Lot(new Vector2Int(0,2),4, RouteManager.Orientation.West) },
+            { "Building Lot South 1", new Building_Lot(new Vector2Int(10,1),3, RouteManager.Orientation.South) },
+            { "Building Lot South 2", new Building_Lot(new Vector2Int(16,1),3, RouteManager.Orientation.South) }
+        };
     }
 
     private void Start()
     {
         base.Start();
+        initialize_city_tilemap(); // with the first structure location
         // must be a Gameobject for Start() Update() to run
         train_list = new List<GameObject>();
         turn_table = Instantiate(Turn_Table);
@@ -88,8 +109,6 @@ public class City : BoardManager
 
         occupied = false;
         game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        first_structure_location = new Vector2Int(5, 2);
-        initialize_city_tilemap(); // with the first structure location
         building_id = 1;
     }
 
@@ -98,35 +117,92 @@ public class City : BoardManager
         //enable_train_for_screen(); causes lag
     }
 
-    public City_Building get_city_building()
+    public void show_all_building_occupants(bool is_city_shown)
     {
+        for (int i=0; i < city_building_grid.GetLength(0); i++)
+        {
+            for (int j=0; j < city_building_grid.GetLength(1); j++)
+            {
+                Building building = city_building_grid[i, j];
+                if (building != null)
+                {
+                    foreach (GameObject person in building.person_grid)
+                    {
+                        if (person != null)
+                            person.GetComponent<SpriteRenderer>().enabled = is_city_shown; 
+                    }
+                }
+            }
+        }
+    }
+
+    public Building get_city_building()
+    {
+        GameObject building_object;
         if (city_type == "Business")
         {
-            return new City_Building(business_tile, new Business(building_id, city_type)); ;
+            city_tile = business_tile;
+            building_object = Instantiate(Business);
         }
         else if (city_type == "Residential")
         {
-            return new City_Building(residential_tile, new Residential(building_id, city_type));
+            city_tile = residential_tile;
+            building_object = Instantiate(Residential);
         }
         else if (city_type == "Hospital")
         {
-            return new City_Building(hospital_tile, new Hospital(building_id, city_type)); ;
+            city_tile = hospital_tile;
+            building_object = Instantiate(Hospital);
         }
         else if (city_type == "Lab")
         {
-            return new City_Building(lab_tile, new Laboratory(building_id, city_type));
+            city_tile = lab_tile;
+            building_object = Instantiate(Lab);
         }
         else
         {
             throw new Exception("not a valid tile");
         }
+        return building_object.GetComponent<Building>(); // will this work? is a base class of the gameObject
+    }
+
+    public void expand_building(string building_name)
+    {
+        switch (building_name)
+        {
+            case "Building Lot North 1":
+                break;
+            case "Building Lot North 2":
+                break;
+            case "Building Lot East":
+                break;
+            case "Building Lot West":
+                break;
+            case "Building Lot South 1":
+                break;
+            case "Building Lot South 2":
+                break;
+        }
     }
 
     public void initialize_city_tilemap()
     {
-        // add all tiles to the grid. then set tiles in tilemap.
-        City_Building building = get_city_building();
-        city_building_grid[first_structure_location.x, first_structure_location.y] = building;
+        Building_Lot first_building_lot = building_map[initial_building_lot];
+        spawn_building(first_building_lot);
+        building_id += 1;
+    }
+
+    public void spawn_building(Building_Lot building_lot)
+    {
+        Building building = get_city_building();
+        building.building_id = building_id;
+        building.building_type = city_type;
+        building.building_orientation = building_lot.orientation;
+        building.offset_position = building_lot.origin_tile;
+        building.max_capacity = building_lot.length;
+        building.person_grid = new GameObject[building_lot.length];
+        city_building_grid[building_lot.origin_tile.x, building_lot.origin_tile.y] = building;
+
     }
 
     public void populate_city_tilemap(Tilemap city_tilemap)
@@ -136,13 +212,13 @@ public class City : BoardManager
         {
             for (int j=0; j<board_height; j++)
             {
-                City_Building cb = city_building_grid[i, j];
+                Building cb = city_building_grid[i, j];
                 Vector3Int tile_pos = new Vector3Int(i, j, 0);
                 if (cb == null)
                     city_tilemap.SetTile(tile_pos, null); 
                 else
                 {
-                    city_tilemap.SetTile(tile_pos, cb.tile);
+                    city_tilemap.SetTile(tile_pos, city_tile);
                 }
             }
         }

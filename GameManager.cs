@@ -30,6 +30,12 @@ public class GameManager : EventDetector
     public static GameObject exit_south;
     public static GameObject exit_west;
     public static GameObject exit_east;
+    public static GameObject building_lot_north_1;
+    public static GameObject building_lot_north_2;
+    public static GameObject building_lot_south_1;
+    public static GameObject building_lot_south_2;
+    public static GameObject building_lot_west;
+    public static GameObject building_lot_east;
 
     public static VehicleManager vehicle_manager;
     public static CityManager city_manager;
@@ -55,6 +61,8 @@ public class GameManager : EventDetector
 
     public List<GameObject> train_list; // list of trains inside the game view
 
+    public static float tolerance = .004f;
+
     private void Awake()
     {
         train_list = new List<GameObject>();
@@ -73,6 +81,13 @@ public class GameManager : EventDetector
         exit_south = GameObject.Find("Shipyard Track Exit South");
         exit_west = GameObject.Find("Shipyard Track Exit West");
         exit_east = GameObject.Find("Shipyard Track Exit East");
+
+        building_lot_north_1 = GameObject.Find("Building Lot North 1");
+        building_lot_north_2 = GameObject.Find("Building Lot North 2");
+        building_lot_south_1 = GameObject.Find("Building Lot South 1");
+        building_lot_south_2 = GameObject.Find("Building Lot South 2");
+        building_lot_west = GameObject.Find("Building Lot West");
+        building_lot_east = GameObject.Find("Building Lot East");
         test_btn.onClick.AddListener(activate_train);
     }
 
@@ -194,28 +209,7 @@ public class GameManager : EventDetector
 
         RaycastHit2D selected_object = get_object_at_cursor(Input.mousePosition);
         RaycastHit2D[] all_selected_object = get_all_object_at_cursor(Input.mousePosition);
-        if (selected_object != null)
-        {
-            if (selected_object.collider != null)
-            {
-                // call pointer events for boxcar and city from GameManager using Raycast data on the UI event detector
-                string object_name = selected_object.collider.tag;
-                print("object name is " + object_name);
-                if (object_name == "city_building") 
-                {
-                    selected_object.collider.gameObject.GetComponent<CityDetector>().click_city(eventData);
-                }
-                if (object_name == "boxcar")
-                {
-                    selected_object.collider.gameObject.GetComponent<Boxcar>().click_boxcar(eventData);
-                }
-                if (object_name == "train")
-                {
-                    selected_object.collider.gameObject.GetComponent<Train>().click_train(eventData);
-                }
-            }
-        }
-        if (hint_index != -1)
+        if (hint_index != -1) // pressed tile is receiving action from the user
         {
             string hint_context = hint_context_list[hint_index];
             if (hint_context == "add") // ADD BOXCAR
@@ -260,6 +254,40 @@ public class GameManager : EventDetector
                 throw new Exception("not a valid hint context");
             }
             StartCoroutine(clear_hint_list()); // clearn hint list so no other hints get triggered during executing of this hint
+        }
+        else if (selected_object != null) // SET A NEW HINT
+        {
+            if (selected_object.collider != null)
+            {
+                // call pointer events for boxcar and city from GameManager using Raycast data on the UI event detector
+                string object_name = selected_object.collider.tag;
+                print("object name is " + object_name);
+                if (object_name == "city_building") 
+                {
+                    selected_object.collider.gameObject.GetComponent<CityDetector>().click_city(eventData);
+                }
+                else if (object_name == "boxcar")
+                {
+                    selected_object.collider.gameObject.GetComponent<Boxcar>().click_boxcar(eventData);
+                }
+                else if (object_name == "train")
+                {
+                    selected_object.collider.gameObject.GetComponent<Train>().click_train(eventData);
+                }
+                else if (object_name == "inventory")
+                {
+                    selected_object.collider.gameObject.GetComponent<InventoryPusher>().click_inventory(eventData);
+                }
+                else
+                {
+                    //invalid hint, clear hint list
+                    StartCoroutine(clear_hint_list()); // clearn hint list so no other hints get triggered during executing of this hint
+                }
+            }
+        }
+        else // not taking action or setting a new hint
+        {
+            StartCoroutine(clear_hint_list());
         }
     }
 
@@ -347,6 +375,13 @@ public class GameManager : EventDetector
         exit_north.SetActive(state);
         exit_south.SetActive(state);
         exit_west.SetActive(state);
+
+        building_lot_east.SetActive(state);
+        building_lot_north_1.SetActive(state);
+        building_lot_north_2.SetActive(state);
+        building_lot_south_1.SetActive(state);
+        building_lot_south_2.SetActive(state);
+        building_lot_west.SetActive(state);
 
         track_manager.bottom_tilemap_go_1.SetActive(!state);
         track_manager.bottom_tilemap_go_2.SetActive(!state);

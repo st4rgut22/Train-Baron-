@@ -29,8 +29,9 @@ public class InventoryPusher : EventDetector
         
     }
 
-    public override void OnPointerClick(PointerEventData eventData)
+    public void click_inventory(PointerEventData eventData)
     {
+        // NOT GETTING CALLED
         selected_tile_pos = GameManager.get_selected_tile(eventData.position);
         selected_tile = (Tile)inventory_tilemap.GetTile((Vector3Int)selected_tile_pos);
         if (selected_tile != null)

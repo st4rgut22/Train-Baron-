@@ -1,4 +1,6 @@
-﻿public class Cargo 
+﻿using UnityEngine;
+
+public class Cargo: MonoBehaviour
 {
 
 }

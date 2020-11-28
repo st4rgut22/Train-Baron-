@@ -12,7 +12,7 @@ public class MovingObject : EventDetector
     protected Vector2 target_position;
     protected float speed = 2f; // Temporary. changed from 2f
     protected float speed_multiplier = 1f;
-    protected float tolerance = .004f;
+    //protected float tolerance = .004f;
     protected Vector2 next_position;
     protected bool in_tile = false; // if an object is in a tile, it is already has a destination
 
@@ -372,7 +372,7 @@ public class MovingObject : EventDetector
         //if (gameObject.tag == "boxcar")
         //    print("Destination of Boxcar is " + destination);
         // Move our position a step closer to the target.
-        while (distance > tolerance)
+        while (distance > GameManager.tolerance)
         {
             if (is_pause) 
             {

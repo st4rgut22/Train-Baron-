@@ -130,23 +130,22 @@ public class Boxcar : MovingObject
     {
         // valid pos is an array of 3 ints: y coord, x_start, x_end
         List<int[]> unloading_pos_list = new List<int[]>();
-        City_Building[,] city_building_matrix = city.city_building_grid;
+        Building[,] city_building_matrix = city.city_building_grid;
         // todo: if cargo_list.Count > 0  condition 2badded after loading function is tested and completed
         for (int c = 0; c < valid_pos.GetLength(1); c++)
         {
             int x = valid_pos[is_inner, c, 0];
             int y = valid_pos[is_inner, c, 1];
-            City_Building cb = city_building_matrix[x, y];
+            Building cb = city_building_matrix[x, y];
             if (cb != null)
-            {
-                string building_type = cb.building.building_type; // check if the building type matches the cargo
+            {                
                 List<string> valid_structure_list = CityManager.cargo_to_structure[boxcar_type];
-                if (valid_structure_list.Contains(building_type))
+                if (valid_structure_list.Contains(cb.building_type)) // check if the building type matches the cargo
                 {
                     unloading_pos_list.Add(new int[] { x, y });
                 } else
                 {
-                    print("boxcar cargo type " + boxcar_type + " does not match building type " + building_type);
+                    print("boxcar cargo type " + boxcar_type + " does not match building type " + cb.building_type);
                 }
             }
         }

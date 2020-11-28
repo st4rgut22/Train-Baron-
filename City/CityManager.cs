@@ -21,7 +21,6 @@ public class CityManager : BoardManager
     public Tilemap exit_south;
     public Tilemap exit_west;
     public Tilemap exit_east;
-    //static City cit;
 
     public GameObject city_tilemap_go;
     public Tilemap city_tilemap; // building placed on city tilemap
@@ -49,6 +48,7 @@ public class CityManager : BoardManager
             { "troop boxcar",new List<string>(){ "Hospital"} }, // medicine
             { "supply boxcar",new List<string>(){ "Business","Hospital","Lab","Residential"} }, // food
         };
+
     }
 
     // Update is called once per frame
@@ -167,6 +167,7 @@ public class CityManager : BoardManager
             city_tilemap_go.SetActive(false);
             GameManager.city_menu_state = false;
             Activated_City.GetComponent<City>().enable_train_for_screen(); // hide trains before setting activated city to null
+            Activated_City.GetComponent<City>().show_all_building_occupants(false);
             hide_shipyard_inventory();
         }
         else // show shipyard
@@ -176,6 +177,7 @@ public class CityManager : BoardManager
             GameManager.city_menu_state = true;
             City city = city_object.GetComponent<City>();
             city.populate_city_tilemap(city_tilemap);
+            city.show_all_building_occupants(true);
             city.display_boxcar();
             hide_exit_route(RouteManager.Orientation.North, city, RouteManager.exit_north_tilemap);
             hide_exit_route(RouteManager.Orientation.East, city, RouteManager.exit_east_tilemap);

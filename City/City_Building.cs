@@ -1,12 +1,13 @@
 ﻿using UnityEngine.Tilemaps;
+using UnityEngine;
 
 public class City_Building
 {
     public Tile tile;
-    public Building building;
-    public City_Building(Tile tile, Building building)
+    public GameObject building_object;
+    public City_Building(Tile tile, GameObject building_object)
     {
         this.tile = tile;
-        this.building = building;
+        this.building_object = building_object;
     }
 }

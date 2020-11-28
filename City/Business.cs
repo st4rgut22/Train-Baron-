@@ -1,20 +1,15 @@
-﻿public class Business: Building
-{
-    bool occupied;
-    int pay_rate;
+﻿using UnityEngine;
 
-    // Start is called before the first frame update
-    public Business(int id, string type) : base(id, type)
-    {
-        occupied = false;
-        pay_rate = 1;
-    }
+public class Business: Building
+{
+    int pay_rate;
 
     public void pay_employee()
     {
-        foreach (Person person in person_list)
+        for (int i = 0; i < person_grid.Length; i++)
         {
-            person.change_wealth(pay_rate);
+            GameObject person_object = person_grid[i];
+            person_object.GetComponent<Person>().change_wealth(pay_rate);
         }
     }
 }

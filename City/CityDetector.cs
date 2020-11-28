@@ -53,15 +53,14 @@ public class CityDetector : EventDetector
             // if train is on track, then search for appropriate boxcars on track
             List<string> train_hint_list = new List<string>();
             Vector2Int selected_tile = GameManager.get_selected_tile(eventData.position);
-            City_Building cb = CityManager.Activated_City_Component.city_building_grid[selected_tile.x, selected_tile.y];
+            Building cb = CityManager.Activated_City_Component.city_building_grid[selected_tile.x, selected_tile.y];
             Station cb_station = CityManager.Activated_City_Component.get_station_track(selected_tile).station;
             RouteManager.Orientation orientation = cb_station.orientation;
             bool[] outer_inner_arr = TrackManager.is_city_building_inner(selected_tile, orientation); // 0 means outer, 1 means inner
             bool is_outer_track_valid = false;
             bool is_inner_track_valid = false;
-            string building_type = cb.building.building_type;
-            if (outer_inner_arr[0]) is_outer_track_valid = is_track_contain_valid_boxcar(true, cb_station, building_type);
-            if (outer_inner_arr[1]) is_inner_track_valid = is_track_contain_valid_boxcar(false, cb_station, building_type);
+            if (outer_inner_arr[0]) is_outer_track_valid = is_track_contain_valid_boxcar(true, cb_station, cb.building_type);
+            if (outer_inner_arr[1]) is_inner_track_valid = is_track_contain_valid_boxcar(false, cb_station, cb.building_type);
             if (is_outer_track_valid || is_inner_track_valid)
             {
                 if (is_outer_track_valid)

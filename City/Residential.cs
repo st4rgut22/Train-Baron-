@@ -1,10 +1,11 @@
-﻿public class Residential : Building
+﻿using UnityEngine;
+
+public class Residential : Building
 {
     // Start is called before the first frame update
-    public Person person;
 
-    public Residential(int id, string type) : base(id, type)
+    private void Start()
     {
-        person = new Person();
+        spawn_person(offset_position, building_orientation);
     }
 }
