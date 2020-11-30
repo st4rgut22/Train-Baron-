@@ -11,12 +11,14 @@ public class Boxcar : MovingObject
     public string boxcar_type;
     public bool departing = false;
     public bool receive_train_order = true;
-    List<Cargo> cargo_list; // accomodate different cargo, people, vaccine, etc.
+    Cargo cargo; // accomodate different cargo, people, vaccine, etc.
+    public bool is_occupied;
+
 
     private void Awake()
     {      
         base.Awake();
-        cargo_list = new List<Cargo>();
+        is_occupied = false;
 
     }
 
@@ -72,7 +74,7 @@ public class Boxcar : MovingObject
     public void click_boxcar(PointerEventData eventData)
     {
         List<List<int[]>> boxcar_action_coord = new List<List<int[]>>();
-        if (GameManager.hint_context_list.Count == 0 && train !=null && in_city && train.is_pause)
+        if (train !=null && in_city && train.is_pause)
         {
             print("set boxcar hint");
             RouteManager.Orientation station_orientation = station_track.station.orientation;
@@ -87,11 +89,6 @@ public class Boxcar : MovingObject
             List<string> hint_context_list = new List<string>() { "unload", "park"};
             game_manager.mark_tile_as_eligible(boxcar_action_coord, hint_context_list, gameObject, true);
         }
-    }
-
-    public List<Cargo> retrieve_cargo()
-    {
-        return cargo_list;
     }
 
     public List<int[]> filter_available_parking_spot(List<int[]> parking_spots)
@@ -126,28 +123,34 @@ public class Boxcar : MovingObject
         return valid_parking_coord_list;
     }
 
+
     public List<int[]> get_unloading_pos(int[,,] valid_pos, int is_inner)
     {
-        // valid pos is an array of 3 ints: y coord, x_start, x_end
+        //unload people to home, eligible tile covers the entire building
+        List<string> valid_structure_list = CityManager.cargo_to_structure[boxcar_type];
         List<int[]> unloading_pos_list = new List<int[]>();
-        Building[,] city_building_matrix = city.city_building_grid;
-        // todo: if cargo_list.Count > 0  condition 2badded after loading function is tested and completed
-        for (int c = 0; c < valid_pos.GetLength(1); c++)
+        bool building_has_room = false;
+        if (valid_structure_list.Contains(city.city_type)) 
         {
-            int x = valid_pos[is_inner, c, 0];
-            int y = valid_pos[is_inner, c, 1];
-            Building cb = city_building_matrix[x, y];
-            if (cb != null)
-            {                
-                List<string> valid_structure_list = CityManager.cargo_to_structure[boxcar_type];
-                if (valid_structure_list.Contains(cb.building_type)) // check if the building type matches the cargo
+
+            List<int[]> temp_unloading_pos_list = new List<int[]>();
+            for (int c = 0; c < valid_pos.GetLength(1); c++)
+            {
+                int x = valid_pos[is_inner, c, 0];
+                int y = valid_pos[is_inner, c, 1];
+                temp_unloading_pos_list.Add(new int[] { x, y });
+                Room room = city.city_room_matrix[x, y];
+                if (room!=null && !room.occupied) // room is not occupied
                 {
-                    unloading_pos_list.Add(new int[] { x, y });
-                } else
-                {
-                    print("boxcar cargo type " + boxcar_type + " does not match building type " + cb.building_type);
+                    building_has_room = true;
                 }
             }
+            if (building_has_room)
+                unloading_pos_list.AddRange(temp_unloading_pos_list);
+        }
+        else
+        {
+            print("boxcar cargo type " + boxcar_type + " does not match building type " + city.city_type);
         }
         return unloading_pos_list;
     }

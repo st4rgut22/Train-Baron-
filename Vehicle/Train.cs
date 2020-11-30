@@ -57,7 +57,7 @@ public class Train : MovingObject
 
     public void click_train(PointerEventData eventData)
     {
-        if (in_city && GameManager.hint_context_list.Count == 0)
+        if (in_city)
         {
             // hlighlight unloading regions AND exit tracks
             // unloading regions

@@ -282,6 +282,16 @@ public class RouteManager : MonoBehaviour
         }
     }
 
+    public static Vector2Int get_straight_next_tile_pos_multiple(Orientation orientation, Vector2Int next_tilemap_pos, int times)
+    {
+        Vector2Int next_pos = next_tilemap_pos;
+        for (int i=0; i < times; i++)
+        {
+            next_pos = get_straight_next_tile_pos(orientation, next_pos);
+        }
+        return next_pos;
+    }
+
     public static Vector2Int get_straight_next_tile_pos(Orientation orientation, Vector2Int next_tilemap_pos)
     {
         switch (orientation)

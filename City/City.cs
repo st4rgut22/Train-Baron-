@@ -10,7 +10,8 @@ public class City : BoardManager
     public Tile residential_tile;
     public Tile hospital_tile;
     public Tile lab_tile;
-    public Building[,] city_building_grid;
+    public List<Building> city_building_list;
+    public Room[,] city_room_matrix;
     public Tile city_tile;
     public int building_id;
     public GameObject city_icon; // icon viewable in game view
@@ -74,8 +75,8 @@ public class City : BoardManager
     private void Awake()
     {
         initial_building_lot = "Building Lot West";
-        city_building_grid = new Building[board_width, board_height]; // save location of structures in a city
         base.Awake();
+        city_room_matrix = new Room[board_width, board_height];
         West_Station = new Station(west_start_1, west_start_2, RouteManager.Orientation.West, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
         North_Station = new Station(north_start_1, north_start_2, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
         East_Station = new Station(east_start_1, east_start_2, RouteManager.Orientation.East, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
@@ -85,11 +86,11 @@ public class City : BoardManager
         building_map = new Dictionary<string, Building_Lot>()
         {
             { "Building Lot North 1", new Building_Lot(new Vector2Int(0,7),3, RouteManager.Orientation.North) },
-            { "Building Lot North 2", new Building_Lot(new Vector2Int(3,9),3, RouteManager.Orientation.North) },
+            { "Building Lot North 2", new Building_Lot(new Vector2Int(3,9),3, RouteManager.Orientation.East) },
             { "Building Lot East", new Building_Lot(new Vector2Int(11,8),4, RouteManager.Orientation.East) },
-            { "Building Lot West", new Building_Lot(new Vector2Int(0,2),4, RouteManager.Orientation.West) },
-            { "Building Lot South 1", new Building_Lot(new Vector2Int(10,1),3, RouteManager.Orientation.South) },
-            { "Building Lot South 2", new Building_Lot(new Vector2Int(16,1),3, RouteManager.Orientation.South) }
+            { "Building Lot West", new Building_Lot(new Vector2Int(0,2),4, RouteManager.Orientation.East) },
+            { "Building Lot South 1", new Building_Lot(new Vector2Int(10,1),3, RouteManager.Orientation.East) },
+            { "Building Lot South 2", new Building_Lot(new Vector2Int(16,1),3, RouteManager.Orientation.North) }
         };
     }
 
@@ -117,22 +118,18 @@ public class City : BoardManager
         //enable_train_for_screen(); causes lag
     }
 
+    public bool is_selected_room_occupied(Vector2Int clicked_room_position, string lot_name)
+    {
+        Building_Lot bl = building_map[lot_name];
+        bool is_room_occupied = bl.building.is_selected_room_occupied(clicked_room_position);
+        return is_room_occupied;
+    }
+
     public void show_all_building_occupants(bool is_city_shown)
     {
-        for (int i=0; i < city_building_grid.GetLength(0); i++)
+        foreach (Building building in city_building_list)
         {
-            for (int j=0; j < city_building_grid.GetLength(1); j++)
-            {
-                Building building = city_building_grid[i, j];
-                if (building != null)
-                {
-                    foreach (GameObject person in building.person_grid)
-                    {
-                        if (person != null)
-                            person.GetComponent<SpriteRenderer>().enabled = is_city_shown; 
-                    }
-                }
-            }
+            building.show_occupants(is_city_shown);
         }
     }
 
@@ -168,21 +165,7 @@ public class City : BoardManager
 
     public void expand_building(string building_name)
     {
-        switch (building_name)
-        {
-            case "Building Lot North 1":
-                break;
-            case "Building Lot North 2":
-                break;
-            case "Building Lot East":
-                break;
-            case "Building Lot West":
-                break;
-            case "Building Lot South 1":
-                break;
-            case "Building Lot South 2":
-                break;
-        }
+        //todo: 
     }
 
     public void initialize_city_tilemap()
@@ -195,31 +178,29 @@ public class City : BoardManager
     public void spawn_building(Building_Lot building_lot)
     {
         Building building = get_city_building();
+        building_lot.set_building(building);
         building.building_id = building_id;
         building.building_type = city_type;
         building.building_orientation = building_lot.orientation;
         building.offset_position = building_lot.origin_tile;
         building.max_capacity = building_lot.length;
         building.person_grid = new GameObject[building_lot.length];
-        city_building_grid[building_lot.origin_tile.x, building_lot.origin_tile.y] = building;
+        building.city = this;
+        city_building_list.Add(building);
 
     }
 
     public void populate_city_tilemap(Tilemap city_tilemap)
     {
         // draw building sprites in the appropriate tiles
-        for (int i=0; i<board_width; i++)
+        for (int i=0; i<city_building_list.Count; i++)
         {
-            for (int j=0; j<board_height; j++)
+            Building building = city_building_list[i];
+            if (building == null)
+                building.set_room_sprite(city_tilemap, null);
+            else
             {
-                Building cb = city_building_grid[i, j];
-                Vector3Int tile_pos = new Vector3Int(i, j, 0);
-                if (cb == null)
-                    city_tilemap.SetTile(tile_pos, null); 
-                else
-                {
-                    city_tilemap.SetTile(tile_pos, city_tile);
-                }
+                building.set_room_sprite(city_tilemap, city_tile);
             }
         }
     }

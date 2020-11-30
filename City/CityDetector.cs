@@ -14,6 +14,7 @@ public class CityDetector : EventDetector
     // Update is called once per frame
     void Update()
     {
+
     }
 
     public bool is_track_contain_valid_boxcar(bool is_outer, Station station, string building_type)
@@ -37,30 +38,32 @@ public class CityDetector : EventDetector
         return false;
     }
 
-    public override void OnPointerClick(PointerEventData eventData)
+    public void drag_city(PointerEventData eventData)
     {
-        print("clicked city");
+
     }
 
     public void click_city(PointerEventData eventData)
     {
-        if (GameManager.hint_context_list.Count == 0)
+        List<List<int[]>> city_action_coord = new List<List<int[]>>();
+        print("set a city hint in frame " + Time.frameCount);
+        // get station
+        // get adjacent boarding track
+        // if train is on track, then search for appropriate boxcars on track
+        List<string> train_hint_list = new List<string>();
+        Vector2Int selected_tile = GameManager.get_selected_tile(eventData.position);
+        // get room, and check if it is occupied before boarding
+        bool is_room_occupied = CityManager.Activated_City_Component.is_selected_room_occupied(selected_tile, gameObject.name);
+        string building_type = CityManager.Activated_City_Component.city_type;
+        if (is_room_occupied)
         {
-            List<List<int[]>> city_action_coord = new List<List<int[]>>();
-            print("set a city hint in frame " + Time.frameCount);
-            // get station
-            // get adjacent boarding track
-            // if train is on track, then search for appropriate boxcars on track
-            List<string> train_hint_list = new List<string>();
-            Vector2Int selected_tile = GameManager.get_selected_tile(eventData.position);
-            Building cb = CityManager.Activated_City_Component.city_building_grid[selected_tile.x, selected_tile.y];
             Station cb_station = CityManager.Activated_City_Component.get_station_track(selected_tile).station;
             RouteManager.Orientation orientation = cb_station.orientation;
             bool[] outer_inner_arr = TrackManager.is_city_building_inner(selected_tile, orientation); // 0 means outer, 1 means inner
             bool is_outer_track_valid = false;
             bool is_inner_track_valid = false;
-            if (outer_inner_arr[0]) is_outer_track_valid = is_track_contain_valid_boxcar(true, cb_station, cb.building_type);
-            if (outer_inner_arr[1]) is_inner_track_valid = is_track_contain_valid_boxcar(false, cb_station, cb.building_type);
+            if (outer_inner_arr[0]) is_outer_track_valid = is_track_contain_valid_boxcar(true, cb_station, building_type);
+            if (outer_inner_arr[1]) is_inner_track_valid = is_track_contain_valid_boxcar(false, cb_station, building_type);
             if (is_outer_track_valid || is_inner_track_valid)
             {
                 if (is_outer_track_valid)

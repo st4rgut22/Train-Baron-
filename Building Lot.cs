@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Building_Lot
 {
+    public Building building;
     public Vector2Int origin_tile;
     public int length;
     public RouteManager.Orientation orientation;
@@ -12,5 +13,10 @@ public class Building_Lot
         this.length = length;
         this.origin_tile = origin_tile;
         this.orientation = orientation;
+    }
+
+    public void set_building(Building building)
+    {
+        this.building = building;
     }
 }

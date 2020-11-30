@@ -4,8 +4,12 @@ public class Residential : Building
 {
     // Start is called before the first frame update
 
-    private void Start()
+    public override Room spawn_room(int room_id)
     {
-        spawn_person(offset_position, building_orientation);
+        Room room = base.spawn_room(room_id);
+        room.spawn_person();
+        //add_occupant_to_available_room(room.person_go);
+        return room;
     }
+
 }

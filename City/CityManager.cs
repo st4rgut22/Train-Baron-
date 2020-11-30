@@ -160,6 +160,12 @@ public class CityManager : BoardManager
         }
     }  
 
+    public static void expand_city(PointerEventData eventData)
+    {
+        RaycastHit2D selected_object = GameManager.get_object_at_cursor(eventData.pressPosition);
+        Activated_City_Component.expand_building(selected_object.collider.name);
+    }
+
     public void set_activated_city(GameObject city_object=null)
     {
         if (city_object == null) // hide shipyard
