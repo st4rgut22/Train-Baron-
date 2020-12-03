@@ -11,7 +11,7 @@ public class CityDetector : EventDetector
     public Tilemap offset_hint_tilemap_west;
     public Tilemap offset_hint_tilemap_south;
     public Dictionary<Vector2Int, Tilemap> boxcar_tile_tracker = new Dictionary<Vector2Int, Tilemap>();
-    public List<Offset_Tile> offset_tile_list;
+    List<Offset_Tile> all_eligible_boxcar;
 
     // Start is called before the first frame update
     void Start()
@@ -63,9 +63,9 @@ public class CityDetector : EventDetector
     {
         Offset_Tile closest_offset_tile = null;
         float closest_distance_to_boxcar = Mathf.Infinity;
-        for (int i=0; i < offset_tile_list.Count; i++)
+        for (int i=0; i < all_eligible_boxcar.Count; i++)
         {
-            Offset_Tile offset_tile = offset_tile_list[i];
+            Offset_Tile offset_tile = all_eligible_boxcar[i];
             if (offset_tile.is_in_boxcar_tile(click_position))
             {
                 float distance_to_boxcar = offset_tile.get_distance(click_position);
@@ -124,7 +124,7 @@ public class CityDetector : EventDetector
     public List<int[]> filter_available_boxcar(List<int[]> possible_boxcar_location)
     {
         int available_boxcar = 0;
-        offset_tile_list = new List<Offset_Tile>();
+        List<Offset_Tile> offset_tile_list = new List<Offset_Tile>();
         List<int[]> available_boxcar_list = new List<int[]>();
         GameObject[,] city_board = CityManager.Activated_City_Component.city_board;
         foreach (int[] boxcar_loc in possible_boxcar_location)
@@ -145,20 +145,20 @@ public class CityDetector : EventDetector
                     }
                 }
             }
-            catch (IndexOutOfRangeException) { print("eligible boxcar location " + boxcar_loc + " is not suitable for boxcar placement"); };
-          
+            catch (IndexOutOfRangeException) { print("eligible boxcar location (" + boxcar_loc[0] + "," + boxcar_loc[1] + ") is not suitable for boxcar placement"); };
         }
-        print("available boxcar tally is " + available_boxcar);
+        all_eligible_boxcar.AddRange(offset_tile_list);
+        print("available boxcar tally is " + available_boxcar + " size of available boxcar list is " + available_boxcar_list.Count);
         return available_boxcar_list;
     }
 
     public void click_city(PointerEventData eventData)
     {
-        List<List<int[]>> city_action_coord = new List<List<int[]>>();
         print("set a city hint in frame " + Time.frameCount);
         // get station
         // get adjacent boarding track
         // if train is on track, then search for appropriate boxcars on track
+        all_eligible_boxcar = new List<Offset_Tile>();
         List<string> train_hint_list = new List<string>();
         Vector2Int selected_tile = GameManager.get_selected_tile(eventData.position);
         // get room, and check if it is occupied before boarding
@@ -188,7 +188,7 @@ public class CityDetector : EventDetector
                     List<int[]> available_inner_track_vehicle = filter_available_boxcar(TrackManager.add_to_train_coord_map[orientation][1]);
                     inner_outer_coord.AddRange(available_inner_track_vehicle);
                 }
-                city_action_coord.Add(inner_outer_coord);
+                List<List<int[]>> city_action_coord = new List<List<int[]>> { inner_outer_coord };
                 train_hint_list.Add("board");
                 GameObject.Find("GameManager").GetComponent<GameManager>().mark_tile_as_eligible(city_action_coord, train_hint_list, gameObject, true);
             }

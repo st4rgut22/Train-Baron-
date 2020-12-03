@@ -263,13 +263,51 @@ public class GameManager : EventDetector
         building_expansion = null;
     }
 
+    public List<Collider2D> get_all_collider(RaycastHit2D[] all_raycast_hit)
+    {
+        List<Collider2D> collider_tag = new List<Collider2D>();
+        for (int r = 0; r < all_raycast_hit.Length; r++)
+        {
+            RaycastHit2D rh2d = all_raycast_hit[r];
+            if (rh2d.collider != null)
+            {
+                collider_tag.Add(rh2d.collider);
+            }
+        }
+        return collider_tag;
+    }
+
+    public List<string> get_collider_name_list(List<Collider2D> collider_list)
+    {
+        List<string> collider_string_list = new List<string>();
+        foreach (Collider2D c in collider_list)
+        {
+            collider_string_list.Add(c.gameObject.tag);
+        }
+        return collider_string_list;
+    }
+
+    public Collider2D get_from_collider_list(string tag_name, List<Collider2D> collider_list)
+    {
+        int index = collider_list.FindIndex(a => a.gameObject.tag == tag_name);
+        if (index != -1)
+        {
+            return collider_list[index];
+        }
+        else
+        {
+            throw new Exception(tag_name + " should be in collider list");
+        }
+    }
+
     public override void OnPointerClick(PointerEventData eventData)
     {
         // use the previous hint context to do something, called on click anywhere in board 
         Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
         
         int hint_index = is_selected_tile_in_context(selected_tile);
-        RaycastHit2D selected_object = get_object_at_cursor(Input.mousePosition);
+        RaycastHit2D[] selected_object = get_all_object_at_cursor(Input.mousePosition);
+        List<Collider2D> collider_list = get_all_collider(selected_object);
         if (hint_context_list.Contains("board")) // behaves different from other hint contexts because eligible tiles are offset from tilemap and must be found by cloesst distance
         {
             print("board from city to boxcar");
@@ -320,36 +358,37 @@ public class GameManager : EventDetector
             }
             StartCoroutine(clear_hint_list()); // clearn hint list so no other hints get triggered during executing of this hint
         }
-        else if (selected_object != null) // SET A NEW HINT
+        else if (collider_list.Count > 0)
         {
-            if (selected_object.collider != null)
+            // call pointer events for boxcar and city from GameManager using Raycast data on the UI event detector
+            hint_tile_pos = selected_tile;
+            List<string> collider_tag_list = get_collider_name_list(collider_list);
+            if (collider_tag_list.Contains("city_building")) 
             {
-                // call pointer events for boxcar and city from GameManager using Raycast data on the UI event detector
-                string object_name = selected_object.collider.tag;
-                hint_tile_pos = selected_tile;
-                if (object_name == "city_building") 
-                {
-                    selected_object.collider.gameObject.GetComponent<CityDetector>().click_city(eventData);
-                }
-                else if (object_name == "boxcar")
-                {
-                    selected_object.collider.gameObject.GetComponent<Boxcar>().click_boxcar(eventData);
-                }
-                else if (object_name == "train")
-                {
-                    selected_object.collider.gameObject.GetComponent<Train>().click_train(eventData);
-                }
-                else if (object_name == "inventory")
-                {
-                    selected_object.collider.gameObject.GetComponent<InventoryPusher>().click_inventory(eventData);
-                }
-                else
-                {
-                    //invalid hint, clear hint list
-                    StartCoroutine(clear_hint_list()); // clearn hint list so no other hints get triggered during executing of this hint
-                }
+                Collider2D collider = get_from_collider_list("city_building", collider_list);
+                collider.gameObject.GetComponent<CityDetector>().click_city(eventData);
             }
-        }
+            else if (collider_tag_list.Contains("boxcar"))
+            {
+                Collider2D collider = get_from_collider_list("boxcar", collider_list);
+                collider.gameObject.GetComponent<Boxcar>().click_boxcar(eventData);
+            }
+            else if (collider_tag_list.Contains("train"))
+            {
+                Collider2D collider = get_from_collider_list("train", collider_list);
+                collider.gameObject.GetComponent<Train>().click_train(eventData);
+            }
+            else if (collider_tag_list.Contains("inventory"))
+            {
+                Collider2D collider = get_from_collider_list("inventory", collider_list);
+                collider.gameObject.GetComponent<InventoryPusher>().click_inventory(eventData);
+            }
+            else
+            {
+                //invalid hint, clear hint list
+                StartCoroutine(clear_hint_list()); // clearn hint list so no other hints get triggered during executing of this hint
+            }
+            }
         else // not taking action or setting a new hint
         {
             StartCoroutine(clear_hint_list());

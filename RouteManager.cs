@@ -279,11 +279,13 @@ void Start()
         Vector3Int train_start_location = boxcar.train.station_track.start_location; // id of track
         RouteManager.Orientation exit_orientation = City.station_track_boarding_map[train_start_location];
         Vector2Int doorstep_position = RouteManager.get_straight_next_tile_pos(exit_orientation, room.tile_position);
-        return new Checkpoint(begin_orientation, exit_orientation, doorstep_position);
+        Vector2 exit_home_dest = get_straight_walking_position(doorstep_position, exit_orientation);
+        return new Checkpoint(begin_orientation, exit_orientation, exit_home_dest, doorstep_position);
     }
 
     public IEnumerator board_train(Boxcar boxcar, Room room, Person occupant, Vector3Int destination)
     {
+        // 2 checkpoints. In first go to doorstep and rotate accordingly. In the next only rotate to face track direction
         List<Checkpoint> board_train_checkpoints = new List<Checkpoint>();
         List<float> rotation_list = new List<float>();
         Checkpoint exit_home_cp = get_exit_home_checkpoint(occupant.orientation, boxcar, room);
@@ -291,13 +293,15 @@ void Start()
         print("EXIT HOME rotation from " + occupant.orientation + " to " + exit_home_cp.end_orientation + " is " + exit_home_cp.rotation + " with final tile position " + exit_home_cp.tile_position);
         string track_name = shipyard_track_tilemap.GetTile((Vector3Int)exit_home_cp.tile_position).name;
         RouteManager.Orientation align_track_orientation = TrackManager.get_start_orientation(track_name, (Vector3Int) exit_home_cp.tile_position, (Vector3Int) boxcar.tile_position);
-        Checkpoint face_track_cp = new Checkpoint(exit_home_cp.end_orientation, align_track_orientation, exit_home_cp.tile_position); // dont move just rotate
+        Checkpoint face_track_cp = new Checkpoint(exit_home_cp.end_orientation, align_track_orientation, exit_home_cp.dest_pos, exit_home_cp.tile_position); // dont move just rotate
         occupant.final_dest_tile_pos = boxcar.tile_position;
         print("ALIGN TRACK rotation from " + exit_home_cp.end_orientation + " to " + align_track_orientation + " is " + face_track_cp.rotation);
+        board_train_checkpoints.Add(face_track_cp);
         yield return StartCoroutine(occupant.move_checkpoints(board_train_checkpoints));
         print("start follow track sequence");
         occupant.in_tile = false; // allow person to follow the track to the destination boxcar
                                   // if all goes well then boarding is all that's left
+        occupant.is_in_home = false;
         occupant.final_orientation = occupant.orientation;
     }
 
@@ -308,7 +312,7 @@ void Start()
         Vector2 boxcar_position = boxcar_go.transform.position;
         Orientation final_orientation = TrackManager.enter_boxcar_orientation(boxcar_position, person_go.transform.position);
         print("enter boxcar cp with person orientation " + person.orientation + " final orientation " + final_orientation + " boxcar tile pos " + boxcar.tile_position);
-        Checkpoint step_on_boxcar_cp = new Checkpoint(person.orientation, final_orientation, (Vector2Int)boxcar.tile_position);
+        Checkpoint step_on_boxcar_cp = new Checkpoint(person.orientation, final_orientation, boxcar.transform.position, (Vector2Int)boxcar.tile_position);
         List<Checkpoint> board_train_checkpoints = new List<Checkpoint>() { step_on_boxcar_cp };
         //yield return StartCoroutine(person.move_checkpoints(board_train_checkpoints));
         yield return StartCoroutine(person.straight_move(person_go.transform.position, boxcar_go.transform.position));
@@ -543,7 +547,7 @@ void Start()
             //print("Vehicle Should not reach end of track due to look ahead. tilemap " + tilemap + " position of " + moving_thing.name + " is " + moving_thing.tile_position);
             print(e.Message);
         }
-        print("final cell dest without offset is " + final_cell_dest + " + with offset is " + (final_cell_dest+offset));
+        //print("final cell dest without offset is " + final_cell_dest + " + with offset is " + (final_cell_dest+offset));
 
         final_cell_dest += offset;
         return new PositionPair(final_cell_dest, next_tilemap_pos);

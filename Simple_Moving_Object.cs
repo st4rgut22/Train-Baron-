@@ -63,10 +63,10 @@ public class Simple_Moving_Object : EventDetector
             Vector3Int tile_coord = new Vector3Int(tile_position[0], tile_position[1], 0);
             string track_tile_name = station_track.tilemap.GetTile(tile_coord).name;
             offset = offset_map[track_tile_name];
-            print("offset for track " + track_tile_name + " is " + offset);
+            //print("offset for track " + track_tile_name + " is " + offset);
             position_pair = RouteManager.get_destination(this, station_track.tilemap, offset); // set the final orientation and destination
             Vector2 train_dest_xy = position_pair.abs_dest_pos;
-            print("person path is from " + next_tilemap_position + " to " + position_pair.tile_dest_pos);
+            //print("person path is from " + next_tilemap_position + " to " + position_pair.tile_dest_pos);
             next_tilemap_position = position_pair.tile_dest_pos;
             // stop the train here if track ends
   
@@ -86,19 +86,38 @@ public class Simple_Moving_Object : EventDetector
         for (int i = 0; i < checkpoint_list.Count; i++)
         {
             Checkpoint cp = checkpoint_list[i];
-            Vector2 checkpoint_position = RouteManager.get_straight_walking_position(cp.tile_position, cp.end_orientation);
+            Vector2 checkpoint_position = cp.dest_pos;
             tile_position = (Vector3Int)cp.tile_position;
             next_tilemap_position = (Vector2Int) tile_position;
             print("person tile position updated to " + tile_position);
+            yield return StartCoroutine(rotate(cp.rotation)); //todo: not rotating
             yield return StartCoroutine(straight_move(transform.position, checkpoint_position));
-            //yield return StartCoroutine(rotate(cp.rotation)); todo: not rotating
         }
     }
 
     public bool is_destination_reached()
     {
-        print("tile pos is " + tile_position + " final dest pos is " + final_dest_tile_pos);
+        //print("tile pos is " + tile_position + " final dest pos is " + final_dest_tile_pos);
         return tile_position.Equals(final_dest_tile_pos);
+    }
+
+    public void set_initial_rotation(RouteManager.Orientation orientation)
+    {
+        switch (orientation)
+        {
+            case RouteManager.Orientation.North:
+                transform.eulerAngles = new Vector3(0, 0, 0);
+                break;
+            case RouteManager.Orientation.East:
+                transform.eulerAngles = new Vector3(0, 0, -90);
+                break;
+            case RouteManager.Orientation.West:
+                transform.eulerAngles = new Vector3(0, 0, 90);
+                break;
+            case RouteManager.Orientation.South:
+                transform.eulerAngles = new Vector3(0, 0, 180);
+                break;
+        }
     }
 
     protected virtual IEnumerator bezier_move(Transform location, RouteManager.Orientation orientation, RouteManager.Orientation final_orientation, bool is_offset=true)
@@ -208,7 +227,8 @@ public class Simple_Moving_Object : EventDetector
     {
         float t_param = 1;
         float start_angle = transform.eulerAngles[2]; // rotation about z axis
-        float end_angle = start_angle + start_angle;
+        float end_angle = start_angle + angle_to_rotate;
+        print(gameObject.name + " start angle is " + start_angle + "end angle is " + end_angle);
         while (t_param > 0)
         {
             float interp = 1.0f - t_param;

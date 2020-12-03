@@ -29,7 +29,8 @@ public class Person: Simple_Moving_Object
 
     public void Update()
     {
-        base.Update();
+        if (!is_in_home) // execute followo track after person has completed exit home sequence
+            base.Update(); // follow track coroutine
         if (final_destination_reached)
         {
             if (is_board_boxcar)
@@ -46,6 +47,7 @@ public class Person: Simple_Moving_Object
     public void set_orientation(RouteManager.Orientation orientation)
     {
         this.orientation = orientation;
+        set_initial_rotation(orientation);
     }
 
     public void set_tile_pos(Vector2Int update_tile_pos)

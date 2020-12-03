@@ -219,7 +219,6 @@ public class City : BoardManager
         Person occupant = occupant_go.GetComponent<Person>();
         boxcar.is_occupied = true;
         occupant.is_board_boxcar = true;
-        occupant.is_in_home = false;
         occupant.boxcar_go = boxcar_go;
         occupant.station_track = boxcar.station_track;
         occupant.offset_map = RouteManager.offset_route_map[boxcar.station_track.start_location];
