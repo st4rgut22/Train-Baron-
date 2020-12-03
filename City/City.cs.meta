@@ -3,7 +3,23 @@ guid: 50d5a342b3d0447b0819e36238c0580b
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - business_tile: {instanceID: 0}
+  - residential_tile: {instanceID: 0}
+  - hospital_tile: {instanceID: 0}
+  - lab_tile: {instanceID: 0}
+  - city_tile: {instanceID: 0}
+  - city_icon: {instanceID: 0}
+  - bomb_boxcar_tile: {instanceID: 0}
+  - supply_boxcar_tile: {instanceID: 0}
+  - troop_boxcar_tile: {instanceID: 0}
+  - Turn_Table: {instanceID: 0}
+  - Turn_Table_Circle: {instanceID: 0}
+  - turn_table: {instanceID: 0}
+  - Business: {fileID: 6478789747036722119, guid: 8a655f86d185b44a7a633141f3c7db2b, type: 3}
+  - Residential: {fileID: 1654080954978352136, guid: b2da5d3b8e9474e6d86e57616bae68b4, type: 3}
+  - Hospital: {fileID: 5639783087700304008, guid: 444b8fa92e8464901b4e32dd28b6fc0e, type: 3}
+  - Lab: {fileID: 4986041251667775969, guid: b74208c13ee5e4e93ad943c9a0fe0799, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

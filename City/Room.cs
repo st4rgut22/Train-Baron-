@@ -8,16 +8,21 @@ public class Room : MonoBehaviour
     // affiliated Building
     // affiliated Person
     // Building has a List<Room>
-    Building building;
+    public Building building;
     public int id;
     public bool occupied;
     public GameObject person_go;
     public Vector2Int tile_position;
 
+    private void Awake()
+    {
+        occupied = false;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        occupied = false;
+        
     }
 
     // Update is called once per frame
@@ -28,14 +33,17 @@ public class Room : MonoBehaviour
 
     public void spawn_person()
     {
+        Room[,] occup = building.city.city_room_matrix;
         this.person_go = Instantiate(person_go);
         set_person_position();
+        add_occupant(this.person_go);
     }
 
     public void set_person_position()
     {
         person_go.GetComponent<Person>().transform.position = RouteManager.track_tilemap.GetCellCenterWorld((Vector3Int)tile_position);
         person_go.GetComponent<Person>().set_tile_pos(tile_position);
+        person_go.GetComponent<Person>().set_orientation(building.building_orientation);
     }
 
     public void add_occupant(GameObject person_object)

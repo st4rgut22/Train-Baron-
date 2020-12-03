@@ -13,7 +13,7 @@ public class CityManager : BoardManager
 
     public static City home_base;
     public static Vector2Int home_base_location = new Vector2Int(3, 6); // location of city
-
+    public int city_id;
     public GameObject City;
     public static GameObject Activated_City;
     public static City Activated_City_Component;
@@ -23,7 +23,6 @@ public class CityManager : BoardManager
     public Tilemap exit_east;
 
     public GameObject city_tilemap_go;
-    public Tilemap city_tilemap; // building placed on city tilemap
 
 
     // distances for train to travel before exiting the city (not before stopping)
@@ -54,7 +53,6 @@ public class CityManager : BoardManager
     // Update is called once per frame
     void Update()
     {
-
     }
 
     public static bool is_exit_route_shown(RouteManager.Orientation orientation)
@@ -160,11 +158,11 @@ public class CityManager : BoardManager
         }
     }  
 
-    public static void expand_city(PointerEventData eventData)
-    {
-        RaycastHit2D selected_object = GameManager.get_object_at_cursor(eventData.pressPosition);
-        Activated_City_Component.expand_building(selected_object.collider.name);
-    }
+    //public static void expand_city(PointerEventData eventData)
+    //{
+    //    RaycastHit2D selected_object = GameManager.get_object_at_cursor(eventData.pressPosition);
+    //    Activated_City_Component.expand_building(selected_object.collider.name);
+    //}
 
     public void set_activated_city(GameObject city_object=null)
     {
@@ -182,7 +180,7 @@ public class CityManager : BoardManager
             // populate city tilemap
             GameManager.city_menu_state = true;
             City city = city_object.GetComponent<City>();
-            city.populate_city_tilemap(city_tilemap);
+            city.set_room_sprites();
             city.show_all_building_occupants(true);
             city.display_boxcar();
             hide_exit_route(RouteManager.Orientation.North, city, RouteManager.exit_north_tilemap);
@@ -232,10 +230,12 @@ public class CityManager : BoardManager
                 if (structure_tile != null)
                 {
                     string city_type = structure_tile.name;
-                    GameObject city = Instantiate(City);                    
+                    GameObject city = Instantiate(City);
                     city.GetComponent<City>().set_location(cell_position);
                     city.GetComponent<City>().city_type = city_type;
+                    city.GetComponent<City>().city_id = city_id;
                     gameobject_board[r, c] = city;
+                    city_id++;
                 }
             }
         }

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Person: MonoBehaviour
+public class Person: Simple_Moving_Object
 {
     public Sprite good_health_blob;
     public Sprite medium_health_blob;
@@ -11,25 +11,46 @@ public class Person: MonoBehaviour
 
     public int health;
     public int wealth;
-    public RouteManager.Orientation orientation;
-    Vector2Int tile_pos;
-    Vector2 next_position;
 
-    private void Start()
+    public GameObject boxcar_go;
+    public bool is_board_boxcar=false;
+    public bool is_exit_boxcar=false;
+    public bool is_on_boxcar=false;
+    public bool is_in_home=true;
+
+    public void Start()
     {
         health = 100;
         wealth = 0;
         set_health_sprite();
+        in_tile = true;
+        final_dest_tile_pos = new Vector3Int(-1, -1, 0);
     }
 
     public void Update()
     {
-        
+        base.Update();
+        if (final_destination_reached)
+        {
+            if (is_board_boxcar)
+            {
+                is_board_boxcar = false;
+                is_on_boxcar = true;
+                final_destination_reached = false;
+                if (boxcar_go == null) throw new System.Exception("boxcar should be assigned to person when person exited home");
+                StartCoroutine(GameObject.Find("RouteManager").GetComponent<RouteManager>().step_on_boxcar(gameObject, boxcar_go));
+            }
+        }
+    }
+
+    public void set_orientation(RouteManager.Orientation orientation)
+    {
+        this.orientation = orientation;
     }
 
     public void set_tile_pos(Vector2Int update_tile_pos)
     {
-        tile_pos = update_tile_pos;
+        tile_position = (Vector3Int)update_tile_pos;
     } 
 
     public void set_health_sprite()
@@ -51,25 +72,7 @@ public class Person: MonoBehaviour
         {
             sprite = good_health_blob;
         }
-        gameObject.GetComponent<SpriteRenderer>().sprite = sprite;
-    }
-
-    public IEnumerator straight_move(Vector2Int destination_tile)
-    {
-        float speed = 1f;
-        Vector2 start_position = transform.position;
-        Vector2 destination = RouteManager.track_tilemap.GetCellCenterWorld((Vector3Int)destination_tile);
-        float og_distance = Vector2.Distance(start_position, destination); // distance to destination
-        float distance = og_distance;
-        while (distance > GameManager.tolerance)
-        {
-            float step = speed * Time.deltaTime;
-            next_position = Vector2.MoveTowards(next_position, destination, step);
-            transform.position = next_position;
-            distance = Vector2.Distance(next_position, destination);
-            yield return new WaitForEndOfFrame();
-        }
-        tile_pos = destination_tile;
+        gameObject.GetComponent<SpriteRenderer>().sprite = sprite; 
     }
 
     public bool change_wealth(int delta)

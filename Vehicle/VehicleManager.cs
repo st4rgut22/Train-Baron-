@@ -262,6 +262,10 @@ public class VehicleManager : BoardManager
             int boxcar_id = train.get_boxcar_id(); // id is the order in which the boxcar is added (0 being the first one added)
             boxcar_component.initialize_boxcar(boxcar_id);
             train.boxcar_squad.Add(boxcar);
+            // save gameobject tile with adjustments. when a user clicks on a tile, it will be in the tile opposite the vehicle's orientation. Therefore, flip orientation
+            Vector2Int boxcar_board_position = RouteManager.get_straight_next_tile_pos(TrackManager.flip_straight_orientation(boxcar_component.orientation), (Vector2Int)boxcar_component.tile_position);
+            boxcar_component.city.city_board[boxcar_board_position.x, boxcar_board_position.y] = boxcar;
+            print("new boxcar created at tile position " + boxcar_board_position);
         }
     }
 
@@ -326,18 +330,18 @@ public class VehicleManager : BoardManager
             set_initial_angle(moving_gameobject, moving_object);
         }
         // if not in city update vehicle position with city position
-        if (moving_object.in_city)
-        {
-            update_vehicle_board(moving_object.city.city_board, moving_gameobject, station_start_position, new Vector3Int(-1, -1, -1));
-        }
-        else { update_vehicle_board(vehicle_board, moving_gameobject, city_position, new Vector3Int(-1, -1, -1));  }
+        //if (moving_object.in_city) // saves go at city location which is wrong of course
+        //{
+        //    update_vehicle_board(moving_object.city.city_board, moving_gameobject, station_start_position, new Vector3Int(-1, -1, -1));
+        //}
+        if (!moving_object.in_city) { update_vehicle_board(vehicle_board, moving_gameobject, city_position, new Vector3Int(-1, -1, -1));  }
     }
 
     public void update_vehicle_board(GameObject[,] vehicle_board, GameObject game_object, Vector3Int unadjusted_position, Vector3Int unadjusted_prev_position)
     {
+        // note the OFFSET by 1 in xy direction to include negative tile positions in the board. This board is updated outside city and inside city, up to the boarding position (not after dont ask me why)
         Vector3Int position = new Vector3Int(unadjusted_position.x + 1, unadjusted_position.y + 1, unadjusted_position.z);
         Vector3Int prev_position = new Vector3Int(unadjusted_prev_position.x + 1, unadjusted_prev_position.y + 1, unadjusted_prev_position.z);
-        //print("Update Vehicle Board with object " + game_object.name + " to position " + position);
         try
         {
             bool initial_vector = prev_position.Equals(new Vector3Int(-1, -1, -1));
@@ -367,7 +371,8 @@ public class VehicleManager : BoardManager
             }
             else
             {
-                vehicle_board[position.x, position.y] = game_object;  
+                vehicle_board[position.x, position.y] = game_object;
+                //print("Update Vehicle Board with object " + game_object.name + " to position " + position);
             }
             //print("updating vehicle board tile at " + position + " with vehicle " + game_object.tag);
 

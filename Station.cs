@@ -12,6 +12,7 @@ public class Station_Track
     public GameObject train;
     public Station station;
     public int inner;
+    public RouteManager.Orientation board_orientation;
 }
 
 public class Station
@@ -57,7 +58,7 @@ public class Station
         }
     }
 
-    public Station(Vector3Int outer_start, Vector3Int inner_start, RouteManager.Orientation orientation, Tilemap outer_track_tilemap, Tilemap inner_track_tilemap){
+    public Station(Vector3Int outer_start, Vector3Int inner_start, RouteManager.Orientation orientation, RouteManager.Orientation outer_track_board_orientation, RouteManager.Orientation inner_track_board_orientation, Tilemap outer_track_tilemap, Tilemap inner_track_tilemap){
         this.orientation = orientation;
 
         outer_track = new Station_Track();
@@ -66,6 +67,7 @@ public class Station
         outer_track.start_location = outer_start;
         outer_track.train = null;
         outer_track.station = this;
+        outer_track.board_orientation = outer_track_board_orientation;
 
         inner_track = new Station_Track();
         inner_track.inner = 1;
@@ -73,5 +75,6 @@ public class Station
         inner_track.start_location = inner_start;
         inner_track.train = null;
         inner_track.station = this;
+        inner_track.board_orientation = inner_track_board_orientation;
     }
 }

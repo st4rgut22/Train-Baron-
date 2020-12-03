@@ -15,8 +15,8 @@ public class City : BoardManager
     public Tile city_tile;
     public int building_id;
     public GameObject city_icon; // icon viewable in game view
-    public bool occupied;
     public string city_type;
+    public int city_id;
     public Vector2Int first_structure_location;
 
     // track city control as a function of supplies, troops, artillery
@@ -65,32 +65,50 @@ public class City : BoardManager
     public GameObject Hospital;
     public GameObject Lab;
 
+    public GameObject city_tilemap_go;
+    public Tilemap city_tilemap;
+
+    public static Dictionary<Vector3Int, RouteManager.Orientation> station_track_boarding_map;
     public RouteManager.Orientation destination_orientation;
 
     public int prev_train_list_length = 0;
 
-    Dictionary<string, Building_Lot> building_map;
+    public Dictionary<string, Building_Lot> building_map;
     string initial_building_lot;
 
     private void Awake()
     {
         initial_building_lot = "Building Lot West";
         base.Awake();
+        city_tilemap_go = GameObject.Find("City Tilemap");
+        city_tilemap = city_tilemap_go.GetComponent<Tilemap>();
         city_room_matrix = new Room[board_width, board_height];
-        West_Station = new Station(west_start_1, west_start_2, RouteManager.Orientation.West, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
-        North_Station = new Station(north_start_1, north_start_2, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
-        East_Station = new Station(east_start_1, east_start_2, RouteManager.Orientation.East, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
-        South_Station = new Station(south_start_1, south_start_2, RouteManager.Orientation.South, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
+        West_Station = new Station(west_start_1, west_start_2, RouteManager.Orientation.West, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
+        North_Station = new Station(north_start_1, north_start_2, RouteManager.Orientation.North, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
+        East_Station = new Station(east_start_1, east_start_2, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
+        South_Station = new Station(south_start_1, south_start_2, RouteManager.Orientation.South, RouteManager.Orientation.West, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
         city_board = new GameObject[board_width, board_height]; // zero out the negative tile coordinates
+
+        station_track_boarding_map = new Dictionary<Vector3Int, RouteManager.Orientation>()
+        {
+            { north_start_1, RouteManager.Orientation.East },
+            {north_start_2, RouteManager.Orientation.South },
+            {east_start_1, RouteManager.Orientation.North },
+            {east_start_2, RouteManager.Orientation.South },
+            {west_start_1, RouteManager.Orientation.South },
+            {west_start_2, RouteManager.Orientation.North },
+            {south_start_1, RouteManager.Orientation.West },
+            {south_start_2, RouteManager.Orientation.East }
+        };
 
         building_map = new Dictionary<string, Building_Lot>()
         {
-            { "Building Lot North 1", new Building_Lot(new Vector2Int(0,7),3, RouteManager.Orientation.North) },
-            { "Building Lot North 2", new Building_Lot(new Vector2Int(3,9),3, RouteManager.Orientation.East) },
-            { "Building Lot East", new Building_Lot(new Vector2Int(11,8),4, RouteManager.Orientation.East) },
-            { "Building Lot West", new Building_Lot(new Vector2Int(0,2),4, RouteManager.Orientation.East) },
-            { "Building Lot South 1", new Building_Lot(new Vector2Int(10,1),3, RouteManager.Orientation.East) },
-            { "Building Lot South 2", new Building_Lot(new Vector2Int(16,1),3, RouteManager.Orientation.North) }
+            { "Building Lot North 1", new Building_Lot(new Vector2Int(0,7),3, RouteManager.Orientation.North, new List<Station_Track>{North_Station.outer_track }) },
+            { "Building Lot North 2", new Building_Lot(new Vector2Int(3,9),3, RouteManager.Orientation.East, new List<Station_Track>{North_Station.inner_track }) },
+            { "Building Lot East", new Building_Lot(new Vector2Int(11,8),6, RouteManager.Orientation.East,new List<Station_Track>{East_Station.inner_track, East_Station.outer_track }) },
+            { "Building Lot West", new Building_Lot(new Vector2Int(0,2),6, RouteManager.Orientation.East, new List<Station_Track>{West_Station.inner_track, West_Station.outer_track }) },
+            { "Building Lot South 1", new Building_Lot(new Vector2Int(10,1),3, RouteManager.Orientation.East, new List<Station_Track>{South_Station.inner_track }) },
+            { "Building Lot South 2", new Building_Lot(new Vector2Int(16,1),3, RouteManager.Orientation.North, new List<Station_Track>{South_Station.outer_track }) }
         };
     }
 
@@ -108,7 +126,6 @@ public class City : BoardManager
         turn_table_circle.GetComponent<SpriteRenderer>().enabled = false;
         destination_orientation = RouteManager.Orientation.None;
 
-        occupied = false;
         game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
         building_id = 1;
     }
@@ -120,9 +137,12 @@ public class City : BoardManager
 
     public bool is_selected_room_occupied(Vector2Int clicked_room_position, string lot_name)
     {
-        Building_Lot bl = building_map[lot_name];
-        bool is_room_occupied = bl.building.is_selected_room_occupied(clicked_room_position);
-        return is_room_occupied;
+        Room room = city_room_matrix[clicked_room_position.x, clicked_room_position.y];
+        if (room != null)
+        {
+            return room.occupied;
+        }
+        return false;
     }
 
     public void show_all_building_occupants(bool is_city_shown)
@@ -163,9 +183,70 @@ public class City : BoardManager
         return building_object.GetComponent<Building>(); // will this work? is a base class of the gameObject
     }
 
-    public void expand_building(string building_name)
+    public void expand_building(Building_Lot bl, Vector2Int selected_tile)
     {
-        //todo: 
+        Building building = bl.building;
+        int expansion_count = 0;
+        if (selected_tile.x == building.offset_position.x && selected_tile.y > building.last_room_position.y)
+        {
+            expansion_count = selected_tile.y - building.last_room_position.y;
+        }
+        else if (selected_tile.y == building.offset_position.y && selected_tile.x > building.last_room_position.x)
+        {
+            expansion_count = selected_tile.x - building.last_room_position.x;
+        }
+        else
+        {
+            print("not a valid location for expansion");
+        }
+        expansion_count = Math.Min(expansion_count, building.max_capacity - building.current_capacity);
+        print("expansion count is " + expansion_count);
+        for (int e = 0; e < expansion_count; e++)
+        {
+            building.spawn_room();
+        }
+        set_room_sprites();
+        show_all_building_occupants(true);
+    }
+
+    public void board_train(GameObject boxcar_go, Vector2Int room_position)
+    {
+        Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
+        print("boarding train from room  position " + room_position + " to " + boxcar.tile_position);
+
+        Room room = city_room_matrix[room_position.x, room_position.y];
+        GameObject occupant_go = room.person_go; //todo: laster move the occupant to the room (first checkpoint). 
+        Person occupant = occupant_go.GetComponent<Person>();
+        boxcar.is_occupied = true;
+        occupant.is_board_boxcar = true;
+        occupant.is_in_home = false;
+        occupant.boxcar_go = boxcar_go;
+        occupant.station_track = boxcar.station_track;
+        occupant.offset_map = RouteManager.offset_route_map[boxcar.station_track.start_location];
+        //occupant.orientation = boxcar.station_track.board_orientation;
+        StartCoroutine(GameObject.Find("RouteManager").GetComponent<RouteManager>().board_train(boxcar, room, occupant, boxcar.tile_position));
+        // get the tile in direction of the track
+
+        // then run shortest path algorithm with preference for tiles closer to the building
+        // finally, board the train
+    }
+
+    public void set_room_sprites()
+    {
+        for (int i=0;i<city_room_matrix.GetLength(0);i++)
+        {
+            for (int j = 0; j < city_room_matrix.GetLength(1); j++)
+            {
+                Vector3Int tile_position = new Vector3Int(i, j, 0);
+                Room room = city_room_matrix[i, j];
+                if (room != null)
+                    city_tilemap.SetTile(tile_position, city_tile);
+                else
+                {
+                    city_tilemap.SetTile(tile_position, null);
+                }
+            }
+        }
     }
 
     public void initialize_city_tilemap()
@@ -185,24 +266,9 @@ public class City : BoardManager
         building.offset_position = building_lot.origin_tile;
         building.max_capacity = building_lot.length;
         building.person_grid = new GameObject[building_lot.length];
+        building.building_lot = building_lot;
         building.city = this;
         city_building_list.Add(building);
-
-    }
-
-    public void populate_city_tilemap(Tilemap city_tilemap)
-    {
-        // draw building sprites in the appropriate tiles
-        for (int i=0; i<city_building_list.Count; i++)
-        {
-            Building building = city_building_list[i];
-            if (building == null)
-                building.set_room_sprite(city_tilemap, null);
-            else
-            {
-                building.set_room_sprite(city_tilemap, city_tile);
-            }
-        }
     }
 
     public void set_destination_track(RouteManager.Orientation orientation)

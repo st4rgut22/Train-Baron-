@@ -15,9 +15,12 @@ public class Building : MonoBehaviour
     public GameObject[] person_grid;
     public string building_type;
     public int max_capacity;
+    public int current_capacity;
     public int total_occupant;
     public Vector2Int offset_position; // offset from bottom left of tilemap to get the true tile coordinates
-
+    public Vector2Int last_room_position;
+    public Building_Lot building_lot;
+    
     private void Awake()
     {
         occupant_id = 0;
@@ -28,23 +31,13 @@ public class Building : MonoBehaviour
     private void Start()
     {
         roomba = new Room[max_capacity];
-        print("city " + city.city_type);
-        spawn_room(room_id);
+        spawn_room();
+        city.city_tilemap_go.SetActive(false); // after setting tile deactivate gameobject
     }
 
     private void Update()
     {
         
-    }
-
-    public bool is_selected_room_occupied(Vector2Int room_tile_pos)
-    {
-        foreach (Room room in roomba)
-        {
-            if (room.tile_position.Equals(room_tile_pos) && room.occupied)
-                return true;
-        }
-        return false;
     }
 
     public void add_occupant_to_available_room(GameObject person)
@@ -71,25 +64,19 @@ public class Building : MonoBehaviour
         }
     }
 
-    public void set_room_sprite(Tilemap city_tilemap, Tile tile)
-    {
-        foreach (Room room in roomba)
-        {
-            if (room != null) 
-                city_tilemap.SetTile((Vector3Int) room.tile_position, tile);
-        }
-    }
-
-    public virtual Room spawn_room(int room_id)
+    public virtual Room spawn_room()
     {
         GameObject room_object = Instantiate(this.room);
         Room room = room_object.GetComponent<Room>();
         room.id = room_id;
-        print(roomba.Length);
+        room.building = this;
         roomba[room.id] = room;
         Vector2Int room_tile_pos = RouteManager.get_straight_next_tile_pos_multiple(building_orientation, offset_position, room.id);
         city.city_room_matrix[room_tile_pos.x, room_tile_pos.y] = room;
         room.tile_position = room_tile_pos;
+        last_room_position = room_tile_pos;
+        current_capacity += 1;
+        room_id += 1;
         return room;
     }
 

@@ -5,34 +5,9 @@ using UnityEngine.EventSystems;
 using System;
 using UnityEngine.Tilemaps;
 
-public class MovingObject : EventDetector
+public class MovingObject : Simple_Moving_Object
 {
     // all the vehicle movement math goes here
-
-    protected Vector2 target_position;
-    protected float speed = 2f; // Temporary. changed from 2f
-    protected float speed_multiplier = 1f;
-    //protected float tolerance = .004f;
-    protected Vector2 next_position;
-    protected bool in_tile = false; // if an object is in a tile, it is already has a destination
-
-    public RouteManager.Orientation orientation; // orientation before moving to a new tile
-    public RouteManager.Orientation final_orientation; // orientation after moving to a new tile 
-    public RouteManager.Orientation prev_orientation; // orientation during the last idle state
-    public RouteManager.Orientation depart_city_orientation = RouteManager.Orientation.None;
-    public Vector3Int tile_position;
-    public Vector2Int next_tilemap_position;
-    protected const float z_pos = 0;
-
-    public bool arriving_in_city = false; // next tile position is a city. upon movement completion set in_city=true
-    public bool in_city;        
-    public City city;
-    public City prev_city; // used to check whether a city destination is not in fact the city youve just left
-    protected CityManager city_manager;
-    protected GameManager game_manager;
-
-    public Station_Track station_track;
-
     Vector2 stranded_state = new Vector2(-10, -10); // waiting for a new track or turntable
     public bool is_pause = false; // pause state
     public bool is_halt = false;
@@ -48,26 +23,26 @@ public class MovingObject : EventDetector
     public RouteManager.Orientation steep_angle_orientation = RouteManager.Orientation.None;
 
     // Start is called before the first frame update
-    public virtual void Awake()
+    public void Awake()
     {
         //is_halt = false;
         Vector2Int home_base = CityManager.home_base_location;
         tile_position = new Vector3Int(home_base.x, home_base.y, 0);
         next_tilemap_position = home_base;
         prev_city = null;
-        orientation = VehicleManager.round_robin_orientation(); // TEMPORARY, TESTING create train display!
-        //orientation = RouteManager.Orientation.East; // RESTORE ! 
+        //orientation = VehicleManager.round_robin_orientation(); // TEMPORARY, TESTING create train display!
+        orientation = RouteManager.Orientation.East; // RESTORE ! 
         final_orientation = orientation;
     }
 
-    public virtual void Start()
+    public override void Start()
     {
         game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
         target_position = transform.position;
     }
 
     // Update is called once per frame
-    public virtual void Update()
+    public override void Update()
     {
         if (!is_halt)
         {
@@ -81,12 +56,12 @@ public class MovingObject : EventDetector
                 {
                     Tilemap toggled_tilemap = GameManager.track_manager.top_tilemap;
                     GameManager.vehicle_manager.update_vehicle_board(VehicleManager.vehicle_board, gameObject, tile_position, prev_tile_position);
-                    position_pair = RouteManager.get_destination(this, toggled_tilemap); // set the final orientation and destination
+                    position_pair = RouteManager.get_destination(this, toggled_tilemap, offset); // set the final orientation and destination
                 }
                 else
                 {
                     GameManager.vehicle_manager.update_vehicle_board(city.city_board, gameObject, tile_position, prev_tile_position);
-                    position_pair = RouteManager.get_destination(this, station_track.tilemap); // set the final orientation and destination
+                    position_pair = RouteManager.get_destination(this, station_track.tilemap, offset); // set the final orientation and destination
                 }
                 Vector2 train_dest_xy = position_pair.abs_dest_pos;
                 next_tilemap_position = position_pair.tile_dest_pos;
@@ -180,13 +155,6 @@ public class MovingObject : EventDetector
         final_orientation = orientation;
     }
 
-    public void prepare_to_arrive_at_city(City city)
-    {
-        if (city == null) throw new Exception("city shouldn't be null");
-        this.city = city;
-        arriving_in_city = true;
-    }
-
     public virtual void arrive_at_city()
     {
         in_city = true;
@@ -224,71 +192,7 @@ public class MovingObject : EventDetector
         this.orientation = orientation;
     }
 
-    Vector2 transform_curve(Vector2 bezier_position, RouteManager.Orientation orientation, RouteManager.Orientation final_orientation)
-    {
-        // transform the coord of bezier curve so it matches shape of appropriate track
-        if (orientation == RouteManager.Orientation.North && final_orientation == RouteManager.Orientation.East)
-        {
-            return bezier_position;
-        } else if ((orientation == RouteManager.Orientation.South && final_orientation == RouteManager.Orientation.East) ||
-                    final_orientation == RouteManager.Orientation.ne_SteepCurve || final_orientation == RouteManager.Orientation.ne_LessSteepCurve)
-        {
-            bezier_position[1] = -bezier_position[1];
-        } else if ((orientation == RouteManager.Orientation.North && final_orientation == RouteManager.Orientation.West) ||
-            final_orientation == RouteManager.Orientation.sw_SteepCurve || final_orientation == RouteManager.Orientation.sw_LessSteepCurve)
-        {
-            bezier_position[0] = -bezier_position[0];
-        } else if ((orientation == RouteManager.Orientation.South && final_orientation == RouteManager.Orientation.West) ||
-            final_orientation == RouteManager.Orientation.nw_SteepCurve || final_orientation == RouteManager.Orientation.nw_LessSteepCurve)
-        {
-            bezier_position[0] = -bezier_position[0];
-            bezier_position[1] = -bezier_position[1];
-        } else if (orientation == RouteManager.Orientation.East && final_orientation == RouteManager.Orientation.South)
-        { // rotate curve 90 degrees counter clockwise
-            float temp_x = bezier_position[0];
-            bezier_position[0] = bezier_position[1];
-            bezier_position[1] = -temp_x;
-        } else if (orientation == RouteManager.Orientation.East && final_orientation == RouteManager.Orientation.North)
-        {
-            float temp_x = bezier_position[0];
-            bezier_position[0] = bezier_position[1];
-            bezier_position[1] = temp_x;
-        } else if (orientation == RouteManager.Orientation.West && final_orientation == RouteManager.Orientation.South)
-        {
-            float temp_x = bezier_position[0];
-            bezier_position[0] = -bezier_position[1];
-            bezier_position[1] = -temp_x;
-        }
-        else if (orientation == RouteManager.Orientation.West && final_orientation == RouteManager.Orientation.North)
-        {
-            float temp_x = bezier_position[0];
-            bezier_position[0] = -bezier_position[1];
-            bezier_position[1] = temp_x;
-        }
-        //else
-        //{
-        //    print(gameObject.name + " none of the orientations match"); // bezier coordinates returned unchanged
-        //}
-        return bezier_position;
-    }
-
-    //public void leave_city()
-    //{
-    //    // restore flags to defaults
-    //    // depart_turntable = true
-    //    // leave_turntable = false
-    //}
-
-    Vector2 bezier_equation(float t_param, List<Vector2> bezier_curve)
-    {
-        next_position = Mathf.Pow(1 - t_param, 3) * bezier_curve[0] +
-            3 * Mathf.Pow(1 - t_param, 2) * t_param * bezier_curve[1] +
-            3 * (1 - t_param) * Mathf.Pow(t_param, 2) * bezier_curve[2] +
-            Mathf.Pow(t_param, 3) * bezier_curve[3];
-        return next_position;
-    }
-
-    protected IEnumerator bezier_move(Transform location, RouteManager.Orientation orientation, RouteManager.Orientation final_orientation)
+    protected override IEnumerator bezier_move(Transform location, RouteManager.Orientation orientation, RouteManager.Orientation final_orientation, bool is_offset=false)
     {
         Vector2 position = location.position;
         float t_param;
