@@ -314,8 +314,8 @@ void Start()
         print("enter boxcar cp with person orientation " + person.orientation + " final orientation " + final_orientation + " boxcar tile pos " + boxcar.tile_position);
         Checkpoint step_on_boxcar_cp = new Checkpoint(person.orientation, final_orientation, boxcar.transform.position, (Vector2Int)boxcar.tile_position);
         List<Checkpoint> board_train_checkpoints = new List<Checkpoint>() { step_on_boxcar_cp };
-        //yield return StartCoroutine(person.move_checkpoints(board_train_checkpoints));
-        yield return StartCoroutine(person.straight_move(person_go.transform.position, boxcar_go.transform.position));
+        yield return StartCoroutine(person.move_checkpoints(board_train_checkpoints));
+        person.transform.parent = boxcar.transform; // make person a passenger of boxcar
     }
 
     public static Vector3 get_city_boundary_location(Vector3Int tile_position, Orientation orientation)

@@ -17,6 +17,7 @@ public class MovingObject : Simple_Moving_Object
     public bool leave_city = false;
     public bool complete_exit = false; // on verge of departing city
     public bool departure_track_chosen = false;
+    public bool end_of_track = false;
     public string train_name = "train(Clone)";
     VehicleManager vehicle_manager;
     public RouteManager.Orientation exit_track_orientation = RouteManager.Orientation.None;
@@ -46,7 +47,7 @@ public class MovingObject : Simple_Moving_Object
     {
         if (!is_halt)
         {
-            if (!in_tile) // Completed tile route. update destination to next tile. Prevents repeated calls to StartCoroutine()
+            if (!in_tile && !end_of_track) // Completed tile route. update destination to next tile. Prevents repeated calls to StartCoroutine()
             {
                 orientation = final_orientation; // updating the orientation at every new tile
                 Vector3Int prev_tile_position = tile_position;
@@ -70,7 +71,7 @@ public class MovingObject : Simple_Moving_Object
                 {
                     StartCoroutine(gameObject.GetComponent<Train>().wait_for_track_placement(next_tilemap_position));
                     gameObject.GetComponent<Train>().halt_train(false, true);
-                    return;
+                    end_of_track = true;
                 }         
                 Vector3 train_destination = new Vector3(train_dest_xy[0], train_dest_xy[1], z_pos);
                  if (orientation != final_orientation) // curved track
@@ -263,7 +264,6 @@ public class MovingObject : Simple_Moving_Object
             location.eulerAngles = new Vector3(0, 0, angle);
             yield return new WaitForEndOfFrame();
         }
-
         in_tile = false;
     }
 
@@ -360,5 +360,6 @@ public class MovingObject : Simple_Moving_Object
             arrive_at_city();
             arriving_in_city = false;
         }
+        print("STRAIGHT MOVE: start position of " + gameObject.tag + " is " + start_position + " end position is " + destination);
     }
 }

@@ -161,6 +161,24 @@ public class TrackManager : BoardManager
         }
     }
 
+    public static bool is_track_a_path(RouteManager.Orientation orientation, string track_tile)
+    {
+        // check if train can traverse a placed tile
+        if (orientation == RouteManager.Orientation.North)
+            if (track_tile == "WS" || track_tile == "ES" || track_tile == "vert")
+                return true;
+        if (orientation == RouteManager.Orientation.East)
+            if (track_tile == "WN" || track_tile == "WS" || track_tile == "hor")
+                return true;
+        if (orientation == RouteManager.Orientation.West)
+            if (track_tile == "NE" || track_tile == "ES" || track_tile == "hor")
+                return true;
+        if (orientation == RouteManager.Orientation.South)
+            if (track_tile == "WN" || track_tile == "NE" || track_tile == "vert")
+                return true;
+        return false;
+    }
+
     public static bool[] is_city_building_inner(Vector2Int cb_tile, RouteManager.Orientation orientation)
     {
         // determine if city building is adjacent to inner tile or not
