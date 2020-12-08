@@ -14,9 +14,12 @@ public class Person: Simple_Moving_Object
 
     public GameObject boxcar_go;
     public bool is_board_boxcar=false;
+    public bool is_enter_home = false;
     public bool is_exit_boxcar=false;
     public bool is_on_boxcar=false;
-    public bool is_in_home=true;
+    public bool is_exit_home=false;
+    public Room room;
+    public RouteManager.Orientation enter_home_orientation;
 
     public void Start()
     {
@@ -24,24 +27,40 @@ public class Person: Simple_Moving_Object
         wealth = 0;
         set_health_sprite();
         in_tile = true;
+        enter_home_orientation = RouteManager.Orientation.None; // initialized on enter home sequence
         final_dest_tile_pos = new Vector3Int(-1, -1, 0);
     }
 
     public void Update()
     {
-        if (!is_in_home) // execute followo track after person has completed exit home sequence
+        if (is_exit_home || is_exit_boxcar) // execute followo track after person has completed exit home sequence
             base.Update(); // follow track coroutine
         if (final_destination_reached)
         {
-            if (is_board_boxcar)
+            if (is_board_boxcar) // step on boxcar sequence
             {
                 is_board_boxcar = false;
                 is_on_boxcar = true;
-                final_destination_reached = false;
+                is_exit_home = false; //no longer follow the track
                 if (boxcar_go == null) throw new System.Exception("boxcar should be assigned to person when person exited home");
                 StartCoroutine(GameObject.Find("RouteManager").GetComponent<RouteManager>().step_on_boxcar(gameObject, boxcar_go));
             }
+            else if (is_enter_home)
+            {
+                is_on_boxcar = false;
+                is_enter_home = false; 
+                is_exit_boxcar = false; //no longer follow the track
+                StartCoroutine(GameObject.Find("RouteManager").GetComponent<RouteManager>().enter_home(gameObject, room));
+            }
+            final_destination_reached = false;
         }
+    }
+
+    public void exit_home()
+    {
+        is_exit_home = true;
+        room.clear_room();
+        room = null;
     }
 
     public void set_orientation(RouteManager.Orientation orientation)

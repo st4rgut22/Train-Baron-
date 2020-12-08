@@ -34,16 +34,25 @@ public class Room : MonoBehaviour
     public void spawn_person()
     {
         Room[,] occup = building.city.city_room_matrix;
-        this.person_go = Instantiate(person_go);
-        set_person_position();
+        person_go = Instantiate(person_go);
+        Person person = person_go.GetComponent<Person>();
+        person.room = this;
+        set_person_position(person);
         add_occupant(this.person_go);
     }
 
-    public void set_person_position()
+    public void set_person_position(Person person)
     {
-        person_go.GetComponent<Person>().transform.position = RouteManager.track_tilemap.GetCellCenterWorld((Vector3Int)tile_position);
-        person_go.GetComponent<Person>().set_tile_pos(tile_position);
-        person_go.GetComponent<Person>().set_orientation(building.building_orientation);
+        person.transform.position = RouteManager.track_tilemap.GetCellCenterWorld((Vector3Int)tile_position);
+        person.set_tile_pos(tile_position);
+        person.set_orientation(building.building_orientation);
+    }
+
+    public void clear_room()
+    {
+        person_go = null;
+        occupied = false;
+
     }
 
     public void add_occupant(GameObject person_object)

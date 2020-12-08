@@ -39,8 +39,8 @@ public class Train : MovingObject
 
     public void turn_on_train(bool is_train_on)
     {
-        
-        MovingObject.switch_sprite_renderer(gameObject, is_train_on); 
+
+        MovingObject.switch_sprite_renderer(gameObject, is_train_on);
         foreach (GameObject boxcar_object in boxcar_squad)
         {
             Boxcar boxcar = boxcar_object.GetComponent<Boxcar>();
@@ -293,6 +293,21 @@ public class Train : MovingObject
             if (is_halt) boxcar.GetComponent<Boxcar>().set_halt(state); 
             else { boxcar.GetComponent<Boxcar>().is_pause = state; }
         }
+    }
+
+    public bool is_all_boxcar_boarded()
+    {
+        // train cannot leave until all passengers are boarded. 
+        foreach (GameObject boxcar_go in boxcar_squad)
+        {
+            Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
+            if (boxcar.is_occupied)
+            {
+                if (boxcar.passenger_go.GetComponent<Person>().is_board_boxcar) // passenger is in process of boarding boxcar
+                    return false;
+            }
+        }
+        return true;
     }
 
     public IEnumerator wait_for_track_placement(Vector2Int next_tile_pos)

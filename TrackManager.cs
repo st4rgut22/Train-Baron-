@@ -290,7 +290,8 @@ public class TrackManager : BoardManager
     public static RouteManager.Orientation enter_boxcar_orientation(Vector2 boxcar_pos, Vector2 person_pos)
     {
         Vector2 delta_position = person_pos - boxcar_pos;
-        if (Mathf.Abs(delta_position.x) > Mathf.Abs(delta_position.y)){ // horizontal movement
+        if (Mathf.Abs(delta_position.x) > Mathf.Abs(delta_position.y))
+        { // horizontal movement
             if (delta_position.x > 0)
                 return RouteManager.Orientation.West;
             else
@@ -351,72 +352,36 @@ public class TrackManager : BoardManager
 
     public static RouteManager.Orientation get_start_orientation(string track_tile_name, Vector3Int track_location, Vector3Int destination)
     {
+        // boarding train: home -> boxcar
         // when a train is instantiated, its orientation must match direction of trac
         // get orientation relative to city
-        switch (track_tile_name)
+        if (track_tile_name == "vert" || track_tile_name == "NE" || track_tile_name == "WS")
         {
-            case "ES":
-                if (destination.x > track_location.x)
-                {
-                    return RouteManager.Orientation.North;
-                }
-                else if (destination.y < track_location.y)
-                {
-                    return RouteManager.Orientation.West;
-                }
-                break;
-            case "NE":
-                if (destination.y > track_location.y)
-                {
-                    return RouteManager.Orientation.West;
-                }
-                else if (destination.x > track_location.x)
-                {
-                    return RouteManager.Orientation.South;
-                }
-                break;
-            case "WN":
-                if (destination.y > track_location.y)
-                {
-                    return RouteManager.Orientation.East;
-                }
-                else if (destination.x < track_location.x)
-                {
-                    return RouteManager.Orientation.South;
-                }
-                break;
-            case "WS":
-                if (destination.x < track_location.x)
-                {
-                    return RouteManager.Orientation.North;
-                }
-                else if (destination.y < track_location.y)
-                {
-                    return RouteManager.Orientation.East;
-                }
-                break;
-            case "vert":
-                if (destination.y > track_location.y)
-                {
-                    return RouteManager.Orientation.North;
-                }
-                else
-                {
-                    return RouteManager.Orientation.South;
-                }
-            case "hor":
-                if (destination.x > track_location.x)
-                {
-                    return RouteManager.Orientation.East;
-                }
-                else
-                {
-                    return RouteManager.Orientation.West;
-                }
-            default:
-                return RouteManager.Orientation.None;
+            if (destination.y > track_location.y)
+            {
+                return RouteManager.Orientation.North;
+            }
+            else
+            {
+                return RouteManager.Orientation.South;
+            }
         }
-        throw new Exception("no start orientatiun found");
+
+        else if(track_tile_name == "hor" || track_tile_name == "WN" || track_tile_name == "ES")
+        {
+            if (destination.x > track_location.x)
+            {
+                return RouteManager.Orientation.East;
+            }
+            else
+            {
+                return RouteManager.Orientation.West;
+            }
+        }
+        else
+        {
+            throw new Exception("no start orientatiun found");
+        }
     }
 
     public static void set_opposite_direction(string track_name, MovingObject vehicle)
@@ -524,16 +489,19 @@ public class TrackManager : BoardManager
         }
     }
 
-    public static float get_right_angle_rotation(RouteManager.Orientation orientation, RouteManager.Orientation final_orientation)
+    public static float get_rotation(RouteManager.Orientation orientation, RouteManager.Orientation final_orientation)
     {
         if (orientation == RouteManager.Orientation.West && final_orientation == RouteManager.Orientation.East ||
             orientation == RouteManager.Orientation.East && final_orientation == RouteManager.Orientation.West ||
             orientation == RouteManager.Orientation.North && final_orientation == RouteManager.Orientation.South ||
-            orientation == RouteManager.Orientation.South && final_orientation == RouteManager.Orientation.North ||
-            orientation == final_orientation)
-            throw new Exception("Not a right angle rotation");
+            orientation == RouteManager.Orientation.South && final_orientation == RouteManager.Orientation.North)
+            return 180f;
         // get angle of moving object along track based on start and end orientation for  RIGHT ANGLE track
-        if (orientation == RouteManager.Orientation.North && final_orientation == RouteManager.Orientation.East ||
+        else if (orientation == final_orientation)
+        {
+            return 0;
+        }
+        else if (orientation == RouteManager.Orientation.North && final_orientation == RouteManager.Orientation.East ||
             orientation == RouteManager.Orientation.South && final_orientation == RouteManager.Orientation.West ||
             orientation == RouteManager.Orientation.West && final_orientation == RouteManager.Orientation.North ||
             orientation == RouteManager.Orientation.East && final_orientation == RouteManager.Orientation.South)

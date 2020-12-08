@@ -131,7 +131,7 @@ public class CityDetector : EventDetector
         {
             try
             {
-                GameObject boxcar_go = city_board[boxcar_loc[0], boxcar_loc[1]];
+                GameObject boxcar_go = city_board[boxcar_loc[0]+1, boxcar_loc[1]+1]; // offset
                 if (boxcar_go != null && boxcar_go.tag == "boxcar")
                 {
                     Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();

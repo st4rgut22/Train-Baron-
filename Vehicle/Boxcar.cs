@@ -11,8 +11,9 @@ public class Boxcar : MovingObject
     public string boxcar_type;
     public bool departing = false;
     public bool receive_train_order = true;
-    Cargo cargo; // accomodate different cargo, people, vaccine, etc.
+    //Cargo cargo; // accomodate different cargo, people, vaccine, etc.
     public bool is_occupied;
+    public GameObject passenger_go;
 
 
     private void Awake()

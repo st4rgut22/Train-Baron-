@@ -40,15 +40,16 @@ public class Building : MonoBehaviour
         
     }
 
-    public void add_occupant_to_available_room(GameObject person)
+    public void add_occupant_to_available_room(GameObject person_go)
     {
         foreach (Room room in roomba)
         {
             if (room!= null && !room.occupied)
             {
-                room.add_occupant(person);
+                room.add_occupant(person_go);
+                Person person = person_go.GetComponent<Person>();
                 //TODO: some movmenet script as a transition
-                room.set_person_position();
+                room.set_person_position(person);
                 break;
             }               
         }
@@ -59,8 +60,9 @@ public class Building : MonoBehaviour
         for (int i = 0; i < roomba.GetLength(0); i++)
         {
             Room room = roomba[i];
-            if (room != null) 
-                room.display_occupant(is_occupant_displayed);
+            if (room != null)
+                if (room.occupied)
+                    room.display_occupant(is_occupant_displayed);
         }
     }
 

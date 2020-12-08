@@ -55,6 +55,7 @@ public class GameManager : EventDetector
     public static GameObject hint_gameobject;
     public static List<List<int[]>> hint_context_pos_list;
     public Vector2Int hint_tile_pos;
+    public GameObject hint_tile_go;
 
     public Building_Lot building_expansion;
 
@@ -308,13 +309,17 @@ public class GameManager : EventDetector
         int hint_index = is_selected_tile_in_context(selected_tile);
         RaycastHit2D[] selected_object = get_all_object_at_cursor(Input.mousePosition);
         List<Collider2D> collider_list = get_all_collider(selected_object);
+        List<string> collider_tag_list = get_collider_name_list(collider_list);
+        Vector3 world_pos = get_world_pos(Input.mousePosition);
         if (hint_context_list.Contains("board")) // behaves different from other hint contexts because eligible tiles are offset from tilemap and must be found by cloesst distance
         {
             print("board from city to boxcar");
-            Vector3 world_pos = get_world_pos(Input.mousePosition);
-            GameObject boxcar_go = GameObject.Find("City Tilemap").GetComponent<CityDetector>().is_boxcar_tile_clicked((Vector2)world_pos);
-            if (boxcar_go != null)
+            if (collider_tag_list.Contains("boxcar"))
+            {
+                Collider2D collider = get_from_collider_list("boxcar", collider_list);
+                GameObject boxcar_go = collider.gameObject;
                 CityManager.Activated_City_Component.board_train(boxcar_go, hint_tile_pos);
+            }
             else
             {
                 print("boxcar tile is not clicked. abort board action");
@@ -332,8 +337,8 @@ public class GameManager : EventDetector
             else if (hint_context == "unload")
             {
                 print("unload from boxcar to city");
-                //Tile struct_tile = (Tile) GameObject.Find("City").GetComponent<Tilemap>().GetTile((Vector3Int)selected_tile);
-                //List<Cargo> cargo_list = boxcar.retrieve_cargo();
+                CityManager.Activated_City_Component.unload_train(hint_tile_go, selected_tile); // hint tile position is boxcar position
+
             }
             else if (hint_context == "park")
             {
@@ -345,7 +350,9 @@ public class GameManager : EventDetector
             }
             else if (hint_context == "north exit" || hint_context == "east exit" || hint_context == "west exit" || hint_context == "south exit") // DEPART TRAIN
             {
-                hint_gameobject.GetComponent<Train>().exit_city(hint_context);
+                bool all_aboard = hint_gameobject.GetComponent<Train>().is_all_boxcar_boarded();
+                if (all_aboard)
+                    hint_gameobject.GetComponent<Train>().exit_city(hint_context);
             }
             else if (hint_context == "track") // PLACE TILE
             {
@@ -362,7 +369,6 @@ public class GameManager : EventDetector
         {
             // call pointer events for boxcar and city from GameManager using Raycast data on the UI event detector
             hint_tile_pos = selected_tile;
-            List<string> collider_tag_list = get_collider_name_list(collider_list);
             if (collider_tag_list.Contains("city_building")) 
             {
                 Collider2D collider = get_from_collider_list("city_building", collider_list);
@@ -371,6 +377,7 @@ public class GameManager : EventDetector
             else if (collider_tag_list.Contains("boxcar"))
             {
                 Collider2D collider = get_from_collider_list("boxcar", collider_list);
+                hint_tile_go = collider.gameObject;
                 collider.gameObject.GetComponent<Boxcar>().click_boxcar(eventData);
             }
             else if (collider_tag_list.Contains("train"))

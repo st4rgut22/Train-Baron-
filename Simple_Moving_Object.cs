@@ -82,7 +82,6 @@ public class Simple_Moving_Object : EventDetector
 
     public IEnumerator move_checkpoints(List<Checkpoint> checkpoint_list)
     {
-        // assumes a movmenet sequence of movement(s) followed by rotations, consider interleving in the future for flexibility
         for (int i = 0; i < checkpoint_list.Count; i++)
         {
             Checkpoint cp = checkpoint_list[i];
@@ -90,7 +89,15 @@ public class Simple_Moving_Object : EventDetector
             tile_position = (Vector3Int)cp.tile_position;
             next_tilemap_position = (Vector2Int) tile_position;
             print("person tile position updated to " + tile_position);
-            yield return StartCoroutine(rotate(cp.rotation)); //todo: not rotating
+            if (cp.rotation != 0)
+                yield return StartCoroutine(rotate(cp.rotation));
+            else
+            {
+                print("no rotation");
+            }
+            orientation = cp.end_orientation;
+            final_orientation = orientation;
+            print("set orientation of person as " + orientation);
             yield return StartCoroutine(straight_move(transform.position, checkpoint_position));
         }
     }
@@ -130,7 +137,7 @@ public class Simple_Moving_Object : EventDetector
         float end_angle;
         in_tile = true;
 
-        end_angle = start_angle + TrackManager.get_right_angle_rotation(orientation, final_orientation); //end_angle is a static field for steep curves
+        end_angle = start_angle + TrackManager.get_rotation(orientation, final_orientation); //end_angle is a static field for steep curves
         //print("Start angle is " + start_angle + " End angle is " + end_angle);
         while (!final_step)
         {

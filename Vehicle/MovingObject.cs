@@ -138,6 +138,12 @@ public class MovingObject : Simple_Moving_Object
 
     public static void switch_sprite_renderer(GameObject vehicle_object, bool state)
     {
+        if (vehicle_object.tag == "boxcar")
+        {
+            Boxcar boxcar = vehicle_object.GetComponent<Boxcar>();
+            if (boxcar.is_occupied)
+                boxcar.passenger_go.GetComponent<SpriteRenderer>().enabled = state;
+        }
         vehicle_object.GetComponent<SpriteRenderer>().enabled = state;
     }
 
@@ -229,7 +235,7 @@ public class MovingObject : Simple_Moving_Object
         }
         else // a 90 degree curve
         {
-            end_angle = start_angle + TrackManager.get_right_angle_rotation(orientation, final_orientation); //end_angle is a static field for steep curves
+            end_angle = start_angle + TrackManager.get_rotation(orientation, final_orientation); //end_angle is a static field for steep curves
         }
         //print("Start angle is " + start_angle + " End angle is " + end_angle);
         while (!final_step)

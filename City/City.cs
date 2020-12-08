@@ -69,6 +69,7 @@ public class City : BoardManager
     public Tilemap city_tilemap;
 
     public static Dictionary<Vector3Int, RouteManager.Orientation> station_track_boarding_map;
+    public static Dictionary<Vector3Int, Dictionary<string, RouteManager.Orientation>> station_track_unloading_map;
     public RouteManager.Orientation destination_orientation;
 
     public int prev_train_list_length = 0;
@@ -99,6 +100,118 @@ public class City : BoardManager
             {west_start_2, RouteManager.Orientation.North },
             {south_start_1, RouteManager.Orientation.West },
             {south_start_2, RouteManager.Orientation.East }
+        };
+
+        station_track_unloading_map = new Dictionary<Vector3Int, Dictionary<string, RouteManager.Orientation>>()
+        {
+            // a dictionary of orientations for person leaving a boxcar
+            {
+                north_start_1,
+                    new Dictionary<string, RouteManager.Orientation>(){
+                        {
+                            "hor", RouteManager.Orientation.South
+                        },
+                        {
+                            "vert", RouteManager.Orientation.West
+                        },
+                        {
+                            "NE", RouteManager.Orientation.South
+                        }
+                    }
+            },
+            {
+                north_start_2,
+                    new Dictionary<string, RouteManager.Orientation>()
+                    {
+                        {
+                            "hor", RouteManager.Orientation.North
+                        },
+                        {
+                            "vert", RouteManager.Orientation.East
+                        },
+                        {
+                            "NE", RouteManager.Orientation.North
+                        }
+                    }
+            },
+            {
+                east_start_1,
+                    new Dictionary<string, RouteManager.Orientation>()
+                    {
+                        {
+                            "hor", RouteManager.Orientation.South
+                        },
+                        {
+                            "ES", RouteManager.Orientation.East
+                        },
+                        {
+                            "vert", RouteManager.Orientation.East
+                        }
+                    }
+            },
+            {
+                east_start_2,
+                    new Dictionary<string, RouteManager.Orientation>()
+                    {
+                        {
+                            "hor", RouteManager.Orientation.North
+                        }
+                    }
+            },
+            {
+                west_start_1,
+                    new Dictionary<string, RouteManager.Orientation>()
+                    {
+                        {
+                            "hor", RouteManager.Orientation.North
+                        },
+                        {
+                            "WN", RouteManager.Orientation.West
+                        },
+                        {
+                            "vert", RouteManager.Orientation.West
+                        }
+                    }
+            },
+            {
+                west_start_2,
+                    new Dictionary<string, RouteManager.Orientation>()
+                    {
+                        {
+                            "hor", RouteManager.Orientation.South
+                        }
+                    }
+            },
+            {
+                south_start_1,
+                    new Dictionary<string, RouteManager.Orientation>()
+                    {
+                        {
+                            "vert", RouteManager.Orientation.East
+                        },
+                        {
+                            "hor", RouteManager.Orientation.North
+                        },
+                        {
+                            "WS", RouteManager.Orientation.North
+                        }
+                    }
+            },
+            {
+                south_start_2,
+                    new Dictionary<string, RouteManager.Orientation>()
+                    {
+                        {
+                            "hor", RouteManager.Orientation.South
+                        },
+                        {
+                            "vert", RouteManager.Orientation.West
+                        },
+                        {
+                            "WS", RouteManager.Orientation.South
+                        }
+                    }
+            }
         };
 
         building_map = new Dictionary<string, Building_Lot>()
@@ -209,6 +322,18 @@ public class City : BoardManager
         show_all_building_occupants(true);
     }
 
+    public void unload_train(GameObject boxcar_go, Vector2Int room_position)
+    {
+        Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
+        boxcar.passenger_go.GetComponent<Person>().offset_map = RouteManager.offset_route_map[boxcar.station_track.start_location];
+        boxcar.passenger_go.GetComponent<Person>().is_enter_home = true;
+        Room room = city_room_matrix[room_position.x, room_position.y];
+        string track_name = RouteManager.shipyard_track_tilemap.GetTile(boxcar.tile_position).name;
+        print("unloading train from room  position " + room_position + " to " + boxcar.tile_position);
+        RouteManager.Orientation exit_orientation = station_track_unloading_map[boxcar.station_track.start_location][track_name];
+        StartCoroutine(GameObject.Find("RouteManager").GetComponent<RouteManager>().unload_train(boxcar, room, exit_orientation));
+    }
+
     public void board_train(GameObject boxcar_go, Vector2Int room_position)
     {
         Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
@@ -218,6 +343,7 @@ public class City : BoardManager
         GameObject occupant_go = room.person_go; //todo: laster move the occupant to the room (first checkpoint). 
         Person occupant = occupant_go.GetComponent<Person>();
         boxcar.is_occupied = true;
+        boxcar.passenger_go = occupant_go;
         occupant.is_board_boxcar = true;
         occupant.boxcar_go = boxcar_go;
         occupant.station_track = boxcar.station_track;
