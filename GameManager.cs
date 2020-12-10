@@ -196,7 +196,6 @@ public class GameManager : EventDetector
         // after 1 second, unhighlight the tiles
     }
 
-
     public void mark_tile_as_eligible(List<List<int[]>> tilemap_pos_list, List<string> hint_context, GameObject go, bool hint_mode = true) // turn off false for gameplay
     {
         // if hint mode is on, highlight the valid tiles

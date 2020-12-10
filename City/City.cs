@@ -90,7 +90,7 @@ public class City : BoardManager
         South_Station = new Station(south_start_1, south_start_2, RouteManager.Orientation.South, RouteManager.Orientation.West, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
         city_board = new GameObject[board_width, board_height]; // zero out the negative tile coordinates
 
-        station_track_boarding_map = new Dictionary<Vector3Int, RouteManager.Orientation>()
+        station_track_boarding_map = new Dictionary<Vector3Int, RouteManager.Orientation>() // the direction you leave building to board boxcar
         {
             { north_start_1, RouteManager.Orientation.East },
             {north_start_2, RouteManager.Orientation.South },
@@ -99,7 +99,7 @@ public class City : BoardManager
             {west_start_1, RouteManager.Orientation.South },
             {west_start_2, RouteManager.Orientation.North },
             {south_start_1, RouteManager.Orientation.West },
-            {south_start_2, RouteManager.Orientation.East }
+            {south_start_2, RouteManager.Orientation.North }
         };
 
         station_track_unloading_map = new Dictionary<Vector3Int, Dictionary<string, RouteManager.Orientation>>()
@@ -216,12 +216,12 @@ public class City : BoardManager
 
         building_map = new Dictionary<string, Building_Lot>()
         {
-            { "Building Lot North 1", new Building_Lot(new Vector2Int(0,7),3, RouteManager.Orientation.North, new List<Station_Track>{North_Station.outer_track }) },
-            { "Building Lot North 2", new Building_Lot(new Vector2Int(3,9),3, RouteManager.Orientation.East, new List<Station_Track>{North_Station.inner_track }) },
-            { "Building Lot East", new Building_Lot(new Vector2Int(11,8),6, RouteManager.Orientation.East,new List<Station_Track>{East_Station.inner_track, East_Station.outer_track }) },
-            { "Building Lot West", new Building_Lot(new Vector2Int(0,2),6, RouteManager.Orientation.East, new List<Station_Track>{West_Station.inner_track, West_Station.outer_track }) },
-            { "Building Lot South 1", new Building_Lot(new Vector2Int(10,1),3, RouteManager.Orientation.East, new List<Station_Track>{South_Station.inner_track }) },
-            { "Building Lot South 2", new Building_Lot(new Vector2Int(16,1),3, RouteManager.Orientation.North, new List<Station_Track>{South_Station.outer_track }) }
+            { "Building Lot North 1", new Building_Lot(new Vector2Int(0,7),3, RouteManager.Orientation.North, new List<Station_Track>{North_Station.outer_track }, -1.0f, 90f) },
+            { "Building Lot North 2", new Building_Lot(new Vector2Int(3,9),3, RouteManager.Orientation.East, new List<Station_Track>{North_Station.inner_track }, 0, -1.0f) },
+            { "Building Lot East", new Building_Lot(new Vector2Int(11,8),6, RouteManager.Orientation.East,new List<Station_Track>{East_Station.inner_track, East_Station.outer_track }, 180, 0) },
+            { "Building Lot West", new Building_Lot(new Vector2Int(0,2),6, RouteManager.Orientation.East, new List<Station_Track>{West_Station.inner_track, West_Station.outer_track }, 0, 180) },
+            { "Building Lot South 1", new Building_Lot(new Vector2Int(10,1),3, RouteManager.Orientation.East, new List<Station_Track>{South_Station.inner_track }, 180, -1.0f) },
+            { "Building Lot South 2", new Building_Lot(new Vector2Int(16,1),3, RouteManager.Orientation.North, new List<Station_Track>{South_Station.outer_track }, -1.0f, 270) }
         };
     }
 
@@ -262,7 +262,7 @@ public class City : BoardManager
     {
         foreach (Building building in city_building_list)
         {
-            building.show_occupants(is_city_shown);
+            building.reveal_room(is_city_shown);
         }
     }
 

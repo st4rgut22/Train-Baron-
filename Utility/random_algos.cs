@@ -32,4 +32,14 @@ public static class random_algos
         return;
     }
 
+    public static float degree_to_radian(float degree)
+    {
+        return Mathf.PI / 180 * degree;
+    }
+
+    public static float radian_to_degree(float radian)
+    {
+        return 180 / Mathf.PI * radian;
+    }
+
 }

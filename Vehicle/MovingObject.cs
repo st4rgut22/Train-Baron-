@@ -32,7 +32,7 @@ public class MovingObject : Simple_Moving_Object
         next_tilemap_position = home_base;
         prev_city = null;
         //orientation = VehicleManager.round_robin_orientation(); // TEMPORARY, TESTING create train display!
-        orientation = RouteManager.Orientation.East; // RESTORE ! 
+        orientation = RouteManager.Orientation.East; // direction of incoming train 
         final_orientation = orientation;
     }
 
@@ -366,6 +366,5 @@ public class MovingObject : Simple_Moving_Object
             arrive_at_city();
             arriving_in_city = false;
         }
-        print("STRAIGHT MOVE: start position of " + gameObject.tag + " is " + start_position + " end position is " + destination);
     }
 }

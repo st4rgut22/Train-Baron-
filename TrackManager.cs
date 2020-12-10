@@ -72,7 +72,7 @@ public class TrackManager : BoardManager
 
     public static int[,] parking_coord = { { 4, 0, 5 }, { 4, 11, 16 }, { 6, 11, 16 }, { 6, 0, 5 } }; // y, x start, x end 
     public static Dictionary<RouteManager.Orientation, List<int>> parking_coord_map;
-    public static Dictionary<RouteManager.Orientation, int[,,]> unloading_coord_map; // positions of all unloading coordinates
+    public static Dictionary<RouteManager.Orientation, List<List<int[]>>> unloading_coord_map; // positions of all unloading coordinates
     public static Dictionary<RouteManager.Orientation, List<List<int[]>>> add_to_train_coord_map;
     public static Dictionary<RouteManager.Orientation, List<int[]>> exit_track_map; // positions of all exit tiles
 
@@ -95,14 +95,27 @@ public class TrackManager : BoardManager
             { RouteManager.Orientation.South, new List<int> {4,11,16} }
         };
 
-        unloading_coord_map = new Dictionary<RouteManager.Orientation, int[,,]>()
-        { // {{coordinates of loading tiles for outer track},{coordinates of loading tiles for inner track}}
-            { RouteManager.Orientation.North, new int[,,] { { { 0, 7 }, { 0, 8 }, { 0, 9 } }, { { 3, 9 }, { 4, 9 }, { 5, 9 } } } },
-            { RouteManager.Orientation.East, new int[,,] { { { 17, 8 }, { 16, 8 }, { 15, 8 }, { 14, 8 }, { 13, 8 }, { 12, 8 }, { 11, 8 } }, { { 17, 8 }, { 16, 8 }, { 15, 8 }, { 14, 8 }, { 13, 8 }, { 12, 8 }, { 11, 8 } } } },
-            { RouteManager.Orientation.West, new int[,,] { { { 0, 2 }, { 1, 2 }, { 2, 2 }, { 3, 2 }, { 4, 2 }, { 5, 2 } }, { { 0, 2 }, { 1, 2 }, { 2, 2 }, { 3, 2 }, { 4, 2 }, { 5, 2 } } }  },
-            { RouteManager.Orientation.South, new int[,,] { { { 16, 2 }, { 16, 1 }, { 16, 0 } }, { { 14, 1 }, { 13, 1 }, { 12, 1 } } } }
+        unloading_coord_map = new Dictionary<RouteManager.Orientation, List<List<int[]>>>();
+        //{ // {{coordinates of loading tiles for outer track},{coordinates of loading tiles for inner track}}
+        //    { RouteManager.Orientation.North, new int[,,] { { { 0, 7 }, { 0, 8 }, { 0, 9 } }, { { 3, 9 }, { 4, 9 }, { 5, 9 }, {6,9 } } },
+        //    { RouteManager.Orientation.East, new int[,,] { { { 16, 8 }, { 15, 8 }, { 14, 8 }, { 13, 8 }, { 12, 8 }, { 11, 8 } }, { { 16, 8 }, { 15, 8 }, { 14, 8 }, { 13, 8 }, { 12, 8 }, { 11, 8 } } } },
+        //    { RouteManager.Orientation.West, new int[,,] { { { 0, 2 }, { 1, 2 }, { 2, 2 }, { 3, 2 }, { 4, 2 }, { 5, 2 } }, { { 0, 2 }, { 1, 2 }, { 2, 2 }, { 3, 2 }, { 4, 2 }, { 5, 2 } } }  },
+        //    { RouteManager.Orientation.South, new int[,,] { { { 16, 3 }, { 16, 2 }, { 16, 1 } }, { { 13, 1 }, { 12, 1 }, { 11, 1 }, { 10, 1 } } } }
 
-        };
+        //};
+
+        List<int[]> unload_north_outer = new List<int[]>() { new int[]{ 0, 7 }, new int[] { 0, 8 }, new int[] { 0, 9 } };
+        List<int[]> unload_north_inner = new List<int[]>() { new int[] { 3, 9 }, new int[] { 4, 9 }, new int[] { 5, 9 }, new int[] { 6, 9 } };
+        List<int[]> unload_east_outer = new List<int[]>() { new int[] { 16, 8 }, new int[] { 15, 8 }, new int[] { 14, 8 }, new int[] { 13, 8 }, new int[] { 12, 8 }, new int[] { 11, 8 } };
+        List<int[]> unload_east_inner = new List<int[]>() { new int[] { 16, 8 }, new int[] { 15, 8 }, new int[] { 14, 8 }, new int[] { 13, 8 }, new int[] { 12, 8 }, new int[] { 11, 8 } };
+        List<int[]> unload_west_outer = new List<int[]>() { new int[] { 0, 2 }, new int[] { 1, 2 }, new int[] { 2, 2 }, new int[] { 3, 2 }, new int[] { 4, 2 }, new int[] { 5, 2 } };
+        List<int[]> unload_west_inner = new List<int[]>() { new int[] { 0, 2 }, new int[] { 1, 2 }, new int[] { 2, 2 }, new int[] { 3, 2 }, new int[] { 4, 2 }, new int[] { 5, 2 } };
+        List<int[]> unload_south_outer = new List<int[]> { new int[] { 16, 3 }, new int[] { 16, 2 }, new int[] { 16, 1 } };
+        List<int[]> unload_south_inner = new List<int[]> { new int[] { 13, 1 }, new int[] { 12, 1 }, new int[] { 11, 1 }, new int[] { 10, 1 } };
+        unloading_coord_map[RouteManager.Orientation.North] = new List<List<int[]>>() { unload_north_outer, unload_north_inner };
+        unloading_coord_map[RouteManager.Orientation.East] = new List<List<int[]>>() { unload_east_outer, unload_east_inner };
+        unloading_coord_map[RouteManager.Orientation.West] = new List<List<int[]>>() { unload_west_outer, unload_west_inner };
+        unloading_coord_map[RouteManager.Orientation.South] = new List<List<int[]>>() { unload_south_outer, unload_south_inner }; 
 
         List<int[]> west_outer_track = new List<int[]> { new int[]{ -1, 1 }, new int[] { 0, 1 }, new int[] { 1, 1 }, new int[] { 2, 1 }, new int[] { 3, 1 }, new int[] { 4, 1 }, new int[] { 5, 1 }, new int[] { 6, 1 }, new int[] { 6, 2 } };
         List<int[]> west_inner_track = new List<int[]> { new int[] { -1, 3 }, new int[] { 0, 3 }, new int[] { 1, 3 }, new int[] { 2, 3 }, new int[] { 3, 3 }, new int[] { 4, 3 }, new int[] { 5, 3 }, new int[] { 6, 3 } };
@@ -182,15 +195,15 @@ public class TrackManager : BoardManager
     public static bool[] is_city_building_inner(Vector2Int cb_tile, RouteManager.Orientation orientation)
     {
         // determine if city building is adjacent to inner tile or not
-        int[,,] unloading_station_coord = unloading_coord_map[orientation];
+        List<List<int[]>> unloading_station_coord = unloading_coord_map[orientation];
         bool[] outer_inner_arr = new bool[] { false, false }; // index 0 means outer track, index 1 means inner track
-        for (int i = 0; i < unloading_station_coord.GetLength(0); i++)
+        for (int i = 0; i < unloading_station_coord.Count; i++)
         {
             // i stands for outer (0) or inner(1)
-            for (int j=0; j < unloading_station_coord.GetLength(1); j++)
+            for (int j=0; j < unloading_station_coord[i].Count; j++)
             {
                 // j stands for coordinate pairs
-                if (cb_tile.x == unloading_station_coord[i,j,0] && cb_tile.y == unloading_station_coord[i, j, 1])
+                if (cb_tile.x == unloading_station_coord[i][j][0] && cb_tile.y == unloading_station_coord[i][j][1])
                 {
                     outer_inner_arr[i] = true;
                 }
@@ -350,7 +363,7 @@ public class TrackManager : BoardManager
     }
 
 
-    public static RouteManager.Orientation get_start_orientation(string track_tile_name, Vector3Int track_location, Vector3Int destination)
+    public static RouteManager.Orientation get_start_orientation(string track_tile_name, Vector3 track_location, Vector3 destination, RouteManager.Orientation original_orientation)
     {
         // boarding train: home -> boxcar
         // when a train is instantiated, its orientation must match direction of trac
@@ -361,9 +374,13 @@ public class TrackManager : BoardManager
             {
                 return RouteManager.Orientation.North;
             }
-            else
+            else if (destination.y < track_location.y)
             {
                 return RouteManager.Orientation.South;
+            }
+            else
+            {
+                throw new Exception("get start orientation notn aligned with track");
             }
         }
 
@@ -373,14 +390,18 @@ public class TrackManager : BoardManager
             {
                 return RouteManager.Orientation.East;
             }
-            else
+            else if (destination.x < track_location.x)
             {
                 return RouteManager.Orientation.West;
+            }
+            else
+            {
+                throw new Exception("get start orientation notn aligned with track");
             }
         }
         else
         {
-            throw new Exception("no start orientatiun found");
+            throw new Exception("no start orientation found");
         }
     }
 
@@ -486,6 +507,30 @@ public class TrackManager : BoardManager
                 return -45f;
             default:
                 throw new Exception("not a valid steep track");
+        }
+    }
+
+    public static double get_final_rotation(float current_angle, Vector2 cur_position, Vector2 final_position)
+    {
+        double delta_y = final_position.y - cur_position.y;
+        double delta_x = final_position.x - cur_position.x;
+        double rot = Math.Atan2(delta_y, delta_x);
+        print("straight rotation is " + rot);
+        return rot;
+    }
+
+    public static float get_shortest_rotation(float final_angle, float cur_angle)
+    {
+        // go clockwise or counter-clockwise whichever is shorter
+        float rotation_1 = final_angle - cur_angle;
+        float rotation_2 = cur_angle - final_angle;
+        if (Math.Abs(rotation_1) < Math.Abs(rotation_2))
+        {
+            return rotation_1;
+        }
+        else
+        {
+            return -rotation_2;
         }
     }
 

@@ -13,6 +13,13 @@ public class Room : MonoBehaviour
     public bool occupied;
     public GameObject person_go;
     public Vector2Int tile_position;
+    public GameObject bottom_left_door;
+    public GameObject bottom_right_door;
+    public GameObject bl_door;
+    public GameObject br_door;
+    public GameObject unlocked_door; // door the person will arrive at 
+    public float door_1_rotation;
+    public float door_2_rotation;
 
     private void Awake()
     {
@@ -22,13 +29,38 @@ public class Room : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        spawn_door();
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    public void rotate_door()
+    {
+        //todo
+    }
+
+    public void spawn_door()
+    {
+        float offset_x = RouteManager.cell_width * tile_position.x;
+        float offset_y = RouteManager.cell_width * tile_position.y;
+        if (door_1_rotation != -1.0f)
+        {
+            bl_door = Instantiate(bottom_left_door);
+            bl_door.transform.eulerAngles = new Vector3(0, 0, door_1_rotation);
+            bl_door.transform.position += new Vector3(offset_x, offset_y, 0);
+            bl_door.SetActive(false);
+        }
+        if (door_2_rotation != -1.0f)
+        {
+            br_door = Instantiate(bottom_right_door);
+            br_door.transform.eulerAngles = new Vector3(0, 0, door_2_rotation);
+            br_door.transform.position += new Vector3(offset_x, offset_y, 0);
+            br_door.SetActive(false);
+        }
     }
 
     public void spawn_person()

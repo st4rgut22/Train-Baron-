@@ -24,17 +24,24 @@ public class CityManager : BoardManager
 
     public GameObject city_tilemap_go;
 
-
     // distances for train to travel before exiting the city (not before stopping)
     public static float exit_dest_west_east = 6;
     public static float exit_dest_north_south = 3;
     public static Dictionary<string, List<string>> cargo_to_structure;
+    public static Dictionary<RouteManager.Orientation, float> orientation_to_rotation_map; // needed for proper rotation on boarding and unloading of trains
 
     private void Awake()
     {
         base.Awake();
         create_cities(); // instantiate cities and save their positions
         home_base = get_city(home_base_location).GetComponent<City>();
+        orientation_to_rotation_map = new Dictionary<RouteManager.Orientation, float>()
+        {
+            {RouteManager.Orientation.North, 90 },
+            {RouteManager.Orientation.East, 0 },
+            {RouteManager.Orientation.West, 180 },
+            {RouteManager.Orientation.South, -90 }
+        };
     }
 
     void Start()

@@ -20,6 +20,7 @@ public class RouteManager : MonoBehaviour
     public static Tilemap exit_east_tilemap;
     public static Tilemap exit_west_tilemap;
     public static float cell_width = .88f;
+    public static float offset_amount = .1f;
 
     public static Vector2 offset_right = new Vector2(cell_width / 4, 0);
     public static Vector2 offset_left = new Vector2(-cell_width / 4, 0);
@@ -277,37 +278,115 @@ void Start()
         return tile_world_coord;
     }
 
-    public static Checkpoint get_exit_home_checkpoint(Orientation begin_orientation, Boxcar boxcar, Room room)
+    public static Vector2 offset_direction_of_travel(Orientation orientation)
+    {
+        // prevent running into walls and whatnot
+        Vector2 offset = new Vector2(0, 0);
+        switch (orientation)
+        {
+            case Orientation.North:
+                offset.y = -offset_amount;
+                break;
+            case Orientation.East:
+                offset.x = -offset_amount;
+                break;
+            case Orientation.West:
+                offset.x = offset_amount;
+                break;
+            case Orientation.South:
+                offset.y += offset_amount;
+                break;
+        }
+        return offset;
+    }
+
+    public static Checkpoint get_exit_home_checkpoint(Orientation orientation, Transform transform, Orientation exit_orientation, Boxcar boxcar, Room room, Vector2 door_position)
     {
         // rotate to face door, then exit in straight path
-        Vector3Int train_start_location = boxcar.train.station_track.start_location; // id of track
-        Orientation exit_orientation = City.station_track_boarding_map[train_start_location];
         Vector2Int doorstep_position = get_straight_next_tile_pos(exit_orientation, room.tile_position);
         Vector2 middle_pos = track_tilemap.GetCellCenterWorld((Vector3Int)doorstep_position);
+        Vector2 offset = get_doorstep_offset(exit_orientation, door_position, middle_pos);
+        middle_pos += offset;
         Vector2 exit_home_dest = get_straight_walking_position(middle_pos, exit_orientation);
-        return new Checkpoint(begin_orientation, exit_orientation, exit_home_dest, doorstep_position);
+        float rotation = CityManager.orientation_to_rotation_map[orientation]; // current rotation. eg EAST equals degree 0
+        return new Checkpoint(transform.position, rotation, exit_home_dest, doorstep_position); //(angle, exit_orientation, exit_home_dest, doorstep_position);
+    }
+
+    public static Vector2 get_doorstep_offset(Orientation exit_home_orientation, Vector2 door_position, Vector2 dest_tile_center)
+    {
+        Vector2 offset = new Vector2(0, 0);
+        if (exit_home_orientation == Orientation.North || exit_home_orientation == Orientation.South)
+        {
+            if (door_position.x < dest_tile_center.x)
+                offset.x = -cell_width / 4;
+            else { offset.x = cell_width / 4;  }           
+        }
+        else
+        {
+            if (door_position.y < dest_tile_center.y)
+                offset.y = -cell_width / 4;
+            else { offset.y = cell_width / 4;  }
+        }
+        return offset;
+    }
+
+    public static Checkpoint get_find_door_checkpoint(Orientation begin_orientation, Orientation exit_home_orientation, Vector2 position, Vector2 door_position, Vector2Int tile_position)
+    {
+        Orientation final_orientation = Orientation.None;
+        Vector2 final_position = new Vector2(-1, -1);
+        if (exit_home_orientation == Orientation.West || exit_home_orientation == Orientation.East)
+        {
+            if (position.y < door_position.y)
+                final_orientation = Orientation.North;
+            else 
+                final_orientation = Orientation.South;
+            final_position = new Vector2(position.x, door_position.y);
+        }
+        if (exit_home_orientation == Orientation.North || exit_home_orientation == Orientation.South)
+        {
+            if (position.x < door_position.x) final_orientation = Orientation.East;
+            else { final_orientation = Orientation.West; }
+            final_position = new Vector2(door_position.x, position.y);
+        }
+        Vector2 offset = offset_direction_of_travel(final_orientation);
+        final_position += offset;
+        if (final_orientation == Orientation.None || final_position.Equals(new Vector2(-1, -1))) throw new Exception("bad value in find door cp");
+        print("final position of find door cp is " + final_position + " final orientation is " + final_orientation);
+        return new Checkpoint(begin_orientation, final_orientation, final_position, tile_position);
+    }
+
+    public static GameObject get_exit_door(Boxcar boxcar, Room room)
+    {
+        // get door that exits to the boxcar
+        GameObject door_parent;
+        int is_inner = boxcar.station_track.inner;
+        if (is_inner == 0) door_parent = room.bl_door;
+        else { door_parent = room.br_door; }
+        return door_parent.transform.GetChild(0).gameObject;
     }
 
     public IEnumerator unload_train(Boxcar boxcar, Room room, Orientation exit_orientation)
     {
         List<Checkpoint> go_home_checkpoints = new List<Checkpoint>();
         GameObject person_go = boxcar.passenger_go;
+        boxcar.is_occupied = false;
         person_go.transform.parent = null;
         Person person = person_go.GetComponent<Person>();
-        // the final dest tile is offset from the person's route, so find the offset using city map 
+        room.unlocked_door = get_exit_door(boxcar, room);
+        // the final dest tile is offset from the person's route, so find the offset using city map
         Orientation home_orientation = City.station_track_boarding_map[boxcar.station_track.start_location];
         person.room = room; // assign room to person
         person.final_dest_tile_pos = (Vector3Int) get_straight_next_tile_pos(home_orientation,room.tile_position);//(Vector3Int) room.tile_position;
         person.enter_home_orientation = TrackManager.flip_straight_orientation(home_orientation); // reverse direction of exiting the home
-        print("enter home orientation is " + person.enter_home_orientation);
-        print("final dest tile pos is " + person.final_dest_tile_pos);
         Orientation flip_exit_orientation = TrackManager.flip_straight_orientation(exit_orientation); // need to flip because offset is in the opposite direction the person is traveling
         Vector2 exit_boxcar_dest = get_straight_walking_position(boxcar.transform.position, flip_exit_orientation);
-        Checkpoint exit_boxcar_checkpoint = new Checkpoint(person.orientation, exit_orientation, exit_boxcar_dest, (Vector2Int) boxcar.tile_position);
-        string track_name = shipyard_track_tilemap.GetTile((Vector3Int)boxcar.tile_position).name;
+        Checkpoint exit_boxcar_checkpoint = new Checkpoint(person.orientation, exit_orientation, exit_boxcar_dest, (Vector2Int)boxcar.tile_position);
+        string track_name = shipyard_track_tilemap.GetTile(boxcar.tile_position).name;
         go_home_checkpoints.Add(exit_boxcar_checkpoint);
-        RouteManager.Orientation align_track_orientation = TrackManager.get_start_orientation(track_name, (Vector3Int)boxcar.tile_position, (Vector3Int)room.tile_position);
-        print("align track orientation is " + align_track_orientation + " for track " + track_name);
+        Orientation exit_home_orientation = City.station_track_boarding_map[boxcar.station_track.start_location];
+        Vector2Int doorstep_position = get_straight_next_tile_pos(exit_home_orientation, room.tile_position);
+        Vector2 room_abs_position = track_tilemap.GetCellCenterWorld((Vector3Int)doorstep_position); //one tile offset from home in the center. Because boxcars always stop at tile edges, so center tells us which direction person should exit boxcar
+        Orientation align_track_orientation = TrackManager.get_start_orientation(track_name, boxcar.transform.position, room_abs_position, exit_boxcar_checkpoint.end_orientation);
         Checkpoint face_track_cp = new Checkpoint(exit_boxcar_checkpoint.end_orientation, align_track_orientation, exit_boxcar_checkpoint.dest_pos, exit_boxcar_checkpoint.tile_position); // dont move just rotate
         go_home_checkpoints.Add(face_track_cp);
         yield return StartCoroutine(person.move_checkpoints(go_home_checkpoints));
@@ -319,23 +398,27 @@ void Start()
 
     public IEnumerator board_train(Boxcar boxcar, Room room, Person occupant, Vector3Int destination)
     {
+        GameObject door = get_exit_door(boxcar, room);
+        Vector2 door_location = door.transform.position;
+        room.unlocked_door = door;
         // 2 checkpoints. In first go to doorstep and rotate accordingly. In the next only rotate to face track direction
         List<Checkpoint> board_train_checkpoints = new List<Checkpoint>();
-        List<float> rotation_list = new List<float>();
-        Checkpoint exit_home_cp = get_exit_home_checkpoint(occupant.orientation, boxcar, room);
-        board_train_checkpoints.Add(exit_home_cp);
-        print("EXIT HOME rotation from " + occupant.orientation + " to " + exit_home_cp.end_orientation + " is " + exit_home_cp.rotation + " with final tile position " + exit_home_cp.tile_position);
+        Vector3Int train_start_location = boxcar.train.station_track.start_location; // id of track
+        Orientation exit_orientation = City.station_track_boarding_map[train_start_location];
+        Checkpoint exit_home_cp = get_exit_home_checkpoint(occupant.orientation, occupant.transform, exit_orientation,  boxcar, room, door_location);
+        Checkpoint face_track_cp = new Checkpoint(exit_home_cp.final_angle, exit_home_cp.dest_pos, exit_orientation);
         string track_name = shipyard_track_tilemap.GetTile((Vector3Int)exit_home_cp.tile_position).name;
-        RouteManager.Orientation align_track_orientation = TrackManager.get_start_orientation(track_name, (Vector3Int) exit_home_cp.tile_position, (Vector3Int) boxcar.tile_position);
-        print("align track orientation is " + align_track_orientation + " for track " + track_name);
-        Checkpoint face_track_cp = new Checkpoint(exit_home_cp.end_orientation, align_track_orientation, exit_home_cp.dest_pos, exit_home_cp.tile_position); // dont move just rotate
+        Orientation align_track_orientation = TrackManager.get_start_orientation(track_name, exit_home_cp.dest_pos, boxcar.transform.position, exit_home_cp.end_orientation);
+        Checkpoint align_track_cp = new Checkpoint(face_track_cp.end_orientation, align_track_orientation, exit_home_cp.dest_pos, exit_home_cp.tile_position); // dont move just rotate
         occupant.final_dest_tile_pos = boxcar.tile_position;
-        print("ALIGN TRACK rotation from " + exit_home_cp.end_orientation + " to " + align_track_orientation + " is " + face_track_cp.rotation);
+        //board_train_checkpoints.Add(face_door_cp);
+        board_train_checkpoints.Add(exit_home_cp);
         board_train_checkpoints.Add(face_track_cp);
+        board_train_checkpoints.Add(align_track_cp);
         yield return StartCoroutine(occupant.move_checkpoints(board_train_checkpoints));
         print("start follow track sequence");
         occupant.in_tile = false; // allow person to follow the track to the destination boxcar
-                                 // if all goes well then boarding is all that's left
+                                  // if all goes well then boarding is all that's left
         occupant.exit_home();
         occupant.final_orientation = occupant.orientation;
     }
@@ -357,13 +440,21 @@ void Start()
     {
         List<Checkpoint> enter_home_checkpoints = new List<Checkpoint>();
         Person person = person_go.GetComponent<Person>();
-        Vector3 center_home_pos = person.transform.position + person.transform.up * .5f;
-        Checkpoint center_cp = new Checkpoint(person.orientation, person.orientation, center_home_pos, (Vector2Int) person.tile_position);
-        Vector2 room_position = track_tilemap.GetCellCenterWorld((Vector3Int) room.tile_position);
-        Checkpoint face_home_cp = new Checkpoint(person.orientation, person.enter_home_orientation, room_position, (Vector2Int) room.tile_position);
+        Vector2 enter_door_location = room.unlocked_door.transform.position;
+        Vector2 room_position = track_tilemap.GetCellCenterWorld((Vector3Int)room.tile_position);
+        Vector3 center_doorstep_pos = person.transform.position + person.transform.up * .5f;
+        Checkpoint center_cp = new Checkpoint(person.orientation, person.orientation, center_doorstep_pos, (Vector2Int)person.tile_position);
+        float center_cp_angle = CityManager.orientation_to_rotation_map[person.orientation];
+        Checkpoint enter_door_cp = new Checkpoint(center_cp.dest_pos, center_cp_angle, enter_door_location, room.tile_position);
+        Checkpoint enter_home_cp = new Checkpoint(enter_door_cp.dest_pos, enter_door_cp.final_angle, room_position, room.tile_position);
+        Checkpoint resting_cp = new Checkpoint(enter_home_cp.final_angle, enter_home_cp.dest_pos, room.building.building_orientation);
         enter_home_checkpoints.Add(center_cp);
-        enter_home_checkpoints.Add(face_home_cp);
+        enter_home_checkpoints.Add(enter_door_cp);
+        enter_home_checkpoints.Add(enter_home_cp);
+        enter_home_checkpoints.Add(resting_cp); // rotate person so facing same direction as building
         yield return StartCoroutine(person.move_checkpoints(enter_home_checkpoints));
+        room.occupied = true;
+        room.person_go = person_go;
     }
 
     public static Vector3 get_city_boundary_location(Vector3Int tile_position, Orientation orientation)

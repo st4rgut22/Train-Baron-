@@ -80,10 +80,11 @@ public class Boxcar : MovingObject
             print("set boxcar hint");
             RouteManager.Orientation station_orientation = station_track.station.orientation;
             int is_inner = station_track.inner;
-            int[,,] loading_coord = TrackManager.unloading_coord_map[station_orientation];
+            List<List<int[]>> loading_coord = TrackManager.unloading_coord_map[station_orientation];
             List<int[]> valid_unloading_pos_list = get_unloading_pos(loading_coord, is_inner);
             List<int[]> valid_parking_pos_list = get_parking_list();
             List<int[]> filtered_parking_pos_list = filter_available_parking_spot(valid_parking_pos_list);
+            if (is_occupied) filtered_parking_pos_list.Clear(); // don't show available parking lots if boxcar is occupied
             // highlight the tiles for a second
             boxcar_action_coord.Add(valid_unloading_pos_list);
             boxcar_action_coord.Add(filtered_parking_pos_list);
@@ -125,20 +126,21 @@ public class Boxcar : MovingObject
     }
 
 
-    public List<int[]> get_unloading_pos(int[,,] valid_pos, int is_inner)
+    public List<int[]> get_unloading_pos(List<List<int[]>> valid_pos, int is_inner)
     {
         //unload people to home, eligible tile covers the entire building
         List<string> valid_structure_list = CityManager.cargo_to_structure[boxcar_type];
         List<int[]> unloading_pos_list = new List<int[]>();
         bool building_has_room = false;
+        int building_length = valid_pos[is_inner].Count;
         if (valid_structure_list.Contains(city.city_type)) 
         {
 
             List<int[]> temp_unloading_pos_list = new List<int[]>();
-            for (int c = 0; c < valid_pos.GetLength(1); c++)
+            for (int c = 0; c < building_length; c++)
             {
-                int x = valid_pos[is_inner, c, 0];
-                int y = valid_pos[is_inner, c, 1];
+                int x = valid_pos[is_inner][c][0];
+                int y = valid_pos[is_inner][c][1];
                 temp_unloading_pos_list.Add(new int[] { x, y });
                 Room room = city.city_room_matrix[x, y];
                 if (room!=null && !room.occupied) // room is not occupied
@@ -155,47 +157,4 @@ public class Boxcar : MovingObject
         }
         return unloading_pos_list;
     }
-
-    //public override void OnBeginDrag(PointerEventData eventData)
-    //{
-    //    if (in_city && train.is_pause) // waiting for turntable to arrive
-    //    {
-    //        base.OnBeginDrag(eventData);
-    //        idling_position = transform.position; // if train departs before placing a boxcar in parking spot, then boxcar departs too
-    //    }
-    //}
-
-    //public override void OnDrag(PointerEventData eventData)
-    //{
-    //    if (in_city && train.is_pause) // waiting for turntable to arrive
-    //    {
-    //        Vector3 world_position = MenuManager.convert_screen_to_world_coord(eventData.position);
-    //        transform.position = world_position;
-    //    } else
-    //    {
-    //        // TODO: abort drag, if the train is departing
-
-    //    }
-    //}
-
-    //public override void OnEndDrag(PointerEventData eventData)
-    //{
-    //    // destroy the boxcar if it is placed in a parking spot
-    //    if (in_city && train.is_pause)
-    //    {
-    //        Vector2Int selected_tile = GameManager.get_selected_tile(Input.mousePosition);
-    //        bool parking_available = city.is_parking_spot_available(selected_tile);
-    //        if (parking_available)
-    //        {
-    //            city.place_boxcar_tile(gameObject, selected_tile);
-    //            GameManager.vehicle_manager.boxcar_fill_void(train, boxcar_id, idling_position); // move boxcars behind this one forward
-    //            train.remove_boxcar(boxcar_id);
-    //            Destroy(gameObject);
-    //        }
-    //        else
-    //        {
-    //            transform.position = idling_position;
-    //        }
-    //    }
-    //}
 }

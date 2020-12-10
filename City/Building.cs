@@ -55,14 +55,20 @@ public class Building : MonoBehaviour
         }
     }
 
-    public void show_occupants(bool is_occupant_displayed)
+    public void reveal_room(bool is_display)
     {
         for (int i = 0; i < roomba.GetLength(0); i++)
         {
             Room room = roomba[i];
             if (room != null)
+            {
                 if (room.occupied)
-                    room.display_occupant(is_occupant_displayed);
+                    room.display_occupant(is_display);
+                if (room.bl_door != null)
+                    room.bl_door.SetActive(is_display);
+                if (room.br_door != null)
+                    room.br_door.SetActive(is_display);
+            }
         }
     }
 
@@ -72,6 +78,8 @@ public class Building : MonoBehaviour
         Room room = room_object.GetComponent<Room>();
         room.id = room_id;
         room.building = this;
+        room.door_1_rotation = building_lot.door_1_rotation;
+        room.door_2_rotation = building_lot.door_2_rotation;
         roomba[room.id] = room;
         Vector2Int room_tile_pos = RouteManager.get_straight_next_tile_pos_multiple(building_orientation, offset_position, room.id);
         city.city_room_matrix[room_tile_pos.x, room_tile_pos.y] = room;

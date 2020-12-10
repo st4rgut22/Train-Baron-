@@ -19,6 +19,8 @@ public class Person: Simple_Moving_Object
     public bool is_on_boxcar=false;
     public bool is_exit_home=false;
     public Room room;
+    public float angle; // angle from the x axis. Use this instead of euler angles. 
+
     public RouteManager.Orientation enter_home_orientation;
 
     public void Start()

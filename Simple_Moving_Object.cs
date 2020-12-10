@@ -82,22 +82,23 @@ public class Simple_Moving_Object : EventDetector
 
     public IEnumerator move_checkpoints(List<Checkpoint> checkpoint_list)
     {
+        print("begin moving " + gameObject.name + " to checkpoints");
         for (int i = 0; i < checkpoint_list.Count; i++)
         {
             Checkpoint cp = checkpoint_list[i];
             Vector2 checkpoint_position = cp.dest_pos;
             tile_position = (Vector3Int)cp.tile_position;
             next_tilemap_position = (Vector2Int) tile_position;
-            print("person tile position updated to " + tile_position);
             if (cp.rotation != 0)
                 yield return StartCoroutine(rotate(cp.rotation));
             else
             {
                 print("no rotation");
             }
+            print("rotate " + cp.rotation);
             orientation = cp.end_orientation;
             final_orientation = orientation;
-            print("set orientation of person as " + orientation);
+            print("move from " + transform.position + " to " + checkpoint_position);
             yield return StartCoroutine(straight_move(transform.position, checkpoint_position));
         }
     }
@@ -235,7 +236,6 @@ public class Simple_Moving_Object : EventDetector
         float t_param = 1;
         float start_angle = transform.eulerAngles[2]; // rotation about z axis
         float end_angle = start_angle + angle_to_rotate;
-        print(gameObject.name + " start angle is " + start_angle + "end angle is " + end_angle);
         while (t_param > 0)
         {
             float interp = 1.0f - t_param;
