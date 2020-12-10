@@ -7,7 +7,7 @@ public class Building : MonoBehaviour
 {
     public RouteManager.Orientation building_orientation;
     public GameObject room;
-    public Room[] roomba;
+    public GameObject[] roomba;
     public City city;
     public int building_id;
     public int room_id;
@@ -30,9 +30,9 @@ public class Building : MonoBehaviour
 
     private void Start()
     {
-        roomba = new Room[max_capacity];
-        spawn_room();
         city.city_tilemap_go.SetActive(false); // after setting tile deactivate gameobject
+        roomba = new GameObject[max_capacity];
+        spawn_room();
     }
 
     private void Update()
@@ -42,8 +42,9 @@ public class Building : MonoBehaviour
 
     public void add_occupant_to_available_room(GameObject person_go)
     {
-        foreach (Room room in roomba)
+        foreach (GameObject room_go in roomba)
         {
+            Room room = room_go.GetComponent<Room>();
             if (room!= null && !room.occupied)
             {
                 room.add_occupant(person_go);
@@ -59,15 +60,14 @@ public class Building : MonoBehaviour
     {
         for (int i = 0; i < roomba.GetLength(0); i++)
         {
-            Room room = roomba[i];
-            if (room != null)
+            GameObject room_go = roomba[i];
+            if (room_go != null)
             {
+                Room room = room_go.GetComponent<Room>();
                 if (room.occupied)
                     room.display_occupant(is_display);
-                if (room.bl_door != null)
-                    room.bl_door.SetActive(is_display);
-                if (room.br_door != null)
-                    room.br_door.SetActive(is_display);
+                //todo: activate room, which also activates the door and everything inside it
+                room_go.SetActive(is_display);
             }
         }
     }
@@ -80,7 +80,7 @@ public class Building : MonoBehaviour
         room.building = this;
         room.door_1_rotation = building_lot.door_1_rotation;
         room.door_2_rotation = building_lot.door_2_rotation;
-        roomba[room.id] = room;
+        roomba[room.id] = room_object;
         Vector2Int room_tile_pos = RouteManager.get_straight_next_tile_pos_multiple(building_orientation, offset_position, room.id);
         city.city_room_matrix[room_tile_pos.x, room_tile_pos.y] = room;
         room.tile_position = room_tile_pos;
@@ -88,6 +88,12 @@ public class Building : MonoBehaviour
         current_capacity += 1;
         room_id += 1;
         return room;
+    }
+
+    public bool is_room_hidden()
+    {
+        if (city != CityManager.Activated_City_Component) return true;
+        else { return false; }
     }
 
     //public void do_random_walk()

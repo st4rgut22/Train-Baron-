@@ -115,7 +115,7 @@ public class City : BoardManager
                             "vert", RouteManager.Orientation.West
                         },
                         {
-                            "NE", RouteManager.Orientation.South
+                            "NE", RouteManager.Orientation.West
                         }
                     }
             },
@@ -130,7 +130,7 @@ public class City : BoardManager
                             "vert", RouteManager.Orientation.East
                         },
                         {
-                            "NE", RouteManager.Orientation.North
+                            "NE", RouteManager.Orientation.East
                         }
                     }
             },
@@ -142,7 +142,7 @@ public class City : BoardManager
                             "hor", RouteManager.Orientation.South
                         },
                         {
-                            "ES", RouteManager.Orientation.East
+                            "ES", RouteManager.Orientation.South
                         },
                         {
                             "vert", RouteManager.Orientation.East
@@ -166,7 +166,7 @@ public class City : BoardManager
                             "hor", RouteManager.Orientation.North
                         },
                         {
-                            "WN", RouteManager.Orientation.West
+                            "WN", RouteManager.Orientation.North 
                         },
                         {
                             "vert", RouteManager.Orientation.West
@@ -193,7 +193,7 @@ public class City : BoardManager
                             "hor", RouteManager.Orientation.North
                         },
                         {
-                            "WS", RouteManager.Orientation.North
+                            "WS", RouteManager.Orientation.East
                         }
                     }
             },
@@ -208,7 +208,7 @@ public class City : BoardManager
                             "vert", RouteManager.Orientation.West
                         },
                         {
-                            "WS", RouteManager.Orientation.South
+                            "WS", RouteManager.Orientation.West
                         }
                     }
             }
@@ -260,6 +260,7 @@ public class City : BoardManager
 
     public void show_all_building_occupants(bool is_city_shown)
     {
+        //iterate over all buildings, within each building iterate over rooms and deactivate as necessary
         foreach (Building building in city_building_list)
         {
             building.reveal_room(is_city_shown);
@@ -378,6 +379,7 @@ public class City : BoardManager
     {
         Building_Lot first_building_lot = building_map[initial_building_lot];
         spawn_building(first_building_lot);
+        show_all_building_occupants(false); // hide all doors when city is first created
         building_id += 1;
     }
 
@@ -391,8 +393,8 @@ public class City : BoardManager
         building.offset_position = building_lot.origin_tile;
         building.max_capacity = building_lot.length;
         building.person_grid = new GameObject[building_lot.length];
-        building.building_lot = building_lot;
         building.city = this;
+        building.building_lot = building_lot;
         city_building_list.Add(building);
     }
 

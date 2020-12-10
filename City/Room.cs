@@ -30,6 +30,8 @@ public class Room : MonoBehaviour
     void Start()
     {
         spawn_door();
+        if (building.is_room_hidden())
+            gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -52,14 +54,14 @@ public class Room : MonoBehaviour
             bl_door = Instantiate(bottom_left_door);
             bl_door.transform.eulerAngles = new Vector3(0, 0, door_1_rotation);
             bl_door.transform.position += new Vector3(offset_x, offset_y, 0);
-            bl_door.SetActive(false);
+            bl_door.transform.SetParent(this.transform);
         }
         if (door_2_rotation != -1.0f)
         {
             br_door = Instantiate(bottom_right_door);
             br_door.transform.eulerAngles = new Vector3(0, 0, door_2_rotation);
             br_door.transform.position += new Vector3(offset_x, offset_y, 0);
-            br_door.SetActive(false);
+            br_door.transform.SetParent(this.transform);
         }
     }
 

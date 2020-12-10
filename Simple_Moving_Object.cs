@@ -22,6 +22,7 @@ public class Simple_Moving_Object : EventDetector
     protected const float z_pos = 0;
 
     public Vector3Int final_dest_tile_pos;
+    public Vector3 final_dest_pos;
     public bool final_destination_reached = false;
 
     public bool arriving_in_city = false; // next tile position is a city. upon movement completion set in_city=true
@@ -88,7 +89,6 @@ public class Simple_Moving_Object : EventDetector
             Checkpoint cp = checkpoint_list[i];
             Vector2 checkpoint_position = cp.dest_pos;
             tile_position = (Vector3Int)cp.tile_position;
-            next_tilemap_position = (Vector2Int) tile_position;
             if (cp.rotation != 0)
                 yield return StartCoroutine(rotate(cp.rotation));
             else
@@ -100,13 +100,17 @@ public class Simple_Moving_Object : EventDetector
             final_orientation = orientation;
             print("move from " + transform.position + " to " + checkpoint_position);
             yield return StartCoroutine(straight_move(transform.position, checkpoint_position));
+            gameObject.GetComponent<Person>().tile_position = tile_position; // update tile position
+            gameObject.GetComponent<Person>().next_tilemap_position = (Vector2Int) tile_position; // update tile position
         }
     }
 
     public bool is_destination_reached()
     {
         //print("tile pos is " + tile_position + " final dest pos is " + final_dest_tile_pos);
-        return tile_position.Equals(final_dest_tile_pos);
+        float dist = Vector2.Distance(final_dest_pos, transform.position);
+        if (dist < RouteManager.cell_width) return true;
+        else { return false; }
     }
 
     public void set_initial_rotation(RouteManager.Orientation orientation)

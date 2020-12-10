@@ -31,12 +31,13 @@ public class Checkpoint
         if (final_angle < 0) final_angle = 360 + final_angle;
         rotation = TrackManager.get_shortest_rotation(final_angle, cur_angle);//final_angle - cur_angle;
         this.final_angle = final_angle;
-        Debug.Log("Overloaded transform: Rotation " + rotation + " final angle " + final_angle + " start angle " + cur_angle + " position " + position + " final position " + dest_pos);
+        Debug.Log("Free Rotation " + rotation + " final angle " + final_angle + " start angle " + cur_angle + " position " + position + " final position " + dest_pos);
     }
 
     // todo: a third and final constructor that sets end orientation after doing a free transform
-    public Checkpoint(float cur_angle, Vector2 dest_pos, RouteManager.Orientation end_orientation) // just turn not move
+    public Checkpoint(float cur_angle, Vector2 dest_pos, RouteManager.Orientation end_orientation, Vector2Int tile_position) // just turn not move
     {
+        this.tile_position = tile_position;
         final_angle = cur_angle;
         switch (end_orientation)
         {
@@ -57,5 +58,6 @@ public class Checkpoint
         this.end_orientation = end_orientation;
         this.dest_pos = dest_pos;
         rotation = angle_diff;
+
     }
 }
