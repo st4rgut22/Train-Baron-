@@ -30,25 +30,26 @@ public class City : BoardManager
     public List<Station> station_list;
 
     //outside track comes first
-    public static Vector2Int west_end_1 = new Vector2Int(4, 2);
-    public static Vector2Int west_end_2 = new Vector2Int(4, 3);
-    public static Vector3Int west_start_1 = new Vector3Int(-1, 1, 0);
-    public static Vector3Int west_start_2 = new Vector3Int(-1, 3, 0);
+    //TODO: change these 1s or 2s to outers or inners
+    public static Vector2Int west_end_outer = new Vector2Int(6, 2);
+    public static Vector2Int west_end_inner = new Vector2Int(6, 3);
+    public static Vector3Int west_start_outer = new Vector3Int(-1, 1, 0);
+    public static Vector3Int west_start_inner = new Vector3Int(-1, 3, 0);
 
-    public static Vector2Int north_end_2 = new Vector2Int(4, 5);
-    public static Vector2Int north_end_1 = new Vector2Int(4, 6);
-    public static Vector3Int north_start_1 = new Vector3Int(1, 10, 0);
-    public static Vector3Int north_start_2 = new Vector3Int(2, 10, 0);
+    public static Vector2Int north_end_inner = new Vector2Int(6, 7);
+    public static Vector2Int north_end_outer = new Vector2Int(6, 8);
+    public static Vector3Int north_start_outer = new Vector3Int(1, 10, 0);
+    public static Vector3Int north_start_inner = new Vector3Int(2, 10, 0);
 
-    public static Vector2Int east_end_2 = new Vector2Int(10, 5); //wrong
-    public static Vector2Int east_end_1 = new Vector2Int(10, 6);
-    public static Vector3Int east_start_2 = new Vector3Int(17, 7, 0);
-    public static Vector3Int east_start_1 = new Vector3Int(17, 9, 0);
+    public static Vector2Int east_end_inner = new Vector2Int(10, 7); //wrong
+    public static Vector2Int east_end_outer = new Vector2Int(10, 8);
+    public static Vector3Int east_start_inner = new Vector3Int(17, 7, 0);
+    public static Vector3Int east_start_outer = new Vector3Int(17, 9, 0);
 
-    public static Vector2Int south_end_1 = new Vector2Int(10, 1);
-    public static Vector2Int south_end_2 = new Vector2Int(10, 0);
-    public static Vector3Int south_start_1 = new Vector3Int(15, -1, 0);
-    public static Vector3Int south_start_2 = new Vector3Int(14, -1, 0);
+    public static Vector2Int south_end_outer = new Vector2Int(10, 2);
+    public static Vector2Int south_end_inner = new Vector2Int(10, 1);
+    public static Vector3Int south_start_outer = new Vector3Int(15, -1, 0);
+    public static Vector3Int south_start_inner = new Vector3Int(14, -1, 0);
 
     Station West_Station;
     Station North_Station;
@@ -70,43 +71,48 @@ public class City : BoardManager
 
     public static Dictionary<Vector3Int, RouteManager.Orientation> station_track_boarding_map;
     public static Dictionary<Vector3Int, Dictionary<string, RouteManager.Orientation>> station_track_unloading_map;
+    public static Dictionary<Vector3Int,RouteManager.Orientation[]> station_track_curve_map; // array index 0 is original orientation, 1 is final orientation
+    public static Dictionary<string, RouteManager.Orientation> initial_person_face_map;
+
     public RouteManager.Orientation destination_orientation;
 
     public int prev_train_list_length = 0;
 
     public Dictionary<string, Building_Lot> building_map;
     string initial_building_lot;
+    List<string> initial_building_lot_list;
 
     private void Awake()
     {
-        initial_building_lot = "Building Lot West";
+        //initial_building_lot_list = new List<string>() { "Building Lot South Outer", "Building Lot South Inner", "Building Lot North Outer", "Building Lot North Inner", "Building Lot West", "Building Lot East" };
+        initial_building_lot_list = new List<string>() { "Building Lot South Inner" };
         base.Awake();
         city_tilemap_go = GameObject.Find("City Tilemap");
         city_tilemap = city_tilemap_go.GetComponent<Tilemap>();
         city_room_matrix = new Room[board_width, board_height];
-        West_Station = new Station(west_start_1, west_start_2, RouteManager.Orientation.West, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
-        North_Station = new Station(north_start_1, north_start_2, RouteManager.Orientation.North, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
-        East_Station = new Station(east_start_1, east_start_2, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
-        South_Station = new Station(south_start_1, south_start_2, RouteManager.Orientation.South, RouteManager.Orientation.West, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
+        West_Station = new Station(west_start_outer, west_start_inner, RouteManager.Orientation.West, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
+        North_Station = new Station(north_start_outer, north_start_inner, RouteManager.Orientation.North, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
+        East_Station = new Station(east_start_outer, east_start_inner, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
+        South_Station = new Station(south_start_outer, south_start_inner, RouteManager.Orientation.South, RouteManager.Orientation.West, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
         city_board = new GameObject[board_width, board_height]; // zero out the negative tile coordinates
 
         station_track_boarding_map = new Dictionary<Vector3Int, RouteManager.Orientation>() // the direction you leave building to board boxcar
         {
-            { north_start_1, RouteManager.Orientation.East },
-            {north_start_2, RouteManager.Orientation.South },
-            {east_start_1, RouteManager.Orientation.North },
-            {east_start_2, RouteManager.Orientation.South },
-            {west_start_1, RouteManager.Orientation.South },
-            {west_start_2, RouteManager.Orientation.North },
-            {south_start_1, RouteManager.Orientation.West },
-            {south_start_2, RouteManager.Orientation.North }
+            { north_start_outer, RouteManager.Orientation.East },
+            {north_start_inner, RouteManager.Orientation.South },
+            {east_start_outer, RouteManager.Orientation.North },
+            {east_start_inner, RouteManager.Orientation.South },
+            {west_start_outer, RouteManager.Orientation.South },
+            {west_start_inner, RouteManager.Orientation.North },
+            {south_start_outer, RouteManager.Orientation.West },
+            {south_start_inner, RouteManager.Orientation.North }
         };
 
         station_track_unloading_map = new Dictionary<Vector3Int, Dictionary<string, RouteManager.Orientation>>()
         {
             // a dictionary of orientations for person leaving a boxcar
             {
-                north_start_1,
+                north_start_outer,
                     new Dictionary<string, RouteManager.Orientation>(){
                         {
                             "hor", RouteManager.Orientation.South
@@ -120,7 +126,7 @@ public class City : BoardManager
                     }
             },
             {
-                north_start_2,
+                north_start_inner,
                     new Dictionary<string, RouteManager.Orientation>()
                     {
                         {
@@ -135,7 +141,7 @@ public class City : BoardManager
                     }
             },
             {
-                east_start_1,
+                east_start_outer,
                     new Dictionary<string, RouteManager.Orientation>()
                     {
                         {
@@ -150,7 +156,7 @@ public class City : BoardManager
                     }
             },
             {
-                east_start_2,
+                east_start_inner,
                     new Dictionary<string, RouteManager.Orientation>()
                     {
                         {
@@ -159,7 +165,7 @@ public class City : BoardManager
                     }
             },
             {
-                west_start_1,
+                west_start_outer,
                     new Dictionary<string, RouteManager.Orientation>()
                     {
                         {
@@ -174,7 +180,7 @@ public class City : BoardManager
                     }
             },
             {
-                west_start_2,
+                west_start_inner,
                     new Dictionary<string, RouteManager.Orientation>()
                     {
                         {
@@ -183,7 +189,7 @@ public class City : BoardManager
                     }
             },
             {
-                south_start_1,
+                south_start_outer,
                     new Dictionary<string, RouteManager.Orientation>()
                     {
                         {
@@ -198,7 +204,7 @@ public class City : BoardManager
                     }
             },
             {
-                south_start_2,
+                south_start_inner,
                     new Dictionary<string, RouteManager.Orientation>()
                     {
                         {
@@ -209,19 +215,61 @@ public class City : BoardManager
                         },
                         {
                             "WS", RouteManager.Orientation.West
+                        },
+                        {
+                            "NE", RouteManager.Orientation.South
                         }
                     }
             }
         };
 
+        initial_person_face_map = new Dictionary<string, RouteManager.Orientation>()
+        {
+            {"Building Lot North Outer", RouteManager.Orientation.North },
+            {"Building Lot North Inner", RouteManager.Orientation.West },
+            {"Building Lot South Outer", RouteManager.Orientation.South },
+            {"Building Lot South Inner", RouteManager.Orientation.East },
+            {"Building Lot West", RouteManager.Orientation.West },
+            {"Building Lot East", RouteManager.Orientation.East}
+        };
+
+        station_track_curve_map = new Dictionary<Vector3Int, RouteManager.Orientation[]>()
+        {
+            // a dictionary of orientations for person leaving a boxcar
+            {
+                north_start_outer, new RouteManager.Orientation[]{RouteManager.Orientation.North, RouteManager.Orientation.East}
+            },
+            {
+                north_start_inner, new RouteManager.Orientation[]{RouteManager.Orientation.West, RouteManager.Orientation.South}
+            },
+            {
+                east_start_outer, new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.North}
+            },
+            {
+                east_start_inner, new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.South}
+            },
+            {
+                west_start_outer,new RouteManager.Orientation[]{RouteManager.Orientation.West, RouteManager.Orientation.South}
+            },
+            {
+                west_start_inner,new RouteManager.Orientation[]{RouteManager.Orientation.West, RouteManager.Orientation.North}
+            },
+            {
+                south_start_outer, new RouteManager.Orientation[]{RouteManager.Orientation.South, RouteManager.Orientation.West}
+            },
+            {
+                south_start_inner, new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.North}
+            }
+        };
+
         building_map = new Dictionary<string, Building_Lot>()
         {
-            { "Building Lot North 1", new Building_Lot(new Vector2Int(0,7),3, RouteManager.Orientation.North, new List<Station_Track>{North_Station.outer_track }, -1.0f, 90f) },
-            { "Building Lot North 2", new Building_Lot(new Vector2Int(3,9),3, RouteManager.Orientation.East, new List<Station_Track>{North_Station.inner_track }, 0, -1.0f) },
-            { "Building Lot East", new Building_Lot(new Vector2Int(11,8),6, RouteManager.Orientation.East,new List<Station_Track>{East_Station.inner_track, East_Station.outer_track }, 180, 0) },
-            { "Building Lot West", new Building_Lot(new Vector2Int(0,2),6, RouteManager.Orientation.East, new List<Station_Track>{West_Station.inner_track, West_Station.outer_track }, 0, 180) },
-            { "Building Lot South 1", new Building_Lot(new Vector2Int(10,1),3, RouteManager.Orientation.East, new List<Station_Track>{South_Station.inner_track }, 180, -1.0f) },
-            { "Building Lot South 2", new Building_Lot(new Vector2Int(16,1),3, RouteManager.Orientation.North, new List<Station_Track>{South_Station.outer_track }, -1.0f, 270) }
+            { "Building Lot North Outer", new Building_Lot("Building Lot North Outer",new Vector2Int(0,7),4, RouteManager.Orientation.North, new List<Station_Track>{North_Station.outer_track }, -1.0f, 90f) },
+            { "Building Lot North Inner", new Building_Lot("Building Lot North Inner",new Vector2Int(3,9),3, RouteManager.Orientation.East, new List<Station_Track>{North_Station.inner_track }, 0, -1.0f) },
+            { "Building Lot East", new Building_Lot("Building Lot East",new Vector2Int(11,8),6, RouteManager.Orientation.East,new List<Station_Track>{East_Station.inner_track, East_Station.outer_track }, 180, 0) },
+            { "Building Lot West", new Building_Lot("Building Lot West",new Vector2Int(0,2),6, RouteManager.Orientation.East, new List<Station_Track>{West_Station.inner_track, West_Station.outer_track }, 0, 180) },
+            { "Building Lot South Inner", new Building_Lot("Building Lot South Inner",new Vector2Int(10,1),4, RouteManager.Orientation.East, new List<Station_Track>{South_Station.inner_track }, 180, -1.0f) },
+            { "Building Lot South Outer", new Building_Lot("Building Lot South Outer",new Vector2Int(16,1),3, RouteManager.Orientation.North, new List<Station_Track>{South_Station.outer_track }, -1.0f, 270) }
         };
     }
 
@@ -332,7 +380,7 @@ public class City : BoardManager
         string track_name = RouteManager.shipyard_track_tilemap.GetTile(boxcar.tile_position).name;
         print("unloading train from room  position " + room_position + " to " + boxcar.tile_position);
         RouteManager.Orientation exit_orientation = station_track_unloading_map[boxcar.station_track.start_location][track_name];
-        StartCoroutine(GameObject.Find("RouteManager").GetComponent<RouteManager>().unload_train(boxcar, room, exit_orientation));
+        StartCoroutine(GameObject.Find("PersonRouteManager").GetComponent<PersonRouteManager>().unload_train(boxcar, room, exit_orientation));
     }
 
     public void board_train(GameObject boxcar_go, Vector2Int room_position)
@@ -350,7 +398,7 @@ public class City : BoardManager
         occupant.station_track = boxcar.station_track;
         occupant.offset_map = RouteManager.offset_route_map[boxcar.station_track.start_location];
         //occupant.orientation = boxcar.station_track.board_orientation;
-        StartCoroutine(GameObject.Find("RouteManager").GetComponent<RouteManager>().board_train(boxcar, room, occupant, boxcar.tile_position));
+        StartCoroutine(GameObject.Find("PersonRouteManager").GetComponent<PersonRouteManager>().board_train(boxcar, room, occupant, boxcar.tile_position));
         // get the tile in direction of the track
 
         // then run shortest path algorithm with preference for tiles closer to the building
@@ -377,10 +425,13 @@ public class City : BoardManager
 
     public void initialize_city_tilemap()
     {
-        Building_Lot first_building_lot = building_map[initial_building_lot];
-        spawn_building(first_building_lot);
-        show_all_building_occupants(false); // hide all doors when city is first created
-        building_id += 1;
+        foreach (string initial_building_lot in initial_building_lot_list)
+        {
+            Building_Lot first_building_lot = building_map[initial_building_lot];
+            spawn_building(first_building_lot);
+            show_all_building_occupants(false); // hide all doors when city is first created
+            building_id += 1;
+        }
     }
 
     public void spawn_building(Building_Lot building_lot)

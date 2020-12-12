@@ -78,8 +78,8 @@ public class Building : MonoBehaviour
         Room room = room_object.GetComponent<Room>();
         room.id = room_id;
         room.building = this;
-        room.door_1_rotation = building_lot.door_1_rotation;
-        room.door_2_rotation = building_lot.door_2_rotation;
+        room.outer_door_rotation = building_lot.outer_door_rotation;
+        room.primary_door_rotation = building_lot.primary_door_rotation;
         roomba[room.id] = room_object;
         Vector2Int room_tile_pos = RouteManager.get_straight_next_tile_pos_multiple(building_orientation, offset_position, room.id);
         city.city_room_matrix[room_tile_pos.x, room_tile_pos.y] = room;

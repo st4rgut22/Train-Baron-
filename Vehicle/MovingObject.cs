@@ -32,7 +32,7 @@ public class MovingObject : Simple_Moving_Object
         next_tilemap_position = home_base;
         prev_city = null;
         //orientation = VehicleManager.round_robin_orientation(); // TEMPORARY, TESTING create train display!
-        orientation = RouteManager.Orientation.East; // direction of incoming train 
+        orientation = RouteManager.Orientation.North; // direction of incoming train 
         final_orientation = orientation;
     }
 
@@ -177,7 +177,7 @@ public class MovingObject : Simple_Moving_Object
     {
         in_tile = true; // allow vehicle to move to the border of tile before resuming its route
         set_halt(false); // indicates a vehicle is about to leave
-        Vector3 vehicle_departure_point = RouteManager.get_city_boundary_location(tile_position, orientation); // tile pos is 3,6 not 10,6
+        Vector3 vehicle_departure_point = TrainRouteManager.get_city_boundary_location(tile_position, orientation); // tile pos is 3,6 not 10,6
         if (in_city) next_tilemap_position = BoardManager.pos_to_tile(vehicle_departure_point);
         //print("Next tilemap position initialized to " + next_tilemap_position); // if not in city, don't overwrite boxcar's next tile pos
         //print("move " + gameObject.name + " from " + transform.position + " to " + vehicle_departure_point);
@@ -199,7 +199,7 @@ public class MovingObject : Simple_Moving_Object
         this.orientation = orientation;
     }
 
-    protected override IEnumerator bezier_move(Transform location, RouteManager.Orientation orientation, RouteManager.Orientation final_orientation, bool is_offset=false)
+    public override IEnumerator bezier_move(Transform location, RouteManager.Orientation orientation, RouteManager.Orientation final_orientation)
     {
         Vector2 position = location.position;
         float t_param;
@@ -355,7 +355,7 @@ public class MovingObject : Simple_Moving_Object
                 //city.delete_boxcar(gameObject);
             }
             prev_city = city;
-            next_tilemap_position = RouteManager.get_depart_tile_position(orientation, city.get_location()); // otherwise get stuck on track
+            next_tilemap_position = TrainRouteManager.get_depart_tile_position(orientation, city.get_location()); // otherwise get stuck on track
             exit_track_orientation = RouteManager.Orientation.None;
             steep_angle_orientation = RouteManager.Orientation.None;
             reset_departure_flag();

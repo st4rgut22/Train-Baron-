@@ -45,14 +45,14 @@ public class Person: Simple_Moving_Object
                 is_on_boxcar = true;
                 is_exit_home = false; //no longer follow the track
                 if (boxcar_go == null) throw new System.Exception("boxcar should be assigned to person when person exited home");
-                StartCoroutine(GameObject.Find("RouteManager").GetComponent<RouteManager>().step_on_boxcar(gameObject, boxcar_go));
+                StartCoroutine(GameObject.Find("PersonRouteManager").GetComponent<PersonRouteManager>().step_on_boxcar(gameObject, boxcar_go));
             }
             else if (is_enter_home)
             {
                 is_on_boxcar = false;
                 is_enter_home = false; 
                 is_exit_boxcar = false; //no longer follow the track
-                StartCoroutine(GameObject.Find("RouteManager").GetComponent<RouteManager>().enter_home(gameObject, room));
+                StartCoroutine(GameObject.Find("PersonRouteManager").GetComponent<PersonRouteManager>().enter_home(gameObject, room));
             }
             final_destination_reached = false;
         }

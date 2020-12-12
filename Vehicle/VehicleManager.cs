@@ -253,7 +253,7 @@ public class VehicleManager : BoardManager
             boxcar_component.attach_to_train(train);
             MovingObject last_vehicle = train.get_last_vehicle_added().GetComponent<MovingObject>();
             // initalize boxcar position
-            PositionPair pos_pair = RouteManager.get_initial_destination(last_vehicle, tilemap);
+            PositionPair pos_pair = TrainRouteManager.get_initial_destination(last_vehicle, tilemap);
             initialize_position(boxcar_component, pos_pair);
             boxcar_component.set_initial_rotation(boxcar_component.orientation);
             //set_initial_angle(boxcar, boxcar_component);
@@ -274,7 +274,7 @@ public class VehicleManager : BoardManager
     {
         // position vehicle in center of tile and set first destination
         Vector3Int tile_position = moving_object.tile_position;
-        Vector3 moving_object_position = RouteManager.get_spawn_location(tile_position, moving_object.orientation);
+        Vector3 moving_object_position = TrainRouteManager.get_spawn_location(tile_position, moving_object.orientation);
         moving_object.transform.position = moving_object_position;
         moving_object.prepare_for_departure();
     }
@@ -293,33 +293,6 @@ public class VehicleManager : BoardManager
         //city.remove_train_from_list(train); 
     }
 
-    public static void set_initial_angle(GameObject moving_gameobject, MovingObject moving_object)
-    {
-        //moving_object.set_initial_rotation(moving_object.orientation);
-        //switch (moving_object.orientation)
-        //{
-        //    case RouteManager.Orientation.North:
-        //        moving_object.set_orientation(RouteManager.Orientation.North);
-        //        moving_gameobject.transform.eulerAngles = new Vector3(0, 0, 0);
-        //        break;
-        //    case RouteManager.Orientation.East:
-        //        moving_object.set_orientation(RouteManager.Orientation.East);
-        //        moving_gameobject.transform.eulerAngles = new Vector3(0, 0, -90);
-        //        break;
-        //    case RouteManager.Orientation.South:
-        //        moving_object.set_orientation(RouteManager.Orientation.South);
-        //        moving_gameobject.transform.eulerAngles = new Vector3(0, 0, 180);
-        //        break;
-        //    case RouteManager.Orientation.West:
-        //        moving_object.set_orientation(RouteManager.Orientation.West);
-        //        moving_gameobject.transform.eulerAngles = new Vector3(0, 0, -270);
-        //        break;
-        //    default:
-        //        //print("invalid orientation");
-        //        break;
-        //}
-    }
-
     public void place_vehicle(GameObject moving_gameobject)
     {
         // place vehicle on entering or exiting a city
@@ -330,13 +303,7 @@ public class VehicleManager : BoardManager
         {
             // orient the vehicles in any direction with a track
             moving_object.set_initial_rotation(moving_object.orientation);
-            //set_initial_angle(moving_gameobject, moving_object);
         }
-        // if not in city update vehicle position with city position
-        //if (moving_object.in_city) // saves go at city location which is wrong of course
-        //{
-        //    update_vehicle_board(moving_object.city.city_board, moving_gameobject, station_start_position, new Vector3Int(-1, -1, -1));
-        //}
         if (!moving_object.in_city) { update_vehicle_board(vehicle_board, moving_gameobject, city_position, new Vector3Int(-1, -1, -1));  }
     }
 
@@ -362,7 +329,7 @@ public class VehicleManager : BoardManager
             }
             bool in_city = game_object.GetComponent<MovingObject>().in_city;
             GameObject city_object = GameManager.city_manager.get_city(new Vector2Int(position.x, position.y));
-            string destination_type = RouteManager.get_destination_type(position, in_city);
+            string destination_type = TrainRouteManager.get_destination_type(position, in_city);
             if (destination_type=="city" && !in_city) // if vehicle arriving at city is a boxcar, don't update tile
             {
                 if (game_object.tag=="train") vehicle_board[position.x, position.y] = game_object; // only trains should be in cities, it stores a list of attached boxcars

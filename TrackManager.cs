@@ -20,7 +20,9 @@ public class TrackManager : BoardManager
     static Vector2 p2 = new Vector2(0, .25f);
     static Vector2 p3 = new Vector2(0, 0);
     public static List<Vector2> right_angle_curve = new List<Vector2> { p0, p1, p2, p3 };
-    public static List<Vector2> offset_right_angle_curve = new List<Vector2> { p0/2, p1/2, p2/2, p3/2 };
+    public static List<Vector2> offset_right_angle_inner_curve = new List<Vector2> { p0/2, p1/2, p2/2, p3/2 };
+    public static List<Vector2> offset_right_angle_outer_curve = new List<Vector2> { p0*1.5f, p1*1.5f, p2*1.5f, p3*1.5f };
+
 
     //bezier vertices for a Less Steep SE turn
     static Vector2 r0 = new Vector2(.7f, .25f);
@@ -362,42 +364,75 @@ public class TrackManager : BoardManager
         else { return 0f;  }
     }
 
+    public static RouteManager.Orientation get_x_axis_orientation(Vector3 origin, Vector3 destination)
+    {
+        if (destination.x > origin.x)
+        {
+            return RouteManager.Orientation.East;
+        }
+        else if (destination.x < origin.x)
+        {
+            return RouteManager.Orientation.West;
+        }
+        else
+        {
+            throw new Exception("get start orientation notn aligned with track");
+        }
+    }
 
-    public static RouteManager.Orientation get_start_orientation(string track_tile_name, Vector3 track_location, Vector3 destination, RouteManager.Orientation original_orientation)
+    public static RouteManager.Orientation get_y_axis_orientation(Vector3 origin, Vector3 destination)
+    {
+        if (destination.y > origin.y)
+        {
+            return RouteManager.Orientation.North;
+        }
+        else if (destination.y < origin.y)
+        {
+            return RouteManager.Orientation.South;
+        }
+        else
+        {
+            throw new Exception("get start orientation notn aligned with track");
+        }
+    }
+
+    public static RouteManager.Orientation get_start_orientation(string track_tile_name, Vector3 track_location, Vector3 destination, Boxcar boxcar)
     {
         // boarding train: home -> boxcar
         // when a train is instantiated, its orientation must match direction of trac
         // get orientation relative to city
-        if (track_tile_name == "vert" || track_tile_name == "NE" || track_tile_name == "WS")
+        RouteManager.Orientation station_orientation = boxcar.station_track.station.orientation;
+        int inner_track = boxcar.station_track.inner; // 0 if false, 1 if true
+        if (track_tile_name == "vert")
         {
-            if (destination.y > track_location.y)
-            {
-                return RouteManager.Orientation.North;
-            }
-            else if (destination.y < track_location.y)
-            {
-                return RouteManager.Orientation.South;
-            }
-            else
-            {
-                throw new Exception("get start orientation notn aligned with track");
-            }
+            return get_y_axis_orientation(track_location, destination);
         }
 
-        else if(track_tile_name == "hor" || track_tile_name == "WN" || track_tile_name == "ES")
+        else if (track_tile_name == "hor")
         {
-            if (destination.x > track_location.x)
-            {
-                return RouteManager.Orientation.East;
-            }
-            else if (destination.x < track_location.x)
-            {
-                return RouteManager.Orientation.West;
-            }
+            return get_x_axis_orientation(track_location, destination);
+        }
+        else if (track_tile_name == "NE")
+        {
+            if (station_orientation == RouteManager.Orientation.South) return RouteManager.Orientation.East;
             else
             {
-                throw new Exception("get start orientation notn aligned with track");
+                if (inner_track == 0) return RouteManager.Orientation.West; // unloading!
+                else { return get_x_axis_orientation(track_location, destination); } // unloading or boarding
             }
+        }
+        else if (track_tile_name == "ES")
+        {
+            return get_x_axis_orientation(track_location, destination);
+        }
+        else if (track_tile_name == "WS")
+        {
+            if (inner_track == 0) return get_y_axis_orientation(track_location, destination);
+            else { return RouteManager.Orientation.North;  } // unloading
+        }
+        else if (track_tile_name == "WN")
+        {
+            return get_x_axis_orientation(track_location, destination);
         }
         else
         {
@@ -517,21 +552,6 @@ public class TrackManager : BoardManager
         double rot = Math.Atan2(delta_y, delta_x);
         print("straight rotation is " + rot);
         return rot;
-    }
-
-    public static float get_shortest_rotation(float final_angle, float cur_angle)
-    {
-        // go clockwise or counter-clockwise whichever is shorter
-        float rotation_1 = final_angle - cur_angle;
-        float rotation_2 = cur_angle - final_angle;
-        if (Math.Abs(rotation_1) < Math.Abs(rotation_2))
-        {
-            return rotation_1;
-        }
-        else
-        {
-            return -rotation_2;
-        }
     }
 
     public static float get_rotation(RouteManager.Orientation orientation, RouteManager.Orientation final_orientation)

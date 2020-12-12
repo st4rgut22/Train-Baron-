@@ -29,10 +29,10 @@ public class GameManager : EventDetector
     public static GameObject exit_south;
     public static GameObject exit_west;
     public static GameObject exit_east;
-    public static GameObject building_lot_north_1;
-    public static GameObject building_lot_north_2;
-    public static GameObject building_lot_south_1;
-    public static GameObject building_lot_south_2;
+    public static GameObject building_lot_north_outer;
+    public static GameObject building_lot_north_inner;
+    public static GameObject building_lot_south_outer;
+    public static GameObject building_lot_south_inner;
     public static GameObject building_lot_west;
     public static GameObject building_lot_east;
 
@@ -85,10 +85,10 @@ public class GameManager : EventDetector
         exit_west = GameObject.Find("Shipyard Track Exit West");
         exit_east = GameObject.Find("Shipyard Track Exit East");
 
-        building_lot_north_1 = GameObject.Find("Building Lot North 1");
-        building_lot_north_2 = GameObject.Find("Building Lot North 2");
-        building_lot_south_1 = GameObject.Find("Building Lot South 1");
-        building_lot_south_2 = GameObject.Find("Building Lot South 2");
+        building_lot_north_outer = GameObject.Find("Building Lot North Outer");
+        building_lot_north_inner = GameObject.Find("Building Lot North Inner");
+        building_lot_south_outer = GameObject.Find("Building Lot South Outer");
+        building_lot_south_inner = GameObject.Find("Building Lot South Inner");
         building_lot_west = GameObject.Find("Building Lot West");
         building_lot_east = GameObject.Find("Building Lot East");
         building_expansion = null;
@@ -486,10 +486,10 @@ public class GameManager : EventDetector
         exit_west.SetActive(state);
 
         building_lot_east.SetActive(state);
-        building_lot_north_1.SetActive(state);
-        building_lot_north_2.SetActive(state);
-        building_lot_south_1.SetActive(state);
-        building_lot_south_2.SetActive(state);
+        building_lot_north_outer.SetActive(state);
+        building_lot_north_inner.SetActive(state);
+        building_lot_south_outer.SetActive(state);
+        building_lot_south_inner.SetActive(state);
         building_lot_west.SetActive(state);
 
         track_manager.bottom_tilemap_go_1.SetActive(!state);

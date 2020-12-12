@@ -99,80 +99,9 @@ public class Train : MovingObject
         game_manager.mark_tile_as_eligible(train_action_coord, train_hint_list, gameObject, true);
     }
 
-    //public override void OnBeginDrag(PointerEventData eventData)
-    //{
-    //    if (in_city)
-    //    {
-    //        float rotation = transform.eulerAngles.z;
-    //        clone_train = Instantiate(GameManager.vehicle_manager.Train_Placeholder, transform.position, Quaternion.Euler(0,0, rotation));
-    //        base.OnBeginDrag(eventData);
-    //    }
-    //}
-
-    //public override void OnDrag(PointerEventData eventData)
-    //{   if (in_city)
-    //    {
-    //        try
-    //        {
-    //            Vector3 world_position = MenuManager.convert_screen_to_world_coord(eventData.position);
-    //            clone_train.transform.position = world_position;
-    //            Vector2Int selected_tile = GameManager.get_selected_tile(Input.mousePosition);
-    //            exit_track_tile_type = TrackManager.is_track_tile_exit(selected_tile);
-    //            if (exit_track_tile_type != null)
-    //            {
-    //                float rotation = TrackManager.get_exit_track_rotation(exit_track_tile_type);
-    //                clone_train.transform.eulerAngles = new Vector3(0, 0, rotation);
-    //            }
-    //        }
-    //        catch (NullReferenceException e)
-    //        {
-    //            //print("tried to drag something that is not draggable");
-    //            print(e.Message);
-    //        }
-    //        catch (MissingReferenceException e)
-    //        {
-    //            //print("Trying to access a destroyed object");
-    //            print(e.Message);
-    //        }
-    //    }
-    //}
-
-    //public override void OnEndDrag(PointerEventData eventData)
-    //{
-    //    if (in_city)
-    //    {
-    //        Destroy(clone_train);
-    //        // queue up train
-    //        if (exit_track_tile_type != null)
-    //        {
-    //            bool route_hidden = true;
-    //            if (exit_track_tile_type == "Shipyard Track Exit North")
-    //                route_hidden = GameManager.city_manager.hide_exit_route(RouteManager.Orientation.North, city, RouteManager.exit_north_tilemap);
-    //            else if (exit_track_tile_type == "Shipyard Track Exit East")
-    //                route_hidden = GameManager.city_manager.hide_exit_route(RouteManager.Orientation.East, city, RouteManager.exit_east_tilemap);
-    //            else if (exit_track_tile_type == "Shipyard Track Exit West")
-    //                route_hidden = GameManager.city_manager.hide_exit_route(RouteManager.Orientation.West, city, RouteManager.exit_west_tilemap);
-    //            else if (exit_track_tile_type == "Shipyard Track Exit South")
-    //                route_hidden = GameManager.city_manager.hide_exit_route(RouteManager.Orientation.South, city, RouteManager.exit_south_tilemap);
-    //            if (!route_hidden)
-    //            {
-    //exit_track_orientation = RouteManager.get_destination_track_orientation(exit_track_tile_type);
-    //                //print("train exit track orientation is " + exit_track_orientation);
-    //                city.turn_table.GetComponent<Turntable>().add_train_to_queue(gameObject);
-    //set_boxcar_exit_track_orientation(exit_track_orientation);
-    //                if (city == CityManager.Activated_City_Component) GameManager.train_menu_manager.update_train_menu(city);
-    //            }
-    //            //else
-    //            //{
-    //            //    print(" route " + exit_track_tile_type + " not available");
-    //            //}
-    //        }
-    //    }
-    //}
-
     public void exit_city(string exit_track_tile_type)
     {
-        exit_track_orientation = RouteManager.get_destination_track_orientation(exit_track_tile_type);
+        exit_track_orientation = TrainRouteManager.get_destination_track_orientation(exit_track_tile_type);
         city.turn_table.GetComponent<Turntable>().add_train_to_queue(gameObject);
         set_boxcar_exit_track_orientation(exit_track_orientation);
         if (city == CityManager.Activated_City_Component) GameManager.train_menu_manager.update_train_menu(city);

@@ -15,11 +15,11 @@ public class Room : MonoBehaviour
     public Vector2Int tile_position;
     public GameObject bottom_left_door;
     public GameObject bottom_right_door;
-    public GameObject bl_door;
-    public GameObject br_door;
+    public GameObject outer_door;
+    public GameObject primary_door;
     public GameObject unlocked_door; // door the person will arrive at 
-    public float door_1_rotation;
-    public float door_2_rotation;
+    public float outer_door_rotation;
+    public float primary_door_rotation;
 
     private void Awake()
     {
@@ -49,19 +49,19 @@ public class Room : MonoBehaviour
     {
         float offset_x = RouteManager.cell_width * tile_position.x;
         float offset_y = RouteManager.cell_width * tile_position.y;
-        if (door_1_rotation != -1.0f)
+        if (outer_door_rotation != -1.0f)
         {
-            bl_door = Instantiate(bottom_left_door);
-            bl_door.transform.eulerAngles = new Vector3(0, 0, door_1_rotation);
-            bl_door.transform.position += new Vector3(offset_x, offset_y, 0);
-            bl_door.transform.SetParent(this.transform);
+            outer_door = Instantiate(bottom_left_door);
+            outer_door.transform.eulerAngles = new Vector3(0, 0, outer_door_rotation);
+            outer_door.transform.position += new Vector3(offset_x, offset_y, 0);
+            outer_door.transform.SetParent(this.transform);
         }
-        if (door_2_rotation != -1.0f)
+        if (primary_door_rotation != -1.0f)
         {
-            br_door = Instantiate(bottom_right_door);
-            br_door.transform.eulerAngles = new Vector3(0, 0, door_2_rotation);
-            br_door.transform.position += new Vector3(offset_x, offset_y, 0);
-            br_door.transform.SetParent(this.transform);
+            primary_door = Instantiate(bottom_right_door);
+            primary_door.transform.eulerAngles = new Vector3(0, 0, primary_door_rotation);
+            primary_door.transform.position += new Vector3(offset_x, offset_y, 0);
+            primary_door.transform.SetParent(this.transform);
         }
     }
 
@@ -79,7 +79,9 @@ public class Room : MonoBehaviour
     {
         person.transform.position = RouteManager.track_tilemap.GetCellCenterWorld((Vector3Int)tile_position);
         person.set_tile_pos(tile_position);
-        person.set_orientation(building.building_orientation);
+        string building_lot_name = building.building_lot.id;
+        RouteManager.Orientation orientation = City.initial_person_face_map[building_lot_name];
+        person.set_orientation(orientation);
     }
 
     public void clear_room()

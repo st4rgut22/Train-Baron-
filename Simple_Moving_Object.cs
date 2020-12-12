@@ -9,9 +9,9 @@ public class Simple_Moving_Object : EventDetector
     protected Vector2 target_position;
     protected float speed = 2f; // Temporary. changed from 2f
     protected float speed_multiplier = 1f;
-    //protected float tolerance = .004f;
     protected Vector2 next_position;
     public bool in_tile = false; // if an object is in a tile, it is already has a destination
+    public bool is_tight_curve = true;
 
     public RouteManager.Orientation orientation; // orientation before moving to a new tile
     public RouteManager.Orientation final_orientation; // orientation after moving to a new tile 
@@ -52,10 +52,9 @@ public class Simple_Moving_Object : EventDetector
         if (!in_tile) // Completed tile route. update destination to next tile. Prevents repeated calls to StartCoroutine()
         {
             orientation = final_orientation; // updating the orientation at every new tile
-            Vector3Int prev_tile_position = tile_position;
             tile_position = new Vector3Int(next_tilemap_position.x, next_tilemap_position.y, 0);
             PositionPair position_pair;
-            final_destination_reached = is_destination_reached();
+            final_destination_reached = is_destination_reached(RouteManager.cell_width / 2);
             if (final_destination_reached) // stop movement update once reached final destination
             {
                 in_tile = true;
@@ -72,6 +71,7 @@ public class Simple_Moving_Object : EventDetector
             // stop the train here if track ends
   
             Vector3 train_destination = new Vector3(train_dest_xy[0], train_dest_xy[1], z_pos);
+
             if (orientation != final_orientation) // curved track
                 StartCoroutine(bezier_move(transform, orientation, final_orientation)); // offset bool set to true
             else // straight track
@@ -105,11 +105,11 @@ public class Simple_Moving_Object : EventDetector
         }
     }
 
-    public bool is_destination_reached()
+    public bool is_destination_reached(float min_dist)
     {
         //print("tile pos is " + tile_position + " final dest pos is " + final_dest_tile_pos);
         float dist = Vector2.Distance(final_dest_pos, transform.position);
-        if (dist < RouteManager.cell_width) return true;
+        if (dist < min_dist) return true;
         else { return false; }
     }
 
@@ -132,7 +132,7 @@ public class Simple_Moving_Object : EventDetector
         }
     }
 
-    protected virtual IEnumerator bezier_move(Transform location, RouteManager.Orientation orientation, RouteManager.Orientation final_orientation, bool is_offset=true)
+    public virtual IEnumerator bezier_move(Transform location, RouteManager.Orientation orientation, RouteManager.Orientation final_orientation)
     {
         Vector2 position = location.position;
         float t_param;
@@ -156,10 +156,14 @@ public class Simple_Moving_Object : EventDetector
                 final_step = true;
             }
             float angle = Mathf.LerpAngle(start_angle, end_angle, interp); // interpolate from [0,1]
-            if (is_offset)
-                next_position = bezier_equation(t_param, TrackManager.offset_right_angle_curve);
+            if (is_tight_curve) // normal right angle curve
+            {
+                next_position = bezier_equation(t_param, TrackManager.offset_right_angle_inner_curve);
+            }
             else
-                next_position = bezier_equation(t_param, TrackManager.right_angle_curve); 
+            {
+                next_position = bezier_equation(t_param, TrackManager.offset_right_angle_outer_curve);
+            }
             next_position = transform_curve(next_position, orientation, final_orientation) + position; //offset with current position
             transform.position = next_position;
             location.eulerAngles = new Vector3(0, 0, angle);
