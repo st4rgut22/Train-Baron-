@@ -63,11 +63,10 @@ public class Simple_Moving_Object : EventDetector
             Vector3Int tile_coord = new Vector3Int(tile_position[0], tile_position[1], 0);
             string track_tile_name = station_track.tilemap.GetTile(tile_coord).name;
             offset = offset_map[track_tile_name];
-            //print("offset for track " + track_tile_name + " is " + offset);
             position_pair = RouteManager.get_destination(this, station_track.tilemap, offset); // set the final orientation and destination
+            next_tilemap_position = position_pair.tile_dest_pos;
             Vector2 train_dest_xy = position_pair.abs_dest_pos;
             //print("person path is from " + next_tilemap_position + " to " + position_pair.tile_dest_pos);
-            next_tilemap_position = position_pair.tile_dest_pos;
             // stop the train here if track ends
   
             Vector3 train_destination = new Vector3(train_dest_xy[0], train_dest_xy[1], z_pos);
@@ -76,13 +75,14 @@ public class Simple_Moving_Object : EventDetector
                 StartCoroutine(bezier_move(transform, orientation, final_orientation)); // offset bool set to true
             else // straight track
             {
-                    StartCoroutine(straight_move(transform.position, train_destination));
+                StartCoroutine(straight_move(transform.position, train_destination));
             }
         }
     }
 
     public IEnumerator move_checkpoints(List<Checkpoint> checkpoint_list)
     {
+        Person person = gameObject.GetComponent<Person>();
         print("begin moving " + gameObject.name + " to checkpoints");
         for (int i = 0; i < checkpoint_list.Count; i++)
         {
@@ -90,7 +90,7 @@ public class Simple_Moving_Object : EventDetector
             Vector2 checkpoint_position = cp.dest_pos;
             tile_position = (Vector3Int)cp.tile_position;
             if (cp.rotation != 0)
-                yield return StartCoroutine(rotate(cp.rotation));
+                yield return StartCoroutine(rotate(cp.final_angle, cp.cur_angle));
             else
             {
                 print("no rotation");
@@ -100,8 +100,16 @@ public class Simple_Moving_Object : EventDetector
             final_orientation = orientation;
             print("move from " + transform.position + " to " + checkpoint_position);
             yield return StartCoroutine(straight_move(transform.position, checkpoint_position));
-            gameObject.GetComponent<Person>().tile_position = tile_position; // update tile position
-            gameObject.GetComponent<Person>().next_tilemap_position = (Vector2Int) tile_position; // update tile position
+            person.tile_position = tile_position; // update tile position
+        }
+        if (person.orientation == RouteManager.Orientation.South || person.orientation == RouteManager.Orientation.West)
+        {
+            PositionPair next_position_pair = RouteManager.get_destination(this, station_track.tilemap, RouteManager.no_offset);
+            person.next_tilemap_position = next_position_pair.tile_dest_pos; // update tile position
+        }
+        else // North or East. next tile position equals current tile position because we are entering this tile (instead of leaving it)
+        {
+            person.next_tilemap_position = (Vector2Int) person.tile_position;
         }
     }
 
@@ -239,11 +247,11 @@ public class Simple_Moving_Object : EventDetector
         arriving_in_city = true;
     }
 
-    public IEnumerator rotate(float angle_to_rotate)
+    public IEnumerator rotate(float end_angle, float start_angle)
     {
+        end_angle -= 90f;
+        start_angle -= 90f; // remove offset incorporated into rotation calculations to align person in right direction
         float t_param = 1;
-        float start_angle = transform.eulerAngles[2]; // rotation about z axis
-        float end_angle = start_angle + angle_to_rotate;
         while (t_param > 0)
         {
             float interp = 1.0f - t_param;

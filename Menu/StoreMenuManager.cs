@@ -13,6 +13,15 @@ public class StoreMenuManager : MonoBehaviour
     {
         close_btn.onClick.AddListener(close_menu);
         add_listener_to_all_btn();
+        initialize_bomb_boxcar(); //todo temporary! remove
+    }
+
+    void initialize_bomb_boxcar()
+    {
+        for (int i = 0; i < 20; i++)
+        {
+            GameManager.vehicle_manager.add_boxcar("bomb");
+        }
     }
 
     // Update is called once per frame

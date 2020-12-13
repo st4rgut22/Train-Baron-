@@ -321,6 +321,27 @@ public class TrackManager : BoardManager
         }
     }
 
+    public static float get_orientation_angle(RouteManager.Orientation orientation)
+    {
+        float final_angle = -1;
+        switch (orientation)
+        {
+            case RouteManager.Orientation.North:
+                final_angle = 90;
+                break;
+            case RouteManager.Orientation.East:
+                final_angle = 0;// random_algos.degree_to_radian(-90);
+                break;
+            case RouteManager.Orientation.West:
+                final_angle = 180;// random_algos.degree_to_radian(90);
+                break;
+            case RouteManager.Orientation.South:
+                final_angle = 270;// random_algos.degree_to_radian(180);
+                break;
+        }
+        return final_angle;
+    }
+
     public static RouteManager.Orientation flip_straight_orientation(RouteManager.Orientation orientation)
     {
         switch (orientation)
@@ -417,7 +438,7 @@ public class TrackManager : BoardManager
             if (station_orientation == RouteManager.Orientation.South) return RouteManager.Orientation.East;
             else
             {
-                if (inner_track == 0) return RouteManager.Orientation.West; // unloading!
+                if (inner_track == 0) return get_y_axis_orientation(track_location, destination); // RouteManager.Orientation.West; // unloading!
                 else { return get_x_axis_orientation(track_location, destination); } // unloading or boarding
             }
         }
@@ -427,8 +448,15 @@ public class TrackManager : BoardManager
         }
         else if (track_tile_name == "WS")
         {
-            if (inner_track == 0) return get_y_axis_orientation(track_location, destination);
-            else { return RouteManager.Orientation.North;  } // unloading
+            if (station_orientation == RouteManager.Orientation.North)
+            {
+                return get_x_axis_orientation(track_location, destination);
+            }
+            else // SOUTH STATION
+            {
+                if (inner_track == 0) return get_y_axis_orientation(track_location, destination);
+                else { return RouteManager.Orientation.North; } // unloading
+            }
         }
         else if (track_tile_name == "WN")
         {
@@ -552,6 +580,12 @@ public class TrackManager : BoardManager
         double rot = Math.Atan2(delta_y, delta_x);
         print("straight rotation is " + rot);
         return rot;
+    }
+
+    public static float get_rotation(float cur_angle, RouteManager.Orientation orientation)
+    {
+        float final_angle = get_rotation(RouteManager.Orientation.East, orientation); // East is aligned with x axis
+        return final_angle - cur_angle;
     }
 
     public static float get_rotation(RouteManager.Orientation orientation, RouteManager.Orientation final_orientation)

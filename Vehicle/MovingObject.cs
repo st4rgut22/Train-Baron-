@@ -31,8 +31,8 @@ public class MovingObject : Simple_Moving_Object
         tile_position = new Vector3Int(home_base.x, home_base.y, 0);
         next_tilemap_position = home_base;
         prev_city = null;
-        //orientation = VehicleManager.round_robin_orientation(); // TEMPORARY, TESTING create train display!
-        orientation = RouteManager.Orientation.North; // direction of incoming train 
+        orientation = VehicleManager.round_robin_orientation(); // TEMPORARY, TESTING create train display!
+        //orientation = RouteManager.Orientation.North; // direction of incoming train 
         final_orientation = orientation;
     }
 

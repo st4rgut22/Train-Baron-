@@ -18,7 +18,6 @@ public class TrainMenuManager : MonoBehaviour
     public GameObject sw_less_steep;
     public GameObject sw_steep;
     GameObject city_object;
-    City city;
 
     private void Awake()
     {

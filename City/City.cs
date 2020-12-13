@@ -84,8 +84,8 @@ public class City : BoardManager
 
     private void Awake()
     {
-        //initial_building_lot_list = new List<string>() { "Building Lot South Outer", "Building Lot South Inner", "Building Lot North Outer", "Building Lot North Inner", "Building Lot West", "Building Lot East" };
-        initial_building_lot_list = new List<string>() { "Building Lot South Inner" };
+        initial_building_lot_list = new List<string>() { "Building Lot South Outer", "Building Lot South Inner", "Building Lot North Outer", "Building Lot North Inner", "Building Lot West", "Building Lot East" };
+        //initial_building_lot_list = new List<string>() { "Building Lot South Inner" };
         base.Awake();
         city_tilemap_go = GameObject.Find("City Tilemap");
         city_tilemap = city_tilemap_go.GetComponent<Tilemap>();
@@ -137,6 +137,9 @@ public class City : BoardManager
                         },
                         {
                             "NE", RouteManager.Orientation.East
+                        },
+                        {
+                            "WS", RouteManager.Orientation.North
                         }
                     }
             },

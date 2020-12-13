@@ -91,6 +91,9 @@ public class RouteManager : MonoBehaviour
                         },
                         {
                             "NE", offset_right
+                        },
+                        {
+                            "WS", offset_up
                         }
                     }
             },
@@ -102,7 +105,10 @@ public class RouteManager : MonoBehaviour
                             "hor", offset_down
                         },
                         {
-                            "ES", no_offset
+                            "ES", offset_right
+                        },
+                        {
+                            "vert", offset_right
                         }
                     }
             },
