@@ -85,8 +85,8 @@ public class City : Structure
 
     private void Awake()
     {
-        //initial_building_lot_list = new List<string>() { "Building Lot South Outer", "Building Lot South Inner", "Building Lot North Outer", "Building Lot North Inner", "Building Lot West", "Building Lot East" };
-        initial_building_lot_list = new List<string>() { "Building Lot North Outer" };
+        initial_building_lot_list = new List<string>() { "Building Lot South Outer", "Building Lot South Inner", "Building Lot North Outer", "Building Lot North Inner", "Building Lot West", "Building Lot East" };
+        //initial_building_lot_list = new List<string>() { "Building Lot North Outer" };
         base.Awake();
         city_tilemap_go = GameObject.Find("City Tilemap");
         city_tilemap = city_tilemap_go.GetComponent<Tilemap>();
@@ -233,7 +233,7 @@ public class City : Structure
             {"Building Lot North Inner", RouteManager.Orientation.West },
             {"Building Lot South Outer", RouteManager.Orientation.South },
             {"Building Lot South Inner", RouteManager.Orientation.East },
-            {"Building Lot West", RouteManager.Orientation.West },
+            {"Building Lot West", RouteManager.Orientation.East },
             {"Building Lot East", RouteManager.Orientation.East}
         };
 
@@ -309,7 +309,7 @@ public class City : Structure
         door.board_sprite = board_pivot_door;
         door.unload_sprite = unload_pivot_door;
         door.tile_rotation = rotation;
-        door_go.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = board_pivot_door; // default to board (because person is initialized inside home)
+        door.set_board_sprite();// default to board (because person is initialized inside home)
         return door_go;
     }
 

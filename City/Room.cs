@@ -40,7 +40,8 @@ public class Room : Structure
         if (building.is_room_hidden())
         {
             display_structure(primary_door, false);
-        }            
+            display_structure(outer_door, false);
+        }             
     }
 
     // Update is called once per frame
@@ -61,7 +62,7 @@ public class Room : Structure
         else { return false; }
     }
 
-    public void rotate_door(GameObject door_go, float offset_x, float offset_y, GameObject door_sprite_go)
+    public void position_door(GameObject door_go, float offset_x, float offset_y, GameObject door_sprite_go)
     {
         Door door = door_go.GetComponent<Door>();
         float door_rotation = door.tile_rotation;
@@ -82,8 +83,10 @@ public class Room : Structure
         }
         door_go.transform.SetParent(transform);
         door_go.transform.eulerAngles = new Vector3(0, 0, door_rotation);
-        StartCoroutine(door.rotate());
+        //StartCoroutine(door.rotate());
     }
+
+
 
     public void spawn_door()
     {
@@ -93,13 +96,13 @@ public class Room : Structure
         {
             GameObject outer_door_sprite_go = outer_door_container.GetComponent<Door>().door_sprite_go;
             outer_door = outer_door_sprite_go;
-            rotate_door(outer_door_container, offset_x, offset_y, outer_door_sprite_go);
+            position_door(outer_door_container, offset_x, offset_y, outer_door_sprite_go);
         }
         if (primary_door_container != null)
         {
             GameObject primary_door_sprite_go = primary_door_container.GetComponent<Door>().door_sprite_go;
             primary_door = primary_door_sprite_go;
-            rotate_door(primary_door_container, offset_x, offset_y, primary_door_sprite_go);
+            position_door(primary_door_container, offset_x, offset_y, primary_door_sprite_go);
         }
 
     }

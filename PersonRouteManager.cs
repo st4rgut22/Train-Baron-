@@ -76,21 +76,23 @@ public class PersonRouteManager : RouteManager
         int is_inner = boxcar.station_track.inner;
         if (room.outer_door != null && room.primary_door != null) // 2 doors to choose from
         { // choose the door that is on the right side of the track
-            if (is_inner == 0) door_parent = room.outer_door;
-            else { door_parent = room.primary_door; }
+            if (is_inner == 0) door_parent = room.outer_door_container;
+            else { door_parent = room.primary_door_container; }
         }
         else
         {
-            if (room.outer_door != null) door_parent = room.outer_door;
-            else { door_parent = room.primary_door; }
+            if (room.outer_door != null) door_parent = room.outer_door_container;
+            else { door_parent = room.primary_door_container; }
         }
-        return door_parent.transform.GetChild(0).gameObject;
+        return door_parent;
     }
 
     public IEnumerator board_train(Boxcar boxcar, Room room, Person occupant, Vector3Int destination)
     {
         GameObject door = get_exit_door(boxcar, room);
         room.unlocked_door = door;
+        Door unlocked_door = room.unlocked_door.GetComponent<Door>();
+        unlocked_door.set_board_sprite();
         // 2 checkpoints. In first go to doorstep and rotate accordingly. In the next only rotate to face track direction
         List<Checkpoint> board_train_checkpoints = new List<Checkpoint>();
         Vector3Int train_start_location = boxcar.train.station_track.start_location; // id of track
@@ -104,6 +106,7 @@ public class PersonRouteManager : RouteManager
         Orientation end_orientation = orientation_pair[1];
         occupant.is_tight_curve = true; // wide curve
         yield return StartCoroutine(occupant.bezier_move(occupant.transform, start_orientation, end_orientation));
+        yield return StartCoroutine(unlocked_door.rotate());
         Vector3 offset_pos = occupant.transform.position + occupant.transform.up * .45f;
         Checkpoint offset_cp = new Checkpoint(occupant.transform.position, occupant.transform.eulerAngles.z + 90, offset_pos, (Vector2Int)doorstep_position, end_orientation, end_orientation);
         board_train_checkpoints.Add(offset_cp);
@@ -140,6 +143,7 @@ public class PersonRouteManager : RouteManager
     {
         List<Checkpoint> enter_home_checkpoints = new List<Checkpoint>();
         Person person = person_go.GetComponent<Person>();
+        Door unlocked_door = room.unlocked_door.GetComponent<Door>();
         Vector2 enter_door_location = room.unlocked_door.transform.position;
         Vector2 room_position = track_tilemap.GetCellCenterWorld((Vector3Int)room.tile_position);
         Checkpoint enter_door_cp = new Checkpoint(person.transform.position, person.transform.eulerAngles.z + 90, enter_door_location, room.tile_position, person.orientation, person.orientation); //new Checkpoint(enter_position, center_cp_angle, enter_door_location, room.tile_position);
@@ -149,6 +153,7 @@ public class PersonRouteManager : RouteManager
         enter_home_checkpoints.Add(enter_door_cp);
         enter_home_checkpoints.Add(enter_home_cp);
         enter_home_checkpoints.Add(resting_cp); // rotate person so facing same direction as building
+        yield return (unlocked_door.rotate());
         yield return StartCoroutine(person.move_checkpoints(enter_home_checkpoints));
         room.occupied = true;
         room.person_go = person_go;
