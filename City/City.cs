@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using UnityEngine.Tilemaps;
 
-public class City : BoardManager
+public class City : Structure
 {
     public Tile business_tile;
     public Tile residential_tile;
@@ -65,13 +65,14 @@ public class City : BoardManager
     public GameObject Residential;
     public GameObject Hospital;
     public GameObject Lab;
+    public GameObject Door;
 
     public GameObject city_tilemap_go;
     public Tilemap city_tilemap;
 
     public static Dictionary<Vector3Int, RouteManager.Orientation> station_track_boarding_map;
     public static Dictionary<Vector3Int, Dictionary<string, RouteManager.Orientation>> station_track_unloading_map;
-    public static Dictionary<Vector3Int,RouteManager.Orientation[]> station_track_curve_map; // array index 0 is original orientation, 1 is final orientation
+    public static Dictionary<Vector3Int, RouteManager.Orientation[]> station_track_curve_map; // array index 0 is original orientation, 1 is final orientation
     public static Dictionary<string, RouteManager.Orientation> initial_person_face_map;
 
     public RouteManager.Orientation destination_orientation;
@@ -84,8 +85,8 @@ public class City : BoardManager
 
     private void Awake()
     {
-        initial_building_lot_list = new List<string>() { "Building Lot South Outer", "Building Lot South Inner", "Building Lot North Outer", "Building Lot North Inner", "Building Lot West", "Building Lot East" };
-        //initial_building_lot_list = new List<string>() { "Building Lot South Inner" };
+        //initial_building_lot_list = new List<string>() { "Building Lot South Outer", "Building Lot South Inner", "Building Lot North Outer", "Building Lot North Inner", "Building Lot West", "Building Lot East" };
+        initial_building_lot_list = new List<string>() { "Building Lot North Outer" };
         base.Awake();
         city_tilemap_go = GameObject.Find("City Tilemap");
         city_tilemap = city_tilemap_go.GetComponent<Tilemap>();
@@ -175,7 +176,7 @@ public class City : BoardManager
                             "hor", RouteManager.Orientation.North
                         },
                         {
-                            "WN", RouteManager.Orientation.North 
+                            "WN", RouteManager.Orientation.North
                         },
                         {
                             "vert", RouteManager.Orientation.West
@@ -267,12 +268,12 @@ public class City : BoardManager
 
         building_map = new Dictionary<string, Building_Lot>()
         {
-            { "Building Lot North Outer", new Building_Lot("Building Lot North Outer",new Vector2Int(0,7),4, RouteManager.Orientation.North, new List<Station_Track>{North_Station.outer_track }, -1.0f, 90f) },
-            { "Building Lot North Inner", new Building_Lot("Building Lot North Inner",new Vector2Int(3,9),3, RouteManager.Orientation.East, new List<Station_Track>{North_Station.inner_track }, 0, -1.0f) },
-            { "Building Lot East", new Building_Lot("Building Lot East",new Vector2Int(11,8),6, RouteManager.Orientation.East,new List<Station_Track>{East_Station.inner_track, East_Station.outer_track }, 180, 0) },
-            { "Building Lot West", new Building_Lot("Building Lot West",new Vector2Int(0,2),6, RouteManager.Orientation.East, new List<Station_Track>{West_Station.inner_track, West_Station.outer_track }, 0, 180) },
-            { "Building Lot South Inner", new Building_Lot("Building Lot South Inner",new Vector2Int(10,1),4, RouteManager.Orientation.East, new List<Station_Track>{South_Station.inner_track }, 180, -1.0f) },
-            { "Building Lot South Outer", new Building_Lot("Building Lot South Outer",new Vector2Int(16,1),3, RouteManager.Orientation.North, new List<Station_Track>{South_Station.outer_track }, -1.0f, 270) }
+            { "Building Lot North Outer", new Building_Lot("Building Lot North Outer",new Vector2Int(0,7),4, RouteManager.Orientation.North, new List<Station_Track>{North_Station.outer_track }, null, spawn_door(right_door_bottom_right, right_door_top_right, 90f, -90f, 90f)) },
+            { "Building Lot North Inner", new Building_Lot("Building Lot North Inner",new Vector2Int(3,9),3, RouteManager.Orientation.East, new List<Station_Track>{North_Station.inner_track }, spawn_door(left_door_top_left, left_door_bottom_left, 90f, -90f, 0f), null)},
+            { "Building Lot East", new Building_Lot("Building Lot East",new Vector2Int(11,8),6, RouteManager.Orientation.East,new List<Station_Track>{East_Station.inner_track, East_Station.outer_track }, spawn_door(left_door_top_left, left_door_bottom_left, -90f, 90f, 180f), spawn_door(right_door_top_right, right_door_bottom_right, 90f, -90f, 0f)) },
+            { "Building Lot West", new Building_Lot("Building Lot West",new Vector2Int(0,2),6, RouteManager.Orientation.East, new List<Station_Track>{West_Station.inner_track, West_Station.outer_track }, spawn_door(right_door_top_left, right_door_bottom_left, 90f, -90f, 0f), spawn_door(left_door_top_right, left_door_bottom_right, -90f, 90f, 180f)) },
+            { "Building Lot South Inner", new Building_Lot("Building Lot South Inner",new Vector2Int(10,1),4, RouteManager.Orientation.East, new List<Station_Track>{South_Station.inner_track }, spawn_door(left_door_top_left, left_door_bottom_left, -90f, 90f, 180f), null) },
+            { "Building Lot South Outer", new Building_Lot("Building Lot South Outer",new Vector2Int(16,1),3, RouteManager.Orientation.North, new List<Station_Track>{South_Station.outer_track }, null, spawn_door(right_door_top_right, right_door_bottom_right, -90f, 90f, 270f)) }
         };
     }
 
@@ -297,6 +298,19 @@ public class City : BoardManager
     private void Update()
     {
         //enable_train_for_screen(); causes lag
+    }
+
+    public GameObject spawn_door(Sprite board_pivot_door, Sprite unload_pivot_door, float board_rotation, float unload_rotation, float rotation)
+    {
+        GameObject door_go = Instantiate(Door);
+        Door door = door_go.GetComponent<Door>();
+        door.board_rotation = board_rotation;
+        door.unload_rotation = unload_rotation;
+        door.board_sprite = board_pivot_door;
+        door.unload_sprite = unload_pivot_door;
+        door.tile_rotation = rotation;
+        door_go.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = board_pivot_door; // default to board (because person is initialized inside home)
+        return door_go;
     }
 
     public bool is_selected_room_occupied(Vector2Int clicked_room_position, string lot_name)
@@ -410,7 +424,7 @@ public class City : BoardManager
 
     public void set_room_sprites()
     {
-        for (int i=0;i<city_room_matrix.GetLength(0);i++)
+        for (int i = 0; i < city_room_matrix.GetLength(0); i++)
         {
             for (int j = 0; j < city_room_matrix.GetLength(1); j++)
             {
@@ -441,6 +455,10 @@ public class City : BoardManager
     {
         Building building = get_city_building();
         building_lot.set_building(building);
+        if (building_lot.primary_door != null)
+            building_lot.primary_door.SetActive(true);
+        if (building_lot.outer_door != null)
+            building_lot.outer_door.SetActive(true);
         building.building_id = building_id;
         building.building_type = city_type;
         building.building_orientation = building_lot.orientation;
@@ -496,14 +514,14 @@ public class City : BoardManager
     public Vector2Int find_parking_spot(int y, int start_x, int end_x)
     {
         // traverse row until an empty parking spot is found and return its location
-        for (int i=start_x; i<=end_x; i++)
+        for (int i = start_x; i <= end_x; i++)
         {
             if (gameobject_board[i, y] == null)
             {
                 return new Vector2Int(i, y);
             }
         }
-        return new Vector2Int(-1,-1); // no parking spot available
+        return new Vector2Int(-1, -1); // no parking spot available
     }
 
     public Vector2Int get_parking_spot()
@@ -511,7 +529,7 @@ public class City : BoardManager
         Vector2Int parking_spot = BoardManager.invalid_tile;
         for (int i = 0; i < TrackManager.parking_coord.GetLength(0); i++)
         {
-            parking_spot = find_parking_spot(TrackManager.parking_coord[i,0], TrackManager.parking_coord[i,1], TrackManager.parking_coord[i,2]);
+            parking_spot = find_parking_spot(TrackManager.parking_coord[i, 0], TrackManager.parking_coord[i, 1], TrackManager.parking_coord[i, 2]);
             if (!parking_spot.Equals(BoardManager.invalid_tile)) break;
         }
         return parking_spot;
@@ -617,7 +635,7 @@ public class City : BoardManager
             }
             else
             {
-                if (tile_pos.y==7) return East_Station.inner_track;
+                if (tile_pos.y == 7) return East_Station.inner_track;
                 else { return East_Station.outer_track; }
             }
         }
@@ -638,13 +656,13 @@ public class City : BoardManager
     public void add_boxcar(GameObject boxcar_object)
     {   // add boxcar after it has entered the city (delayed from train)
         if (CityManager.Activated_City == gameObject) MovingObject.switch_sprite_renderer(boxcar_object, true);
-        if (GameManager.game_menu_state) MovingObject.switch_sprite_renderer(boxcar_object, false); 
+        if (GameManager.game_menu_state) MovingObject.switch_sprite_renderer(boxcar_object, false);
     }
 
     public void add_train_to_list(GameObject train_object)
     {
         // add train to the city
-        train_list.Add(train_object); 
+        train_list.Add(train_object);
         remove_train_from_list(train_object, game_manager.train_list); // remove train from the game manager list
         if (CityManager.Activated_City == gameObject) // city screen is on, containing the relvant vehicle
         {
@@ -655,7 +673,7 @@ public class City : BoardManager
     }
 
 
-    public void turn_turntable(GameObject train_object, RouteManager.Orientation orientation, bool depart_for_turntable=false)
+    public void turn_turntable(GameObject train_object, RouteManager.Orientation orientation, bool depart_for_turntable = false)
     {
         Turntable t = turn_table.GetComponent<Turntable>();
         StartCoroutine(t.turn_turntable(train_object, orientation, depart_for_turntable));
@@ -714,7 +732,7 @@ public class City : BoardManager
         if (GameManager.city_menu_state != GameManager.prev_city_menu_state) // change game view
         {
             // if city view open, only update if city matches activated city. If city closed, hide trains 
-            if (CityManager.Activated_City==gameObject)
+            if (CityManager.Activated_City == gameObject)
             {
                 foreach (GameObject train in train_list) // hide or show trains depending on whether I'm in a game view
                 {

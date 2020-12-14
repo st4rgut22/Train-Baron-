@@ -1,5 +1,4 @@
-﻿using UnityEngine.Tilemaps;
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 public class Building_Lot
@@ -11,18 +10,22 @@ public class Building_Lot
     public RouteManager.Orientation orientation;
     public List<Station_Track> station_track_list;
     public RouteManager.Orientation person_orientation;
-    public float outer_door_rotation;
-    public float primary_door_rotation;
+    public GameObject outer_door;
+    public GameObject primary_door;
 
-    public Building_Lot(string id, Vector2Int origin_tile, int length, RouteManager.Orientation orientation, List<Station_Track> station_track, float outer_door_rotation = -1.0f, float primary_door_rotation = -1.0f)
+    public Building_Lot(string id, Vector2Int origin_tile, int length, RouteManager.Orientation orientation, List<Station_Track> station_track, GameObject outer_door, GameObject primary_door)
     {
         this.id = id;
         this.length = length;
         this.origin_tile = origin_tile;
         this.orientation = orientation;
         this.station_track_list = station_track;
-        this.outer_door_rotation = outer_door_rotation;
-        this.primary_door_rotation = primary_door_rotation;
+        this.outer_door = outer_door;
+        this.primary_door = primary_door;
+        if (outer_door != null)
+            this.outer_door.SetActive(false); // hide the doors until the buildings are spawned on the building lot
+        if (primary_door != null)
+            this.primary_door.SetActive(false); 
     }
 
     public void set_building(Building building)

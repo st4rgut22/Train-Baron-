@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class Building : MonoBehaviour
+public class Building : Structure
 {
     public RouteManager.Orientation building_orientation;
     public GameObject room;
@@ -67,7 +67,9 @@ public class Building : MonoBehaviour
                 if (room.occupied)
                     room.display_occupant(is_display);
                 //todo: activate room, which also activates the door and everything inside it
-                room_go.SetActive(is_display);
+                //room_go.SetActive(is_display);
+                display_structure(room.outer_door, is_display);
+                display_structure(room.primary_door, is_display);
             }
         }
     }
@@ -78,8 +80,8 @@ public class Building : MonoBehaviour
         Room room = room_object.GetComponent<Room>();
         room.id = room_id;
         room.building = this;
-        room.outer_door_rotation = building_lot.outer_door_rotation;
-        room.primary_door_rotation = building_lot.primary_door_rotation;
+        room.outer_door_container = building_lot.outer_door;
+        room.primary_door_container = building_lot.primary_door;
         roomba[room.id] = room_object;
         Vector2Int room_tile_pos = RouteManager.get_straight_next_tile_pos_multiple(building_orientation, offset_position, room.id);
         city.city_room_matrix[room_tile_pos.x, room_tile_pos.y] = room;
@@ -95,35 +97,4 @@ public class Building : MonoBehaviour
         if (city != CityManager.Activated_City_Component) return true;
         else { return false; }
     }
-
-    //public void do_random_walk()
-    //{
-    //    System.Random rand = new System.Random();
-    //    // building occupants move from tile to tile without going in the same tile (if possible)
-    //    for (int p = 0; p < person_grid.Length; p++)
-    //    {
-    //        GameObject person_object = person_grid[p];
-    //        if (person_object != null)
-    //        {
-    //            Person person = person_object.GetComponent<Person>();
-    //            RouteManager.Orientation orientation = person.orientation;
-    //            RouteManager.Orientation final_orientation = orientation;
-    //            Vector2Int building_cell_pos = offset_position;
-    //            building_cell_pos = get_position_in_building(p, building_cell_pos); // p is the distance from offset tile
-    //                                                            // respect the buidling boundaries
-    //            if (p == 0) final_orientation = building_orientation;
-    //            else if (p == person_grid.Length - 1) final_orientation = TrackManager.flip_straight_orientation(building_orientation);
-    //            else
-    //            {
-    //                int rand_int = rand.Next(0, 2);
-    //                if (rand_int == 0) // set person orientation to be random
-    //                    final_orientation = TrackManager.flip_straight_orientation(orientation);
-    //            }
-    //            person.orientation = final_orientation;
-    //            Vector2Int final_cell = RouteManager.get_straight_next_tile_pos(final_orientation, building_cell_pos);
-    //            // initiate person move
-    //            StartCoroutine(person.straight_move(final_cell));
-    //        }
-    //    }
-    //}
 }
