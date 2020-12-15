@@ -181,7 +181,7 @@ public class PersonRouteManager : RouteManager
         Orientation exit_home_orientation = City.station_track_boarding_map[boxcar.station_track.start_location];
         Vector2Int doorstep_position = get_straight_next_tile_pos(exit_home_orientation, room.tile_position);
         Vector2 room_abs_position = track_tilemap.GetCellCenterWorld((Vector3Int)doorstep_position); //one tile offset from home in the center. Because boxcars always stop at tile edges, so center tells us which direction person should exit boxcar
-        person.final_dest_pos = room.unlocked_door.transform.position;
+        person.final_dest_pos = room.unlocked_door.GetComponent<Door>().door_sprite_go.transform.position;
         if (!person.is_destination_reached(cell_width))
         {
             Orientation align_track_orientation = TrackManager.get_start_orientation(track_name, boxcar.transform.position, room_abs_position, boxcar);

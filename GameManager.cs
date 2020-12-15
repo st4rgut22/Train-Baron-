@@ -57,7 +57,7 @@ public class GameManager : EventDetector
     public Vector2Int hint_tile_pos;
     public GameObject hint_tile_go;
 
-    public Building_Lot building_expansion;
+    public Building building_expansion;
 
     public static bool shipyard_state;
 
@@ -247,8 +247,8 @@ public class GameManager : EventDetector
         {
             string name = big_lot_object.name;
             print("dragging object " + name);
-            Building_Lot bl = CityManager.Activated_City_Component.building_map[name];
-            building_expansion = bl;
+            BuildingLot bl = City.building_map[name].GetComponent<BuildingLot>();
+            building_expansion = CityManager.Activated_City_Component.get_city_building(bl.origin_tile);
         }
     }
 

@@ -17,12 +17,16 @@ public class Room : Structure
     public GameObject bottom_right_door;
     public GameObject outer_door;
     public GameObject primary_door;
-    public GameObject unlocked_door; // door the person will arrive at 
+    public GameObject unlocked_door; // door the person will arrive at
+    public Door_Prop outer_door_prop;
+    public Door_Prop primary_door_prop;
     public GameObject outer_door_container;
     public GameObject primary_door_container;
     public Vector2 right_door_offset; // offset to the opposite side of the house
     public Vector2 pivot_door_offset; // offset to the opposite side of the house
-     // child door go
+    public GameObject Door;
+
+    // child door go
     //TODO: create an offset dictionary for each type of door?
 
     private void Awake()
@@ -36,18 +40,22 @@ public class Room : Structure
     void Start()
     {
         right_door_offset = new Vector2(.51f, 0f);
-        spawn_door();
         if (building.is_room_hidden())
         {
             display_structure(primary_door, false);
             display_structure(outer_door, false);
-        }             
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    public void display_door()
+    {
+
     }
 
     public bool is_sprite_right_door(Sprite sprite)
@@ -86,20 +94,33 @@ public class Room : Structure
         //StartCoroutine(door.rotate());
     }
 
+    public GameObject spawn_door(Door_Prop door_prop)
+    {
+        GameObject door_go = Instantiate(Door);
+        Door door = door_go.GetComponent<Door>();
+        door.board_rotation = door_prop.board_rotation;
+        door.unload_rotation = door_prop.unload_rotation;
+        door.board_sprite = door_prop.board_pivot_door;
+        door.unload_sprite = door_prop.unload_pivot_door;
+        door.tile_rotation = door_prop.rotation;
+        door.set_board_sprite();// default to board (because person is initialized inside home)
+        return door_go;
+    }
 
-
-    public void spawn_door()
+    public void spawn_door_container()
     {
         float offset_x = RouteManager.cell_width * tile_position.x;
         float offset_y = RouteManager.cell_width * tile_position.y;
-        if (outer_door_container != null)
+        if (outer_door_prop != null)
         {
+            outer_door_container = spawn_door(outer_door_prop);
             GameObject outer_door_sprite_go = outer_door_container.GetComponent<Door>().door_sprite_go;
             outer_door = outer_door_sprite_go;
             position_door(outer_door_container, offset_x, offset_y, outer_door_sprite_go);
         }
-        if (primary_door_container != null)
+        if (primary_door_prop != null)
         {
+            primary_door_container = spawn_door(primary_door_prop);
             GameObject primary_door_sprite_go = primary_door_container.GetComponent<Door>().door_sprite_go;
             primary_door = primary_door_sprite_go;
             position_door(primary_door_container, offset_x, offset_y, primary_door_sprite_go);
@@ -136,6 +157,13 @@ public class Room : Structure
     {
         person_go = person_object;
         occupied = true;
+    }
+
+    public void display_contents(bool display)
+    {
+        person_go.GetComponent<SpriteRenderer>().enabled = display;
+        display_structure(primary_door, display);
+        display_structure(outer_door, display);
     }
 
     public void display_occupant(bool display)

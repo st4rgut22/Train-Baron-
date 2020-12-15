@@ -102,15 +102,15 @@ public class Simple_Moving_Object : EventDetector
             yield return StartCoroutine(straight_move(transform.position, checkpoint_position));
             person.tile_position = tile_position; // update tile position
         }
-        if (person.orientation == RouteManager.Orientation.South || person.orientation == RouteManager.Orientation.West)
-        {
-            PositionPair next_position_pair = RouteManager.get_destination(this, station_track.tilemap, RouteManager.no_offset);
-            person.next_tilemap_position = next_position_pair.tile_dest_pos; // update tile position
-        }
-        else // North or East. next tile position equals current tile position because we are entering this tile (instead of leaving it)
-        {
+        //if (person.orientation == RouteManager.Orientation.South || person.orientation == RouteManager.Orientation.West)
+        //{
+        //    PositionPair next_position_pair = RouteManager.get_destination(this, station_track.tilemap, RouteManager.no_offset);
+        //    person.next_tilemap_position = next_position_pair.tile_dest_pos; // update tile position
+        //}
+        //else // North or East. next tile position equals current tile position because we are entering this tile (instead of leaving it)
+        //{
             person.next_tilemap_position = (Vector2Int) person.tile_position;
-        }
+        //}
     }
 
     public bool is_destination_reached(float min_dist)

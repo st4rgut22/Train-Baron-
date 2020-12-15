@@ -65,7 +65,6 @@ public class City : Structure
     public GameObject Residential;
     public GameObject Hospital;
     public GameObject Lab;
-    public GameObject Door;
 
     public GameObject city_tilemap_go;
     public Tilemap city_tilemap;
@@ -79,9 +78,10 @@ public class City : Structure
 
     public int prev_train_list_length = 0;
 
-    public Dictionary<string, Building_Lot> building_map;
+    public static Dictionary<string, GameObject> building_map;
     string initial_building_lot;
     List<string> initial_building_lot_list;
+    public GameObject BuildingLot;
 
     private void Awake()
     {
@@ -266,14 +266,80 @@ public class City : Structure
             }
         };
 
-        building_map = new Dictionary<string, Building_Lot>()
+        GameObject north_outer_bl = Instantiate(BuildingLot);
+        GameObject north_inner_bl = Instantiate(BuildingLot);
+        GameObject east_bl = Instantiate(BuildingLot);
+        GameObject west_bl = Instantiate(BuildingLot);
+        GameObject south_inner_bl = Instantiate(BuildingLot);
+        GameObject south_outer_bl = Instantiate(BuildingLot);
+        north_outer_bl.GetComponent<BuildingLot>().init_building_lot
+            (
+                "Building Lot North Outer",
+                new Vector2Int(0, 7),
+                4,
+                RouteManager.Orientation.North,
+                new List<Station_Track> { North_Station.outer_track },
+                null,
+                new Door_Prop(right_door_bottom_right, right_door_top_right, 90f, -90f, 90f)
+            );
+        north_inner_bl.GetComponent<BuildingLot>().init_building_lot
+            (
+                "Building Lot North Inner",
+                new Vector2Int(3, 9),
+                3,
+                RouteManager.Orientation.East,
+                new List<Station_Track> { North_Station.inner_track },
+                new Door_Prop(left_door_top_left, left_door_bottom_left, 90f, -90f, 0f),
+                null
+            );
+        east_bl.GetComponent<BuildingLot>().init_building_lot
+            (
+                "Building Lot East",
+                new Vector2Int(11, 8),
+                6,
+                RouteManager.Orientation.East,
+                new List<Station_Track> { East_Station.inner_track, East_Station.outer_track },
+                new Door_Prop(left_door_top_left, left_door_bottom_left, -90f, 90f, 180f),
+                new Door_Prop(right_door_top_right, right_door_bottom_right, 90f, -90f, 0f)
+            );
+        west_bl.GetComponent<BuildingLot>().init_building_lot
+            (
+                "Building Lot West",
+                new Vector2Int(0, 2),
+                6,
+                RouteManager.Orientation.East,
+                new List<Station_Track> { West_Station.inner_track, West_Station.outer_track },
+                new Door_Prop(right_door_top_left, right_door_bottom_left, 90f, -90f, 0f),
+                new Door_Prop(left_door_top_right, left_door_bottom_right, -90f, 90f, 180f)
+            );
+        south_inner_bl.GetComponent<BuildingLot>().init_building_lot
+            (
+                "Building Lot South Inner",
+                new Vector2Int(10, 1),
+                4,
+                RouteManager.Orientation.East,
+                new List<Station_Track> { South_Station.inner_track },
+                new Door_Prop(left_door_top_left, left_door_bottom_left, -90f, 90f, 180f),
+                null
+            );
+        south_outer_bl.GetComponent<BuildingLot>().init_building_lot
+            (
+                "Building Lot South Outer",
+                new Vector2Int(16, 1),
+                3,
+                RouteManager.Orientation.North,
+                new List<Station_Track> { South_Station.outer_track },
+                null,
+                new Door_Prop(right_door_top_right, right_door_bottom_right, -90f, 90f, 270f)
+            );
+        building_map = new Dictionary<string, GameObject>()
         {
-            { "Building Lot North Outer", new Building_Lot("Building Lot North Outer",new Vector2Int(0,7),4, RouteManager.Orientation.North, new List<Station_Track>{North_Station.outer_track }, null, spawn_door(right_door_bottom_right, right_door_top_right, 90f, -90f, 90f)) },
-            { "Building Lot North Inner", new Building_Lot("Building Lot North Inner",new Vector2Int(3,9),3, RouteManager.Orientation.East, new List<Station_Track>{North_Station.inner_track }, spawn_door(left_door_top_left, left_door_bottom_left, 90f, -90f, 0f), null)},
-            { "Building Lot East", new Building_Lot("Building Lot East",new Vector2Int(11,8),6, RouteManager.Orientation.East,new List<Station_Track>{East_Station.inner_track, East_Station.outer_track }, spawn_door(left_door_top_left, left_door_bottom_left, -90f, 90f, 180f), spawn_door(right_door_top_right, right_door_bottom_right, 90f, -90f, 0f)) },
-            { "Building Lot West", new Building_Lot("Building Lot West",new Vector2Int(0,2),6, RouteManager.Orientation.East, new List<Station_Track>{West_Station.inner_track, West_Station.outer_track }, spawn_door(right_door_top_left, right_door_bottom_left, 90f, -90f, 0f), spawn_door(left_door_top_right, left_door_bottom_right, -90f, 90f, 180f)) },
-            { "Building Lot South Inner", new Building_Lot("Building Lot South Inner",new Vector2Int(10,1),4, RouteManager.Orientation.East, new List<Station_Track>{South_Station.inner_track }, spawn_door(left_door_top_left, left_door_bottom_left, -90f, 90f, 180f), null) },
-            { "Building Lot South Outer", new Building_Lot("Building Lot South Outer",new Vector2Int(16,1),3, RouteManager.Orientation.North, new List<Station_Track>{South_Station.outer_track }, null, spawn_door(right_door_top_right, right_door_bottom_right, -90f, 90f, 270f)) }
+            {"Building Lot North Outer", north_outer_bl },
+            {"Building Lot North Inner", north_inner_bl },
+            {"Building Lot East", east_bl },
+            {"Building Lot West", west_bl },
+            {"Building Lot South Inner", south_inner_bl },
+            {"Building Lot South Outer", south_outer_bl }
         };
     }
 
@@ -300,19 +366,6 @@ public class City : Structure
         //enable_train_for_screen(); causes lag
     }
 
-    public GameObject spawn_door(Sprite board_pivot_door, Sprite unload_pivot_door, float board_rotation, float unload_rotation, float rotation)
-    {
-        GameObject door_go = Instantiate(Door);
-        Door door = door_go.GetComponent<Door>();
-        door.board_rotation = board_rotation;
-        door.unload_rotation = unload_rotation;
-        door.board_sprite = board_pivot_door;
-        door.unload_sprite = unload_pivot_door;
-        door.tile_rotation = rotation;
-        door.set_board_sprite();// default to board (because person is initialized inside home)
-        return door_go;
-    }
-
     public bool is_selected_room_occupied(Vector2Int clicked_room_position, string lot_name)
     {
         Room room = city_room_matrix[clicked_room_position.x, clicked_room_position.y];
@@ -323,12 +376,24 @@ public class City : Structure
         return false;
     }
 
+    public Building get_city_building(Vector2Int building_id)
+    {
+        foreach (Building bldg in city_building_list)
+        {
+            if (building_id.Equals(bldg.offset_position))
+            {
+                return bldg;
+            }
+        }
+        throw new Exception("Building should exist but doesn't");
+    }
+
     public void show_all_building_occupants(bool is_city_shown)
     {
         //iterate over all buildings, within each building iterate over rooms and deactivate as necessary
         foreach (Building building in city_building_list)
         {
-            building.reveal_room(is_city_shown);
+            building.reveal_building_rooms(is_city_shown);
         }
     }
 
@@ -362,9 +427,8 @@ public class City : Structure
         return building_object.GetComponent<Building>(); // will this work? is a base class of the gameObject
     }
 
-    public void expand_building(Building_Lot bl, Vector2Int selected_tile)
+    public void expand_building(Building building, Vector2Int selected_tile)
     {
-        Building building = bl.building;
         int expansion_count = 0;
         if (selected_tile.x == building.offset_position.x && selected_tile.y > building.last_room_position.y)
         {
@@ -382,10 +446,12 @@ public class City : Structure
         print("expansion count is " + expansion_count);
         for (int e = 0; e < expansion_count; e++)
         {
-            building.spawn_room();
+            Room room = building.spawn_room();
+            set_city_tile((Vector3Int)room.tile_position);
+            room.display_contents(true);
         }
-        set_room_sprites();
-        show_all_building_occupants(true);
+        //set_room_sprites();
+        //show_all_building_occupants(true);
     }
 
     public void unload_train(GameObject boxcar_go, Vector2Int room_position)
@@ -422,7 +488,7 @@ public class City : Structure
         // finally, board the train
     }
 
-    public void set_room_sprites()
+    public void set_all_room_sprites()
     {
         for (int i = 0; i < city_room_matrix.GetLength(0); i++)
         {
@@ -440,25 +506,27 @@ public class City : Structure
         }
     }
 
+    public void set_city_tile(Vector3Int tile_position)
+    {
+        city_tilemap.SetTile(tile_position, city_tile);
+    }
+
     public void initialize_city_tilemap()
     {
         foreach (string initial_building_lot in initial_building_lot_list)
         {
-            Building_Lot first_building_lot = building_map[initial_building_lot];
-            spawn_building(first_building_lot);
+            GameObject first_building_lot_go = building_map[initial_building_lot];
+            BuildingLot initial_bl = first_building_lot_go.GetComponent<BuildingLot>();
+            spawn_building(initial_bl);
             show_all_building_occupants(false); // hide all doors when city is first created
             building_id += 1;
         }
     }
 
-    public void spawn_building(Building_Lot building_lot)
+    public void spawn_building(BuildingLot building_lot)
     {
         Building building = get_city_building();
         building_lot.set_building(building);
-        if (building_lot.primary_door != null)
-            building_lot.primary_door.SetActive(true);
-        if (building_lot.outer_door != null)
-            building_lot.outer_door.SetActive(true);
         building.building_id = building_id;
         building.building_type = city_type;
         building.building_orientation = building_lot.orientation;

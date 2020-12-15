@@ -187,7 +187,7 @@ public class CityManager : BoardManager
             // populate city tilemap
             GameManager.city_menu_state = true;
             City city = city_object.GetComponent<City>();
-            city.set_room_sprites();
+            city.set_all_room_sprites();
             city.show_all_building_occupants(true);
             city.display_boxcar();
             hide_exit_route(RouteManager.Orientation.North, city, RouteManager.exit_north_tilemap);

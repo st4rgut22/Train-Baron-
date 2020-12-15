@@ -13,6 +13,23 @@ public class Structure : BoardManager
     public Sprite right_door_top_left;
     public Sprite right_door_top_right;
 
+    public class Door_Prop
+    {
+        public Sprite board_pivot_door;
+        public Sprite unload_pivot_door;
+        public float board_rotation;
+        public float unload_rotation;
+        public float rotation;
+        public Door_Prop(Sprite board_pivot_door, Sprite unload_pivot_door, float board_rotation, float unload_rotation, float rotation)
+        {
+            this.board_pivot_door = board_pivot_door;
+            this.unload_pivot_door = unload_pivot_door;
+            this.board_rotation = board_rotation;
+            this.unload_rotation = unload_rotation;
+            this.rotation = rotation;
+        }
+    }
+
     public void display_structure(GameObject structure, bool is_display)
     {
         if (structure != null) structure.GetComponent<SpriteRenderer>().enabled = is_display;

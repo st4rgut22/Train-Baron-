@@ -19,16 +19,16 @@ public class Building : Structure
     public int total_occupant;
     public Vector2Int offset_position; // offset from bottom left of tilemap to get the true tile coordinates
     public Vector2Int last_room_position;
-    public Building_Lot building_lot;
+    public BuildingLot building_lot;
     
     private void Awake()
     {
         occupant_id = 0;
         total_occupant = 0;
-        room_id = 0;
+        room_id = -1;
     }
 
-    private void Start()
+    void Start()
     {
         city.city_tilemap_go.SetActive(false); // after setting tile deactivate gameobject
         roomba = new GameObject[max_capacity];
@@ -56,7 +56,7 @@ public class Building : Structure
         }
     }
 
-    public void reveal_room(bool is_display)
+    public void reveal_building_rooms(bool is_display)
     {
         for (int i = 0; i < roomba.GetLength(0); i++)
         {
@@ -78,17 +78,19 @@ public class Building : Structure
     {
         GameObject room_object = Instantiate(this.room);
         Room room = room_object.GetComponent<Room>();
+        room_id += 1;
         room.id = room_id;
-        room.building = this;
-        room.outer_door_container = building_lot.outer_door;
-        room.primary_door_container = building_lot.primary_door;
-        roomba[room.id] = room_object;
         Vector2Int room_tile_pos = RouteManager.get_straight_next_tile_pos_multiple(building_orientation, offset_position, room.id);
+        print("room tile position of room " + room_id + " is " + room_tile_pos);
         city.city_room_matrix[room_tile_pos.x, room_tile_pos.y] = room;
         room.tile_position = room_tile_pos;
+        room.outer_door_prop = building_lot.outer_door;
+        room.primary_door_prop = building_lot.primary_door;
+        room.spawn_door_container();
+        room.building = this;
+        roomba[room.id] = room_object;
         last_room_position = room_tile_pos;
         current_capacity += 1;
-        room_id += 1;
         return room;
     }
 

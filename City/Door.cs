@@ -33,7 +33,7 @@ public class Door : MonoBehaviour
     public IEnumerator rotate() // when object is not active, it never finishes?
     {
         float start_angle = door_sprite_go.transform.eulerAngles.z; // remove offset incorporated into rotation calculations to align person in right direction
-        float end_angle; // = start_angle + 90;
+        float end_angle; 
         if (is_board) end_angle = start_angle + board_rotation;
         else { end_angle = start_angle + unload_rotation; }
         float t_param = 1;
