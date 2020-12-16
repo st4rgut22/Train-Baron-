@@ -20,6 +20,8 @@ public class VehicleManager : BoardManager
     public GameObject Bomb_Boxcar;
     public static GameObject[,] vehicle_board; //contains moving objects eg trains, boxcars
     City start_city;
+    public static int train_counter;
+    public static int boxcar_counter;
 
     static int orient_count = 0; // for testing
 
@@ -27,6 +29,8 @@ public class VehicleManager : BoardManager
     {
         base.Awake();
         vehicle_board = new GameObject[board_width, board_height];
+        boxcar_counter = 0;
+        train_counter = 0;
     }
 
     // Start is called before the first frame update
@@ -68,11 +72,12 @@ public class VehicleManager : BoardManager
     public void create_vehicle_at_home_base()
     {
         // buying a new train in MenuManager
+        train_counter++;
         GameObject new_train = Instantiate(Train);
         Train_List.Add(new_train);
         Train train_component = new_train.GetComponent<Train>();
         train_component.in_city = true;
-        train_component.set_id(Train_List.Count);
+        train_component.set_id(train_counter);
         train_component.set_city(CityManager.home_base); // new vehicles always created at home base
 
         // TESTING
@@ -110,21 +115,22 @@ public class VehicleManager : BoardManager
         Boxcar boxcar = boxcar_object.GetComponent<Boxcar>();
         Train train = boxcar.train;
         int removed_boxcar_id = boxcar.boxcar_id;
-        Vector3 next_boxcar_position = boxcar_object.transform.position;
-        // called when boxcar is undocked from a train. other boxcars move forward to fill in the gap
         List<GameObject> boxcar_squad = train.boxcar_squad;
+        int remove_boxcar_idx = train.get_boxcar_by_id(removed_boxcar_id);
         if (removed_boxcar_id > 0)
         {
-            Boxcar prev_boxcar = boxcar_squad[removed_boxcar_id - 1].GetComponent<Boxcar>();
-            for (int i = removed_boxcar_id; i < boxcar_squad.Count; i++)
+            Boxcar prev_boxcar = boxcar_squad[remove_boxcar_idx].GetComponent<Boxcar>(); // spot of the previous boxcar
+            for (int i = remove_boxcar_idx; i < boxcar_squad.Count; i++)
             {
-                Vector3 start_position = boxcar_squad[i].transform.position;
                 boxcar = boxcar_squad[i].GetComponent<Boxcar>();
-                StartCoroutine(boxcar.straight_move(start_position, next_boxcar_position));
-                boxcar.tile_position = prev_boxcar.tile_position;
-                boxcar.next_tilemap_position = prev_boxcar.next_tilemap_position;
-                next_boxcar_position = start_position;
-                prev_boxcar = boxcar;
+                if (boxcar.orientation != prev_boxcar.orientation)
+                {
+                    StartCoroutine(boxcar.one_time_bezier_move(prev_boxcar));
+                } else
+                {
+                    StartCoroutine(boxcar.one_time_straight_move(prev_boxcar));
+                }
+                prev_boxcar = boxcar; // set prev boxcar location to location of the boxcar that moved in to fill the void
             }
         }
     }
@@ -202,11 +208,6 @@ public class VehicleManager : BoardManager
         }
     }
 
-    public void remove_boxcar(Train train)
-    {
-        train.remove_boxcar();
-    }
-
     public void add_boxcar(string boxcar_type)
     {
         GameObject boxcar;
@@ -250,6 +251,7 @@ public class VehicleManager : BoardManager
         {
             Tilemap tilemap = train.station_track.tilemap;
             Boxcar boxcar_component = boxcar.GetComponent<Boxcar>();
+            boxcar_counter += 1;
             boxcar_component.attach_to_train(train);
             MovingObject last_vehicle = train.get_last_vehicle_added().GetComponent<MovingObject>();
             // initalize boxcar position
@@ -260,8 +262,7 @@ public class VehicleManager : BoardManager
             boxcar_component.city = train.city;
             boxcar_component.station_track = train.station_track;
             boxcar_component.arrive_at_city();
-            int boxcar_id = train.get_boxcar_id(); // id is the order in which the boxcar is added (0 being the first one added)
-            boxcar_component.initialize_boxcar(boxcar_id);
+            boxcar_component.initialize_boxcar(boxcar_counter);
             train.boxcar_squad.Add(boxcar);
             // save gameobject tile with adjustments. when a user clicks on a tile, it will be in the tile opposite the vehicle's orientation. Therefore, flip orientation
             Vector2Int boxcar_board_position = RouteManager.get_straight_next_tile_pos(TrackManager.flip_straight_orientation(boxcar_component.orientation), (Vector2Int)boxcar_component.tile_position);

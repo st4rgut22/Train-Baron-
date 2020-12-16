@@ -12,9 +12,11 @@ public class Train : MovingObject
     public string exit_track_tile_type;
     string destination_type = ""; // get destination type. If city, then disable after reaching destination.
     int id;
+    int boxcar_counter;
 
     private void Awake()
     {
+        boxcar_counter = 0;
         base.Awake();
     }
 
@@ -34,6 +36,8 @@ public class Train : MovingObject
     public GameObject get_last_vehicle_added()
     {
         if (boxcar_squad.Count == 0) return gameObject;
+        Boxcar boxcar = boxcar_squad[boxcar_squad.Count - 1].GetComponent<Boxcar>();
+        print("last vehicle added is " + boxcar.boxcar_id + "tile position is " + boxcar.tile_position);
         return boxcar_squad[boxcar_squad.Count - 1];
     }
 
@@ -273,24 +277,30 @@ public class Train : MovingObject
         this.city = city;
     }
 
-    public void remove_boxcar(int count = -1) 
+    public int get_boxcar_by_id(int boxcar_id)
     {
-        if (count == -1) count = boxcar_squad.Count; // remove last boxcar by default
-        if (count > 0)
+        for (int i = 0; i < boxcar_squad.Count; i++)
         {
-            GameObject boxcar = boxcar_squad[count - 1];
-            boxcar_squad.RemoveAt(count - 1); // remove last boxcar
-            Destroy(boxcar);
+            GameObject boxcar_go = boxcar_squad[i];
+            Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
+            if (boxcar.boxcar_id == boxcar_id)
+            {
+                return i;
+            }
         }
+        throw new Exception("Could not find boxcar id " + boxcar_id + " to remove");
+    }
+
+    public void remove_boxcar(int remove_boxcar_id) 
+    {
+        int remove_boxcar_index = get_boxcar_by_id(remove_boxcar_id);
+        GameObject boxcar_go = boxcar_squad[remove_boxcar_index];
+        boxcar_squad.RemoveAt(remove_boxcar_index);
+        Destroy(boxcar_go);
     }
 
     public void attach_boxcar(GameObject boxcar)
     {
         boxcar_squad.Add(boxcar);
-    }
-
-    public int get_boxcar_id()
-    {
-        return boxcar_squad.Count+1;       
     }
 }

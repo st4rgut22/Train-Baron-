@@ -199,6 +199,22 @@ public class MovingObject : Simple_Moving_Object
         this.orientation = orientation;
     }
 
+    public IEnumerator one_time_straight_move(Boxcar prev_boxcar)
+    {
+        yield return StartCoroutine(straight_move(transform.position, prev_boxcar.transform.position)); // dont set new positions until movement is completed
+        tile_position = prev_boxcar.tile_position;
+        next_tilemap_position = prev_boxcar.next_tilemap_position;
+        orientation = prev_boxcar.orientation;
+    }
+
+    public IEnumerator one_time_bezier_move(Boxcar prev_boxcar)
+    {
+        yield return StartCoroutine(bezier_move(transform, orientation, prev_boxcar.orientation));
+        orientation = prev_boxcar.orientation;
+        tile_position = prev_boxcar.tile_position;
+        next_tilemap_position = prev_boxcar.next_tilemap_position;
+    }
+
     public override IEnumerator bezier_move(Transform location, RouteManager.Orientation orientation, RouteManager.Orientation final_orientation)
     {
         Vector2 position = location.position;

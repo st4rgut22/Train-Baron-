@@ -81,7 +81,6 @@ public class Building : Structure
         room_id += 1;
         room.id = room_id;
         Vector2Int room_tile_pos = RouteManager.get_straight_next_tile_pos_multiple(building_orientation, offset_position, room.id);
-        print("room tile position of room " + room_id + " is " + room_tile_pos);
         city.city_room_matrix[room_tile_pos.x, room_tile_pos.y] = room;
         room.tile_position = room_tile_pos;
         room.outer_door_prop = building_lot.outer_door;

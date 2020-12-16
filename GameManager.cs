@@ -344,7 +344,7 @@ public class GameManager : EventDetector
                 print("park");
                 Boxcar boxcar = hint_gameobject.GetComponent<Boxcar>();
                 boxcar.city.place_boxcar_tile(hint_gameobject, selected_tile);
-                GameManager.vehicle_manager.boxcar_fill_void(hint_gameobject); // move boxcars behind this one forward
+                vehicle_manager.boxcar_fill_void(hint_gameobject); // move boxcars behind this one forward
                 boxcar.train.remove_boxcar(boxcar.boxcar_id);
             }
             else if (hint_context == "north exit" || hint_context == "east exit" || hint_context == "west exit" || hint_context == "south exit") // DEPART TRAIN

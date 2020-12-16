@@ -280,7 +280,6 @@ public class RouteManager : MonoBehaviour
                     else { throw new NullReferenceException(); }
                     break;
                 case "hor":
-                    print(moving_thing.name + " orientation is " + moving_thing.orientation);
                     if (moving_thing.orientation == Orientation.East || moving_thing.orientation == Orientation.West)
                     {
                         final_cell_dest = get_straight_final_dest(moving_thing.orientation, tile_world_coord);

@@ -127,12 +127,10 @@ public class CityManager : BoardManager
             }
             else
             {
-                //print("no train found in this track");
                 return false;
             }
         } catch (NullReferenceException)
         {
-            //print("no train available  to add boxcar to at tile position " + tile_pos);
             return false;
         }
     }
