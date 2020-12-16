@@ -31,6 +31,7 @@ public class Room : Structure
 
     private void Awake()
     {
+        right_door_offset = new Vector2(.51f, 0f);
         occupied = false;
         outer_door = null;
         primary_door = null; 
@@ -39,7 +40,6 @@ public class Room : Structure
     // Start is called before the first frame update
     void Start()
     {
-        right_door_offset = new Vector2(.51f, 0f);
         if (building.is_room_hidden())
         {
             display_structure(primary_door, false);
@@ -75,18 +75,23 @@ public class Room : Structure
         Door door = door_go.GetComponent<Door>();
         float door_rotation = door.tile_rotation;
         door.transform.position += new Vector3(offset_x, offset_y, 0);
-        if (is_sprite_right_door(door.board_sprite)) // right door pivot is not bottom left, so move it so it fits inside the room
+        if (is_sprite_right_door(door.door_sprite)) // right door pivot is not bottom left, so move it so it fits inside the room
         {
             door_sprite_go.transform.position += (Vector3)right_door_offset;
         }
-        if (door.board_sprite == right_door_top_right || door.board_sprite == left_door_top_right)
+        if (door.door_sprite == right_door_top_right || door.door_sprite == left_door_top_right)
         {
             pivot_door_offset = new Vector2(.37f, 0f);
             door_sprite_go.transform.position += (Vector3)pivot_door_offset;
         }
-        if (door.board_sprite == right_door_bottom_right)
+        if (door.door_sprite == right_door_bottom_right)
         {
             pivot_door_offset = new Vector2(.37f, -.07f);
+            door_sprite_go.transform.position += (Vector3)pivot_door_offset;
+        }
+        if (door.door_sprite == left_door_bottom_left)
+        {
+            pivot_door_offset = new Vector2(0f, -.07f);
             door_sprite_go.transform.position += (Vector3)pivot_door_offset;
         }
         door_go.transform.SetParent(transform);
@@ -98,12 +103,9 @@ public class Room : Structure
     {
         GameObject door_go = Instantiate(Door);
         Door door = door_go.GetComponent<Door>();
-        door.board_rotation = door_prop.board_rotation;
-        door.unload_rotation = door_prop.unload_rotation;
-        door.board_sprite = door_prop.board_pivot_door;
-        door.unload_sprite = door_prop.unload_pivot_door;
+        door.set_sprite(door_prop.pivot_door);
+        door.door_rotation = door_prop.door_rotation;
         door.tile_rotation = door_prop.rotation;
-        door.set_board_sprite();// default to board (because person is initialized inside home)
         return door_go;
     }
 

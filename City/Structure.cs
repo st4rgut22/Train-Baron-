@@ -15,17 +15,13 @@ public class Structure : BoardManager
 
     public class Door_Prop
     {
-        public Sprite board_pivot_door;
-        public Sprite unload_pivot_door;
-        public float board_rotation;
-        public float unload_rotation;
+        public Sprite pivot_door;
+        public float door_rotation;
         public float rotation;
-        public Door_Prop(Sprite board_pivot_door, Sprite unload_pivot_door, float board_rotation, float unload_rotation, float rotation)
+        public Door_Prop(Sprite pivot_door, float door_rotation, float rotation)
         {
-            this.board_pivot_door = board_pivot_door;
-            this.unload_pivot_door = unload_pivot_door;
-            this.board_rotation = board_rotation;
-            this.unload_rotation = unload_rotation;
+            this.pivot_door = pivot_door;
+            this.door_rotation = door_rotation;
             this.rotation = rotation;
         }
     }

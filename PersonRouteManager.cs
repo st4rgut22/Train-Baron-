@@ -92,7 +92,6 @@ public class PersonRouteManager : RouteManager
         GameObject door = get_exit_door(boxcar, room);
         room.unlocked_door = door;
         Door unlocked_door = room.unlocked_door.GetComponent<Door>();
-        unlocked_door.set_board_sprite();
         // 2 checkpoints. In first go to doorstep and rotate accordingly. In the next only rotate to face track direction
         List<Checkpoint> board_train_checkpoints = new List<Checkpoint>();
         Vector3Int train_start_location = boxcar.train.station_track.start_location; // id of track
@@ -105,8 +104,9 @@ public class PersonRouteManager : RouteManager
         Orientation start_orientation = orientation_pair[0];
         Orientation end_orientation = orientation_pair[1];
         occupant.is_tight_curve = true; // wide curve
-        yield return StartCoroutine(occupant.bezier_move(occupant.transform, start_orientation, end_orientation));
         yield return StartCoroutine(unlocked_door.rotate());
+        yield return StartCoroutine(occupant.bezier_move(occupant.transform, start_orientation, end_orientation));
+        StartCoroutine(unlocked_door.rotate(3)); // wait 3 seconds before closing the door
         Vector3 offset_pos = occupant.transform.position + occupant.transform.up * .45f;
         Checkpoint offset_cp = new Checkpoint(occupant.transform.position, occupant.transform.eulerAngles.z + 90, offset_pos, (Vector2Int)doorstep_position, end_orientation, end_orientation);
         board_train_checkpoints.Add(offset_cp);
@@ -153,8 +153,9 @@ public class PersonRouteManager : RouteManager
         enter_home_checkpoints.Add(enter_door_cp);
         enter_home_checkpoints.Add(enter_home_cp);
         enter_home_checkpoints.Add(resting_cp); // rotate person so facing same direction as building
-        yield return (unlocked_door.rotate());
+        yield return StartCoroutine(unlocked_door.rotate());
         yield return StartCoroutine(person.move_checkpoints(enter_home_checkpoints));
+        StartCoroutine(unlocked_door.rotate());
         room.occupied = true;
         room.person_go = person_go;
     }

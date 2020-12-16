@@ -3,39 +3,35 @@ using UnityEngine;
 
 public class Door : MonoBehaviour
 {
-    public float board_rotation;
-    public float unload_rotation;
+    public float door_rotation;
     public float tile_rotation;
     public GameObject door_go;
-    public Sprite unload_sprite; // same sprites but different pivot points
-    public Sprite board_sprite;
     public GameObject door_sprite_go;
     public bool is_board;
+    public bool is_open;
+    public Sprite door_sprite;
 
     private void Awake()
     {
         is_board = true;
+        is_open = false;
         door_sprite_go = transform.GetChild(0).gameObject;
     }
 
-    public void set_board_sprite()
+    public void set_sprite(Sprite sprite)
     {
-        is_board = true;
-        transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = board_sprite;
+        door_sprite = sprite;
+        door_sprite_go.GetComponent<SpriteRenderer>().sprite = door_sprite;
     }
 
-    public void set_unload_sprite()
+    public IEnumerator rotate(int delay = 0) // when object is not active, it never finishes?
     {
-        is_board = false;
-        transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = unload_sprite;
-    }
-
-    public IEnumerator rotate() // when object is not active, it never finishes?
-    {
+        if (delay > 0)
+            yield return new WaitForSeconds(delay); // wait for some action to complete before rotating
         float start_angle = door_sprite_go.transform.eulerAngles.z; // remove offset incorporated into rotation calculations to align person in right direction
-        float end_angle; 
-        if (is_board) end_angle = start_angle + board_rotation;
-        else { end_angle = start_angle + unload_rotation; }
+        float end_angle;
+        if (is_open) end_angle = start_angle - door_rotation;
+        else { end_angle = start_angle + door_rotation; }        
         float t_param = 1;
         while (t_param > 0)
         {
@@ -47,6 +43,6 @@ public class Door : MonoBehaviour
             t_param -= Time.deltaTime * GameManager.speed/4;
             yield return new WaitForEndOfFrame();
         }
-        print("ooo");
+        is_open = !is_open; // if was open not it is closed
     }
 }

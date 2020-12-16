@@ -253,10 +253,10 @@ public class City : Structure
                 east_start_inner, new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.South}
             },
             {
-                west_start_outer,new RouteManager.Orientation[]{RouteManager.Orientation.West, RouteManager.Orientation.South}
+                west_start_outer,new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.South}
             },
             {
-                west_start_inner,new RouteManager.Orientation[]{RouteManager.Orientation.West, RouteManager.Orientation.North}
+                west_start_inner,new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.North}
             },
             {
                 south_start_outer, new RouteManager.Orientation[]{RouteManager.Orientation.South, RouteManager.Orientation.West}
@@ -280,7 +280,7 @@ public class City : Structure
                 RouteManager.Orientation.North,
                 new List<Station_Track> { North_Station.outer_track },
                 null,
-                new Door_Prop(right_door_bottom_right, right_door_top_right, 90f, -90f, 90f)
+                new Door_Prop(right_door_top_right, -90f, 90f)
             );
         north_inner_bl.GetComponent<BuildingLot>().init_building_lot
             (
@@ -289,7 +289,7 @@ public class City : Structure
                 3,
                 RouteManager.Orientation.East,
                 new List<Station_Track> { North_Station.inner_track },
-                new Door_Prop(left_door_top_left, left_door_bottom_left, 90f, -90f, 0f),
+                new Door_Prop(left_door_top_left, 90f, 0f),
                 null
             );
         east_bl.GetComponent<BuildingLot>().init_building_lot
@@ -299,8 +299,8 @@ public class City : Structure
                 6,
                 RouteManager.Orientation.East,
                 new List<Station_Track> { East_Station.inner_track, East_Station.outer_track },
-                new Door_Prop(left_door_top_left, left_door_bottom_left, -90f, 90f, 180f),
-                new Door_Prop(right_door_top_right, right_door_bottom_right, 90f, -90f, 0f)
+                new Door_Prop(left_door_top_left, 90f, 180f),
+                new Door_Prop(right_door_top_right, -90f, 0f)
             );
         west_bl.GetComponent<BuildingLot>().init_building_lot
             (
@@ -309,8 +309,8 @@ public class City : Structure
                 6,
                 RouteManager.Orientation.East,
                 new List<Station_Track> { West_Station.inner_track, West_Station.outer_track },
-                new Door_Prop(right_door_top_left, right_door_bottom_left, 90f, -90f, 0f),
-                new Door_Prop(left_door_top_right, left_door_bottom_right, -90f, 90f, 180f)
+                new Door_Prop(right_door_top_right, -90f, 0f),
+                new Door_Prop(left_door_top_left, 90f, 180f)
             );
         south_inner_bl.GetComponent<BuildingLot>().init_building_lot
             (
@@ -319,7 +319,7 @@ public class City : Structure
                 4,
                 RouteManager.Orientation.East,
                 new List<Station_Track> { South_Station.inner_track },
-                new Door_Prop(left_door_top_left, left_door_bottom_left, -90f, 90f, 180f),
+                new Door_Prop(left_door_top_left, 90f, 180f),
                 null
             );
         south_outer_bl.GetComponent<BuildingLot>().init_building_lot
@@ -330,7 +330,7 @@ public class City : Structure
                 RouteManager.Orientation.North,
                 new List<Station_Track> { South_Station.outer_track },
                 null,
-                new Door_Prop(right_door_top_right, right_door_bottom_right, -90f, 90f, 270f)
+                new Door_Prop(right_door_top_right, -90f, 270f)
             );
         building_map = new Dictionary<string, GameObject>()
         {
