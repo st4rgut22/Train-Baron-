@@ -13,6 +13,8 @@ public class Structure : BoardManager
     public Sprite right_door_top_left;
     public Sprite right_door_top_right;
 
+
+
     public class Door_Prop
     {
         public Sprite pivot_door;
@@ -30,6 +32,13 @@ public class Structure : BoardManager
     {
         if (structure != null) structure.GetComponent<SpriteRenderer>().enabled = is_display;
     }
+
+    private void Awake()
+    {
+
+    }
+
+
 
     // Start is called before the first frame update
     void Start()

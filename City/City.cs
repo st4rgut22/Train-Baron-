@@ -10,6 +10,8 @@ public class City : Structure
     public Tile residential_tile;
     public Tile hospital_tile;
     public Tile lab_tile;
+    public Tile grocery_tile;
+
     public List<Building> city_building_list;
     public Room[,] city_room_matrix;
     public Tile city_tile;
@@ -29,33 +31,6 @@ public class City : Structure
     public GameObject[,] city_board; // contains location of vehicles within city
     public List<Station> station_list;
 
-    //outside track comes first
-    //TODO: change these 1s or 2s to outers or inners
-    public static Vector2Int west_end_outer = new Vector2Int(6, 2);
-    public static Vector2Int west_end_inner = new Vector2Int(6, 3);
-    public static Vector3Int west_start_outer = new Vector3Int(-1, 1, 0);
-    public static Vector3Int west_start_inner = new Vector3Int(-1, 3, 0);
-
-    public static Vector2Int north_end_inner = new Vector2Int(6, 7);
-    public static Vector2Int north_end_outer = new Vector2Int(6, 8);
-    public static Vector3Int north_start_outer = new Vector3Int(1, 10, 0);
-    public static Vector3Int north_start_inner = new Vector3Int(2, 10, 0);
-
-    public static Vector2Int east_end_inner = new Vector2Int(10, 7); //wrong
-    public static Vector2Int east_end_outer = new Vector2Int(10, 8);
-    public static Vector3Int east_start_inner = new Vector3Int(17, 7, 0);
-    public static Vector3Int east_start_outer = new Vector3Int(17, 9, 0);
-
-    public static Vector2Int south_end_outer = new Vector2Int(10, 2);
-    public static Vector2Int south_end_inner = new Vector2Int(10, 1);
-    public static Vector3Int south_start_outer = new Vector3Int(15, -1, 0);
-    public static Vector3Int south_start_inner = new Vector3Int(14, -1, 0);
-
-    Station West_Station;
-    Station North_Station;
-    Station East_Station;
-    Station South_Station;
-
     public GameObject Turn_Table;
     public GameObject Turn_Table_Circle;
     public GameObject turn_table;
@@ -65,21 +40,22 @@ public class City : Structure
     public GameObject Residential;
     public GameObject Hospital;
     public GameObject Lab;
+    public GameObject Grocery;
+
+
+    public Station West_Station;
+    public Station North_Station;
+    public Station East_Station;
+    public Station South_Station;
 
     public GameObject city_tilemap_go;
     public Tilemap city_tilemap;
-
-    public static Dictionary<Vector3Int, RouteManager.Orientation> station_track_boarding_map;
-    public static Dictionary<Vector3Int, Dictionary<string, RouteManager.Orientation>> station_track_unloading_map;
-    public static Dictionary<Vector3Int, RouteManager.Orientation[]> station_track_curve_map; // array index 0 is original orientation, 1 is final orientation
-    public static Dictionary<string, RouteManager.Orientation> initial_person_face_map;
 
     public RouteManager.Orientation destination_orientation;
 
     public int prev_train_list_length = 0;
 
     public static Dictionary<string, GameObject> building_map;
-    string initial_building_lot;
     List<string> initial_building_lot_list;
     public GameObject BuildingLot;
 
@@ -88,184 +64,14 @@ public class City : Structure
         initial_building_lot_list = new List<string>() { "Building Lot South Outer", "Building Lot South Inner", "Building Lot North Outer", "Building Lot North Inner", "Building Lot West", "Building Lot East" };
         //initial_building_lot_list = new List<string>() { "Building Lot North Outer" };
         base.Awake();
+        West_Station = new Station(CityManager.west_start_outer, CityManager.west_start_inner, RouteManager.Orientation.West, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
+        North_Station = new Station(CityManager.north_start_outer, CityManager.north_start_inner, RouteManager.Orientation.North, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
+        East_Station = new Station(CityManager.east_start_outer, CityManager.east_start_inner, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
+        South_Station = new Station(CityManager.south_start_outer, CityManager.south_start_inner, RouteManager.Orientation.South, RouteManager.Orientation.West, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
         city_tilemap_go = GameObject.Find("City Tilemap");
         city_tilemap = city_tilemap_go.GetComponent<Tilemap>();
         city_room_matrix = new Room[board_width, board_height];
-        West_Station = new Station(west_start_outer, west_start_inner, RouteManager.Orientation.West, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
-        North_Station = new Station(north_start_outer, north_start_inner, RouteManager.Orientation.North, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
-        East_Station = new Station(east_start_outer, east_start_inner, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
-        South_Station = new Station(south_start_outer, south_start_inner, RouteManager.Orientation.South, RouteManager.Orientation.West, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
         city_board = new GameObject[board_width, board_height]; // zero out the negative tile coordinates
-
-        station_track_boarding_map = new Dictionary<Vector3Int, RouteManager.Orientation>() // the direction you leave building to board boxcar
-        {
-            { north_start_outer, RouteManager.Orientation.East },
-            {north_start_inner, RouteManager.Orientation.South },
-            {east_start_outer, RouteManager.Orientation.North },
-            {east_start_inner, RouteManager.Orientation.South },
-            {west_start_outer, RouteManager.Orientation.South },
-            {west_start_inner, RouteManager.Orientation.North },
-            {south_start_outer, RouteManager.Orientation.West },
-            {south_start_inner, RouteManager.Orientation.North }
-        };
-
-        station_track_unloading_map = new Dictionary<Vector3Int, Dictionary<string, RouteManager.Orientation>>()
-        {
-            // a dictionary of orientations for person leaving a boxcar
-            {
-                north_start_outer,
-                    new Dictionary<string, RouteManager.Orientation>(){
-                        {
-                            "hor", RouteManager.Orientation.South
-                        },
-                        {
-                            "vert", RouteManager.Orientation.West
-                        },
-                        {
-                            "NE", RouteManager.Orientation.West
-                        }
-                    }
-            },
-            {
-                north_start_inner,
-                    new Dictionary<string, RouteManager.Orientation>()
-                    {
-                        {
-                            "hor", RouteManager.Orientation.North
-                        },
-                        {
-                            "vert", RouteManager.Orientation.East
-                        },
-                        {
-                            "NE", RouteManager.Orientation.East
-                        },
-                        {
-                            "WS", RouteManager.Orientation.North
-                        }
-                    }
-            },
-            {
-                east_start_outer,
-                    new Dictionary<string, RouteManager.Orientation>()
-                    {
-                        {
-                            "hor", RouteManager.Orientation.South
-                        },
-                        {
-                            "ES", RouteManager.Orientation.South
-                        },
-                        {
-                            "vert", RouteManager.Orientation.East
-                        }
-                    }
-            },
-            {
-                east_start_inner,
-                    new Dictionary<string, RouteManager.Orientation>()
-                    {
-                        {
-                            "hor", RouteManager.Orientation.North
-                        }
-                    }
-            },
-            {
-                west_start_outer,
-                    new Dictionary<string, RouteManager.Orientation>()
-                    {
-                        {
-                            "hor", RouteManager.Orientation.North
-                        },
-                        {
-                            "WN", RouteManager.Orientation.North
-                        },
-                        {
-                            "vert", RouteManager.Orientation.West
-                        }
-                    }
-            },
-            {
-                west_start_inner,
-                    new Dictionary<string, RouteManager.Orientation>()
-                    {
-                        {
-                            "hor", RouteManager.Orientation.South
-                        }
-                    }
-            },
-            {
-                south_start_outer,
-                    new Dictionary<string, RouteManager.Orientation>()
-                    {
-                        {
-                            "vert", RouteManager.Orientation.East
-                        },
-                        {
-                            "hor", RouteManager.Orientation.North
-                        },
-                        {
-                            "WS", RouteManager.Orientation.East
-                        }
-                    }
-            },
-            {
-                south_start_inner,
-                    new Dictionary<string, RouteManager.Orientation>()
-                    {
-                        {
-                            "hor", RouteManager.Orientation.South
-                        },
-                        {
-                            "vert", RouteManager.Orientation.West
-                        },
-                        {
-                            "WS", RouteManager.Orientation.West
-                        },
-                        {
-                            "NE", RouteManager.Orientation.South
-                        }
-                    }
-            }
-        };
-
-        initial_person_face_map = new Dictionary<string, RouteManager.Orientation>()
-        {
-            {"Building Lot North Outer", RouteManager.Orientation.North },
-            {"Building Lot North Inner", RouteManager.Orientation.West },
-            {"Building Lot South Outer", RouteManager.Orientation.South },
-            {"Building Lot South Inner", RouteManager.Orientation.East },
-            {"Building Lot West", RouteManager.Orientation.East },
-            {"Building Lot East", RouteManager.Orientation.East}
-        };
-
-        station_track_curve_map = new Dictionary<Vector3Int, RouteManager.Orientation[]>()
-        {
-            // a dictionary of orientations for person leaving a boxcar
-            {
-                north_start_outer, new RouteManager.Orientation[]{RouteManager.Orientation.North, RouteManager.Orientation.East}
-            },
-            {
-                north_start_inner, new RouteManager.Orientation[]{RouteManager.Orientation.West, RouteManager.Orientation.South}
-            },
-            {
-                east_start_outer, new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.North}
-            },
-            {
-                east_start_inner, new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.South}
-            },
-            {
-                west_start_outer,new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.South}
-            },
-            {
-                west_start_inner,new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.North}
-            },
-            {
-                south_start_outer, new RouteManager.Orientation[]{RouteManager.Orientation.South, RouteManager.Orientation.West}
-            },
-            {
-                south_start_inner, new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.North}
-            }
-        };
-
         GameObject north_outer_bl = Instantiate(BuildingLot);
         GameObject north_inner_bl = Instantiate(BuildingLot);
         GameObject east_bl = Instantiate(BuildingLot);
@@ -361,6 +167,36 @@ public class City : Structure
         building_id = 1;
     }
 
+    public Station_Track get_station_track(Vector2Int tile_pos)
+    {
+        if (tile_pos.y <= 4)
+        {
+            if (tile_pos.x < 7)
+            {
+                if (tile_pos.y == 1 || tile_pos.y == 2) return West_Station.outer_track;
+                else { return West_Station.inner_track; }
+            }
+            else
+            {
+                if (tile_pos.y == 3 || tile_pos.x == 15) return South_Station.outer_track;
+                else { return South_Station.inner_track; }
+            }
+        }
+        else
+        {
+            if (tile_pos.x < 7)
+            {
+                if (tile_pos.y == 7 || tile_pos.x == 1) return North_Station.outer_track;
+                else { return North_Station.inner_track; }
+            }
+            else
+            {
+                if (tile_pos.y == 7) return East_Station.inner_track;
+                else { return East_Station.outer_track; }
+            }
+        }
+    }
+
     private void Update()
     {
         //enable_train_for_screen(); causes lag
@@ -420,6 +256,11 @@ public class City : Structure
             city_tile = lab_tile;
             building_object = Instantiate(Lab);
         }
+        else if (city_type == "Grocery")
+        {
+            city_tile = grocery_tile;
+            building_object = Instantiate(Grocery);
+        }
         else
         {
             throw new Exception("not a valid tile");
@@ -462,7 +303,7 @@ public class City : Structure
         Room room = city_room_matrix[room_position.x, room_position.y];
         string track_name = RouteManager.shipyard_track_tilemap.GetTile(boxcar.tile_position).name;
         print("unloading train from room  position " + room_position + " to " + boxcar.tile_position);
-        RouteManager.Orientation exit_orientation = station_track_unloading_map[boxcar.station_track.start_location][track_name];
+        RouteManager.Orientation exit_orientation = CityManager.station_track_unloading_map[boxcar.station_track.start_location][track_name];
         StartCoroutine(GameObject.Find("PersonRouteManager").GetComponent<PersonRouteManager>().unload_train(boxcar, room, exit_orientation));
     }
 
@@ -480,12 +321,7 @@ public class City : Structure
         occupant.boxcar_go = boxcar_go;
         occupant.station_track = boxcar.station_track;
         occupant.offset_map = RouteManager.offset_route_map[boxcar.station_track.start_location];
-        //occupant.orientation = boxcar.station_track.board_orientation;
         StartCoroutine(GameObject.Find("PersonRouteManager").GetComponent<PersonRouteManager>().board_train(boxcar, room, occupant, boxcar.tile_position));
-        // get the tile in direction of the track
-
-        // then run shortest path algorithm with preference for tiles closer to the building
-        // finally, board the train
     }
 
     public void set_all_room_sprites()
@@ -548,20 +384,10 @@ public class City : Structure
         return tilemap_position;
     }
 
-    public List<GameObject> get_train_list()
-    {
-        return train_list;
-    }
-
     public void show_turntable(bool state)
     {
         turn_table.GetComponent<SpriteRenderer>().enabled = state;
         turn_table_circle.GetComponent<SpriteRenderer>().enabled = state;
-    }
-
-    public void parking_validator()
-    {
-        // is available?
     }
 
     public bool is_parking_spot_available(Vector2Int tile_pos)
@@ -677,36 +503,6 @@ public class City : Structure
         }
         if (station_track.train != null) return true;
         return false;
-    }
-
-    public Station_Track get_station_track(Vector2Int tile_pos)
-    {
-        if (tile_pos.y <= 4)
-        {
-            if (tile_pos.x < 7)
-            {
-                if (tile_pos.y == 1 || tile_pos.y == 2) return West_Station.outer_track;
-                else { return West_Station.inner_track; }
-            }
-            else
-            {
-                if (tile_pos.y == 3 || tile_pos.x == 15) return South_Station.outer_track;
-                else { return South_Station.inner_track; }
-            }
-        }
-        else
-        {
-            if (tile_pos.x < 7)
-            {
-                if (tile_pos.y == 7 || tile_pos.x == 1) return North_Station.outer_track;
-                else { return North_Station.inner_track; }
-            }
-            else
-            {
-                if (tile_pos.y == 7) return East_Station.inner_track;
-                else { return East_Station.outer_track; }
-            }
-        }
     }
 
     public void delete_train(GameObject train_object)

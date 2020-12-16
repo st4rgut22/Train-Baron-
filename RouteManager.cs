@@ -69,7 +69,7 @@ public class RouteManager : MonoBehaviour
             // a dictionary of offsets for person leave offset calculations
             {
                 // no offset for the curves, because this is already applied in bezier movement
-                City.north_start_outer,
+                CityManager.north_start_outer,
                     new Dictionary<string, Vector2>(){
                         {
                             "hor", offset_down
@@ -83,7 +83,7 @@ public class RouteManager : MonoBehaviour
                     }
             },
             {
-                City.north_start_inner,
+                CityManager.north_start_inner,
                     new Dictionary<string, Vector2>()
                     {
                         {
@@ -98,7 +98,7 @@ public class RouteManager : MonoBehaviour
                     }
             },
             {
-                City.east_start_outer,
+                CityManager.east_start_outer,
                     new Dictionary<string, Vector2>()
                     {
                         {
@@ -113,7 +113,7 @@ public class RouteManager : MonoBehaviour
                     }
             },
             {
-                City.east_start_inner,
+                CityManager.east_start_inner,
                     new Dictionary<string, Vector2>()
                     {
                         {
@@ -122,7 +122,7 @@ public class RouteManager : MonoBehaviour
                     }
             },
             {
-                City.west_start_outer,
+                CityManager.west_start_outer,
                     new Dictionary<string, Vector2>()
                     {
                         {
@@ -137,7 +137,7 @@ public class RouteManager : MonoBehaviour
                     }
             },
             {
-                City.west_start_inner,
+                CityManager.west_start_inner,
                     new Dictionary<string, Vector2>()
                     {
                         {
@@ -146,7 +146,7 @@ public class RouteManager : MonoBehaviour
                     }
             },
             {
-                City.south_start_outer,
+                CityManager.south_start_outer,
                     new Dictionary<string, Vector2>()
                     {
                         {
@@ -161,7 +161,7 @@ public class RouteManager : MonoBehaviour
                     }
             },
             {
-                City.south_start_inner,
+                CityManager.south_start_inner,
                     new Dictionary<string, Vector2>()
                     {
                         {

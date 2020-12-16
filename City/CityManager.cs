@@ -12,7 +12,8 @@ public class CityManager : BoardManager
     //oversee routes between cities for to inform decision making
 
     public static City home_base;
-    public static Vector2Int home_base_location = new Vector2Int(3, 6); // location of city
+    //public static Vector2Int home_base_location = new Vector2Int(3, 6); // location of city
+    public static Vector2Int home_base_location = new Vector2Int(5, 6); // TODO: temporary to test structure
     public int city_id;
     public GameObject City;
     public static GameObject Activated_City;
@@ -29,6 +30,31 @@ public class CityManager : BoardManager
     public static float exit_dest_north_south = 3;
     public static Dictionary<string, List<string>> cargo_to_structure;
     public static Dictionary<RouteManager.Orientation, float> orientation_to_rotation_map; // needed for proper rotation on boarding and unloading of trains
+    public static Vector2Int west_end_outer = new Vector2Int(6, 2);
+    public static Vector2Int west_end_inner = new Vector2Int(6, 3);
+    public static Vector3Int west_start_outer = new Vector3Int(-1, 1, 0);
+    public static Vector3Int west_start_inner = new Vector3Int(-1, 3, 0);
+
+    public static Vector2Int north_end_inner = new Vector2Int(6, 7);
+    public static Vector2Int north_end_outer = new Vector2Int(6, 8);
+    public static Vector3Int north_start_outer = new Vector3Int(1, 10, 0);
+    public static Vector3Int north_start_inner = new Vector3Int(2, 10, 0);
+
+    public static Vector2Int east_end_inner = new Vector2Int(10, 7); //wrong
+    public static Vector2Int east_end_outer = new Vector2Int(10, 8);
+    public static Vector3Int east_start_inner = new Vector3Int(17, 7, 0);
+    public static Vector3Int east_start_outer = new Vector3Int(17, 9, 0);
+
+    public static Vector2Int south_end_outer = new Vector2Int(10, 2);
+    public static Vector2Int south_end_inner = new Vector2Int(10, 1);
+    public static Vector3Int south_start_outer = new Vector3Int(15, -1, 0);
+    public static Vector3Int south_start_inner = new Vector3Int(14, -1, 0);
+
+    public static Dictionary<Vector3Int, RouteManager.Orientation> station_track_boarding_map;
+    public static Dictionary<Vector3Int, Dictionary<string, RouteManager.Orientation>> station_track_unloading_map;
+    public static Dictionary<Vector3Int, RouteManager.Orientation[]> station_track_curve_map; // array index 0 is original orientation, 1 is final orientation
+    public static Dictionary<string, RouteManager.Orientation> initial_person_face_map;
+
 
     private void Awake()
     {
@@ -41,6 +67,174 @@ public class CityManager : BoardManager
             {RouteManager.Orientation.East, 0 },
             {RouteManager.Orientation.West, 180 },
             {RouteManager.Orientation.South, -90 }
+        };
+        station_track_boarding_map = new Dictionary<Vector3Int, RouteManager.Orientation>() // the direction you leave building to board boxcar
+        {
+            { north_start_outer, RouteManager.Orientation.East },
+            {north_start_inner, RouteManager.Orientation.South },
+            {east_start_outer, RouteManager.Orientation.North },
+            {east_start_inner, RouteManager.Orientation.South },
+            {west_start_outer, RouteManager.Orientation.South },
+            {west_start_inner, RouteManager.Orientation.North },
+            {south_start_outer, RouteManager.Orientation.West },
+            {south_start_inner, RouteManager.Orientation.North }
+        };
+
+        station_track_unloading_map = new Dictionary<Vector3Int, Dictionary<string, RouteManager.Orientation>>()
+        {
+            // a dictionary of orientations for person leaving a boxcar
+            {
+                north_start_outer,
+                    new Dictionary<string, RouteManager.Orientation>(){
+                        {
+                            "hor", RouteManager.Orientation.South
+                        },
+                        {
+                            "vert", RouteManager.Orientation.West
+                        },
+                        {
+                            "NE", RouteManager.Orientation.West
+                        }
+                    }
+            },
+            {
+                north_start_inner,
+                    new Dictionary<string, RouteManager.Orientation>()
+                    {
+                        {
+                            "hor", RouteManager.Orientation.North
+                        },
+                        {
+                            "vert", RouteManager.Orientation.East
+                        },
+                        {
+                            "NE", RouteManager.Orientation.East
+                        },
+                        {
+                            "WS", RouteManager.Orientation.North
+                        }
+                    }
+            },
+            {
+                east_start_outer,
+                    new Dictionary<string, RouteManager.Orientation>()
+                    {
+                        {
+                            "hor", RouteManager.Orientation.South
+                        },
+                        {
+                            "ES", RouteManager.Orientation.South
+                        },
+                        {
+                            "vert", RouteManager.Orientation.East
+                        }
+                    }
+            },
+            {
+                east_start_inner,
+                    new Dictionary<string, RouteManager.Orientation>()
+                    {
+                        {
+                            "hor", RouteManager.Orientation.North
+                        }
+                    }
+            },
+            {
+                west_start_outer,
+                    new Dictionary<string, RouteManager.Orientation>()
+                    {
+                        {
+                            "hor", RouteManager.Orientation.North
+                        },
+                        {
+                            "WN", RouteManager.Orientation.North
+                        },
+                        {
+                            "vert", RouteManager.Orientation.West
+                        }
+                    }
+            },
+            {
+                west_start_inner,
+                    new Dictionary<string, RouteManager.Orientation>()
+                    {
+                        {
+                            "hor", RouteManager.Orientation.South
+                        }
+                    }
+            },
+            {
+                south_start_outer,
+                    new Dictionary<string, RouteManager.Orientation>()
+                    {
+                        {
+                            "vert", RouteManager.Orientation.East
+                        },
+                        {
+                            "hor", RouteManager.Orientation.North
+                        },
+                        {
+                            "WS", RouteManager.Orientation.East
+                        }
+                    }
+            },
+            {
+                south_start_inner,
+                    new Dictionary<string, RouteManager.Orientation>()
+                    {
+                        {
+                            "hor", RouteManager.Orientation.South
+                        },
+                        {
+                            "vert", RouteManager.Orientation.West
+                        },
+                        {
+                            "WS", RouteManager.Orientation.West
+                        },
+                        {
+                            "NE", RouteManager.Orientation.South
+                        }
+                    }
+            }
+        };
+
+        initial_person_face_map = new Dictionary<string, RouteManager.Orientation>()
+        {
+            {"Building Lot North Outer", RouteManager.Orientation.North },
+            {"Building Lot North Inner", RouteManager.Orientation.West },
+            {"Building Lot South Outer", RouteManager.Orientation.South },
+            {"Building Lot South Inner", RouteManager.Orientation.East },
+            {"Building Lot West", RouteManager.Orientation.East },
+            {"Building Lot East", RouteManager.Orientation.East}
+        };
+
+        station_track_curve_map = new Dictionary<Vector3Int, RouteManager.Orientation[]>()
+        {
+            // a dictionary of orientations for person leaving a boxcar
+            {
+                north_start_outer, new RouteManager.Orientation[]{RouteManager.Orientation.North, RouteManager.Orientation.East}
+            },
+            {
+                north_start_inner, new RouteManager.Orientation[]{RouteManager.Orientation.West, RouteManager.Orientation.South}
+            },
+            {
+                east_start_outer, new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.North}
+            },
+            {
+                east_start_inner, new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.South}
+            },
+            {
+                west_start_outer,new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.South}
+            },
+            {
+                west_start_inner,new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.North}
+            },
+            {
+                south_start_outer, new RouteManager.Orientation[]{RouteManager.Orientation.South, RouteManager.Orientation.West}
+            },
+            {
+                south_start_inner, new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.North}
+            }
         };
     }
 
