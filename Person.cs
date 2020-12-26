@@ -4,10 +4,7 @@ using System.Collections.Generic;
 
 public class Person: Simple_Moving_Object
 {
-    public Sprite good_health_blob;
-    public Sprite medium_health_blob;
-    public Sprite poor_health_blob;
-    public Sprite dead_blob;
+    public Sprite egghead_sprite;
 
     public int health;
     public int wealth;
@@ -18,10 +15,17 @@ public class Person: Simple_Moving_Object
     public bool is_exit_boxcar=false;
     public bool is_on_boxcar=false;
     public bool is_exit_home=false;
+    public bool player_walk_hor = false;
+
     public Room room;
     public float angle; // angle from the x axis. Use this instead of euler angles. 
 
     public RouteManager.Orientation enter_home_orientation;
+
+    private void Awake()
+    {
+        base.Awake();
+    }
 
     public void Start()
     {
@@ -31,6 +35,7 @@ public class Person: Simple_Moving_Object
         in_tile = true;
         enter_home_orientation = RouteManager.Orientation.None; // initialized on enter home sequence
         final_dest_tile_pos = new Vector3Int(-1, -1, 0);
+        gameObject.SetActive(false);
     }
 
     public void Update()
@@ -78,23 +83,7 @@ public class Person: Simple_Moving_Object
 
     public void set_health_sprite()
     {
-        Sprite sprite;
-        if (health <= 0)
-        {
-            sprite = dead_blob;
-        }
-        else if (health <= 30)
-        {
-            sprite = poor_health_blob;
-        }
-        else if (health <= 70)
-        {
-            sprite = medium_health_blob;
-        }
-        else
-        {
-            sprite = good_health_blob;
-        }
+        Sprite sprite = egghead_sprite;
         gameObject.GetComponent<SpriteRenderer>().sprite = sprite; 
     }
 

@@ -7,17 +7,13 @@ using UnityEngine.Tilemaps;
 public class VehicleManager : BoardManager
 {
     public GameObject Train; // prefabs
-    public GameObject Train_Placeholder; // missing component
-    public GameObject Red_Boxcar_Placeholder; // missing component
-    public GameObject Blue_Boxcar_Placeholder; // missing component
-    public GameObject Green_Boxcar_Placeholder; // missing component
     public List<GameObject> Train_List;
-    public List<GameObject> Bomb_Boxcar_Inventory;
-    public List<GameObject> Troop_Boxcar_Inventory;
-    public List<GameObject> Supply_Boxcar_Inventory;
-    public GameObject Troop_Boxcar;
-    public GameObject Supply_Boxcar;
-    public GameObject Bomb_Boxcar;
+    public List<GameObject> Economy_Boxcar_Inventory;
+    public List<GameObject> First_Boxcar_Inventory;
+    public List<GameObject> Business_Boxcar_Inventory;
+    public GameObject First_Boxcar;
+    public GameObject Business_Boxcar;
+    public GameObject Economy_Boxcar;
     public static GameObject[,] vehicle_board; //contains moving objects eg trains, boxcars
     City start_city;
     public static int train_counter;
@@ -48,18 +44,6 @@ public class VehicleManager : BoardManager
 
     }
 
-    public GameObject get_boxcar_placeholder(string boxcar_name)
-    {
-        boxcar_name = boxcar_name.Replace("(Clone)", "");
-        if (boxcar_name == "bomb boxcar placeholder") return Red_Boxcar_Placeholder;
-        else if (boxcar_name == "troop boxcar placeholder") return Green_Boxcar_Placeholder;
-        else if (boxcar_name == "supply boxcar placeholder") return Blue_Boxcar_Placeholder;
-        else
-        {
-            throw new Exception("not a valid boxcar placeholder");
-        }
-    }
-
     public static RouteManager.Orientation round_robin_orientation()
     {
         // TEMPORARY: FOR TESTING!
@@ -79,29 +63,27 @@ public class VehicleManager : BoardManager
         train_component.in_city = true;
         train_component.set_id(train_counter);
         train_component.set_city(CityManager.home_base); // new vehicles always created at home base
-
-        // TESTING
-        //add_all_boxcar_to_train(train_component);
-
         place_vehicle(new_train); // place the vehicle, which proceeds to depart
         train_component.arrive_at_city(); // call immediately on instantiation. Otherwise, in_city = false and the wrong board is updated        
+        // TESTING
+        add_all_boxcar_to_train(train_component);
     }
 
     public void add_boxcar_to_train(Train train, string boxcar_type) //Temporary
     {
         // add all boxcars in inventory to a train. Revise to select boxcars to add to a train
         GameObject boxcar_object;
-        if (boxcar_type=="supply_boxcar")
+        if (boxcar_type=="business_boxcar")
         {
-            boxcar_object = Instantiate(Supply_Boxcar);
+            boxcar_object = Instantiate(Business_Boxcar);
         }
-        else if (boxcar_type=="bomb_boxcar")
+        else if (boxcar_type=="economy_boxcar")
         {
-            boxcar_object = Instantiate(Bomb_Boxcar);
+            boxcar_object = Instantiate(Economy_Boxcar);
         }
-        else if (boxcar_type=="troop_boxcar")
+        else if (boxcar_type=="first_boxcar")
         {
-            boxcar_object = Instantiate(Troop_Boxcar);
+            boxcar_object = Instantiate(First_Boxcar);
         }
         else
         {
@@ -138,21 +120,21 @@ public class VehicleManager : BoardManager
     public void add_all_boxcar_to_train(Train train) //Temporary
     {
         // add all boxcars in inventory to a train. Revise to select boxcars to add to a train
-        foreach (GameObject bomb_boxcar in Bomb_Boxcar_Inventory)
+        foreach (GameObject Economy_Boxcar in Economy_Boxcar_Inventory)
         {
-            create_boxcar(train, bomb_boxcar);
+            create_boxcar(train, Economy_Boxcar);
         }
-        foreach (GameObject troop_boxcar in Troop_Boxcar_Inventory)
+        foreach (GameObject First_Boxcar in First_Boxcar_Inventory)
         {
-            create_boxcar(train, troop_boxcar);
+            create_boxcar(train, First_Boxcar);
         }
-        foreach (GameObject supply_boxcar in Supply_Boxcar_Inventory)
+        foreach (GameObject Business_Boxcar in Business_Boxcar_Inventory)
         {
-            create_boxcar(train, supply_boxcar);
+            create_boxcar(train, Business_Boxcar);
         }
-        Bomb_Boxcar_Inventory.Clear();
-        Troop_Boxcar_Inventory.Clear();
-        Supply_Boxcar_Inventory.Clear();
+        Economy_Boxcar_Inventory.Clear();
+        First_Boxcar_Inventory.Clear();
+        Business_Boxcar_Inventory.Clear();
     }
 
     public bool is_vehicle_in_cell(Vector3Int unadjusted_location, GameObject[,] board)
@@ -212,20 +194,20 @@ public class VehicleManager : BoardManager
     {
         GameObject boxcar;
         //add boxcar to the inventory after exiting store
-        if (boxcar_type == "bomb")
+        if (boxcar_type == "economy")
         {
-            boxcar = Instantiate(Bomb_Boxcar);
-            Bomb_Boxcar_Inventory.Add(boxcar);
+            boxcar = Instantiate(Economy_Boxcar);
+            Economy_Boxcar_Inventory.Add(boxcar);
         }
-        else if (boxcar_type == "supply")
+        else if (boxcar_type == "business")
         {
-            boxcar = Instantiate(Supply_Boxcar);
-            Supply_Boxcar_Inventory.Add(boxcar);
+            boxcar = Instantiate(Business_Boxcar);
+            Business_Boxcar_Inventory.Add(boxcar);
         }
-        else if (boxcar_type == "troop")
+        else if (boxcar_type == "first")
         {
-            boxcar = Instantiate(Troop_Boxcar);
-            Troop_Boxcar_Inventory.Add(boxcar);
+            boxcar = Instantiate(First_Boxcar);
+            First_Boxcar_Inventory.Add(boxcar);
         }
         else {
             //print("No other type of boxcar");

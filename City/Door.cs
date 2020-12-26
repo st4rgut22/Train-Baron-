@@ -39,7 +39,7 @@ public class Door : MonoBehaviour
             float interp = 1.0f - t_param;
             float angle = Mathf.LerpAngle(start_angle, end_angle, interp); // interpolate from [0,1]
             door_sprite_go.transform.eulerAngles = new Vector3(0, 0, angle);
-            print("angle is " + door_sprite_go.transform.eulerAngles);
+            //print("angle is " + door_sprite_go.transform.eulerAngles);
             t_param -= Time.deltaTime * GameManager.speed/4;
             yield return new WaitForEndOfFrame();
         }

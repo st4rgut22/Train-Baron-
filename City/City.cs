@@ -8,9 +8,8 @@ public class City : Structure
 {
     public Tile business_tile;
     public Tile residential_tile;
-    public Tile hospital_tile;
-    public Tile lab_tile;
-    public Tile grocery_tile;
+    public Tile play_tile;
+    public Tile mining_tile;
 
     public List<Building> city_building_list;
     public Room[,] city_room_matrix;
@@ -23,9 +22,9 @@ public class City : Structure
 
     // track city control as a function of supplies, troops, artillery
     Vector3Int tilemap_position;
-    public Tile bomb_boxcar_tile;
-    public Tile supply_boxcar_tile;
-    public Tile troop_boxcar_tile;
+    public Tile economy_boxcar_tile;
+    public Tile business_boxcar_tile;
+    public Tile first_boxcar_tile;
 
     public List<GameObject> train_list; // list of trains inside a city
     public GameObject[,] city_board; // contains location of vehicles within city
@@ -38,9 +37,8 @@ public class City : Structure
 
     public GameObject Business;
     public GameObject Residential;
-    public GameObject Hospital;
-    public GameObject Lab;
-    public GameObject Grocery;
+    public GameObject Play;
+    public GameObject Mining;
 
 
     public Station West_Station;
@@ -246,20 +244,15 @@ public class City : Structure
             city_tile = residential_tile;
             building_object = Instantiate(Residential);
         }
-        else if (city_type == "Hospital")
+        else if (city_type == "Play")
         {
-            city_tile = hospital_tile;
-            building_object = Instantiate(Hospital);
+            city_tile = play_tile;
+            building_object = Instantiate(Play);
         }
-        else if (city_type == "Lab")
+        else if (city_type == "Mining")
         {
-            city_tile = lab_tile;
-            building_object = Instantiate(Lab);
-        }
-        else if (city_type == "Grocery")
-        {
-            city_tile = grocery_tile;
-            building_object = Instantiate(Grocery);
+            city_tile = mining_tile;
+            building_object = Instantiate(Mining);
         }
         else
         {
@@ -291,8 +284,6 @@ public class City : Structure
             set_city_tile((Vector3Int)room.tile_position);
             room.display_contents(true);
         }
-        //set_room_sprites();
-        //show_all_building_occupants(true);
     }
 
     public void unload_train(GameObject boxcar_go, Vector2Int room_position)
@@ -321,7 +312,7 @@ public class City : Structure
         occupant.boxcar_go = boxcar_go;
         occupant.station_track = boxcar.station_track;
         occupant.offset_map = RouteManager.offset_route_map[boxcar.station_track.start_location];
-        StartCoroutine(GameObject.Find("PersonRouteManager").GetComponent<PersonRouteManager>().board_train(boxcar, room, occupant, boxcar.tile_position));
+        StartCoroutine(GameObject.Find("PersonRouteManager").GetComponent<PersonRouteManager>().board_train(boxcar, room, occupant_go, boxcar.tile_position));
     }
 
     public void set_all_room_sprites()
@@ -447,9 +438,9 @@ public class City : Structure
     {
         Tilemap shipyard_inventory = GameManager.Shipyard_Inventory.GetComponent<Tilemap>();
         string boxcar_name = boxcar_object.name.Replace("(Clone)", "");
-        if (boxcar_name == "bomb boxcar") place_tile(tile_pos, boxcar_object, bomb_boxcar_tile, shipyard_inventory);
-        else if (boxcar_name == "supply boxcar") place_tile(tile_pos, boxcar_object, supply_boxcar_tile, shipyard_inventory);
-        else if (boxcar_name == "troop boxcar") place_tile(tile_pos, boxcar_object, troop_boxcar_tile, shipyard_inventory);
+        if (boxcar_name == "economy boxcar") place_tile(tile_pos, boxcar_object, economy_boxcar_tile, shipyard_inventory);
+        else if (boxcar_name == "business boxcar") place_tile(tile_pos, boxcar_object, business_boxcar_tile, shipyard_inventory);
+        else if (boxcar_name == "first boxcar") place_tile(tile_pos, boxcar_object, first_boxcar_tile, shipyard_inventory);
         else
         {
             throw new Exception("not a valid boxcar to store");

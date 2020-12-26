@@ -57,6 +57,8 @@ public class GameManager : EventDetector
     public Vector2Int hint_tile_pos;
     public GameObject hint_tile_go;
 
+    public static int money;
+
     public Building building_expansion;
 
     public static bool shipyard_state;
@@ -68,6 +70,7 @@ public class GameManager : EventDetector
 
     private void Awake()
     {
+        money = 500;
         train_list = new List<GameObject>();
         hint_context_list = new List<string>();
         hint_context_pos_list = new List<List<int[]>>();

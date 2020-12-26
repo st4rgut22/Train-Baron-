@@ -32,19 +32,25 @@ public class Simple_Moving_Object : EventDetector
     protected CityManager city_manager;
     protected GameManager game_manager;
 
+
+    public float angle;
     public Station_Track station_track;
     public Vector2 offset = new Vector2(0, 0);
     public Dictionary<string, Vector2> offset_map;
 
-    private void Awake()
+    public string current_animation;
+    Animator animator;
+
+    protected void Awake()
     {
-        
+        animator = GetComponent<Animator>();
+        current_animation = "player_idle_vert_down";
     }
 
     // Start is called before the first frame update
     public virtual void Start()
     {
-        
+
     }
 
     public virtual void Update()
@@ -68,7 +74,7 @@ public class Simple_Moving_Object : EventDetector
             Vector2 train_dest_xy = position_pair.abs_dest_pos;
             //print("person path is from " + next_tilemap_position + " to " + position_pair.tile_dest_pos);
             // stop the train here if track ends
-  
+
             Vector3 train_destination = new Vector3(train_dest_xy[0], train_dest_xy[1], z_pos);
 
             if (orientation != final_orientation) // curved track
@@ -80,6 +86,15 @@ public class Simple_Moving_Object : EventDetector
         }
     }
 
+    public IEnumerator set_animation_clip(string animation_clip)
+    {
+        // change the sprite's animation clip
+        animator.SetBool(animation_clip, true);
+        animator.SetBool(current_animation, false);
+        current_animation = animation_clip;
+        yield return new WaitForSeconds(1);// wait a frame to set animation
+    }
+
     public IEnumerator move_checkpoints(List<Checkpoint> checkpoint_list)
     {
         Person person = gameObject.GetComponent<Person>();
@@ -87,30 +102,27 @@ public class Simple_Moving_Object : EventDetector
         for (int i = 0; i < checkpoint_list.Count; i++)
         {
             Checkpoint cp = checkpoint_list[i];
+            if (cp.animation_clip != "none") // animation has changed
+            {
+                print("set animation clip " + cp.animation_clip);
+                // flip here
+                if (cp.animation_clip == "player_idle_hor" || cp.animation_clip == "player_walk_hor")
+                {
+                    if (cp.end_orientation == RouteManager.Orientation.West) gameObject.GetComponent<SpriteRenderer>().flipX = true;
+                    else if (cp.end_orientation == RouteManager.Orientation.East) gameObject.GetComponent<SpriteRenderer>().flipX = false;
+                    else { throw new Exception("cant have a up or down orientation for hor animation");  }
+                }
+                yield return StartCoroutine(set_animation_clip(cp.animation_clip));
+            }
             Vector2 checkpoint_position = cp.dest_pos;
             tile_position = (Vector3Int)cp.tile_position;
-            if (cp.rotation != 0)
-                yield return StartCoroutine(rotate(cp.final_angle, cp.cur_angle));
-            else
-            {
-                print("no rotation");
-            }
-            print("rotate " + cp.rotation);
+            angle = cp.final_angle;
             orientation = cp.end_orientation;
             final_orientation = orientation;
-            print("move from " + transform.position + " to " + checkpoint_position);
             yield return StartCoroutine(straight_move(transform.position, checkpoint_position));
             person.tile_position = tile_position; // update tile position
         }
-        //if (person.orientation == RouteManager.Orientation.South || person.orientation == RouteManager.Orientation.West)
-        //{
-        //    PositionPair next_position_pair = RouteManager.get_destination(this, station_track.tilemap, RouteManager.no_offset);
-        //    person.next_tilemap_position = next_position_pair.tile_dest_pos; // update tile position
-        //}
-        //else // North or East. next tile position equals current tile position because we are entering this tile (instead of leaving it)
-        //{
-            person.next_tilemap_position = (Vector2Int) person.tile_position;
-        //}
+        person.next_tilemap_position = (Vector2Int)person.tile_position;
     }
 
     public bool is_destination_reached(float min_dist)
@@ -121,21 +133,21 @@ public class Simple_Moving_Object : EventDetector
         else { return false; }
     }
 
-    public void set_initial_rotation(RouteManager.Orientation orientation)
+    public virtual void set_initial_rotation(RouteManager.Orientation orientation)
     {
         switch (orientation)
         {
             case RouteManager.Orientation.North:
-                transform.eulerAngles = new Vector3(0, 0, 0);
+                angle = 0;
                 break;
             case RouteManager.Orientation.East:
-                transform.eulerAngles = new Vector3(0, 0, -90);
+                angle = -90;
                 break;
             case RouteManager.Orientation.West:
-                transform.eulerAngles = new Vector3(0, 0, 90);
+                angle = 90;
                 break;
             case RouteManager.Orientation.South:
-                transform.eulerAngles = new Vector3(0, 0, 180);
+                angle = 180;
                 break;
         }
     }
@@ -149,7 +161,9 @@ public class Simple_Moving_Object : EventDetector
         float start_angle = location.eulerAngles[2]; // rotation about z axis
         float end_angle;
         in_tile = true;
-
+        // change animation clip
+        string animation_name = PersonRouteManager.get_animation_from_orientation(final_orientation, "walk");
+        set_animation_clip(animation_name);
         end_angle = start_angle + TrackManager.get_rotation(orientation, final_orientation); //end_angle is a static field for steep curves
         //print("Start angle is " + start_angle + " End angle is " + end_angle);
         while (!final_step)
@@ -163,7 +177,7 @@ public class Simple_Moving_Object : EventDetector
                 t_param = 0;
                 final_step = true;
             }
-            float angle = Mathf.LerpAngle(start_angle, end_angle, interp); // interpolate from [0,1]
+            float lerp_angle = Mathf.LerpAngle(start_angle, end_angle, interp); // interpolate from [0,1]
             if (is_tight_curve) // normal right angle curve
             {
                 next_position = bezier_equation(t_param, TrackManager.offset_right_angle_inner_curve);
@@ -174,7 +188,8 @@ public class Simple_Moving_Object : EventDetector
             }
             next_position = transform_curve(next_position, orientation, final_orientation) + position; //offset with current position
             transform.position = next_position;
-            location.eulerAngles = new Vector3(0, 0, angle);
+            this.angle = lerp_angle;
+            //location.eulerAngles = new Vector3(0, 0, lerp_angle);
             yield return new WaitForEndOfFrame();
         }
 

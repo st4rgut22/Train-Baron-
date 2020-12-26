@@ -28,7 +28,6 @@ public class CityManager : BoardManager
     // distances for train to travel before exiting the city (not before stopping)
     public static float exit_dest_west_east = 6;
     public static float exit_dest_north_south = 3;
-    public static Dictionary<string, List<string>> cargo_to_structure;
     public static Dictionary<RouteManager.Orientation, float> orientation_to_rotation_map; // needed for proper rotation on boarding and unloading of trains
     public static Vector2Int west_end_outer = new Vector2Int(6, 2);
     public static Vector2Int west_end_inner = new Vector2Int(6, 3);
@@ -241,14 +240,6 @@ public class CityManager : BoardManager
     void Start()
     {
         base.Start();
-        cargo_to_structure = new Dictionary<string, List<string>>
-        //todo replace keys with names of actual cargo (by changing boxcar names?)
-        { // {{coordinates of loading tiles for outer track},{coordinates of loading tiles for inner track}}
-            { "bomb boxcar",new List<string>(){ "Business","Hospital","Lab","Residential"} }, //people
-            { "troop boxcar",new List<string>(){ "Hospital"} }, // medicine
-            { "supply boxcar",new List<string>(){ "Business","Hospital","Lab","Residential"} }, // food
-        };
-
     }
 
     // Update is called once per frame

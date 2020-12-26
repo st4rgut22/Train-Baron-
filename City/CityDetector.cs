@@ -92,13 +92,7 @@ public class CityDetector : EventDetector
         {
             Train train = train_object.GetComponent<Train>();
             List<GameObject>boxcar_list = train.boxcar_squad;
-            foreach (GameObject boxcar_object in boxcar_list)
-            {
-                Boxcar boxcar = boxcar_object.GetComponent<Boxcar>();
-                List<string> valid_structure = CityManager.cargo_to_structure[boxcar.boxcar_type];
-                if (valid_structure.Contains(building_type))
-                    return true;
-            }
+            if (boxcar_list.Count > 0) return true;
         }
         return false;
     }

@@ -134,12 +134,11 @@ public class TrainRouteManager : RouteManager
         Orientation original_orientation = vehicle.orientation;
         Orientation original_final_orientation = vehicle.final_orientation;
         Tile track_tile = (Tile)tilemap.GetTile(vehicle.tile_position);
-        string track_name = track_tile.name;
         vehicle.orientation = TrackManager.flip_straight_orientation(vehicle.orientation);
         PositionPair prev_pos_pair = get_next_tile_pos(tilemap, track_tile, vehicle, vehicle.tile_position, new Vector2(0, 0)); // opposite direction of train to get prev tile
         Vector3Int prev_tile_coord = (Vector3Int)prev_pos_pair.tile_dest_pos;
         track_tile = (Tile)tilemap.GetTile(prev_tile_coord);
-        track_name = track_tile.name;
+        string track_name = track_tile.name;
         PositionPair pos_pair = get_next_tile_pos(tilemap, track_tile, vehicle, prev_tile_coord, new Vector2(0, 0)); // go in direction opposite of train
         TrackManager.set_opposite_direction(track_name, vehicle); // set direction same as train
         //print("final direction is " + vehicle.orientation);

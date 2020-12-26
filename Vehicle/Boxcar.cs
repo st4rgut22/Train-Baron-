@@ -129,32 +129,23 @@ public class Boxcar : MovingObject
     public List<int[]> get_unloading_pos(List<List<int[]>> valid_pos, int is_inner)
     {
         //unload people to home, eligible tile covers the entire building
-        List<string> valid_structure_list = CityManager.cargo_to_structure[boxcar_type];
         List<int[]> unloading_pos_list = new List<int[]>();
         bool building_has_room = false;
         int building_length = valid_pos[is_inner].Count;
-        if (valid_structure_list.Contains(city.city_type)) 
+        List<int[]> temp_unloading_pos_list = new List<int[]>();
+        for (int c = 0; c < building_length; c++)
         {
-
-            List<int[]> temp_unloading_pos_list = new List<int[]>();
-            for (int c = 0; c < building_length; c++)
+            int x = valid_pos[is_inner][c][0];
+            int y = valid_pos[is_inner][c][1];
+            temp_unloading_pos_list.Add(new int[] { x, y });
+            Room room = city.city_room_matrix[x, y];
+            if (room!=null && !room.occupied) // room is not occupied
             {
-                int x = valid_pos[is_inner][c][0];
-                int y = valid_pos[is_inner][c][1];
-                temp_unloading_pos_list.Add(new int[] { x, y });
-                Room room = city.city_room_matrix[x, y];
-                if (room!=null && !room.occupied) // room is not occupied
-                {
-                    building_has_room = true;
-                }
+                building_has_room = true;
             }
-            if (building_has_room)
-                unloading_pos_list.AddRange(temp_unloading_pos_list);
         }
-        else
-        {
-            print("boxcar cargo type " + boxcar_type + " does not match building type " + city.city_type);
-        }
+        if (building_has_room)
+            unloading_pos_list.AddRange(temp_unloading_pos_list);
         return unloading_pos_list;
     }
 }

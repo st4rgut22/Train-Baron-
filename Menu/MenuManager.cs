@@ -16,6 +16,7 @@ public class MenuManager : MonoBehaviour
     public static GameObject store_menu;
     public static GameObject game_menu;
     public static GameObject shipyard_exit_menu;
+    public static GameObject game_icon_canvas;
     static List<GameObject> event_handler_list; // names of gameobjects that listen for events
     City city;
 
@@ -32,6 +33,7 @@ public class MenuManager : MonoBehaviour
         store_menu = GameObject.Find("Store Menu");
         game_menu = GameObject.Find("Game Menu");
         shipyard_exit_menu = GameObject.Find("Exit Bar");
+        game_icon_canvas = GameObject.Find("Iconic Canvas");
         store_menu_manager = store_menu.GetComponent<StoreMenuManager>();
         game_menu_manager = game_menu.GetComponent<GameMenuManager>();
         camera = GameObject.Find("Camera").GetComponent<Camera>();
@@ -39,6 +41,7 @@ public class MenuManager : MonoBehaviour
         event_handler_list.Add(store_menu);
         event_handler_list.Add(game_menu);
         event_handler_list.Add(shipyard_exit_menu);
+        event_handler_list.Add(game_icon_canvas);
         activate_default_handler();
         store_btn.onClick.AddListener(delegate { activate_handler(new List<GameObject> { store_menu }); });
         shipyard_exit_btn.onClick.AddListener(turn_off_shipyard);
@@ -60,7 +63,7 @@ public class MenuManager : MonoBehaviour
     public static void activate_default_handler()
     {
         //activates handlers for game screen
-        activate_handler(new List<GameObject> { game_menu });
+        activate_handler(new List<GameObject> { game_menu, game_icon_canvas });
     }
 
     public static void activate_handler(List<GameObject> menu)

@@ -32,7 +32,7 @@ public class MovingObject : Simple_Moving_Object
         next_tilemap_position = home_base;
         prev_city = null;
         orientation = VehicleManager.round_robin_orientation(); // TEMPORARY, TESTING create train display!
-        //orientation = RouteManager.Orientation.North; // direction of incoming train 
+        //orientation = RouteManager.Orientation.East; // direction of incoming train 
         final_orientation = orientation;
     }
 
@@ -119,6 +119,25 @@ public class MovingObject : Simple_Moving_Object
                 up_multiplier += 4;
             train_destination = transform.up * up_multiplier * RouteManager.cell_width + transform.position;
             StartCoroutine(straight_move(transform.position, train_destination, false, true)); // turn on exit city flag
+        }
+    }
+
+    public override void set_initial_rotation(RouteManager.Orientation orientation)
+    {
+        switch (orientation)
+        {
+            case RouteManager.Orientation.North:
+                transform.eulerAngles = new Vector3(0, 0, 0);
+                break;
+            case RouteManager.Orientation.East:
+                transform.eulerAngles = new Vector3(0, 0, -90);
+                break;
+            case RouteManager.Orientation.West:
+                transform.eulerAngles = new Vector3(0, 0, 90);
+                break;
+            case RouteManager.Orientation.South:
+                transform.eulerAngles = new Vector3(0, 0, 180);
+                break;
         }
     }
 

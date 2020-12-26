@@ -170,6 +170,6 @@ public class Room : Structure
 
     public void display_occupant(bool display)
     {
-        person_go.GetComponent<SpriteRenderer>().enabled = display;
+        person_go.SetActive(display);
     }
 }
