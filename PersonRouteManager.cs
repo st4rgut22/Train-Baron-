@@ -134,7 +134,10 @@ public class PersonRouteManager : RouteManager
         StartCoroutine(unlocked_door.rotate(3)); // wait 3 seconds before closing the door
         if (!occupant.is_destination_reached(cell_width))
         {
+            Vector3 original_euler = occupant.transform.eulerAngles;
+            occupant.transform.eulerAngles = new Vector3(0, 0, occupant.orient_angle); // use angle just to get direction of travelfor offset
             Vector3 offset_pos = occupant.transform.position + occupant.transform.up * .45f;
+            occupant.transform.eulerAngles = original_euler; // restore angle
             Checkpoint go_to_doorstep_cp = new Checkpoint(offset_pos, doorstep_position, end_orientation, end_orientation, "walk");
             Orientation align_track_orientation = TrackManager.get_start_orientation(track_name, occupant.transform.position, boxcar.transform.position, boxcar);
             Checkpoint align_track_cp = new Checkpoint(offset_pos, doorstep_position, end_orientation, align_track_orientation, "walk"); // dont move just rotate

@@ -32,8 +32,8 @@ public class Simple_Moving_Object : EventDetector
     protected CityManager city_manager;
     protected GameManager game_manager;
 
-
     public float angle;
+    public float orient_angle; 
     public Station_Track station_track;
     public Vector2 offset = new Vector2(0, 0);
     public Dictionary<string, Vector2> offset_map;
@@ -152,32 +152,39 @@ public class Simple_Moving_Object : EventDetector
         }
     }
 
+    public void set_angle_using_orientation(RouteManager.Orientation orientation)
+    {
+        if (orientation == RouteManager.Orientation.North)
+            orient_angle = 0;
+        else if (orientation == RouteManager.Orientation.East)
+            orient_angle = 90f;
+        else if (orientation == RouteManager.Orientation.West)
+            orient_angle = -90f;
+        else if (orientation == RouteManager.Orientation.South)
+            orient_angle = 180f;
+        else { throw new Exception("unable to set angle because orientation not recognized"); }            
+    }
+
     public virtual IEnumerator bezier_move(Transform location, RouteManager.Orientation orientation, RouteManager.Orientation final_orientation)
     {
         Vector2 position = location.position;
         float t_param;
         t_param = 1;
         bool final_step = false;
-        float start_angle = location.eulerAngles[2]; // rotation about z axis
-        float end_angle;
         in_tile = true;
         // change animation clip
         string animation_name = PersonRouteManager.get_animation_from_orientation(final_orientation, "walk");
-        set_animation_clip(animation_name);
-        end_angle = start_angle + TrackManager.get_rotation(orientation, final_orientation); //end_angle is a static field for steep curves
+        StartCoroutine(set_animation_clip(animation_name));
         //print("Start angle is " + start_angle + " End angle is " + end_angle);
         while (!final_step)
         {
-            float interp = 1.0f - t_param;
             t_param -= Time.deltaTime * speed;
 
             if (t_param < 0) // set t_param to 0 to get bezier coordinates closer to the destination (and be within tolerance)
             {
-                interp = 1;
                 t_param = 0;
                 final_step = true;
             }
-            float lerp_angle = Mathf.LerpAngle(start_angle, end_angle, interp); // interpolate from [0,1]
             if (is_tight_curve) // normal right angle curve
             {
                 next_position = bezier_equation(t_param, TrackManager.offset_right_angle_inner_curve);
@@ -188,11 +195,9 @@ public class Simple_Moving_Object : EventDetector
             }
             next_position = transform_curve(next_position, orientation, final_orientation) + position; //offset with current position
             transform.position = next_position;
-            this.angle = lerp_angle;
-            //location.eulerAngles = new Vector3(0, 0, lerp_angle);
             yield return new WaitForEndOfFrame();
         }
-
+        set_angle_using_orientation(final_orientation);
         in_tile = false;
     }
 
