@@ -73,7 +73,7 @@ public class Person: Simple_Moving_Object
     public void set_orientation(RouteManager.Orientation orientation)
     {
         this.orientation = orientation;
-        set_initial_rotation(orientation);
+        //set_initial_rotation(orientation);
     }
 
     public void set_tile_pos(Vector2Int update_tile_pos)

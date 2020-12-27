@@ -143,8 +143,7 @@ public class Room : Structure
     {
         person.transform.position = RouteManager.track_tilemap.GetCellCenterWorld((Vector3Int)tile_position);
         person.set_tile_pos(tile_position);
-        string building_lot_name = building.building_lot.id;
-        RouteManager.Orientation orientation = CityManager.initial_person_face_map[building_lot_name];
+        RouteManager.Orientation orientation = RouteManager.Orientation.South;
         person.set_orientation(orientation);
     }
 

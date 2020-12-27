@@ -52,7 +52,7 @@ public class CityManager : BoardManager
     public static Dictionary<Vector3Int, RouteManager.Orientation> station_track_boarding_map;
     public static Dictionary<Vector3Int, Dictionary<string, RouteManager.Orientation>> station_track_unloading_map;
     public static Dictionary<Vector3Int, RouteManager.Orientation[]> station_track_curve_map; // array index 0 is original orientation, 1 is final orientation
-    public static Dictionary<string, RouteManager.Orientation> initial_person_face_map;
+    //public static Dictionary<string, RouteManager.Orientation> initial_person_face_map;
 
 
     private void Awake()
@@ -197,15 +197,15 @@ public class CityManager : BoardManager
             }
         };
 
-        initial_person_face_map = new Dictionary<string, RouteManager.Orientation>()
-        {
-            {"Building Lot North Outer", RouteManager.Orientation.North },
-            {"Building Lot North Inner", RouteManager.Orientation.West },
-            {"Building Lot South Outer", RouteManager.Orientation.South },
-            {"Building Lot South Inner", RouteManager.Orientation.East },
-            {"Building Lot West", RouteManager.Orientation.East },
-            {"Building Lot East", RouteManager.Orientation.East}
-        };
+        //initial_person_face_map = new Dictionary<string, RouteManager.Orientation>()
+        //{
+        //    {"Building Lot North Outer", RouteManager.Orientation.North },
+        //    {"Building Lot North Inner", RouteManager.Orientation.West },
+        //    {"Building Lot South Outer", RouteManager.Orientation.South },
+        //    {"Building Lot South Inner", RouteManager.Orientation.East },
+        //    {"Building Lot West", RouteManager.Orientation.East },
+        //    {"Building Lot East", RouteManager.Orientation.East}
+        //};
 
         station_track_curve_map = new Dictionary<Vector3Int, RouteManager.Orientation[]>()
         {

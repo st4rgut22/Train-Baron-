@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 public class PersonRouteManager : RouteManager
 {
+    static string rest_animation_name = "player_idle_front";
+
     public bool is_curve_inner(Boxcar boxcar)
     {
         // the bezier curve multiplier is decided by whether the person travels along inside or outside of the track
@@ -167,6 +169,7 @@ public class PersonRouteManager : RouteManager
         Checkpoint step_on_boxcar_cp = new Checkpoint(boxcar.transform.position, (Vector2Int)boxcar.tile_position, person.orientation, final_orientation, "walk");
         List<Checkpoint> board_train_checkpoints = new List<Checkpoint>() { step_on_boxcar_cp };
         yield return StartCoroutine(person.move_checkpoints(board_train_checkpoints));
+        StartCoroutine(person.set_animation_clip(rest_animation_name));
         person.transform.parent = boxcar.transform; // make person a passenger of boxcar
     }
 
@@ -180,13 +183,13 @@ public class PersonRouteManager : RouteManager
         Orientation enter_home_orientation = get_orientation_from_position(person, room_position);
         Checkpoint enter_door_cp = new Checkpoint(enter_door_location, room.tile_position, person.orientation, enter_home_orientation, "walk");
         Checkpoint enter_home_cp = new Checkpoint(room_position, room.tile_position, enter_home_orientation, enter_home_orientation, "walk");
-        Orientation resting_orientation = CityManager.initial_person_face_map[room.building.building_lot.id];
-        Checkpoint resting_cp = new Checkpoint(enter_home_cp.dest_pos, room.tile_position, enter_home_orientation, resting_orientation, "idle");
+        //Checkpoint resting_cp = new Checkpoint(enter_home_cp.dest_pos, room.tile_position, enter_home_orientation, resting_orientation, "idle");
         enter_home_checkpoints.Add(enter_door_cp);
         enter_home_checkpoints.Add(enter_home_cp);
-        enter_home_checkpoints.Add(resting_cp); // rotate person so facing same direction as building
+        //enter_home_checkpoints.Add(resting_cp); // rotate person so facing same direction as building
         yield return StartCoroutine(unlocked_door.rotate());
         yield return StartCoroutine(person.move_checkpoints(enter_home_checkpoints));
+        StartCoroutine(person.set_animation_clip(rest_animation_name));
         StartCoroutine(unlocked_door.rotate());
         room.occupied = true;
         room.person_go = person_go;
