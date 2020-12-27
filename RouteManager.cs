@@ -199,16 +199,19 @@ public class RouteManager : MonoBehaviour
         }
     }
 
-    public static Orientation get_orientation_from_tile_position(Vector2Int start_tile_pos, Vector2Int end_tile_pos)
+    public static Orientation get_orientation_from_position(Person person, Vector2 room_position)
     {
-        if (start_tile_pos.x == end_tile_pos.x && end_tile_pos.y < start_tile_pos.y) return Orientation.South;
-        else if (start_tile_pos.x == end_tile_pos.x && end_tile_pos.y > start_tile_pos.y) return Orientation.North;
-        else if (start_tile_pos.y == end_tile_pos.y && end_tile_pos.x > start_tile_pos.x) return Orientation.East;
-        else if (start_tile_pos.y == end_tile_pos.y && end_tile_pos.x < start_tile_pos.x) return Orientation.West;
-        else
+        if (person.orientation == Orientation.North || person.orientation == Orientation.South)
         {
-            throw new Exception("cannot find orientation based on tile position");
+            if (person.transform.position.x < room_position.x) return Orientation.East;
+            else { return Orientation.West; }
         }
+        else if (person.orientation == Orientation.East || person.orientation == Orientation.West)
+        {
+            if (person.transform.position.y < room_position.y) return Orientation.North;
+            else { return Orientation.South; }
+        }
+        else { throw new Exception("unknown player orientation"); }
     }
 
     public static PositionPair get_next_tile_pos(Tilemap tilemap, Tile track_tile, Simple_Moving_Object moving_thing, Vector3Int tile_coord, Vector2 offset)

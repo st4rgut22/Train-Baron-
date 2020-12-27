@@ -157,9 +157,9 @@ public class Simple_Moving_Object : EventDetector
         if (orientation == RouteManager.Orientation.North)
             orient_angle = 0;
         else if (orientation == RouteManager.Orientation.East)
-            orient_angle = 90f;
-        else if (orientation == RouteManager.Orientation.West)
             orient_angle = -90f;
+        else if (orientation == RouteManager.Orientation.West)
+            orient_angle = 90f;
         else if (orientation == RouteManager.Orientation.South)
             orient_angle = 180f;
         else { throw new Exception("unable to set angle because orientation not recognized"); }            

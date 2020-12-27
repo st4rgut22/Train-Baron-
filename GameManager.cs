@@ -70,7 +70,7 @@ public class GameManager : EventDetector
 
     private void Awake()
     {
-        money = 500;
+        money = 5000;
         train_list = new List<GameObject>();
         hint_context_list = new List<string>();
         hint_context_pos_list = new List<List<int[]>>();
