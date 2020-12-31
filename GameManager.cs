@@ -57,6 +57,8 @@ public class GameManager : EventDetector
     public Vector2Int hint_tile_pos;
     public GameObject hint_tile_go;
 
+    public static GameObject city_tilemap_go;
+
     public static int money;
 
     public Building building_expansion;
@@ -96,6 +98,7 @@ public class GameManager : EventDetector
         building_lot_east = GameObject.Find("Building Lot East");
         building_expansion = null;
         test_btn.onClick.AddListener(activate_train);
+        city_tilemap_go = GameObject.Find("City Tilemap");
     }
 
     // Start is called before the first frame update

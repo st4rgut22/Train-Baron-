@@ -13,8 +13,14 @@ public class GameMenuManager : EventDetector
     public GameObject ws_curve;
     public GameObject hor_track;
     public GameObject vert_track;
-    public GameObject dummy_train; // train sprite without train script for visual purposes
     public GameObject boxcar;
+    public GameObject restaurant;
+    public GameObject scenery;
+    public GameObject wealthy;
+    public GameObject diner;
+    public GameObject factory;
+    public GameObject poor;
+
     public Camera camera;
 
     public Tile ES_tile;
@@ -24,6 +30,14 @@ public class GameMenuManager : EventDetector
     public Tile WS_tile;
     public Tile vert_tile;
     public Tile clicked_tile;
+
+    public Tile wealthy_tile;
+    public Tile poor_tile;
+    public Tile diner_tile;
+    public Tile factory_tile;
+    public Tile pond_tile;
+    public Tile entrance_tile;
+    public Tile restaurant_tile;
 
     string item_name;
 
@@ -43,33 +57,51 @@ public class GameMenuManager : EventDetector
     {
     }
 
-    public void update_track_inventory()
+    public void update_inventory()
     {
         List<GameObject> Track_Gameobject_List = new List<GameObject>();
         random_algos.dfs_find_child_objects(transform, Track_Gameobject_List, new string[] { "Text" });
-        foreach (GameObject track_object in Track_Gameobject_List)
+        foreach (GameObject inventory_item in Track_Gameobject_List)
         {
-            Text track_object_text = track_object.GetComponent<Text>();
-            string track_name = track_object.transform.parent.name;
-            switch (track_name)
+            Text item_count = inventory_item.GetComponent<Text>();
+            string item_name = inventory_item.transform.parent.name;
+            switch (item_name)
             {
                 case "vert":
-                    track_object_text.text = "x" + TrackManager.vert_count.ToString();
+                    item_count.text = "x" + TrackManager.vert_count.ToString();
                     break;
                 case "hor":
-                    track_object_text.text = "x" + TrackManager.hor_count.ToString();
+                    item_count.text = "x" + TrackManager.hor_count.ToString();
                     break;
                 case "NE":
-                    track_object_text.text = "x" + TrackManager.ne_count.ToString();
+                    item_count.text = "x" + TrackManager.ne_count.ToString();
                     break;
                 case "WS":
-                    track_object_text.text = "x" + TrackManager.ws_count.ToString();
+                    item_count.text = "x" + TrackManager.ws_count.ToString();
                     break;
                 case "WN":
-                    track_object_text.text = "x" + TrackManager.wn_count.ToString();
+                    item_count.text = "x" + TrackManager.wn_count.ToString();
                     break;
                 case "ES":
-                    track_object_text.text = "x" + TrackManager.es_count.ToString();
+                    item_count.text = "x" + TrackManager.es_count.ToString();
+                    break;
+                case "restaurant":
+                    item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
+                    break;
+                case "factory":
+                    item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
+                    break;
+                case "poor":
+                    item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
+                    break;
+                case "wealthy":
+                    item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
+                    break;
+                case "diner":
+                    item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
+                    break;
+                case "scenery":
+                    item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
                     break;
                 default:
                     break;
@@ -124,100 +156,113 @@ public class GameMenuManager : EventDetector
         GameObject.Find("GameManager").GetComponent<GameManager>().mark_tile_as_eligible(track_action_coord, track_hint_list, gameObject);
     }
 
-    //public override void OnBeginDrag(PointerEventData eventData)
-    //{
-    //    try
-    //    {
-    //        item_name = eventData.pointerCurrentRaycast.gameObject.name;
-    //        Vector3 position = MenuManager.convert_screen_to_world_coord(eventData.position);
-    //        clicked_tile = null; // reset this variable
-    //        switch (item_name)
-    //        {
-    //            case "ES":
-    //                clicked_item = Instantiate(es_curve, position, Quaternion.identity);
-    //                clicked_tile = ES_tile;
-    //                break;
-    //            case "NE":
-    //                clicked_item = Instantiate(ne_curve, position, Quaternion.identity);
-    //                clicked_tile = NE_tile;
-    //                break;
-    //            case "WN":
-    //                clicked_item = Instantiate(wn_curve, position, Quaternion.identity);
-    //                clicked_tile = WN_tile;
-    //                break;
-    //            case "WS":
-    //                clicked_item = Instantiate(ws_curve, position, Quaternion.identity);
-    //                clicked_tile = WS_tile;
-    //                break;
-    //            case "hor":
-    //                clicked_item = Instantiate(hor_track, position, Quaternion.identity);
-    //                clicked_tile = hor_tile;
-    //                break;
-    //            case "vert":
-    //                clicked_item = Instantiate(vert_track, position, Quaternion.identity);
-    //                clicked_tile = vert_tile;
-    //                break;
-    //            case "boxcar":
-    //                clicked_item = Instantiate(boxcar, position, Quaternion.identity);
-    //                break;
-    //            case "trainee": // tell the train where to go
-    //                clicked_item = Instantiate(dummy_train, position, Quaternion.identity);
-    //                break;
-    //            default:
-    //                break;
-    //        }
-    //    } catch (NullReferenceException)
-    //    {
-    //        print("null");
-    //    }
+    public override void OnBeginDrag(PointerEventData eventData)
+    {
+        try
+        {
+            item_name = eventData.pointerCurrentRaycast.gameObject.name;
+            string tag = eventData.pointerCurrentRaycast.gameObject.tag;
+            Vector3 position = MenuManager.convert_screen_to_world_coord(eventData.position);
+            clicked_tile = null; // reset this variable
+            switch (item_name)
+            {
+                case "ES":
+                    clicked_item = Instantiate(es_curve, position, Quaternion.identity);
+                    clicked_tile = ES_tile;
+                    break;
+                case "NE":
+                    clicked_item = Instantiate(ne_curve, position, Quaternion.identity);
+                    clicked_tile = NE_tile;
+                    break;
+                case "WN":
+                    clicked_item = Instantiate(wn_curve, position, Quaternion.identity);
+                    clicked_tile = WN_tile;
+                    break;
+                case "WS":
+                    clicked_item = Instantiate(ws_curve, position, Quaternion.identity);
+                    clicked_tile = WS_tile;
+                    break;
+                case "hor":
+                    clicked_item = Instantiate(hor_track, position, Quaternion.identity);
+                    clicked_tile = hor_tile;
+                    break;
+                case "vert":
+                    clicked_item = Instantiate(vert_track, position, Quaternion.identity);
+                    clicked_tile = vert_tile;
+                    break;
+                case "boxcar":
+                    clicked_item = Instantiate(boxcar, position, Quaternion.identity);
+                    break;
+                case "restaurant": 
+                    clicked_item = Instantiate(restaurant, position, Quaternion.identity);
+                    clicked_tile = restaurant_tile;
+                    break;
+                case "wealthy": 
+                    clicked_item = Instantiate(wealthy, position, Quaternion.identity);
+                    clicked_tile = wealthy_tile;
+                    break;
+                case "scenery": 
+                    clicked_item = Instantiate(scenery, position, Quaternion.identity);
+                    break;
+                case "diner":
+                    clicked_item = Instantiate(diner, position, Quaternion.identity);
+                    clicked_tile = diner_tile;
+                    break;
+                case "factory": 
+                    clicked_item = Instantiate(factory, position, Quaternion.identity);
+                    clicked_tile = factory_tile;
+                    break;
+                case "poor": 
+                    clicked_item = Instantiate(poor, position, Quaternion.identity);
+                    clicked_tile = poor_tile;
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch (NullReferenceException)
+        {
+            print("null");
+        }
+    }
 
-    //}
+    public override void OnDrag(PointerEventData eventData)
+    {
+        Vector3 world_position = MenuManager.convert_screen_to_world_coord(eventData.position);
+        clicked_item.transform.position = world_position;
+    }
 
-    //public override void OnDrag(PointerEventData eventData)
-    //{
-    //    try
-    //    {
-    //        Vector3 world_position = MenuManager.convert_screen_to_world_coord(eventData.position);
-    //        clicked_item.transform.position = world_position;
-    //    }
-    //    catch (NullReferenceException e)
-    //    {
-    //        //print("tried to drag something that is not draggable");
-    //        print(e.Message);
-    //    }
-    //    catch (MissingReferenceException e)
-    //    {
-    //        //print("Trying to access a destroyed object");
-    //        print(e.Message);
-    //    }
-    //}
-
-    //public override void OnEndDrag(PointerEventData eventData)
-    //{
-    //    // REVISE ME!!!
-    //    VehicleManager vehicle_manager = GameObject.Find("VehicleManager").GetComponent<VehicleManager>();
-    //    TrackManager track_manager = GameObject.Find("TrackManager").GetComponent<TrackManager>();
-    //    Vector2Int final_tilemap_position = GameManager.get_selected_tile(eventData.position);
-    //    try
-    //    {
-    //        string item_name = clicked_item.name.Replace("(Clone)", ""); // remove clone from the game object name
-    //        if (item_name == "ES" || item_name == "NE" || item_name == "WN" || item_name == "WS" || item_name == "hor" || item_name == "vert")
-    //        {
-    //            track_manager.place_tile(final_tilemap_position, clicked_tile, true);
-    //        }
-    //        if (clicked_item != null)
-    //        {
-    //            Destroy(clicked_item);
-    //        }
-    //    }
-    //    catch (NullReferenceException e)
-    //    {
-    //        print(e.StackTrace);
-    //    }
-    //    catch (MissingReferenceException e)
-    //    {
-    //        print(e.Message); // tried to drag something that is not draggable
-    //    }
-    //}
+    public override void OnEndDrag(PointerEventData eventData)
+    {
+        // REVISE ME!!!
+        TrackManager track_manager = GameObject.Find("TrackManager").GetComponent<TrackManager>();
+        Vector2Int final_tilemap_position = GameManager.get_selected_tile(eventData.position);
+        try
+        {
+            string tag = clicked_item.tag;
+            string item_name = clicked_item.name.Replace("(Clone)", ""); // remove clone from the game object name
+            if (tag == "structure")
+            {
+                RouteManager.city_tilemap.SetTile((Vector3Int)final_tilemap_position, clicked_tile);
+                GameManager.city_manager.create_city((Vector3Int)final_tilemap_position);
+            }
+            else if (tag == "track")
+            {
+                track_manager.place_tile(final_tilemap_position, clicked_tile, true);
+            }
+            if (clicked_item != null)
+            {
+                Destroy(clicked_item);
+            }
+        }
+        catch (NullReferenceException e)
+        {
+            print(e.StackTrace);
+        }
+        catch (MissingReferenceException e)
+        {
+            print(e.Message); // tried to drag something that is not draggable
+        }
+    }
 
 }

@@ -623,16 +623,16 @@ public class TrackManager : BoardManager
             case "hor_desc":
                 hor_count++;
                 break;
-            case "wn_desc":
+            case "nw_desc":
                 wn_count++;
                 break;
             case "ne_desc":
                 ne_count++;
                 break;
-            case "ws_desc":
+            case "sw_desc":
                 ws_count++;
                 break;
-            case "es_desc":
+            case "se_desc":
                 es_count++;
                 break;
             default:

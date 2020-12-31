@@ -52,13 +52,14 @@ public class CityManager : BoardManager
     public static Dictionary<Vector3Int, RouteManager.Orientation> station_track_boarding_map;
     public static Dictionary<Vector3Int, Dictionary<string, RouteManager.Orientation>> station_track_unloading_map;
     public static Dictionary<Vector3Int, RouteManager.Orientation[]> station_track_curve_map; // array index 0 is original orientation, 1 is final orientation
-    //public static Dictionary<string, RouteManager.Orientation> initial_person_face_map;
+
+    public static Dictionary<string, int> building_count_dict = new Dictionary<string, int>(); // <building name, building count>
 
 
     private void Awake()
     {
         base.Awake();
-        create_cities(); // instantiate cities and save their positions
+        create_city((Vector3Int)home_base_location); // initialize train entrance
         home_base = get_city(home_base_location).GetComponent<City>();
         orientation_to_rotation_map = new Dictionary<RouteManager.Orientation, float>()
         {
@@ -197,16 +198,6 @@ public class CityManager : BoardManager
             }
         };
 
-        //initial_person_face_map = new Dictionary<string, RouteManager.Orientation>()
-        //{
-        //    {"Building Lot North Outer", RouteManager.Orientation.North },
-        //    {"Building Lot North Inner", RouteManager.Orientation.West },
-        //    {"Building Lot South Outer", RouteManager.Orientation.South },
-        //    {"Building Lot South Inner", RouteManager.Orientation.East },
-        //    {"Building Lot West", RouteManager.Orientation.East },
-        //    {"Building Lot East", RouteManager.Orientation.East}
-        //};
-
         station_track_curve_map = new Dictionary<Vector3Int, RouteManager.Orientation[]>()
         {
             // a dictionary of orientations for person leaving a boxcar
@@ -245,6 +236,28 @@ public class CityManager : BoardManager
     // Update is called once per frame
     void Update()
     {
+    }
+
+    public static int get_building_count(string building_name)
+    {
+        if (building_count_dict.ContainsKey(building_name))
+            return building_count_dict[building_name];
+        else
+        {
+            return 0;
+        }
+    }
+
+    public static void update_building_count(string building_name)
+    {
+        if (building_count_dict.ContainsKey(building_name))
+        {
+            building_count_dict[building_name] += 1;
+        }
+        else
+        {
+            building_count_dict[building_name] = 1;
+        }
     }
 
     public static bool is_exit_route_shown(RouteManager.Orientation orientation)
@@ -348,19 +361,13 @@ public class CityManager : BoardManager
         }
     }  
 
-    //public static void expand_city(PointerEventData eventData)
-    //{
-    //    RaycastHit2D selected_object = GameManager.get_object_at_cursor(eventData.pressPosition);
-    //    Activated_City_Component.expand_building(selected_object.collider.name);
-    //}
-
     public void set_activated_city(GameObject city_object=null)
     {
         if (city_object == null) // hide shipyard
         {
             city_tilemap_go.SetActive(false);
             GameManager.city_menu_state = false;
-            Activated_City.GetComponent<City>().enable_train_for_screen(); // hide trains before setting activated city to null
+            Activated_City.GetComponent<City>().enable_train_for_screen(); 
             Activated_City.GetComponent<City>().show_all_building_occupants(false);
             hide_shipyard_inventory();
         }
@@ -406,28 +413,22 @@ public class CityManager : BoardManager
         return gameobject_board[city_location.x, city_location.y];
     }
 
-    
-    public void create_cities()
+
+    public void create_city(Vector3Int cell_position)
     {
         // initialize board with stationary tiles eg cities
         Tilemap structure_tilemap = GameManager.Structure.GetComponent<Tilemap>();
-        for (int r = 0; r < board_width; r++)
+
+        Tile structure_tile = (Tile)structure_tilemap.GetTile(cell_position);
+        if (structure_tile != null)
         {
-            for (int c = 0; c < board_height; c++)
-            {
-                Vector3Int cell_position = new Vector3Int(r, c, 0);
-                Tile structure_tile = (Tile)structure_tilemap.GetTile(cell_position);
-                if (structure_tile != null)
-                {
-                    string city_type = structure_tile.name;
-                    GameObject city = Instantiate(City);
-                    city.GetComponent<City>().set_location(cell_position);
-                    city.GetComponent<City>().city_type = city_type;
-                    city.GetComponent<City>().city_id = city_id;
-                    gameobject_board[r, c] = city;
-                    city_id++;
-                }
-            }
+            string city_type = structure_tile.name;
+            GameObject city = Instantiate(City);
+            city.GetComponent<City>().set_location(cell_position);
+            city.GetComponent<City>().city_type = city_type;
+            city.GetComponent<City>().city_id = city_id;
+            gameobject_board[cell_position.x, cell_position.y] = city;
+            city_id++;
         }
     }
 }

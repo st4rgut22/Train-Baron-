@@ -6,10 +6,13 @@ using UnityEngine.Tilemaps;
 
 public class City : Structure
 {
-    public Tile business_tile;
-    public Tile residential_tile;
-    public Tile play_tile;
-    public Tile mining_tile;
+    public Tile wealthy_room_tile;
+    public Tile poor_room_tile;
+    public Tile diner_room_tile;
+    public Tile factory_room_tile;
+    public Tile entrance_room_tile;
+    public Tile restaurant_room_tile;
+
 
     public List<Building> city_building_list;
     public Room[,] city_room_matrix;
@@ -37,9 +40,13 @@ public class City : Structure
 
     public GameObject Business;
     public GameObject Residential;
-    public GameObject Play;
-    public GameObject Mining;
-
+    public GameObject Wealthy;
+    public GameObject Poor;
+    public GameObject Restaurant;
+    public GameObject Factory;
+    public GameObject Pond;
+    public GameObject Entrance;
+    public GameObject Diner;
 
     public Station West_Station;
     public Station North_Station;
@@ -60,13 +67,12 @@ public class City : Structure
     private void Awake()
     {
         initial_building_lot_list = new List<string>() { "Building Lot South Outer", "Building Lot South Inner", "Building Lot North Outer", "Building Lot North Inner", "Building Lot West", "Building Lot East" };
-        //initial_building_lot_list = new List<string>() { "Building Lot North Outer" };
         base.Awake();
         West_Station = new Station(CityManager.west_start_outer, CityManager.west_start_inner, RouteManager.Orientation.West, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
         North_Station = new Station(CityManager.north_start_outer, CityManager.north_start_inner, RouteManager.Orientation.North, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
         East_Station = new Station(CityManager.east_start_outer, CityManager.east_start_inner, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
         South_Station = new Station(CityManager.south_start_outer, CityManager.south_start_inner, RouteManager.Orientation.South, RouteManager.Orientation.West, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
-        city_tilemap_go = GameObject.Find("City Tilemap");
+        city_tilemap_go = GameManager.city_tilemap_go;
         city_tilemap = city_tilemap_go.GetComponent<Tilemap>();
         city_room_matrix = new Room[board_width, board_height];
         city_board = new GameObject[board_width, board_height]; // zero out the negative tile coordinates
@@ -234,31 +240,41 @@ public class City : Structure
     public Building get_city_building()
     {
         GameObject building_object;
-        if (city_type == "Business")
+        if (city_type == "Entrance")
         {
-            city_tile = business_tile;
-            building_object = Instantiate(Business);
+            city_tile = entrance_room_tile;
+            building_object = Instantiate(Entrance);
         }
-        else if (city_type == "Residential")
+        else if (city_type == "Poor")
         {
-            city_tile = residential_tile;
-            building_object = Instantiate(Residential);
+            city_tile = poor_room_tile;
+            building_object = Instantiate(Poor);
         }
-        else if (city_type == "Play")
+        else if (city_type == "Wealthy")
         {
-            city_tile = play_tile;
-            building_object = Instantiate(Play);
+            city_tile = wealthy_room_tile;
+            building_object = Instantiate(Wealthy);
         }
-        else if (city_type == "Mining")
+        else if (city_type == "Factory")
         {
-            city_tile = mining_tile;
-            building_object = Instantiate(Mining);
+            city_tile = factory_room_tile;
+            building_object = Instantiate(Factory);
+        }
+        else if (city_type == "Diner")
+        {
+            city_tile = diner_room_tile;
+            building_object = Instantiate(Diner);
+        }
+        else if (city_type == "Restaurant")
+        {
+            city_tile = restaurant_room_tile;
+            building_object = Instantiate(Restaurant);
         }
         else
         {
             throw new Exception("not a valid tile");
         }
-        return building_object.GetComponent<Building>(); // will this work? is a base class of the gameObject
+        return building_object.GetComponent<Building>(); 
     }
 
     public void expand_building(Building building, Vector2Int selected_tile)

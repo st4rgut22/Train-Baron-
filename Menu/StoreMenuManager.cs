@@ -25,7 +25,13 @@ public class StoreMenuManager : MonoBehaviour
             {"nw_desc", 50 },
             {"ne_desc", 50 },
             {"sw_desc",50 },
-            {"se_desc", 50 }
+            {"se_desc", 50 },
+            {"factory", 200 },
+            {"scenery", 60 },
+            {"restaurant", 150 },
+            {"wealthy", 300 },
+            {"poor", 100 },
+            {"diner", 100 },            
         };
     }
 
@@ -68,7 +74,7 @@ public class StoreMenuManager : MonoBehaviour
         bool is_money_sufficient = change_item_count();
         if (is_money_sufficient)
         {
-            game_menu_manager.update_track_inventory();
+            game_menu_manager.update_inventory(); // change game mneu item count
         }
     }
 
@@ -118,13 +124,14 @@ public class StoreMenuManager : MonoBehaviour
                     case "ne_desc":
                         TrackManager.add_track(item_name);
                         break;
-                    case "ws_desc":
+                    case "sw_desc":
                         TrackManager.add_track(item_name);
                         break;
                     case "se_desc":
                         TrackManager.add_track(item_name);
                         break;
                     default:
+                        CityManager.update_building_count(item_name);
                         break;
                 }
             }
