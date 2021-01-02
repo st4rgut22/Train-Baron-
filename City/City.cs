@@ -25,9 +25,10 @@ public class City : Structure
 
     // track city control as a function of supplies, troops, artillery
     Vector3Int tilemap_position;
-    public Tile economy_boxcar_tile;
-    public Tile business_boxcar_tile;
-    public Tile first_boxcar_tile;
+    public Tile food_boxcar_tile;
+    public Tile work_boxcar_tile;
+    public Tile vacation_boxcar_tile;
+    public Tile home_boxcar_tile;
 
     public List<GameObject> train_list; // list of trains inside a city
     public GameObject[,] city_board; // contains location of vehicles within city
@@ -454,9 +455,10 @@ public class City : Structure
     {
         Tilemap shipyard_inventory = GameManager.Shipyard_Inventory.GetComponent<Tilemap>();
         string boxcar_name = boxcar_object.name.Replace("(Clone)", "");
-        if (boxcar_name == "economy boxcar") place_tile(tile_pos, boxcar_object, economy_boxcar_tile, shipyard_inventory);
-        else if (boxcar_name == "business boxcar") place_tile(tile_pos, boxcar_object, business_boxcar_tile, shipyard_inventory);
-        else if (boxcar_name == "first boxcar") place_tile(tile_pos, boxcar_object, first_boxcar_tile, shipyard_inventory);
+        if (boxcar_name == "food boxcar") place_tile(tile_pos, boxcar_object, food_boxcar_tile, shipyard_inventory);
+        else if (boxcar_name == "work boxcar") place_tile(tile_pos, boxcar_object, work_boxcar_tile, shipyard_inventory);
+        else if (boxcar_name == "vacation boxcar") place_tile(tile_pos, boxcar_object, vacation_boxcar_tile, shipyard_inventory);
+        else if (boxcar_name == "home boxcar") place_tile(tile_pos, boxcar_object, home_boxcar_tile, shipyard_inventory);
         else
         {
             throw new Exception("not a valid boxcar to store");

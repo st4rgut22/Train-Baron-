@@ -53,16 +53,4 @@ public class BoardManager : EventDetector
         return new Vector2Int((int)(tile_position.x / RouteManager.cell_width), (int)(tile_position.y / RouteManager.cell_width));
     }
 
-    public GameObject in_cell(Vector3Int position)
-    {
-        if (gameobject_board[position.x, position.y] != null)
-        {
-            GameObject game_object = gameobject_board[position.x, position.y];
-            if (game_object.tag == prefab_tag)
-            {
-                return game_object;
-            }
-        }
-        return null;
-    }
 }

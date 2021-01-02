@@ -8,12 +8,16 @@ public class VehicleManager : BoardManager
 {
     public GameObject Train; // prefabs
     public List<GameObject> Train_List;
-    public List<GameObject> Economy_Boxcar_Inventory;
-    public List<GameObject> First_Boxcar_Inventory;
-    public List<GameObject> Business_Boxcar_Inventory;
-    public GameObject First_Boxcar;
-    public GameObject Business_Boxcar;
-    public GameObject Economy_Boxcar;
+    public List<GameObject> Food_Boxcar_Inventory;
+    public List<GameObject> Vacation_Boxcar_Inventory;
+    public List<GameObject> Work_Boxcar_Inventory;
+    public List<GameObject> Home_Boxcar_Inventory;
+
+    public GameObject Vacation_Boxcar;
+    public GameObject Work_Boxcar;
+    public GameObject Food_Boxcar;
+    public GameObject Home_Boxcar;
+
     public static GameObject[,] vehicle_board; //contains moving objects eg trains, boxcars
     City start_city;
     public static int train_counter;
@@ -65,25 +69,29 @@ public class VehicleManager : BoardManager
         train_component.set_city(CityManager.home_base); // new vehicles always created at home base
         place_vehicle(new_train); // place the vehicle, which proceeds to depart
         train_component.arrive_at_city(); // call immediately on instantiation. Otherwise, in_city = false and the wrong board is updated        
-        // TESTING
-        add_all_boxcar_to_train(train_component);
+        // TESTING        //add_all_boxcar_to_train(train_component);
+
     }
 
     public void add_boxcar_to_train(Train train, string boxcar_type) //Temporary
     {
         // add all boxcars in inventory to a train. Revise to select boxcars to add to a train
         GameObject boxcar_object;
-        if (boxcar_type=="business_boxcar")
+        if (boxcar_type=="work_boxcar")
         {
-            boxcar_object = Instantiate(Business_Boxcar);
+            boxcar_object = Instantiate(Work_Boxcar);
         }
-        else if (boxcar_type=="economy_boxcar")
+        else if (boxcar_type=="food_boxcar")
         {
-            boxcar_object = Instantiate(Economy_Boxcar);
+            boxcar_object = Instantiate(Food_Boxcar);
         }
-        else if (boxcar_type=="first_boxcar")
+        else if (boxcar_type=="vacation_boxcar")
         {
-            boxcar_object = Instantiate(First_Boxcar);
+            boxcar_object = Instantiate(Vacation_Boxcar);
+        }
+        else if (boxcar_type == "home_boxcar")
+        {
+            boxcar_object = Instantiate(Home_Boxcar);
         }
         else
         {
@@ -120,21 +128,26 @@ public class VehicleManager : BoardManager
     public void add_all_boxcar_to_train(Train train) //Temporary
     {
         // add all boxcars in inventory to a train. Revise to select boxcars to add to a train
-        foreach (GameObject Economy_Boxcar in Economy_Boxcar_Inventory)
+        foreach (GameObject Food_Boxcar in Food_Boxcar_Inventory)
         {
-            create_boxcar(train, Economy_Boxcar);
+            Destroy(Food_Boxcar);
+            create_boxcar(train, Food_Boxcar);
         }
-        foreach (GameObject First_Boxcar in First_Boxcar_Inventory)
+        foreach (GameObject Vacation_Boxcar in Vacation_Boxcar_Inventory)
         {
-            create_boxcar(train, First_Boxcar);
+            create_boxcar(train, Vacation_Boxcar);
         }
-        foreach (GameObject Business_Boxcar in Business_Boxcar_Inventory)
+        foreach (GameObject Work_Boxcar in Work_Boxcar_Inventory)
         {
-            create_boxcar(train, Business_Boxcar);
+            create_boxcar(train, Work_Boxcar);
         }
-        Economy_Boxcar_Inventory.Clear();
-        First_Boxcar_Inventory.Clear();
-        Business_Boxcar_Inventory.Clear();
+        foreach (GameObject Home_Boxcar in Home_Boxcar_Inventory)
+        {
+            create_boxcar(train, Home_Boxcar);
+        }
+        Food_Boxcar_Inventory.Clear();
+        Vacation_Boxcar_Inventory.Clear();
+        Work_Boxcar_Inventory.Clear();
     }
 
     public bool is_vehicle_in_cell(Vector3Int unadjusted_location, GameObject[,] board)
@@ -192,28 +205,33 @@ public class VehicleManager : BoardManager
 
     public void add_boxcar(string boxcar_type)
     {
-        GameObject boxcar;
-        //add boxcar to the inventory after exiting store
-        if (boxcar_type == "economy")
-        {
-            boxcar = Instantiate(Economy_Boxcar);
-            Economy_Boxcar_Inventory.Add(boxcar);
-        }
-        else if (boxcar_type == "business")
-        {
-            boxcar = Instantiate(Business_Boxcar);
-            Business_Boxcar_Inventory.Add(boxcar);
-        }
-        else if (boxcar_type == "first")
-        {
-            boxcar = Instantiate(First_Boxcar);
-            First_Boxcar_Inventory.Add(boxcar);
-        }
-        else {
-            //print("No other type of boxcar");
-            return;
-        }        
-        boxcar.GetComponent<SpriteRenderer>().enabled = false;
+        //GameObject boxcar;
+        ////add boxcar to the inventory after exiting store
+        //if (boxcar_type == "food")
+        //{
+        //    boxcar = Instantiate(Food_Boxcar);
+        //    Food_Boxcar_Inventory.Add(boxcar);
+        //}
+        //else if (boxcar_type == "work")
+        //{
+        //    boxcar = Instantiate(Work_Boxcar);
+        //    Work_Boxcar_Inventory.Add(boxcar);
+        //}
+        //else if (boxcar_type == "vacation")
+        //{
+        //    boxcar = Instantiate(Vacation_Boxcar);
+        //    Vacation_Boxcar_Inventory.Add(boxcar);
+        //}
+        //else if (boxcar_type == "home")
+        //{
+        //    boxcar = Instantiate(Home_Boxcar);
+        //    Home_Boxcar_Inventory.Add(boxcar);
+        //}
+        //else {
+        //    //print("No other type of boxcar");
+        //    return;
+        //}        
+        //boxcar.GetComponent<SpriteRenderer>().enabled = false;
         CityManager.home_base.add_boxcar_to_tilemap(boxcar);
     }
 

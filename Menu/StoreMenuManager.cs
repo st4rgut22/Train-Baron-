@@ -16,10 +16,10 @@ public class StoreMenuManager : MonoBehaviour
         item_price_dict = new Dictionary<string, int>() {
             { "train_desc", 200 },
             {"fast_train_desc", 400 },
-            {"fastest_train_desc", 600 },
-            {"economy_desc", 100 },
-            {"business_desc",300 },
-            {"first_desc", 400 },
+            {"home_desc", 100 },
+            {"food_desc", 100 },
+            {"work_desc",300 },
+            {"vacation_desc", 400 },
             {"vert_desc",50 },
             {"hor_desc",50 },
             {"nw_desc", 50 },
@@ -42,14 +42,6 @@ public class StoreMenuManager : MonoBehaviour
         buy_btn.onClick.AddListener(buy_item);
         add_listener_to_all_btn();
         //initialize_bomb_boxcar(); //todo temporary! remove
-    }
-
-    void initialize_bomb_boxcar()
-    {
-        for (int i = 0; i < 20; i++)
-        {
-            GameManager.vehicle_manager.add_boxcar("bomb");
-        }
     }
 
     // Update is called once per frame
@@ -100,17 +92,17 @@ public class StoreMenuManager : MonoBehaviour
                     case "fast_train_desc": // mytodo: change speed of train
                         GameManager.vehicle_manager.create_vehicle_at_home_base();
                         break;
-                    case "fastest_train_desc":
-                        GameManager.vehicle_manager.create_vehicle_at_home_base();
+                    case "home_desc":
+                        GameManager.vehicle_manager.add_boxcar("home");
                         break;
-                    case "economy_desc":
-                        GameManager.vehicle_manager.add_boxcar("economy");
+                    case "food_desc":
+                        GameManager.vehicle_manager.add_boxcar("food");
                         break;
-                    case "business_desc":
-                        GameManager.vehicle_manager.add_boxcar("business");
+                    case "work_desc":
+                        GameManager.vehicle_manager.add_boxcar("work");
                         break;
-                    case "first_desc":
-                        GameManager.vehicle_manager.add_boxcar("first");
+                    case "vacation_desc":
+                        GameManager.vehicle_manager.add_boxcar("vacation");
                         break;
                     case "vert_desc":
                         TrackManager.add_track(item_name);

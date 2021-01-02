@@ -123,7 +123,7 @@ public class CityManager : BoardManager
                             "hor", RouteManager.Orientation.South
                         },
                         {
-                            "ES", RouteManager.Orientation.South
+                            "ES", RouteManager.Orientation.East
                         },
                         {
                             "vert", RouteManager.Orientation.East

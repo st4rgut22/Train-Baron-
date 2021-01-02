@@ -47,6 +47,21 @@ public class Boxcar : MovingObject
     public override void arrive_at_city()
     {
         base.arrive_at_city();
+        if (is_occupied)
+        {
+
+            passenger_go.GetComponent<Person>().set_animation_clip("player_idle_front");
+            print("orientation of station is " + station_track.station.orientation);
+            if (station_track.station.orientation == RouteManager.Orientation.North || station_track.station.orientation == RouteManager.Orientation.South)
+            {
+                passenger_go.transform.eulerAngles = new Vector3(0, 0, -90); // rotate to correct for occupant turning at bend
+            }
+            else if (train.is_boxcar_first(boxcar_id))
+            {
+                if (station_track.inner == 0) // outer
+                    passenger_go.transform.eulerAngles = new Vector3(0, 0, -90);
+            }
+        }
         //departing = true;
         //city.add_boxcar(gameObject);
     }

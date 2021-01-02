@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Tilemaps;
 
 public class MenuManager : MonoBehaviour
 {
@@ -68,6 +69,12 @@ public class MenuManager : MonoBehaviour
         //open one menu, set listeners from all other screens off
         //is_open stands for activating a screen versus closing the active one
         if (menu[0] == game_menu) GameManager.game_menu_state = true;
+        if (menu[0] == store_menu)
+            GameManager.Structure.GetComponent<TilemapCollider2D>().enabled = false;
+        else
+        {
+            GameManager.Structure.GetComponent<TilemapCollider2D>().enabled = true;
+        }
         //else { GameManager.game_menu_state = true; }
         foreach (GameObject handler in event_handler_list)
         {

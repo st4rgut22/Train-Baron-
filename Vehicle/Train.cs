@@ -299,6 +299,16 @@ public class Train : MovingObject
         Destroy(boxcar_go);
     }
 
+    public bool is_boxcar_first(int boxcar_id)
+    {
+        if (boxcar_squad.Count > 0)
+        {
+            GameObject boxcar_go = boxcar_squad[0];
+            if (boxcar_go.GetComponent<Boxcar>().boxcar_id == boxcar_id) return true;
+        }
+        return false;
+    }
+
     public void attach_boxcar(GameObject boxcar)
     {
         boxcar_squad.Add(boxcar);

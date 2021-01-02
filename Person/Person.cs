@@ -5,8 +5,7 @@ using System.Collections.Generic;
 public class Person: Simple_Moving_Object
 {
     public Sprite egghead_sprite;
-
-    public int health;
+    public int rent;
     public int wealth;
 
     public GameObject boxcar_go;
@@ -16,26 +15,33 @@ public class Person: Simple_Moving_Object
     public bool is_on_boxcar=false;
     public bool is_exit_home=false;
     public bool player_walk_hor = false;
+    public string location;
+
+    public Vector2 thought_bubble_offset; 
+    public GameObject eggheads_thought_bubble;
+    public GameObject restaurant_thought_bubble;
 
     public Room room;
-    public float angle; // angle from the x axis. Use this instead of euler angles. 
 
     public RouteManager.Orientation enter_home_orientation;
 
     private void Awake()
     {
         base.Awake();
+        location = "station"; // person is spawned at station
+        thought_bubble_offset = new Vector2(.2f, .2f);
     }
 
     public void Start()
     {
-        health = 100;
         wealth = 0;
-        set_health_sprite();
         in_tile = true;
         enter_home_orientation = RouteManager.Orientation.None; // initialized on enter home sequence
         final_dest_tile_pos = new Vector3Int(-1, -1, 0);
         gameObject.SetActive(false);
+        restaurant_thought_bubble = Instantiate(eggheads_thought_bubble);
+        restaurant_thought_bubble.transform.position = (Vector2)transform.position + thought_bubble_offset;
+        restaurant_thought_bubble.transform.parent = gameObject.transform;
     }
 
     public void Update()
@@ -81,11 +87,11 @@ public class Person: Simple_Moving_Object
         tile_position = (Vector3Int)update_tile_pos;
     } 
 
-    public void set_health_sprite()
+    public void pay_rent()
     {
-        Sprite sprite = egghead_sprite;
-        gameObject.GetComponent<SpriteRenderer>().sprite = sprite; 
+        change_wealth(-rent);
     }
+
 
     public bool change_wealth(int delta)
     {
@@ -97,19 +103,5 @@ public class Person: Simple_Moving_Object
         {
             return false;
         }
-    }
-
-    public void change_health(int delta)
-    {
-        if (health + delta > 100)
-        {
-            health = 100;
-        }
-        if (health + delta < 0)
-        {
-            health = 0;
-        }
-        set_health_sprite();
-
     }
 }
