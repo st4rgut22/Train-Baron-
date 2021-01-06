@@ -146,7 +146,7 @@ public class CityDetector : EventDetector
         return available_boxcar_list;
     }
 
-    public void click_city(PointerEventData eventData)
+    public void click_room(PointerEventData eventData)
     {
         print("set a city hint in frame " + Time.frameCount);
         // get station

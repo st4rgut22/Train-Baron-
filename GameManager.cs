@@ -58,6 +58,7 @@ public class GameManager : EventDetector
     public GameObject hint_tile_go;
 
     public static GameObject city_tilemap_go;
+    public static GameObject undeveloped_land;
 
     public static int money;
 
@@ -89,16 +90,16 @@ public class GameManager : EventDetector
         exit_south = GameObject.Find("Shipyard Track Exit South");
         exit_west = GameObject.Find("Shipyard Track Exit West");
         exit_east = GameObject.Find("Shipyard Track Exit East");
-
+        building_expansion = null;
+        test_btn.onClick.AddListener(activate_train);
+        city_tilemap_go = GameObject.Find("City Tilemap");
+        undeveloped_land = GameObject.Find("Undeveloped Land");
         building_lot_north_outer = GameObject.Find("Building Lot North Outer");
         building_lot_north_inner = GameObject.Find("Building Lot North Inner");
         building_lot_south_outer = GameObject.Find("Building Lot South Outer");
         building_lot_south_inner = GameObject.Find("Building Lot South Inner");
         building_lot_west = GameObject.Find("Building Lot West");
         building_lot_east = GameObject.Find("Building Lot East");
-        building_expansion = null;
-        test_btn.onClick.AddListener(activate_train);
-        city_tilemap_go = GameObject.Find("City Tilemap");
     }
 
     // Start is called before the first frame update
@@ -315,7 +316,6 @@ public class GameManager : EventDetector
         RaycastHit2D[] selected_object = get_all_object_at_cursor(Input.mousePosition);
         List<Collider2D> collider_list = get_all_collider(selected_object);
         List<string> collider_tag_list = get_collider_name_list(collider_list);
-        Vector3 world_pos = get_world_pos(Input.mousePosition);
         if (hint_context_list.Contains("board")) // behaves different from other hint contexts because eligible tiles are offset from tilemap and must be found by cloesst distance
         {
             print("board from city to boxcar");
@@ -331,7 +331,7 @@ public class GameManager : EventDetector
             }
             StartCoroutine(clear_hint_list()); // clearn hint list so no other hints get triggered during executing of this hint
         }
-        else if (hint_index != -1) // hhint index is the context of the action (board, unload etc. )
+        else if (hint_index != -1) // hhint index is the context of the action (board, unload etc. ). Check if selection is valid for prior hint set. 
         {
             string hint_context = hint_context_list[hint_index];
             if (hint_context == "add") // ADD BOXCAR
@@ -343,7 +343,6 @@ public class GameManager : EventDetector
             {
                 print("unload from boxcar to city");
                 CityManager.Activated_City_Component.unload_train(hint_tile_go, selected_tile); // hint tile position is boxcar position
-
             }
             else if (hint_context == "park")
             {
@@ -377,7 +376,7 @@ public class GameManager : EventDetector
             if (collider_tag_list.Contains("city_building")) 
             {
                 Collider2D collider = get_from_collider_list("city_building", collider_list);
-                collider.gameObject.GetComponent<CityDetector>().click_city(eventData);
+                collider.gameObject.GetComponent<CityDetector>().click_room(eventData);
             }
             else if (collider_tag_list.Contains("boxcar"))
             {
@@ -433,7 +432,7 @@ public class GameManager : EventDetector
                         city_manager.set_activated_city(city_object);
                         MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
                         City activated_city = city_object.GetComponent<City>();
-                        train_menu_manager.update_train_menu(activated_city);
+                        //train_menu_manager.update_train_menu(activated_city);
                     }
                 }
             }
@@ -491,6 +490,7 @@ public class GameManager : EventDetector
         exit_south.SetActive(state);
         exit_west.SetActive(state);
 
+        undeveloped_land.SetActive(state);
         building_lot_east.SetActive(state);
         building_lot_north_outer.SetActive(state);
         building_lot_north_inner.SetActive(state);

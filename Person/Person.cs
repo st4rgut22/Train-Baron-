@@ -18,12 +18,23 @@ public class Person: Simple_Moving_Object
     public string location;
 
     public Vector2 thought_bubble_offset; 
-    public GameObject eggheads_thought_bubble;
+    public GameObject eggheads_thought_bubble; // default to home
     public GameObject restaurant_thought_bubble;
+    public Dictionary<string, int> activity_duration_map;
+    public Dictionary<string, int> activity_likelihood_map;
 
     public Room room;
 
     public RouteManager.Orientation enter_home_orientation;
+
+    public enum Review
+    {
+        Five_Star,
+        Four_Star,
+        Three_Star,
+        Two_Star,
+        One_Star
+    }
 
     private void Awake()
     {
@@ -66,6 +77,25 @@ public class Person: Simple_Moving_Object
                 StartCoroutine(GameObject.Find("PersonRouteManager").GetComponent<PersonRouteManager>().enter_home(gameObject, room));
             }
             final_destination_reached = false;
+        }
+    }
+
+    public void leave_review(Review review)
+    {
+        switch (review)
+        {
+            case Review.Five_Star:
+                PersonManager.change_reputation(2);
+                break;
+            case Review.Four_Star:
+                PersonManager.change_reputation(1);
+                break;
+            case Review.Two_Star:
+                PersonManager.change_reputation(-1);
+                break;
+            case Review.One_Star:
+                PersonManager.change_reputation(-2);
+                break;
         }
     }
 

@@ -13,6 +13,7 @@ public class City : Structure
     public Tile entrance_room_tile;
     public Tile restaurant_room_tile;
 
+    public Tile undeveloped_tile;
 
     public List<Building> city_building_list;
     public Room[,] city_room_matrix;
@@ -299,6 +300,7 @@ public class City : Structure
         {
             Room room = building.spawn_room();
             set_city_tile((Vector3Int)room.tile_position);
+            GameManager.undeveloped_land.GetComponent<Tilemap>().SetTile((Vector3Int)room.tile_position, null);
             room.display_contents(true);
         }
     }
@@ -435,6 +437,22 @@ public class City : Structure
             if (!parking_spot.Equals(BoardManager.invalid_tile)) break;
         }
         return parking_spot;
+    }
+
+    public void show_all_undeveloped_plots(bool is_hide)
+    {
+        foreach (Building bldg in city_building_list)
+        {
+            foreach (GameObject room_go in bldg.roomba)
+            {             
+                if (room_go != null) // room exists
+                {
+                    Room room = room_go.GetComponent<Room>();
+                    if (is_hide) GameManager.undeveloped_land.GetComponent<Tilemap>().SetTile((Vector3Int)room.tile_position, undeveloped_tile);
+                    else { GameManager.undeveloped_land.GetComponent<Tilemap>().SetTile((Vector3Int)room.tile_position, null); }
+                }
+            }
+        }
     }
 
     public void add_boxcar_to_tilemap(GameObject boxcar_object)

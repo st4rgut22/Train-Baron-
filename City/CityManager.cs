@@ -54,7 +54,9 @@ public class CityManager : BoardManager
     public static Dictionary<Vector3Int, RouteManager.Orientation[]> station_track_curve_map; // array index 0 is original orientation, 1 is final orientation
 
     public static Dictionary<string, int> building_count_dict = new Dictionary<string, int>(); // <building name, building count>
-
+    public static List<int[]> city_plot_location = new List<int[]>() { new int[] { 0, 2 }, new int[] { 1, 2 }, new int[] { 2, 2 }, new int[] { 3, 2 },new int[]{4,2 }, new int[]{5,2 },
+        new int[]{0,7 }, new int[]{0,8 }, new int[]{0,9 }, new int[]{3,9 }, new int[]{4,9 }, new int[]{5,9 }, new int[]{6,9 }, new int[]{10,1 }, new int[]{11,1 }, new int[]{12,1 },
+        new int[]{13,1 }, new int[]{16,1 }, new int[]{16,2 }, new int[]{16,3 }, new int[]{16,9 }, new int[]{15,9 }, new int[]{14,9 }, new int[]{13,9 }, new int[]{12,9 }, new int[]{11,9 } };
 
     private void Awake()
     {
@@ -369,6 +371,7 @@ public class CityManager : BoardManager
             GameManager.city_menu_state = false;
             Activated_City.GetComponent<City>().enable_train_for_screen(); 
             Activated_City.GetComponent<City>().show_all_building_occupants(false);
+            Activated_City.GetComponent<City>().show_all_undeveloped_plots(true);
             hide_shipyard_inventory();
         }
         else // show shipyard
@@ -379,6 +382,7 @@ public class CityManager : BoardManager
             City city = city_object.GetComponent<City>();
             city.set_all_room_sprites();
             city.show_all_building_occupants(true);
+            city.show_all_undeveloped_plots(false);
             city.display_boxcar();
             hide_exit_route(RouteManager.Orientation.North, city, RouteManager.exit_north_tilemap);
             hide_exit_route(RouteManager.Orientation.East, city, RouteManager.exit_east_tilemap);

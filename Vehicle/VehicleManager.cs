@@ -125,31 +125,6 @@ public class VehicleManager : BoardManager
         }
     }
 
-    public void add_all_boxcar_to_train(Train train) //Temporary
-    {
-        // add all boxcars in inventory to a train. Revise to select boxcars to add to a train
-        foreach (GameObject Food_Boxcar in Food_Boxcar_Inventory)
-        {
-            Destroy(Food_Boxcar);
-            create_boxcar(train, Food_Boxcar);
-        }
-        foreach (GameObject Vacation_Boxcar in Vacation_Boxcar_Inventory)
-        {
-            create_boxcar(train, Vacation_Boxcar);
-        }
-        foreach (GameObject Work_Boxcar in Work_Boxcar_Inventory)
-        {
-            create_boxcar(train, Work_Boxcar);
-        }
-        foreach (GameObject Home_Boxcar in Home_Boxcar_Inventory)
-        {
-            create_boxcar(train, Home_Boxcar);
-        }
-        Food_Boxcar_Inventory.Clear();
-        Vacation_Boxcar_Inventory.Clear();
-        Work_Boxcar_Inventory.Clear();
-    }
-
     public bool is_vehicle_in_cell(Vector3Int unadjusted_location, GameObject[,] board)
     {
         Vector3Int location = new Vector3Int(unadjusted_location.x+1, unadjusted_location.y+1, unadjusted_location.z);
@@ -205,33 +180,35 @@ public class VehicleManager : BoardManager
 
     public void add_boxcar(string boxcar_type)
     {
-        //GameObject boxcar;
-        ////add boxcar to the inventory after exiting store
-        //if (boxcar_type == "food")
-        //{
-        //    boxcar = Instantiate(Food_Boxcar);
-        //    Food_Boxcar_Inventory.Add(boxcar);
-        //}
-        //else if (boxcar_type == "work")
-        //{
-        //    boxcar = Instantiate(Work_Boxcar);
-        //    Work_Boxcar_Inventory.Add(boxcar);
-        //}
-        //else if (boxcar_type == "vacation")
-        //{
-        //    boxcar = Instantiate(Vacation_Boxcar);
-        //    Vacation_Boxcar_Inventory.Add(boxcar);
-        //}
-        //else if (boxcar_type == "home")
-        //{
-        //    boxcar = Instantiate(Home_Boxcar);
-        //    Home_Boxcar_Inventory.Add(boxcar);
-        //}
-        //else {
-        //    //print("No other type of boxcar");
-        //    return;
-        //}        
-        //boxcar.GetComponent<SpriteRenderer>().enabled = false;
+        GameObject boxcar;
+        //add boxcar to the inventory after exiting store
+        if (boxcar_type == "food")
+        {
+            boxcar = Instantiate(Food_Boxcar);
+            Food_Boxcar_Inventory.Add(boxcar);
+        }
+        else if (boxcar_type == "work")
+        {
+            boxcar = Instantiate(Work_Boxcar);
+            Work_Boxcar_Inventory.Add(boxcar);
+        }
+        else if (boxcar_type == "vacation")
+        {
+            boxcar = Instantiate(Vacation_Boxcar);
+            Vacation_Boxcar_Inventory.Add(boxcar);
+        }
+        else if (boxcar_type == "home")
+        {
+            boxcar = Instantiate(Home_Boxcar);
+            Home_Boxcar_Inventory.Add(boxcar);
+        }
+        else
+        {
+            //print("No other type of boxcar");
+            return;
+        }
+        boxcar.GetComponent<SpriteRenderer>().enabled = false;
+        //todo : fix me pls
         CityManager.home_base.add_boxcar_to_tilemap(boxcar);
     }
 
