@@ -400,6 +400,14 @@ public class CityManager : BoardManager
         }
     }
 
+    public static RouteManager.Orientation set_orientation_of_new_train()
+    {
+        // when a train is created, find which direction train should be in to pick up passengers
+        RouteManager.Orientation train_orientation = home_base.get_orientation_of_open_track();
+        print("orientation of new train is " + train_orientation);
+        return train_orientation;
+    }
+
     public static float get_exit_dist(RouteManager.Orientation orientation)
     {
         if (orientation == RouteManager.Orientation.West || orientation == RouteManager.Orientation.East)

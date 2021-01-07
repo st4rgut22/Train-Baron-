@@ -134,6 +134,7 @@ public class Room : Structure
     {
         person_go = Instantiate(person_go);
         Person person = person_go.GetComponent<Person>();
+        person.is_egghead_thinking = true;
         person.room = this;
         set_person_position(person);
         add_occupant(this.person_go);
@@ -170,5 +171,6 @@ public class Room : Structure
     public void display_occupant(bool display)
     {
         person_go.SetActive(display);
+        person_go.GetComponent<Person>().activiate_thought_bubble();
     }
 }

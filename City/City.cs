@@ -59,8 +59,12 @@ public class City : Structure
     public Tilemap city_tilemap;
 
     public RouteManager.Orientation destination_orientation;
-
+    
     public int prev_train_list_length = 0;
+
+    public int reputation = 0;
+    public int max_reputation = 100;
+    public int min_reputation = 0;
 
     public static Dictionary<string, GameObject> building_map;
     List<string> initial_building_lot_list;
@@ -68,7 +72,7 @@ public class City : Structure
 
     private void Awake()
     {
-        initial_building_lot_list = new List<string>() { "Building Lot South Outer", "Building Lot South Inner", "Building Lot North Outer", "Building Lot North Inner", "Building Lot West", "Building Lot East" };
+        initial_building_lot_list = new List<string>() {"Building Lot West" };
         base.Awake();
         West_Station = new Station(CityManager.west_start_outer, CityManager.west_start_inner, RouteManager.Orientation.West, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
         North_Station = new Station(CityManager.north_start_outer, CityManager.north_start_inner, RouteManager.Orientation.North, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
@@ -90,6 +94,7 @@ public class City : Structure
                 new Vector2Int(0, 7),
                 4,
                 RouteManager.Orientation.North,
+                RouteManager.Orientation.South,
                 new List<Station_Track> { North_Station.outer_track },
                 null,
                 new Door_Prop(right_door_top_right, -90f, 90f)
@@ -100,6 +105,7 @@ public class City : Structure
                 new Vector2Int(3, 9),
                 3,
                 RouteManager.Orientation.East,
+                RouteManager.Orientation.South,
                 new List<Station_Track> { North_Station.inner_track },
                 new Door_Prop(left_door_top_left, 90f, 0f),
                 null
@@ -110,15 +116,17 @@ public class City : Structure
                 new Vector2Int(11, 8),
                 6,
                 RouteManager.Orientation.East,
+                RouteManager.Orientation.West,
                 new List<Station_Track> { East_Station.inner_track, East_Station.outer_track },
                 new Door_Prop(left_door_top_left, 90f, 180f),
                 new Door_Prop(right_door_top_right, -90f, 0f)
-            );
+            ); ;
         west_bl.GetComponent<BuildingLot>().init_building_lot
             (
                 "Building Lot West",
                 new Vector2Int(0, 2),
                 6,
+                RouteManager.Orientation.East,
                 RouteManager.Orientation.East,
                 new List<Station_Track> { West_Station.inner_track, West_Station.outer_track },
                 new Door_Prop(right_door_top_right, -90f, 0f),
@@ -130,6 +138,7 @@ public class City : Structure
                 new Vector2Int(10, 1),
                 4,
                 RouteManager.Orientation.East,
+                RouteManager.Orientation.North,
                 new List<Station_Track> { South_Station.inner_track },
                 new Door_Prop(left_door_top_left, 90f, 180f),
                 null
@@ -139,6 +148,7 @@ public class City : Structure
                 "Building Lot South Outer",
                 new Vector2Int(16, 1),
                 3,
+                RouteManager.Orientation.North,
                 RouteManager.Orientation.North,
                 new List<Station_Track> { South_Station.outer_track },
                 null,
@@ -171,6 +181,14 @@ public class City : Structure
 
         game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
         building_id = 1;
+    }
+
+    public void change_reputation(int reputation_change)
+    {
+        reputation += reputation_change;
+        reputation = Mathf.Min(reputation, max_reputation);
+        reputation = Mathf.Max(reputation, min_reputation);
+        print("reputation of city is " + reputation);
     }
 
     public Station_Track get_station_track(Vector2Int tile_pos)
@@ -208,9 +226,29 @@ public class City : Structure
         //enable_train_for_screen(); causes lag
     }
 
-    public bool is_selected_room_occupied(Vector2Int clicked_room_position, string lot_name)
+    public RouteManager.Orientation get_orientation_of_open_track()
     {
-        Room room = city_room_matrix[clicked_room_position.x, clicked_room_position.y];
+        foreach (Building bldg in city_building_list)
+        {
+            foreach (GameObject room_go in bldg.roomba)
+            {
+                Room room = room_go.GetComponent<Room>();
+                if (room.person_go != null)
+                {
+                    return bldg.building_lot.train_orientation;
+                }
+            }
+        }
+        return RouteManager.Orientation.None; // all the rooms are full
+    }
+
+    public Room get_selected_room(Vector2Int clicked_room_position)
+    {
+        return city_room_matrix[clicked_room_position.x, clicked_room_position.y];
+    }
+
+    public bool is_selected_room_occupied(Room room)
+    {
         if (room != null)
         {
             return room.occupied;

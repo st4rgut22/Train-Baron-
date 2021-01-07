@@ -373,7 +373,7 @@ public class GameManager : EventDetector
         {
             // call pointer events for boxcar and city from GameManager using Raycast data on the UI event detector
             hint_tile_pos = selected_tile;
-            if (collider_tag_list.Contains("city_building")) 
+            if (collider_tag_list.Contains("city_building")) // ADD A PERSON TO THE BOXCAR BOARD TRAIN HINT
             {
                 Collider2D collider = get_from_collider_list("city_building", collider_list);
                 collider.gameObject.GetComponent<CityDetector>().click_room(eventData);
@@ -393,6 +393,10 @@ public class GameManager : EventDetector
             {
                 Collider2D collider = get_from_collider_list("inventory", collider_list);
                 collider.gameObject.GetComponent<InventoryPusher>().click_inventory(eventData);
+            }
+            else if (collider_tag_list.Contains("traffic_light"))
+            {
+                Collider2D collider = get_from_collider_list("traffic_light", collider_list);
             }
             else
             {

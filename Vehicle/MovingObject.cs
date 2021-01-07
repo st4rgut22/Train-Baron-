@@ -19,7 +19,7 @@ public class MovingObject : Simple_Moving_Object
     public bool departure_track_chosen = false;
     public bool end_of_track = false;
     public string train_name = "train(Clone)";
-    VehicleManager vehicle_manager;
+    VehicleManager vehicle_manager; 
     public RouteManager.Orientation exit_track_orientation = RouteManager.Orientation.None;
     public RouteManager.Orientation steep_angle_orientation = RouteManager.Orientation.None;
 
@@ -31,8 +31,7 @@ public class MovingObject : Simple_Moving_Object
         tile_position = new Vector3Int(home_base.x, home_base.y, 0);
         next_tilemap_position = home_base;
         prev_city = null;
-        orientation = VehicleManager.round_robin_orientation(); // TEMPORARY, TESTING create train display!
-        //orientation = RouteManager.Orientation.East; // direction of incoming train 
+        orientation = CityManager.set_orientation_of_new_train();
         final_orientation = orientation;
     }
 

@@ -6,7 +6,6 @@ using UnityEngine.EventSystems;
 public class Boxcar : MovingObject
 {
     public Train train = null; // the train boxcar is attached to
-    Vector3 idling_position; // boxcar's default position while waiting for turntable to arrive
     public int boxcar_id;
     public string boxcar_type;
     public bool departing = false;
@@ -14,7 +13,7 @@ public class Boxcar : MovingObject
     //Cargo cargo; // accomodate different cargo, people, vaccine, etc.
     public bool is_occupied;
     public GameObject passenger_go;
-
+    Vector3 idling_position;
 
     private void Awake()
     {      

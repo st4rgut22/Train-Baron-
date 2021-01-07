@@ -114,6 +114,8 @@ public class PersonRouteManager : RouteManager
     public IEnumerator board_train(Boxcar boxcar, Room room, GameObject occupant_go, Vector3Int destination)
     {
         Person occupant = occupant_go.GetComponent<Person>();
+        occupant.thought_bubble.SetActive(false);
+        occupant.board_train();
         GameObject door = get_exit_door(boxcar, room);
         room.unlocked_door = door;
         Door unlocked_door = room.unlocked_door.GetComponent<Door>();
@@ -129,6 +131,7 @@ public class PersonRouteManager : RouteManager
         Orientation start_orientation = orientation_pair[0];
         Orientation end_orientation = orientation_pair[1];
         occupant.is_tight_curve = true; // wide curve
+        occupant.arrived_at_room = false; 
         yield return StartCoroutine(unlocked_door.rotate());
         string go_to_door_animation_name = get_animation_from_orientation(end_orientation,"walk");
         if (end_orientation == Orientation.West) occupant_go.GetComponent<SpriteRenderer>().flipX = true;
@@ -183,14 +186,16 @@ public class PersonRouteManager : RouteManager
         Orientation enter_home_orientation = get_orientation_from_position(person, room_position);
         Checkpoint enter_door_cp = new Checkpoint(enter_door_location, room.tile_position, person.orientation, enter_home_orientation, "walk");
         Checkpoint enter_home_cp = new Checkpoint(room_position, room.tile_position, enter_home_orientation, enter_home_orientation, "walk");
-        //Checkpoint resting_cp = new Checkpoint(enter_home_cp.dest_pos, room.tile_position, enter_home_orientation, resting_orientation, "idle");
         enter_home_checkpoints.Add(enter_door_cp);
         enter_home_checkpoints.Add(enter_home_cp);
-        //enter_home_checkpoints.Add(resting_cp); // rotate person so facing same direction as building
         yield return StartCoroutine(unlocked_door.rotate());
         yield return StartCoroutine(person.move_checkpoints(enter_home_checkpoints));
         StartCoroutine(person.set_animation_clip(rest_animation_name));
         StartCoroutine(unlocked_door.rotate());
+        person.arrived_at_room = true;
+        City city = person.room.building.city;
+        person.finish_trip(city);
+        StartCoroutine(person.schedule_activity()); // once arrived at home do something for scheduled time
         room.occupied = true;
         room.person_go = person_go;
     }

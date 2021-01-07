@@ -25,5 +25,6 @@ public class PersonManager : MonoBehaviour
         reputation += reputation_change;
         reputation = Mathf.Min(reputation, max_reputation);
         reputation = Mathf.Max(reputation, min_reputation);
+        print("reputation of all cities is " + reputation);
     }
 }

@@ -4,8 +4,6 @@ public class Entrance : Building
 {
     // Start is called before the first frame update
 
-
-
     public void populate_room()
     {
         foreach (GameObject room_go in roomba)
@@ -18,11 +16,11 @@ public class Entrance : Building
         }
     }
 
-    //public override Room spawn_room()
-    //{
-    //    Room room = base.spawn_room();
-    //    room.spawn_person();
-    //    return room;
-    //}
+    public override Room spawn_room()
+    {
+        Room room = base.spawn_room();
+        room.spawn_person();
+        return room;
+    }
 
 }

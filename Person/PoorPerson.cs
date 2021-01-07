@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PoorPerson : Person
 {
-    private void Awake()
+    void Awake()
     {
         base.Awake();
         activity_likelihood_map = new Dictionary<string, int>()

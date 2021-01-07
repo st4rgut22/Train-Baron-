@@ -115,7 +115,9 @@ public class CityDetector : EventDetector
         }
     }
 
-    public List<int[]> filter_available_boxcar(List<int[]> possible_boxcar_location)
+
+
+    public List<int[]> filter_available_boxcar(List<int[]> possible_boxcar_location, Person person)
     {
         int available_boxcar = 0;
         List<Offset_Tile> offset_tile_list = new List<Offset_Tile>();
@@ -131,11 +133,15 @@ public class CityDetector : EventDetector
                     Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
                     if (!boxcar.is_occupied)
                     {
-                        Tilemap boxcar_tilemap = boxcar_orientation_to_offset_tilemap(boxcar.orientation);
-                        offset_tile_list.Add(new Offset_Tile(boxcar_go));
-                        boxcar_tile_tracker[new Vector2Int(boxcar_loc[0], boxcar_loc[1])] = boxcar_tilemap;
-                        available_boxcar_list.Add(boxcar_loc);
-                        available_boxcar++;
+                        bool is_boxcar_match = person.is_boxcar_match_desired_activity(boxcar.boxcar_type);
+                        if (is_boxcar_match)
+                        {
+                            Tilemap boxcar_tilemap = boxcar_orientation_to_offset_tilemap(boxcar.orientation);
+                            offset_tile_list.Add(new Offset_Tile(boxcar_go));
+                            boxcar_tile_tracker[new Vector2Int(boxcar_loc[0], boxcar_loc[1])] = boxcar_tilemap;
+                            available_boxcar_list.Add(boxcar_loc);
+                            available_boxcar++;
+                        }
                     }
                 }
             }
@@ -156,11 +162,13 @@ public class CityDetector : EventDetector
         List<string> train_hint_list = new List<string>();
         Vector2Int selected_tile = GameManager.get_selected_tile(eventData.position);
         // get room, and check if it is occupied before boarding
-        bool is_room_occupied = CityManager.Activated_City_Component.is_selected_room_occupied(selected_tile, gameObject.name);
+        //get person
+        Room room = CityManager.Activated_City_Component.get_selected_room(selected_tile);
+        bool is_room_occupied = CityManager.Activated_City_Component.is_selected_room_occupied(room);
         string building_type = CityManager.Activated_City_Component.city_type;
-        int id = CityManager.Activated_City_Component.city_id;
         if (is_room_occupied)
         {
+            Person person = room.person_go.GetComponent<Person>();
             print("room is occupied");
             Station cb_station = CityManager.Activated_City_Component.get_station_track(selected_tile).station;
             RouteManager.Orientation orientation = cb_station.orientation;
@@ -174,12 +182,12 @@ public class CityDetector : EventDetector
                 List<int[]> inner_outer_coord = new List<int[]>();
                 if (is_outer_track_valid)
                 {
-                    List<int[]> available_outer_track_vehicle = filter_available_boxcar(TrackManager.add_to_train_coord_map[orientation][0]);
+                    List<int[]> available_outer_track_vehicle = filter_available_boxcar(TrackManager.add_to_train_coord_map[orientation][0], person);
                     inner_outer_coord.AddRange(available_outer_track_vehicle);
                 }
                 if (is_inner_track_valid)
                 {
-                    List<int[]> available_inner_track_vehicle = filter_available_boxcar(TrackManager.add_to_train_coord_map[orientation][1]);
+                    List<int[]> available_inner_track_vehicle = filter_available_boxcar(TrackManager.add_to_train_coord_map[orientation][1], person);
                     inner_outer_coord.AddRange(available_inner_track_vehicle);
                 }
                 List<List<int[]>> city_action_coord = new List<List<int[]>> { inner_outer_coord };
