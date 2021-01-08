@@ -217,7 +217,7 @@ public class City : Structure
             case 5:
                 return five_star_texture;
             default:
-                throw new Exception("not a valid texture");
+                throw new Exception("not a valid texture: " + texture_id);
         }
     }
 

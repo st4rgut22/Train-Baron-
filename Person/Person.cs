@@ -39,6 +39,8 @@ public class Person : Simple_Moving_Object
     public float board_start_time;
     public float trip_start_time;
 
+    public bool trip_in_progress;
+
     public Room room;
 
     public RouteManager.Orientation enter_home_orientation;
@@ -56,6 +58,7 @@ public class Person : Simple_Moving_Object
     public void Awake()
     {
         thought_bubble_offset = new Vector2(2.6f, 2.6f);
+        trip_in_progress = false;
         base.Awake();
     }
 
@@ -109,12 +112,16 @@ public class Person : Simple_Moving_Object
             final_destination_reached = false;
         }
         boarding_duration = Time.time - board_start_time;
-        if (boarding_duration >= board_desire_timeout && desired_activity != "") // waiting for a train
+        if (boarding_duration >= board_desire_timeout && !trip_in_progress) // waiting for a train
         {
             leave_review(room.building.city, 0); // worst review is if person is not picked up
             if (room.building.city.city_type != "Entrance") // if city is entrance, then person keeps desiring to go home
             {
                 StartCoroutine(schedule_activity());
+            }
+            else
+            {
+                board_start_time = Time.time; // reset timer until leave another bad review due to timeout
             }
         }
     }
@@ -128,6 +135,7 @@ public class Person : Simple_Moving_Object
     public void board_train()
     {
         // call from PersonRouteMan.board_train()
+        trip_in_progress = true;
         boarding_duration = Time.time - board_start_time;
         trip_start_time = Time.time;
     }
@@ -178,7 +186,7 @@ public class Person : Simple_Moving_Object
 
     public void activiate_thought_bubble()
     {
-        eggheads_thought_bubble.SetActive(is_egghead_thinking);
+        //eggheads_thought_bubble.SetActive(is_egghead_thinking);
     }
 
     public void leave_review(City city)
@@ -229,7 +237,7 @@ public class Person : Simple_Moving_Object
 
     public void render_thought_bubble()
     {
-        eggheads_thought_bubble.SetActive(true);
+        thought_bubble.SetActive(true);
         switch (desired_activity)
         {
             case "work_thought_bubble":
@@ -256,14 +264,19 @@ public class Person : Simple_Moving_Object
         int duration = activity_duration_map[desired_activity];
         string prev_desired_activity = desired_activity;
         desired_activity = ""; // so person cant board another matching boxcar while performing action
+        trip_in_progress = false; 
         yield return new WaitForSeconds(duration);
-        desired_activity = pick_next_activity(); // when activity is over pick next activity
-        if (prev_desired_activity == desired_activity) StartCoroutine(schedule_activity()); // if next activity is the same, dont need to board a train
+        if (room.building.city.city_type == "Entrance") desired_activity = "home_thought_bubble";
         else
         {
-            render_thought_bubble();
-            thought_bubble.SetActive(true);
+            desired_activity = pick_next_activity(); // when activity is over pick next activity
+            if (prev_desired_activity == desired_activity)
+            {
+                StartCoroutine(schedule_activity()); // if next activity is the same, dont need to board a train
+                yield break; // dont render thought bubble if same action
+            }
         }
+        render_thought_bubble();
     }
 
     public string pick_next_activity()

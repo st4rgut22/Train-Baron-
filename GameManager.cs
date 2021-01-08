@@ -74,6 +74,8 @@ public class GameManager : EventDetector
     public static GameObject reputation_text_go;
     public static GameObject star_review_image_go;
 
+    public Tilemap offset_boxcar_tilemap; // saved offset tilemap
+
     private void Awake()
     {
         star_review_image_go = GameObject.Find("star_review");
@@ -148,6 +150,14 @@ public class GameManager : EventDetector
         return hit;
     }
 
+    public Vector3Int get_selected_tile_for_boxcar(Vector3 pos)
+    {
+        Vector3 position = new Vector3(pos.x, pos.y, Mathf.Abs(camera.transform.position.z));
+        Vector3 mouse_pos = camera.ScreenToWorldPoint(position);
+        Vector3Int tilemap_cell_pos = offset_boxcar_tilemap.WorldToCell(mouse_pos);
+        return tilemap_cell_pos;
+    }
+
     public static Vector2Int get_selected_tile(Vector3 pos)
     {
         Vector3 position = new Vector3(pos.x, pos.y, Mathf.Abs(camera.transform.position.z));
@@ -190,11 +200,11 @@ public class GameManager : EventDetector
                 if (hint_context_list.Contains("board"))
                 {
                     CityDetector cd = GameObject.Find("City Tilemap").GetComponent<CityDetector>();// if hint is board use a different hint tilemap
-                    Tilemap boxcar_tilemap = cd.boxcar_tile_tracker[tilemap_pos];
-                    if (!tilemap_list.Contains(boxcar_tilemap))
-                        tilemap_list.Add(boxcar_tilemap);
-                    if (boxcar_tilemap == null) throw new Exception("boxcar location to tilemap dictionary should not be null at position " + tilemap_pos_arr);
-                    boxcar_tilemap.SetTile((Vector3Int)tilemap_pos, hint_tile);
+                    offset_boxcar_tilemap = cd.boxcar_tile_tracker[tilemap_pos];
+                    if (!tilemap_list.Contains(offset_boxcar_tilemap))
+                        tilemap_list.Add(offset_boxcar_tilemap);
+                    if (offset_boxcar_tilemap == null) throw new Exception("boxcar location to tilemap dictionary should not be null at position " + tilemap_pos_arr);
+                    offset_boxcar_tilemap.SetTile((Vector3Int)tilemap_pos, hint_tile);
                 }
                 else
                 {
@@ -225,7 +235,6 @@ public class GameManager : EventDetector
         // is the pressed tile receiving an action from the user (specified by the previous touch)?
         if (hint_context_list.Count > 0)
         {
-            int[] selection = new int[] { selected_tile.x, selected_tile.y };
             for (int i=0;i<hint_context_pos_list.Count; i++)
             {
                 List<int[]> hint_context = hint_context_pos_list[i];
@@ -315,14 +324,13 @@ public class GameManager : EventDetector
     public override void OnPointerClick(PointerEventData eventData)
     {
         // use the previous hint context to do something, called on click anywhere in board 
-        Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
-        
-        int hint_index = is_selected_tile_in_context(selected_tile);
         RaycastHit2D[] selected_object = get_all_object_at_cursor(Input.mousePosition);
         List<Collider2D> collider_list = get_all_collider(selected_object);
         List<string> collider_tag_list = get_collider_name_list(collider_list);
         if (hint_context_list.Contains("board")) // behaves different from other hint contexts because eligible tiles are offset from tilemap and must be found by cloesst distance
         {
+            Vector2Int selected_tile = (Vector2Int) get_selected_tile_for_boxcar(Input.mousePosition);
+            int hint_index = is_selected_tile_in_context(selected_tile);
             print("board from city to boxcar");
             if (collider_tag_list.Contains("boxcar") && hint_index != -1) // second condition checks if it is an eligible tile
             {
@@ -336,82 +344,87 @@ public class GameManager : EventDetector
             }
             StartCoroutine(clear_hint_list()); // clearn hint list so no other hints get triggered during executing of this hint
         }
-        else if (hint_index != -1) // hhint index is the context of the action (board, unload etc. ). Check if selection is valid for prior hint set. 
+        else // hhint index is the context of the action (board, unload etc. ). Check if selection is valid for prior hint set. 
         {
-            string hint_context = hint_context_list[hint_index];
-            if (hint_context == "add") // ADD BOXCAR
+            Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
+            int hint_index = is_selected_tile_in_context(selected_tile); // get from offset grid for "board"
+            if (hint_index != -1)
             {
-                InventoryPusher ip = GameObject.Find("Shipyard Inventory").GetComponent<InventoryPusher>();
-                city_manager.add_boxcar_to_station(ip.selected_tile.name, selected_tile, ip.selected_tile_pos);
-            }
-            else if (hint_context == "unload")
-            {
-                print("unload from boxcar to city");
-                CityManager.Activated_City_Component.unload_train(hint_tile_go, selected_tile); // hint tile position is boxcar position
-            }
-            else if (hint_context == "park")
-            {
-                print("park");
-                Boxcar boxcar = hint_gameobject.GetComponent<Boxcar>();
-                boxcar.city.place_boxcar_tile(hint_gameobject, selected_tile);
-                vehicle_manager.boxcar_fill_void(hint_gameobject); // move boxcars behind this one forward
-                boxcar.train.remove_boxcar(boxcar.boxcar_id);
-            }
-            else if (hint_context == "north exit" || hint_context == "east exit" || hint_context == "west exit" || hint_context == "south exit") // DEPART TRAIN
-            {
-                bool all_aboard = hint_gameobject.GetComponent<Train>().is_all_boxcar_boarded();
-                if (all_aboard)
-                    hint_gameobject.GetComponent<Train>().exit_city(hint_context);
-            }
-            else if (hint_context == "track") // PLACE TILE
-            {
-                Tile clicked_tile = hint_gameobject.GetComponent<GameMenuManager>().clicked_tile;
-                track_manager.place_tile(selected_tile, clicked_tile, true);
-            }
-            else
-            {
-                throw new Exception("not a valid hint context");
-            }
-            StartCoroutine(clear_hint_list()); // clearn hint list so no other hints get triggered during executing of this hint
-        }
-        else if (collider_list.Count > 0)
-        {
-            // call pointer events for boxcar and city from GameManager using Raycast data on the UI event detector
-            hint_tile_pos = selected_tile;
-            if (collider_tag_list.Contains("city_building")) // ADD A PERSON TO THE BOXCAR BOARD TRAIN HINT
-            {
-                Collider2D collider = get_from_collider_list("city_building", collider_list);
-                collider.gameObject.GetComponent<CityDetector>().click_room(eventData);
-            }
-            else if (collider_tag_list.Contains("boxcar"))
-            {
-                Collider2D collider = get_from_collider_list("boxcar", collider_list);
-                hint_tile_go = collider.gameObject;
-                collider.gameObject.GetComponent<Boxcar>().click_boxcar(eventData);
-            }
-            else if (collider_tag_list.Contains("train"))
-            {
-                Collider2D collider = get_from_collider_list("train", collider_list);
-                collider.gameObject.GetComponent<Train>().click_train(eventData);
-            }
-            else if (collider_tag_list.Contains("inventory"))
-            {
-                Collider2D collider = get_from_collider_list("inventory", collider_list);
-                collider.gameObject.GetComponent<InventoryPusher>().click_inventory(eventData);
-            }
-            else if (collider_tag_list.Contains("traffic_light"))
-            {
-                Collider2D collider = get_from_collider_list("traffic_light", collider_list);
-            }
-            else
-            {
-                //invalid hint, clear hint list
+                string hint_context = hint_context_list[hint_index];
+                if (hint_context == "add") // ADD BOXCAR
+                {
+                    InventoryPusher ip = GameObject.Find("Shipyard Inventory").GetComponent<InventoryPusher>();
+                    city_manager.add_boxcar_to_station(ip.selected_tile.name, selected_tile, ip.selected_tile_pos);
+                }
+                else if (hint_context == "unload")
+                {
+                    print("unload from boxcar to city");
+                    CityManager.Activated_City_Component.unload_train(hint_tile_go, selected_tile); // hint tile position is boxcar position
+                }
+                else if (hint_context == "park")
+                {
+                    print("park");
+                    Boxcar boxcar = hint_gameobject.GetComponent<Boxcar>();
+                    boxcar.city.place_boxcar_tile(hint_gameobject, selected_tile);
+                    vehicle_manager.boxcar_fill_void(hint_gameobject); // move boxcars behind this one forward
+                    boxcar.train.remove_boxcar(boxcar.boxcar_id);
+                }
+                else if (hint_context == "north exit" || hint_context == "east exit" || hint_context == "west exit" || hint_context == "south exit") // DEPART TRAIN
+                {
+                    bool all_aboard = hint_gameobject.GetComponent<Train>().is_all_boxcar_boarded();
+                    if (all_aboard)
+                        hint_gameobject.GetComponent<Train>().exit_city(hint_context);
+                }
+                else if (hint_context == "track") // PLACE TILE
+                {
+                    Tile clicked_tile = hint_gameobject.GetComponent<GameMenuManager>().clicked_tile;
+                    track_manager.place_tile(selected_tile, clicked_tile, true);
+                }
+                else
+                {
+                    throw new Exception("not a valid hint context");
+                }
                 StartCoroutine(clear_hint_list()); // clearn hint list so no other hints get triggered during executing of this hint
             }
+            else if (collider_list.Count > 0)
+            {
+                // call pointer events for boxcar and city from GameManager using Raycast data on the UI event detector
+                hint_tile_pos = selected_tile;
+                if (collider_tag_list.Contains("city_building")) // ADD A PERSON TO THE BOXCAR BOARD TRAIN HINT
+                {
+                    Collider2D collider = get_from_collider_list("city_building", collider_list);
+                    collider.gameObject.GetComponent<CityDetector>().click_room(eventData);
+                }
+                else if (collider_tag_list.Contains("boxcar"))
+                {
+                    Collider2D collider = get_from_collider_list("boxcar", collider_list);
+                    hint_tile_go = collider.gameObject;
+                    collider.gameObject.GetComponent<Boxcar>().click_boxcar(eventData);
+                }
+                else if (collider_tag_list.Contains("train"))
+                {
+                    Collider2D collider = get_from_collider_list("train", collider_list);
+                    collider.gameObject.GetComponent<Train>().click_train(eventData);
+                }
+                else if (collider_tag_list.Contains("inventory"))
+                {
+                    Collider2D collider = get_from_collider_list("inventory", collider_list);
+                    collider.gameObject.GetComponent<InventoryPusher>().click_inventory(eventData);
+                }
+                else if (collider_tag_list.Contains("traffic_light"))
+                {
+                    Collider2D collider = get_from_collider_list("traffic_light", collider_list);
+                }
+                else
+                {
+                    //invalid hint, clear hint list
+                    StartCoroutine(clear_hint_list()); // clearn hint list so no other hints get triggered during executing of this hint
+                }
             }
-        else // not taking action or setting a new hint
-        {
-            StartCoroutine(clear_hint_list());
+            else // not taking action or setting a new hint
+            {
+                StartCoroutine(clear_hint_list());
+            }
         }
     }
 
