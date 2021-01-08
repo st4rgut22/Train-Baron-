@@ -380,7 +380,7 @@ public class MovingObject : Simple_Moving_Object
                 city.turn_table.GetComponent<Turntable>().remove_train_from_queue(gameObject);
                 GameManager.enable_vehicle_for_screen(gameObject);
                 gameObject.GetComponent<Train>().set_boxcar_to_depart(); // set depart = true so boxcars leave city
-                if (city==CityManager.Activated_City_Component) GameManager.train_menu_manager.update_train_menu(city);
+                //if (city==CityManager.Activated_City_Component) GameManager.train_menu_manager.update_train_menu(city);
                 //print("after moving to city edge. the train tile position is " + next_tilemap_position);// depart train at correct tile position
             } else
             {

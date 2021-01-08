@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 public class City : Structure
 {
@@ -65,6 +66,18 @@ public class City : Structure
     public int reputation = 0;
     public int max_reputation = 100;
     public int min_reputation = 0;
+    public int last_checked_reputation;
+    public const int reputation_per_lot = 5;
+    public int unapplied_reputation_count;
+
+    public Texture zero_star_texture;
+    public Texture one_star_texture;
+    public Texture two_star_texture;
+    public Texture three_star_texture;
+    public Texture four_star_texture;
+    public Texture five_star_texture;
+    public int total_review_count;
+    public int total_star;
 
     public static Dictionary<string, GameObject> building_map;
     List<string> initial_building_lot_list;
@@ -72,8 +85,11 @@ public class City : Structure
 
     private void Awake()
     {
-        initial_building_lot_list = new List<string>() {"Building Lot West" };
         base.Awake();
+        unapplied_reputation_count = 0;
+        total_review_count = 0;
+        last_checked_reputation = reputation;
+        initial_building_lot_list = new List<string>() { "Building Lot West" };
         West_Station = new Station(CityManager.west_start_outer, CityManager.west_start_inner, RouteManager.Orientation.West, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
         North_Station = new Station(CityManager.north_start_outer, CityManager.north_start_inner, RouteManager.Orientation.North, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
         East_Station = new Station(CityManager.east_start_outer, CityManager.east_start_inner, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
@@ -178,13 +194,41 @@ public class City : Structure
         turn_table_circle = Instantiate(Turn_Table_Circle);
         turn_table_circle.GetComponent<SpriteRenderer>().enabled = false;
         destination_orientation = RouteManager.Orientation.None;
-
         game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
         building_id = 1;
     }
 
+    public Texture get_star_image_from_reputation()
+    {
+        if (total_review_count == 0) return zero_star_texture;
+        int texture_id = (int)(total_star / total_review_count);
+        switch (texture_id)
+        {
+            case 0:
+                return zero_star_texture;
+            case 1:
+                return one_star_texture;
+            case 2:
+                return two_star_texture;
+            case 3:
+                return three_star_texture;
+            case 4:
+                return four_star_texture;
+            case 5:
+                return five_star_texture;
+            default:
+                throw new Exception("not a valid texture");
+        }
+    }
+
+    public void change_star_count(int star_count)
+    {
+        total_star += star_count;
+    }
+
     public void change_reputation(int reputation_change)
     {
+        total_review_count += 1;
         reputation += reputation_change;
         reputation = Mathf.Min(reputation, max_reputation);
         reputation = Mathf.Max(reputation, min_reputation);
@@ -223,7 +267,7 @@ public class City : Structure
 
     private void Update()
     {
-        //enable_train_for_screen(); causes lag
+        
     }
 
     public RouteManager.Orientation get_orientation_of_open_track()
@@ -315,32 +359,6 @@ public class City : Structure
             throw new Exception("not a valid tile");
         }
         return building_object.GetComponent<Building>(); 
-    }
-
-    public void expand_building(Building building, Vector2Int selected_tile)
-    {
-        int expansion_count = 0;
-        if (selected_tile.x == building.offset_position.x && selected_tile.y > building.last_room_position.y)
-        {
-            expansion_count = selected_tile.y - building.last_room_position.y;
-        }
-        else if (selected_tile.y == building.offset_position.y && selected_tile.x > building.last_room_position.x)
-        {
-            expansion_count = selected_tile.x - building.last_room_position.x;
-        }
-        else
-        {
-            print("not a valid location for expansion");
-        }
-        expansion_count = Math.Min(expansion_count, building.max_capacity - building.current_capacity);
-        print("expansion count is " + expansion_count);
-        for (int e = 0; e < expansion_count; e++)
-        {
-            Room room = building.spawn_room();
-            set_city_tile((Vector3Int)room.tile_position);
-            GameManager.undeveloped_land.GetComponent<Tilemap>().SetTile((Vector3Int)room.tile_position, null);
-            room.display_contents(true);
-        }
     }
 
     public void unload_train(GameObject boxcar_go, Vector2Int room_position)
@@ -451,6 +469,88 @@ public class City : Structure
         }
         if (is_valid && gameobject_board[tile_pos.x, tile_pos.y] == null) return true;
         else { return false; }
+    }
+
+    public void expand_building(Building building, Vector2Int selected_tile)
+    {
+        int expansion_count = 0;
+        if (selected_tile.x == building.offset_position.x && selected_tile.y > building.last_room_position.y)
+        {
+            expansion_count = selected_tile.y - building.last_room_position.y;
+        }
+        else if (selected_tile.y == building.offset_position.y && selected_tile.x > building.last_room_position.x)
+        {
+            expansion_count = selected_tile.x - building.last_room_position.x;
+        }
+        else
+        {
+            print("not a valid location for expansion");
+        }
+        expansion_count = Math.Min(expansion_count, building.max_capacity - building.current_capacity);
+        print("expansion count is " + expansion_count);
+        for (int e = 0; e < expansion_count; e++)
+        {
+            Room room = building.spawn_room();
+            set_city_tile((Vector3Int)room.tile_position);
+            GameManager.undeveloped_land.GetComponent<Tilemap>().SetTile((Vector3Int)room.tile_position, null);
+            room.display_contents(true);
+        }
+    }
+
+    public int remove_lot(int affected_lot)
+    {
+        int remove_lot_count = 0;
+        foreach (Building bldg in city_building_list)
+        {
+            while (bldg.current_capacity > 0 && affected_lot < remove_lot_count)
+            {
+                bldg.remove_last_room();
+                remove_lot_count += 1;
+            }
+        }
+        return affected_lot - remove_lot_count;
+    }
+
+    public int add_lot(int affected_lot)
+    {
+        int added_lot_count = 0;
+        foreach (Building bldg in city_building_list)
+        {
+            while(bldg.current_capacity < bldg.max_capacity && affected_lot < added_lot_count)
+            {
+                bldg.spawn_room();
+                added_lot_count += 1;
+            }
+        }
+        return affected_lot - added_lot_count; // rollover lots to be applied to reputation since bldg capacity is filled
+    }
+
+    public void apply_reputation()
+    {
+        // change number of lots 
+        int delta_reputation = reputation + unapplied_reputation_count - last_checked_reputation;
+        int lot_affected = Math.Abs(delta_reputation) / reputation_per_lot;
+        int leftover_reputation = delta_reputation % reputation_per_lot;
+        int rollover_reputation = 0; // rollover lots are how many lots over the max capacity should be affected. Applied when more lots are available
+        if (delta_reputation < 0)
+        {
+            int underwater_rollover_lot = remove_lot(lot_affected);
+            rollover_reputation = underwater_rollover_lot * -reputation_per_lot;
+        }
+        else if (delta_reputation > 0){
+            int excess_rollover_lot = add_lot(lot_affected);
+            rollover_reputation = excess_rollover_lot * reputation_per_lot;
+        }
+        reputation = Mathf.Max(0, reputation);
+        reputation = Mathf.Min(100, reputation);
+        last_checked_reputation = reputation;
+        unapplied_reputation_count = leftover_reputation + rollover_reputation;
+        if (reputation != last_checked_reputation)
+        {
+            GameManager.reputation_text_go.GetComponent<Text>().text = "Reputation: " + reputation;
+        }
+
+        GameManager.star_review_image_go.GetComponent<RawImage>().texture = get_star_image_from_reputation();
     }
 
     public Vector2Int find_parking_spot(int y, int start_x, int end_x)

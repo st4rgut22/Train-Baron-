@@ -71,6 +71,18 @@ public class Building : Structure
         }
     }
 
+    public void remove_last_room()
+    {
+        Vector2Int room_pos = last_room_position;
+        Room room = city.city_room_matrix[room_pos.x, room_pos.y];
+        city.city_room_matrix[room_pos.x, room_pos.y] = null;
+        roomba[room.id] = null;
+        Vector2Int room_tile_pos = RouteManager.get_straight_next_tile_pos_multiple(building_orientation, offset_position, room.id-1);
+        city.city_tilemap.SetTile((Vector3Int)room_pos, null);
+        current_capacity -= 1;
+        last_room_position = room_tile_pos;
+    }
+
     public virtual Room spawn_room()
     {
         GameObject room_object = Instantiate(this.room);

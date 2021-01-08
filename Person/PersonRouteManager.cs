@@ -194,7 +194,9 @@ public class PersonRouteManager : RouteManager
         StartCoroutine(unlocked_door.rotate());
         person.arrived_at_room = true;
         City city = person.room.building.city;
-        person.finish_trip(city);
+        person.finish_trip();
+        if (city == CityManager.Activated_City_Component)
+            city.apply_reputation(); // only add/subtract rooms when city is active
         StartCoroutine(person.schedule_activity()); // once arrived at home do something for scheduled time
         room.occupied = true;
         room.person_go = person_go;

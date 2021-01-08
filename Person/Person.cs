@@ -32,7 +32,8 @@ public class Person : Simple_Moving_Object
     public Dictionary<string, int> activity_duration_map;
     public Dictionary<string, int> activity_likelihood_map;
 
-    public float desire_timeout; // time until person gives up on activity. results in a 0 star review
+    public float board_desire_timeout; // time until person gives up on activity. results in a 0 star review
+    public float trip_desire_timeout; 
     public float boarding_duration; // time person has to wait to board train
     public float trip_duration; // except for vacations, the longer this is, the lower the review
     public float board_start_time;
@@ -61,7 +62,8 @@ public class Person : Simple_Moving_Object
     public void Start()
     {
         wealth = 0;
-        desire_timeout = 30; 
+        board_desire_timeout = 10;
+        trip_desire_timeout = 90;
         in_tile = true;
         arrived_at_room = true;
         is_egghead_thinking = true;
@@ -74,8 +76,8 @@ public class Person : Simple_Moving_Object
         thought_bubble.transform.parent = gameObject.transform;
         thought_bubble.transform.localPosition = thought_bubble_offset;
         board_start_time = Time.time;
-        gameObject.SetActive(false);
-        thought_bubble.SetActive(true);
+        gameObject.GetComponent<SpriteRenderer>().enabled = false;
+        thought_bubble.GetComponent<SpriteRenderer>().enabled = false;
     }
 
     public void initialize_egghead()
@@ -106,12 +108,21 @@ public class Person : Simple_Moving_Object
             }
             final_destination_reached = false;
         }
+        boarding_duration = Time.time - board_start_time;
+        if (boarding_duration >= board_desire_timeout && desired_activity != "") // waiting for a train
+        {
+            leave_review(room.building.city, 0); // worst review is if person is not picked up
+            if (room.building.city.city_type != "Entrance") // if city is entrance, then person keeps desiring to go home
+            {
+                StartCoroutine(schedule_activity());
+            }
+        }
     }
 
-    public void finish_trip(City city)
+    public void finish_trip()
     {
         trip_duration = Time.time - trip_start_time;
-        leave_review(city);
+        leave_review(room.building.city);
     }
 
     public void board_train()
@@ -124,6 +135,8 @@ public class Person : Simple_Moving_Object
     public void leave_review(City city, Review review)
     {
         int delta_review = review - Review.Three_Star;
+        city.change_reputation(delta_review);
+        city.change_star_count((int)review);
         city.change_reputation(delta_review);
         PersonManager.change_reputation(delta_review);
     }
@@ -138,7 +151,6 @@ public class Person : Simple_Moving_Object
     public void set_orientation(RouteManager.Orientation orientation)
     {
         this.orientation = orientation;
-        //set_initial_rotation(orientation);
     }
 
     public void set_tile_pos(Vector2Int update_tile_pos)
@@ -189,8 +201,9 @@ public class Person : Simple_Moving_Object
             leave_review(city, review);
             return;
         }
-        float trip_rating = 1.0f - (boarding_duration + trip_duration) / desire_timeout / 2; // One minus the average rating
-        int star_rating = Math.Max((int)(trip_rating * 5), 1);
+        float trip_rating = 1.0f - boarding_duration / board_desire_timeout / 2 - trip_duration / trip_desire_timeout / 2; // One minus the average rating
+        print("trip rating is " + trip_rating);
+        int star_rating = (int)(trip_rating * 5) + 1;
         star_rating = Math.Min(5, star_rating);
         review = (Review)star_rating;
         print("FINISHED TRIP. Board duration was " + boarding_duration + " trip duration was " + trip_duration + "review was " + review);
@@ -241,10 +254,16 @@ public class Person : Simple_Moving_Object
         // when a person has arrived at a destination, perform action for a specified time
         thought_bubble.SetActive(false);
         int duration = activity_duration_map[desired_activity];
+        string prev_desired_activity = desired_activity;
+        desired_activity = ""; // so person cant board another matching boxcar while performing action
         yield return new WaitForSeconds(duration);
         desired_activity = pick_next_activity(); // when activity is over pick next activity
-        render_thought_bubble();
-        thought_bubble.SetActive(true);
+        if (prev_desired_activity == desired_activity) StartCoroutine(schedule_activity()); // if next activity is the same, dont need to board a train
+        else
+        {
+            render_thought_bubble();
+            thought_bubble.SetActive(true);
+        }
     }
 
     public string pick_next_activity()

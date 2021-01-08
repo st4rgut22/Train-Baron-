@@ -71,8 +71,13 @@ public class GameManager : EventDetector
     public static float tolerance = .004f;
     public static float speed = 1;
 
+    public static GameObject reputation_text_go;
+    public static GameObject star_review_image_go;
+
     private void Awake()
     {
+        star_review_image_go = GameObject.Find("star_review");
+        reputation_text_go = GameObject.Find("reputation_text");
         money = 5000;
         train_list = new List<GameObject>();
         hint_context_list = new List<string>();
@@ -246,29 +251,29 @@ public class GameManager : EventDetector
         return null;
     }
 
-    public override void OnBeginDrag(PointerEventData eventData)
-    {
-        RaycastHit2D[] selected_objects = get_all_object_at_cursor(Input.mousePosition);
-        GameObject big_lot_object = get_collider_by_tag("big_lot", selected_objects);
-        if (big_lot_object != null)
-        {
-            string name = big_lot_object.name;
-            print("dragging object " + name);
-            BuildingLot bl = City.building_map[name].GetComponent<BuildingLot>();
-            building_expansion = CityManager.Activated_City_Component.get_city_building(bl.origin_tile);
-        }
-    }
+    //public override void OnBeginDrag(PointerEventData eventData)
+    //{
+    //    RaycastHit2D[] selected_objects = get_all_object_at_cursor(Input.mousePosition);
+    //    GameObject big_lot_object = get_collider_by_tag("big_lot", selected_objects);
+    //    if (big_lot_object != null)
+    //    {
+    //        string name = big_lot_object.name;
+    //        print("dragging object " + name);
+    //        BuildingLot bl = City.building_map[name].GetComponent<BuildingLot>();
+    //        building_expansion = CityManager.Activated_City_Component.get_city_building(bl.origin_tile);
+    //    }
+    //}
 
-    public override void OnEndDrag(PointerEventData eventData)
-    {
-        // add new rooms
-        if (building_expansion != null)
-        {
-            Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
-            CityManager.Activated_City_Component.expand_building(building_expansion, selected_tile);
-        }
-        building_expansion = null;
-    }
+    //public override void OnEndDrag(PointerEventData eventData)
+    //{
+    //    // add new rooms
+    //    if (building_expansion != null)
+    //    {
+    //        Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
+    //        CityManager.Activated_City_Component.expand_building(building_expansion, selected_tile);
+    //    }
+    //    building_expansion = null;
+    //}
 
     public List<Collider2D> get_all_collider(RaycastHit2D[] all_raycast_hit)
     {
@@ -319,7 +324,7 @@ public class GameManager : EventDetector
         if (hint_context_list.Contains("board")) // behaves different from other hint contexts because eligible tiles are offset from tilemap and must be found by cloesst distance
         {
             print("board from city to boxcar");
-            if (collider_tag_list.Contains("boxcar"))
+            if (collider_tag_list.Contains("boxcar") && hint_index != -1) // second condition checks if it is an eligible tile
             {
                 Collider2D collider = get_from_collider_list("boxcar", collider_list);
                 GameObject boxcar_go = collider.gameObject;

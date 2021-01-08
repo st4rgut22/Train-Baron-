@@ -383,6 +383,7 @@ public class CityManager : BoardManager
             city.set_all_room_sprites();
             city.show_all_building_occupants(true);
             city.show_all_undeveloped_plots(false);
+            city.apply_reputation();
             city.display_boxcar();
             hide_exit_route(RouteManager.Orientation.North, city, RouteManager.exit_north_tilemap);
             hide_exit_route(RouteManager.Orientation.East, city, RouteManager.exit_east_tilemap);
