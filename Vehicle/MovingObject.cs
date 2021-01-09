@@ -31,7 +31,7 @@ public class MovingObject : Simple_Moving_Object
         tile_position = new Vector3Int(home_base.x, home_base.y, 0);
         next_tilemap_position = home_base;
         prev_city = null;
-        orientation = CityManager.set_orientation_of_new_train();
+        orientation = RouteManager.Orientation.East; 
         final_orientation = orientation;
     }
 

@@ -4,23 +4,16 @@ public class Entrance : Building
 {
     // Start is called before the first frame update
 
-    public void populate_room()
+    public void Start()
     {
-        foreach (GameObject room_go in roomba)
-        {
-            Room room = room_go.GetComponent<Room>();
-            if (room.person_go == null)
-            {
-                room.spawn_person();
-            }
-        }
+        base.Start();
     }
 
     public override Room spawn_room()
     {
         Room room = base.spawn_room();
-        room.spawn_person();
+        Person person = room.spawn_person();
+        person.turn_on_sprite_renderer(false);
         return room;
     }
-
 }

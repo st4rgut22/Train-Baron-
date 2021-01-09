@@ -12,6 +12,7 @@ public class Room : Structure
     public int id;
     public bool occupied;
     public GameObject person_go;
+    public GameObject person_go_instance;
     public Vector2Int tile_position;
     public GameObject bottom_left_door;
     public GameObject bottom_right_door;
@@ -130,14 +131,15 @@ public class Room : Structure
 
     }
 
-    public void spawn_person()
+    public Person spawn_person()
     {
-        person_go = Instantiate(person_go);
-        Person person = person_go.GetComponent<Person>();
+        person_go_instance = Instantiate(person_go);
+        Person person = person_go_instance.GetComponent<Person>();
         person.is_egghead_thinking = true;
         person.room = this;
         set_person_position(person);
-        add_occupant(this.person_go);
+        add_occupant(this.person_go_instance);
+        return person;
     }
 
     public void set_person_position(Person person)
@@ -150,29 +152,29 @@ public class Room : Structure
 
     public void clear_room()
     {
-        person_go = null;
+        person_go_instance = null;
         occupied = false;
 
     }
 
     public void add_occupant(GameObject person_object)
     {
-        person_go = person_object;
+        person_go_instance = person_object;
         occupied = true;
     }
 
     public void display_contents(bool display)
     {
-        person_go.GetComponent<SpriteRenderer>().enabled = display;
+        person_go_instance.GetComponent<SpriteRenderer>().enabled = display;
         display_structure(primary_door, display);
         display_structure(outer_door, display);
     }
 
     public void display_occupant(bool display)
     {
-        person_go.GetComponent<SpriteRenderer>().enabled = display;
-        person_go.GetComponent<Person>().thought_bubble.GetComponent<SpriteRenderer>().enabled = display;
-        //person_go.SetActive(display);
-        //person_go.GetComponent<Person>().activiate_thought_bubble();
+        person_go_instance.GetComponent<SpriteRenderer>().enabled = display;
+        person_go_instance.GetComponent<Person>().thought_bubble.GetComponent<SpriteRenderer>().enabled = display;
+        //person_go_instance.SetActive(display);
+        //person_go_instance.GetComponent<Person>().activiate_thought_bubble();
     }
 }

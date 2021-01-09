@@ -248,8 +248,9 @@ public class Train : MovingObject
         while (true)
         {
             Tilemap tilemap = GameManager.track_manager.top_tilemap;
+            Tile cur_tile = (Tile)tilemap.GetTile(tile_position);
             Tile tile = (Tile) tilemap.GetTile((Vector3Int)next_tile_pos);
-            if (tile != null && TrackManager.is_track_a_path(orientation, tile.name)) // make sure the train can cross this track
+            if (tile != null && TrackManager.is_track_a_path(orientation, tile.name, cur_tile.name)) // make sure the train can cross this track
                 break;
             else { yield return new WaitForEndOfFrame(); }
         }

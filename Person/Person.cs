@@ -40,6 +40,7 @@ public class Person : Simple_Moving_Object
     public float trip_start_time;
 
     public bool trip_in_progress;
+    public bool activity_in_progress;
 
     public Room room;
 
@@ -47,7 +48,7 @@ public class Person : Simple_Moving_Object
 
     public enum Review
     {
-        No_Star,
+        Zero_Star,
         One_Star,
         Two_Star,
         Three_Star,
@@ -59,14 +60,15 @@ public class Person : Simple_Moving_Object
     {
         thought_bubble_offset = new Vector2(2.6f, 2.6f);
         trip_in_progress = false;
+        activity_in_progress = false;
         base.Awake();
     }
 
     public void Start()
     {
         wealth = 0;
-        board_desire_timeout = 10;
-        trip_desire_timeout = 90;
+        board_desire_timeout = 45;
+        trip_desire_timeout = 130;
         in_tile = true;
         arrived_at_room = true;
         is_egghead_thinking = true;
@@ -79,13 +81,12 @@ public class Person : Simple_Moving_Object
         thought_bubble.transform.parent = gameObject.transform;
         thought_bubble.transform.localPosition = thought_bubble_offset;
         board_start_time = Time.time;
-        gameObject.GetComponent<SpriteRenderer>().enabled = false;
         thought_bubble.GetComponent<SpriteRenderer>().enabled = false;
     }
 
-    public void initialize_egghead()
+    public void turn_on_sprite_renderer(bool is_sprite_on)
     {
-
+        gameObject.GetComponent<SpriteRenderer>().enabled = is_sprite_on;
     }
 
     public void Update()
@@ -112,9 +113,9 @@ public class Person : Simple_Moving_Object
             final_destination_reached = false;
         }
         boarding_duration = Time.time - board_start_time;
-        if (boarding_duration >= board_desire_timeout && !trip_in_progress) // waiting for a train
+        if (boarding_duration >= board_desire_timeout && !trip_in_progress && !activity_in_progress) // waiting for a train
         {
-            leave_review(room.building.city, 0); // worst review is if person is not picked up
+            leave_review(room.building.city, Review.Zero_Star); // worst review is if person is not picked up
             if (room.building.city.city_type != "Entrance") // if city is entrance, then person keeps desiring to go home
             {
                 StartCoroutine(schedule_activity());
@@ -142,11 +143,12 @@ public class Person : Simple_Moving_Object
 
     public void leave_review(City city, Review review)
     {
-        int delta_review = review - Review.Three_Star;
-        city.change_reputation(delta_review);
+        int reputation_change = (int)review;
+        if (review == Review.Zero_Star) reputation_change = -2;
+        if (review == Review.One_Star) reputation_change = -1;
         city.change_star_count((int)review);
-        city.change_reputation(delta_review);
-        PersonManager.change_reputation(delta_review);
+        city.change_reputation(reputation_change);
+        PersonManager.change_reputation(reputation_change);
     }
 
     public void exit_home()
@@ -266,12 +268,17 @@ public class Person : Simple_Moving_Object
         int duration = activity_duration_map[desired_activity];
         string prev_desired_activity = desired_activity;
         desired_activity = ""; // so person cant board another matching boxcar while performing action
-        trip_in_progress = false; 
+        trip_in_progress = false;
+        activity_in_progress = true;
         yield return new WaitForSeconds(duration);
+        board_start_time = Time.time;
+        activity_in_progress = false;
+        print("room type is " + room.building.city.city_type);
         if (room.building.city.city_type == "Entrance") desired_activity = "home_thought_bubble";
         else
         {
             desired_activity = pick_next_activity(); // when activity is over pick next activity
+            print("next activity is " + desired_activity);
             if (prev_desired_activity == desired_activity)
             {
                 StartCoroutine(schedule_activity()); // if next activity is the same, dont need to board a train

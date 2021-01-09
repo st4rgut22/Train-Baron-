@@ -389,6 +389,8 @@ public class CityManager : BoardManager
             city.change_traffic_signal(true);
             city.apply_reputation();         
             city.display_boxcar();
+            if (city.city_type == "Entrance")
+                city.populate_entrance();
             hide_exit_route(RouteManager.Orientation.North, city, RouteManager.exit_north_tilemap);
             hide_exit_route(RouteManager.Orientation.East, city, RouteManager.exit_east_tilemap);
             hide_exit_route(RouteManager.Orientation.West, city, RouteManager.exit_west_tilemap);
@@ -404,13 +406,13 @@ public class CityManager : BoardManager
         }
     }
 
-    public static RouteManager.Orientation set_orientation_of_new_train()
-    {
-        // when a train is created, find which direction train should be in to pick up passengers
-        RouteManager.Orientation train_orientation = home_base.get_orientation_of_open_track();
-        print("orientation of new train is " + train_orientation);
-        return train_orientation;
-    }
+    //public static RouteManager.Orientation set_orientation_of_new_train()
+    //{
+    //    // when a train is created, find which direction train should be in to pick up passengers
+    //    RouteManager.Orientation train_orientation = home_base.get_orientation_of_open_track();
+    //    print("orientation of new train is " + train_orientation);
+    //    return train_orientation;
+    //}
 
     public static float get_exit_dist(RouteManager.Orientation orientation)
     {

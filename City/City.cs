@@ -112,6 +112,8 @@ public class City : Structure
         GameObject west_bl = Instantiate(BuildingLot);
         GameObject south_inner_bl = Instantiate(BuildingLot);
         GameObject south_outer_bl = Instantiate(BuildingLot);
+        start_reputation = PersonManager.reputation; // 0
+
         north_outer_bl.GetComponent<BuildingLot>().init_building_lot
             (
                 "Building Lot North Outer",
@@ -236,6 +238,42 @@ public class City : Structure
         }
     }
 
+    public void populate_entrance()
+    {
+        //use delta reputation to populate as many rooms as possible
+        int people_to_add = PersonManager.reputation - start_reputation;
+        print("populate entrance. delta peeps is " + people_to_add);
+        int total_vacancy_count = get_total_occupant_count();
+        if (total_vacancy_count < people_to_add) people_to_add = total_vacancy_count;
+        print("people to add is " + people_to_add);
+        for (int i = 0; i < people_to_add; i++)
+        {
+            foreach (Building bldg in city_building_list)
+            {
+                foreach (GameObject room_go in bldg.roomba)
+                {
+                    Room room = room_go.GetComponent<Room>();
+                    if (!room.occupied)
+                    {
+                        Person person = room.spawn_person();
+                        person.turn_on_sprite_renderer(true);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public int get_total_occupant_count()
+    {
+        int city_occupant_count = 0;
+        foreach (Building bldg in city_building_list)
+        {
+            city_occupant_count += bldg.get_vacancy_count();
+        }
+        return city_occupant_count;
+    }
+
     public void change_star_count(int star_count)
     {
         total_star += star_count;
@@ -307,10 +345,13 @@ public class City : Structure
         {
             foreach (GameObject room_go in bldg.roomba)
             {
-                Room room = room_go.GetComponent<Room>();
-                if (room.person_go != null)
+                if (room_go != null)
                 {
-                    return bldg.building_lot.train_orientation;
+                    Room room = room_go.GetComponent<Room>();
+                    if (room.person_go_instance != null)
+                    {
+                        return bldg.building_lot.train_orientation;
+                    }
                 }
             }
         }
@@ -410,7 +451,7 @@ public class City : Structure
         print("boarding train from room  position " + room_position + " to " + boxcar.tile_position);
 
         Room room = city_room_matrix[room_position.x, room_position.y];
-        GameObject occupant_go = room.person_go; //todo: laster move the occupant to the room (first checkpoint). 
+        GameObject occupant_go = room.person_go_instance; //todo: laster move the occupant to the room (first checkpoint). 
         Person occupant = occupant_go.GetComponent<Person>();
         boxcar.is_occupied = true;
         boxcar.passenger_go = occupant_go;
@@ -574,13 +615,12 @@ public class City : Structure
         }
         reputation = Mathf.Max(0, reputation);
         reputation = Mathf.Min(100, reputation);
-        last_checked_reputation = reputation;
         unapplied_reputation_count = leftover_reputation + rollover_reputation;
         if (reputation != last_checked_reputation)
         {
             GameManager.reputation_text_go.GetComponent<Text>().text = "Reputation: " + reputation;
         }
-
+        last_checked_reputation = reputation;
         GameManager.star_review_image_go.GetComponent<RawImage>().texture = get_star_image_from_reputation();
     }
 

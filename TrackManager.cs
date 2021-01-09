@@ -176,20 +176,22 @@ public class TrackManager : BoardManager
         }
     }
 
-    public static bool is_track_a_path(RouteManager.Orientation orientation, string track_tile)
+    public static bool is_track_a_path(RouteManager.Orientation prior_orientation, string next_track_tile, string cur_track_tile)
     {
         // check if train can traverse a placed tile
+        // get orientation AFTER moving current tile, not before
+        RouteManager.Orientation orientation = TrackManager.get_direction_from_orientation(cur_track_tile, prior_orientation);
         if (orientation == RouteManager.Orientation.North)
-            if (track_tile == "WS" || track_tile == "ES" || track_tile == "vert")
+            if (next_track_tile == "WS" || next_track_tile == "ES" || next_track_tile == "vert")
                 return true;
         if (orientation == RouteManager.Orientation.East)
-            if (track_tile == "WN" || track_tile == "WS" || track_tile == "hor")
+            if (next_track_tile == "WN" || next_track_tile == "WS" || next_track_tile == "hor")
                 return true;
         if (orientation == RouteManager.Orientation.West)
-            if (track_tile == "NE" || track_tile == "ES" || track_tile == "hor")
+            if (next_track_tile == "NE" || next_track_tile == "ES" || next_track_tile == "hor")
                 return true;
         if (orientation == RouteManager.Orientation.South)
-            if (track_tile == "WN" || track_tile == "NE" || track_tile == "vert")
+            if (next_track_tile == "WN" || next_track_tile == "NE" || next_track_tile == "vert")
                 return true;
         return false;
     }
@@ -465,6 +467,51 @@ public class TrackManager : BoardManager
         else
         {
             throw new Exception("no start orientation found");
+        }
+    }
+
+    public static RouteManager.Orientation get_direction_from_orientation(string track_name, RouteManager.Orientation orientation)
+    {
+        switch (track_name)
+        {
+            case "ES":
+                if (orientation == RouteManager.Orientation.West)
+                {
+                    return RouteManager.Orientation.South;
+                }
+                else
+                {
+                    return RouteManager.Orientation.East;
+                }
+            case "NE":
+                if (orientation == RouteManager.Orientation.West)
+                {
+                    return RouteManager.Orientation.North;
+                }
+                else
+                {
+                    return RouteManager.Orientation.East;
+                }
+            case "WN":
+                if (orientation == RouteManager.Orientation.East)
+                {
+                    return RouteManager.Orientation.North;
+                }
+                else
+                {
+                    return RouteManager.Orientation.West;
+                }
+            case "WS":
+                if (orientation == RouteManager.Orientation.East)
+                {
+                    return RouteManager.Orientation.South;
+                }
+                else
+                {
+                    return RouteManager.Orientation.West;
+                }
+            default:
+                return orientation;
         }
     }
 

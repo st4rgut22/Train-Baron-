@@ -350,6 +350,8 @@ public class RouteManager : MonoBehaviour
         return new PositionPair(final_cell_dest, next_tilemap_pos);
     }
 
+
+
     public static Vector2Int get_depart_tile_position(Orientation orientation, Vector3Int tile_coord)
     {
         switch (orientation)

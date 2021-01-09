@@ -12,8 +12,7 @@ public class Structure : BoardManager
     public Sprite right_door_bottom_right;
     public Sprite right_door_top_left;
     public Sprite right_door_top_right;
-
-
+    public int start_reputation;
 
     public class Door_Prop
     {
@@ -38,12 +37,10 @@ public class Structure : BoardManager
 
     }
 
-
-
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        
+
     }
 
     // Update is called once per frame

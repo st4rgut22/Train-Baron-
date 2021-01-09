@@ -168,7 +168,7 @@ public class CityDetector : EventDetector
         string building_type = CityManager.Activated_City_Component.city_type;
         if (is_room_occupied)
         {
-            Person person = room.person_go.GetComponent<Person>();
+            Person person = room.person_go_instance.GetComponent<Person>();
             print("room is occupied");
             Station cb_station = CityManager.Activated_City_Component.get_station_track(selected_tile).station;
             RouteManager.Orientation orientation = cb_station.orientation;

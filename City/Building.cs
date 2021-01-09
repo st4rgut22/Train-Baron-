@@ -25,7 +25,7 @@ public class Building : Structure
         room_id = -1;
     }
 
-    void Start()
+    public void Start()
     {
         city.city_tilemap_go.SetActive(false); // after setting tile deactivate gameobject
         roomba = new GameObject[max_capacity];
@@ -37,15 +37,29 @@ public class Building : Structure
         
     }
 
-    public void add_occupant_to_available_room(GameObject person_go)
+    public int get_vacancy_count()
+    {
+        int vacancy_count = 0;
+        for (int i = 0; i < roomba.Length; i++)
+        {
+            if (roomba[i] != null)
+            {
+                Room room = roomba[i].GetComponent<Room>();
+                if (!room.occupied) vacancy_count += 1;
+            }
+        }
+        return vacancy_count;
+    }
+
+    public void add_occupant_to_available_room(GameObject person_go_instance)
     {
         foreach (GameObject room_go in roomba)
         {
             Room room = room_go.GetComponent<Room>();
             if (room!= null && !room.occupied)
             {
-                room.add_occupant(person_go);
-                Person person = person_go.GetComponent<Person>();
+                room.add_occupant(person_go_instance);
+                Person person = person_go_instance.GetComponent<Person>();
                 //TODO: some movmenet script as a transition
                 room.set_person_position(person);
                 break;

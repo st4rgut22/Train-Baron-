@@ -80,14 +80,14 @@ public class PersonRouteManager : RouteManager
     }
 
 
-    public static void get_hor_flip_with_location(Vector3 start_pos, Vector3 end_pos, GameObject person_go)
+    public static void get_hor_flip_with_location(Vector3 start_pos, Vector3 end_pos, GameObject person_go_instance)
     {
         if (end_pos.x > start_pos.x)
         {
-            person_go.GetComponent<SpriteRenderer>().flipX = false;
+            person_go_instance.GetComponent<SpriteRenderer>().flipX = false;
         }
         else {
-            person_go.GetComponent<SpriteRenderer>().flipX = true;
+            person_go_instance.GetComponent<SpriteRenderer>().flipX = true;
         }
     }
 
@@ -162,12 +162,12 @@ public class PersonRouteManager : RouteManager
         occupant.final_orientation = occupant.orientation;
     }
 
-    public IEnumerator step_on_boxcar(GameObject person_go, GameObject boxcar_go)
+    public IEnumerator step_on_boxcar(GameObject person_go_instance, GameObject boxcar_go)
     {
-        Person person = person_go.GetComponent<Person>();
+        Person person = person_go_instance.GetComponent<Person>();
         Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
         Vector2 boxcar_position = boxcar_go.transform.position;
-        Orientation final_orientation = TrackManager.enter_boxcar_orientation(boxcar_position, person_go.transform.position);
+        Orientation final_orientation = TrackManager.enter_boxcar_orientation(boxcar_position, person_go_instance.transform.position);
         print("enter boxcar cp with person orientation " + person.orientation + " final orientation " + final_orientation + " boxcar tile pos " + boxcar.tile_position);
         Checkpoint step_on_boxcar_cp = new Checkpoint(boxcar.transform.position, (Vector2Int)boxcar.tile_position, person.orientation, final_orientation, "walk");
         List<Checkpoint> board_train_checkpoints = new List<Checkpoint>() { step_on_boxcar_cp };
@@ -176,10 +176,10 @@ public class PersonRouteManager : RouteManager
         person.transform.parent = boxcar.transform; // make person a passenger of boxcar
     }
 
-    public IEnumerator enter_home(GameObject person_go, Room room)
+    public IEnumerator enter_home(GameObject person_go_instance, Room room)
     {
         List<Checkpoint> enter_home_checkpoints = new List<Checkpoint>();
-        Person person = person_go.GetComponent<Person>();
+        Person person = person_go_instance.GetComponent<Person>();
         Door unlocked_door = room.unlocked_door.GetComponent<Door>();
         Vector2 enter_door_location = room.unlocked_door.transform.position;
         Vector2 room_position = track_tilemap.GetCellCenterWorld((Vector3Int)room.tile_position);
@@ -199,16 +199,16 @@ public class PersonRouteManager : RouteManager
             city.apply_reputation(); // only add/subtract rooms when city is active
         StartCoroutine(person.schedule_activity()); // once arrived at home do something for scheduled time
         room.occupied = true;
-        room.person_go = person_go;
+        room.person_go_instance = person_go_instance;
     }
 
     public IEnumerator unload_train(Boxcar boxcar, Room room, Orientation exit_orientation)
     {
         List<Checkpoint> go_home_checkpoints = new List<Checkpoint>();
-        GameObject person_go = boxcar.passenger_go;
+        GameObject person_go_instance = boxcar.passenger_go;
         boxcar.is_occupied = false;
-        person_go.transform.parent = null;
-        Person person = person_go.GetComponent<Person>();
+        person_go_instance.transform.parent = null;
+        Person person = person_go_instance.GetComponent<Person>();
         person.is_tight_curve = is_curve_inner(boxcar);
         room.unlocked_door = get_exit_door(boxcar, room);
         // the final dest tile is offset from the person's route, so find the offset using city map
