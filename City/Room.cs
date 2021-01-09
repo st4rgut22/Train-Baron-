@@ -10,7 +10,7 @@ public class Room : Structure
     // Building has a List<Room>
     public Building building;
     public int id;
-    public bool occupied;
+    public bool booked;
     public GameObject person_go;
     public GameObject person_go_instance;
     public Vector2Int tile_position;
@@ -26,6 +26,7 @@ public class Room : Structure
     public Vector2 right_door_offset; // offset to the opposite side of the house
     public Vector2 pivot_door_offset; // offset to the opposite side of the house
     public GameObject Door;
+    public bool has_person;
 
     // child door go
     //TODO: create an offset dictionary for each type of door?
@@ -33,9 +34,10 @@ public class Room : Structure
     private void Awake()
     {
         right_door_offset = new Vector2(.51f, 0f);
-        occupied = false;
+        booked = false;
         outer_door = null;
-        primary_door = null; 
+        primary_door = null;
+        has_person = false;
     }
 
     // Start is called before the first frame update
@@ -134,6 +136,7 @@ public class Room : Structure
     public Person spawn_person()
     {
         person_go_instance = Instantiate(person_go);
+        has_person = true;
         Person person = person_go_instance.GetComponent<Person>();
         person.is_egghead_thinking = true;
         person.room = this;
@@ -153,14 +156,14 @@ public class Room : Structure
     public void clear_room()
     {
         person_go_instance = null;
-        occupied = false;
+        booked = false;
 
     }
 
     public void add_occupant(GameObject person_object)
     {
         person_go_instance = person_object;
-        occupied = true;
+        booked = true;
     }
 
     public void display_contents(bool display)
@@ -174,7 +177,5 @@ public class Room : Structure
     {
         person_go_instance.GetComponent<SpriteRenderer>().enabled = display;
         person_go_instance.GetComponent<Person>().thought_bubble.GetComponent<SpriteRenderer>().enabled = display;
-        //person_go_instance.SetActive(display);
-        //person_go_instance.GetComponent<Person>().activiate_thought_bubble();
     }
 }

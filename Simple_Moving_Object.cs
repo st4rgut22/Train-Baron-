@@ -89,6 +89,8 @@ public class Simple_Moving_Object : EventDetector
     public IEnumerator set_animation_clip(string animation_clip)
     {
         // change the sprite's animation clip
+        print("set animation clip " + animation_clip + " true");
+        print("set old animation clip " + current_animation + " false");
         animator.SetBool(animation_clip, true);
         animator.SetBool(current_animation, false);
         current_animation = animation_clip;

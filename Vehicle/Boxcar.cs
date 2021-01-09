@@ -153,7 +153,7 @@ public class Boxcar : MovingObject
             int y = valid_pos[is_inner][c][1];
             temp_unloading_pos_list.Add(new int[] { x, y });
             Room room = city.city_room_matrix[x, y];
-            if (room!=null && !room.occupied) // room is not occupied
+            if (room!=null && !room.booked) // room is not occupied
             {
                 unloading_pos_list.Add(new int[] { x, y });
                 building_has_room = true;

@@ -75,18 +75,18 @@ public class Person : Simple_Moving_Object
         location = "station"; // person is spawned at station
         enter_home_orientation = RouteManager.Orientation.None; // initialized on enter home sequence
         final_dest_tile_pos = new Vector3Int(-1, -1, 0);
+        board_start_time = Time.time;
+    }
+
+    public void initialize_egghead(bool is_egghead_on, bool is_bubble_on)
+    {
+        gameObject.GetComponent<SpriteRenderer>().enabled = is_egghead_on;
         thought_bubble = Instantiate(eggheads_thought_bubble);
         thought_bubble_renderer = thought_bubble.GetComponent<SpriteRenderer>();
         desired_activity = thought_bubble.GetComponent<SpriteRenderer>().sprite.name;
         thought_bubble.transform.parent = gameObject.transform;
         thought_bubble.transform.localPosition = thought_bubble_offset;
-        board_start_time = Time.time;
-        thought_bubble.GetComponent<SpriteRenderer>().enabled = false;
-    }
-
-    public void turn_on_sprite_renderer(bool is_sprite_on)
-    {
-        gameObject.GetComponent<SpriteRenderer>().enabled = is_sprite_on;
+        thought_bubble.GetComponent<SpriteRenderer>().enabled = is_bubble_on;
     }
 
     public void Update()

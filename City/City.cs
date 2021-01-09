@@ -87,6 +87,7 @@ public class City : Structure
     public GameObject Traffic_Light_Manager_Instance;
     public TrafficLightManager traffic_manager;
 
+    //public List<GameObject> person_in_transit; //people unloading from trains
 
     private void Awake()
     {
@@ -253,10 +254,11 @@ public class City : Structure
                 foreach (GameObject room_go in bldg.roomba)
                 {
                     Room room = room_go.GetComponent<Room>();
-                    if (!room.occupied)
+                    if (!room.booked)
                     {
                         Person person = room.spawn_person();
-                        person.turn_on_sprite_renderer(true);
+                        person.initialize_egghead(true, true);
+                        person.thought_bubble.GetComponent<SpriteRenderer>().enabled = true;
                         break;
                     }
                 }
@@ -367,7 +369,7 @@ public class City : Structure
     {
         if (room != null)
         {
-            return room.occupied;
+            return room.booked;
         }
         return false;
     }
@@ -436,9 +438,12 @@ public class City : Structure
     public void unload_train(GameObject boxcar_go, Vector2Int room_position)
     {
         Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
-        boxcar.passenger_go.GetComponent<Person>().offset_map = RouteManager.offset_route_map[boxcar.station_track.start_location];
-        boxcar.passenger_go.GetComponent<Person>().is_enter_home = true;
+        Person person = boxcar.passenger_go.GetComponent<Person>();
+        person.offset_map = RouteManager.offset_route_map[boxcar.station_track.start_location];
+        person.is_enter_home = true;
         Room room = city_room_matrix[room_position.x, room_position.y];
+        room.booked = true; // set true even tho person hasnt arrived to lock in this room and lock out others
+        room.person_go_instance = boxcar.passenger_go;
         string track_name = RouteManager.shipyard_track_tilemap.GetTile(boxcar.tile_position).name;
         print("unloading train from room  position " + room_position + " to " + boxcar.tile_position);
         RouteManager.Orientation exit_orientation = CityManager.station_track_unloading_map[boxcar.station_track.start_location][track_name];
@@ -453,7 +458,7 @@ public class City : Structure
         Room room = city_room_matrix[room_position.x, room_position.y];
         GameObject occupant_go = room.person_go_instance; //todo: laster move the occupant to the room (first checkpoint). 
         Person occupant = occupant_go.GetComponent<Person>();
-        boxcar.is_occupied = true;
+        boxcar.is_occupied = true; // prevent another pserson from boarding the same boxcar
         boxcar.passenger_go = occupant_go;
         occupant.is_board_boxcar = true;
         occupant.boxcar_go = boxcar_go;

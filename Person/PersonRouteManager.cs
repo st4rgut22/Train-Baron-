@@ -118,6 +118,8 @@ public class PersonRouteManager : RouteManager
         occupant.board_train();
         GameObject door = get_exit_door(boxcar, room);
         room.unlocked_door = door;
+        room.has_person = false;
+        room.booked = false; // new stuff
         Door unlocked_door = room.unlocked_door.GetComponent<Door>();
         // 2 checkpoints. In first go to doorstep and rotate accordingly. In the next only rotate to face track direction
         List<Checkpoint> board_train_checkpoints = new List<Checkpoint>();
@@ -198,8 +200,7 @@ public class PersonRouteManager : RouteManager
         if (city == CityManager.Activated_City_Component)
             city.apply_reputation(); // only add/subtract rooms when city is active
         StartCoroutine(person.schedule_activity()); // once arrived at home do something for scheduled time
-        room.occupied = true;
-        room.person_go_instance = person_go_instance;
+        room.has_person = true;
     }
 
     public IEnumerator unload_train(Boxcar boxcar, Room room, Orientation exit_orientation)

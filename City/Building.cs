@@ -45,7 +45,7 @@ public class Building : Structure
             if (roomba[i] != null)
             {
                 Room room = roomba[i].GetComponent<Room>();
-                if (!room.occupied) vacancy_count += 1;
+                if (!room.booked) vacancy_count += 1;
             }
         }
         return vacancy_count;
@@ -56,7 +56,7 @@ public class Building : Structure
         foreach (GameObject room_go in roomba)
         {
             Room room = room_go.GetComponent<Room>();
-            if (room!= null && !room.occupied)
+            if (room!= null && !room.booked)
             {
                 room.add_occupant(person_go_instance);
                 Person person = person_go_instance.GetComponent<Person>();
@@ -75,7 +75,7 @@ public class Building : Structure
             if (room_go != null)
             {
                 Room room = room_go.GetComponent<Room>();
-                if (room.occupied)
+                if (room.booked)
                     room.display_occupant(is_display);
                 //todo: activate room, which also activates the door and everything inside it
                 //room_go.SetActive(is_display);

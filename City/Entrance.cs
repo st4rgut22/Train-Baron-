@@ -13,7 +13,7 @@ public class Entrance : Building
     {
         Room room = base.spawn_room();
         Person person = room.spawn_person();
-        person.turn_on_sprite_renderer(false);
+        person.initialize_egghead(false, false);
         return room;
     }
 }
