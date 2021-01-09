@@ -114,7 +114,7 @@ public class PersonRouteManager : RouteManager
     public IEnumerator board_train(Boxcar boxcar, Room room, GameObject occupant_go, Vector3Int destination)
     {
         Person occupant = occupant_go.GetComponent<Person>();
-        occupant.thought_bubble.SetActive(false);
+        occupant.pop_thought_bubble();
         occupant.board_train();
         GameObject door = get_exit_door(boxcar, room);
         room.unlocked_door = door;

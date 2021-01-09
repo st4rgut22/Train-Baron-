@@ -78,6 +78,12 @@ public class Person : Simple_Moving_Object
         board_start_time = Time.time;
     }
 
+    public void pop_thought_bubble()
+    {
+        thought_bubble.SetActive(false);
+        PersonManager.add_notification_for_city(room.building.city.tilemap_position, false);
+    }
+
     public void initialize_egghead(bool is_egghead_on, bool is_bubble_on)
     {
         gameObject.GetComponent<SpriteRenderer>().enabled = is_egghead_on;
@@ -87,6 +93,7 @@ public class Person : Simple_Moving_Object
         thought_bubble.transform.parent = gameObject.transform;
         thought_bubble.transform.localPosition = thought_bubble_offset;
         thought_bubble.GetComponent<SpriteRenderer>().enabled = is_bubble_on;
+        PersonManager.add_notification_for_city(room.building.city.tilemap_position, true);
     }
 
     public void Update()
@@ -116,6 +123,7 @@ public class Person : Simple_Moving_Object
         if (boarding_duration >= board_desire_timeout && !trip_in_progress && !activity_in_progress) // waiting for a train
         {
             leave_review(room.building.city, Review.Zero_Star); // worst review is if person is not picked up
+            pop_thought_bubble();
             if (room.building.city.city_type != "Entrance") // if city is entrance, then person keeps desiring to go home
             {
                 StartCoroutine(schedule_activity());
@@ -285,6 +293,7 @@ public class Person : Simple_Moving_Object
                 yield break; // dont render thought bubble if same action
             }
         }
+        PersonManager.add_notification_for_city(room.building.city.tilemap_position, true);
         render_thought_bubble();
     }
 

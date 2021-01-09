@@ -369,6 +369,7 @@ public class CityManager : BoardManager
         if (city_object == null) // hide shipyard
         {
             city_tilemap_go.SetActive(false);
+            PersonManager.show_notification(true);
             GameManager.city_menu_state = false;
             City activated_city = Activated_City.GetComponent<City>();
             activated_city.enable_train_for_screen();
@@ -379,6 +380,7 @@ public class CityManager : BoardManager
         }
         else // show shipyard
         {
+            PersonManager.show_notification(false);
             city_tilemap_go.SetActive(true);
             // populate city tilemap
             GameManager.city_menu_state = true;

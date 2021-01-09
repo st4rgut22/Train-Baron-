@@ -26,7 +26,7 @@ public class City : Structure
     public Vector2Int first_structure_location;
 
     // track city control as a function of supplies, troops, artillery
-    Vector3Int tilemap_position;
+    public Vector3Int tilemap_position;
     public Tile food_boxcar_tile;
     public Tile work_boxcar_tile;
     public Tile vacation_boxcar_tile;
