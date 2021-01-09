@@ -83,9 +83,17 @@ public class City : Structure
     List<string> initial_building_lot_list;
     public GameObject BuildingLot;
 
+    public GameObject TrafficLightManager;
+    public GameObject Traffic_Light_Manager_Instance;
+    public TrafficLightManager traffic_manager;
+
+
     private void Awake()
     {
         base.Awake();
+        Traffic_Light_Manager_Instance = Instantiate(TrafficLightManager);
+        traffic_manager = Traffic_Light_Manager_Instance.GetComponent<TrafficLightManager>();
+        Traffic_Light_Manager_Instance.transform.parent = gameObject.transform; // only activate when this city is activated
         unapplied_reputation_count = 0;
         total_review_count = 0;
         last_checked_reputation = reputation;
@@ -198,10 +206,17 @@ public class City : Structure
         building_id = 1;
     }
 
+    public void change_traffic_signal(bool is_signal_on)
+    {
+        traffic_manager.change_traffic_signal_flag = is_signal_on;
+        if (is_signal_on) StartCoroutine(traffic_manager.change_traffic_signal_coroutine(tilemap_position));
+    }
+
     public Texture get_star_image_from_reputation()
     {
         if (total_review_count == 0) return zero_star_texture;
         int texture_id = (int)(total_star / total_review_count);
+        print("total stars is " + total_star + " total reviews is " + total_review_count);
         switch (texture_id)
         {
             case 0:
@@ -233,6 +248,22 @@ public class City : Structure
         reputation = Mathf.Min(reputation, max_reputation);
         reputation = Mathf.Max(reputation, min_reputation);
         print("reputation of city is " + reputation);
+    }
+
+    public Station get_station_by_orientation(RouteManager.Orientation orientation)
+    {
+        switch (orientation)
+        {
+            case RouteManager.Orientation.East:
+                return East_Station;
+            case RouteManager.Orientation.West:
+                return West_Station;
+            case RouteManager.Orientation.North:
+                return North_Station;
+            case RouteManager.Orientation.South:
+                return South_Station;
+        }
+        throw new Exception("not a valid orientation");
     }
 
     public Station_Track get_station_track(Vector2Int tile_pos)

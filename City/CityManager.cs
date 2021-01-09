@@ -300,7 +300,8 @@ public class CityManager : BoardManager
             exit_tilemap.GetComponent<TilemapRenderer>().enabled = false;
             return true;
         }
-        else {
+        else
+        {
             exit_tilemap.GetComponent<TilemapRenderer>().enabled = true;
             return false;
         }
@@ -369,9 +370,11 @@ public class CityManager : BoardManager
         {
             city_tilemap_go.SetActive(false);
             GameManager.city_menu_state = false;
-            Activated_City.GetComponent<City>().enable_train_for_screen(); 
-            Activated_City.GetComponent<City>().show_all_building_occupants(false);
-            Activated_City.GetComponent<City>().show_all_undeveloped_plots(true);
+            City activated_city = Activated_City.GetComponent<City>();
+            activated_city.enable_train_for_screen();
+            activated_city.show_all_building_occupants(false);
+            activated_city.show_all_undeveloped_plots(true);
+            activated_city.change_traffic_signal(false);
             hide_shipyard_inventory();
         }
         else // show shipyard
@@ -383,13 +386,13 @@ public class CityManager : BoardManager
             city.set_all_room_sprites();
             city.show_all_building_occupants(true);
             city.show_all_undeveloped_plots(false);
-            city.apply_reputation();
+            city.change_traffic_signal(true);
+            city.apply_reputation();         
             city.display_boxcar();
             hide_exit_route(RouteManager.Orientation.North, city, RouteManager.exit_north_tilemap);
             hide_exit_route(RouteManager.Orientation.East, city, RouteManager.exit_east_tilemap);
             hide_exit_route(RouteManager.Orientation.West, city, RouteManager.exit_west_tilemap);
             hide_exit_route(RouteManager.Orientation.South, city, RouteManager.exit_south_tilemap);
-
         }
         if (city_object == null) Activated_City.GetComponent<City>().show_turntable(false);
         else { city_object.GetComponent<City>().show_turntable(true); }

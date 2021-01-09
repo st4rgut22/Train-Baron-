@@ -55,6 +55,7 @@ public class MovingObject : Simple_Moving_Object
                 if (!in_city)
                 {
                     Tilemap toggled_tilemap = GameManager.track_manager.top_tilemap;
+                    print("update vehicle board at " + tile_position);
                     GameManager.vehicle_manager.update_vehicle_board(VehicleManager.vehicle_board, gameObject, tile_position, prev_tile_position);
                     position_pair = RouteManager.get_destination(this, toggled_tilemap, offset); // set the final orientation and destination
                 }

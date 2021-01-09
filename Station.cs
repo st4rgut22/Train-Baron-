@@ -33,6 +33,15 @@ public class Station
         }
     }
 
+    public bool is_station_track_available()
+    {
+        if (outer_track.train == null || inner_track.train == null) return true;
+        else
+        {
+            return false;
+        }
+    }
+
     public Station_Track set_station_track(GameObject train)
     {
         if (outer_track.train == null)

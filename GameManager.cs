@@ -76,8 +76,14 @@ public class GameManager : EventDetector
 
     public Tilemap offset_boxcar_tilemap; // saved offset tilemap
 
+    public static GameObject traffic_tilemap_go;
+    public static Tilemap traffic_tilemap;
+
     private void Awake()
     {
+        traffic_tilemap_go = GameObject.Find("Traffic Light");
+        traffic_tilemap = traffic_tilemap_go.GetComponent<Tilemap>();
+        traffic_tilemap_go.SetActive(false);
         star_review_image_go = GameObject.Find("star_review");
         reputation_text_go = GameObject.Find("reputation_text");
         money = 5000;
@@ -519,6 +525,8 @@ public class GameManager : EventDetector
         building_lot_south_outer.SetActive(state);
         building_lot_south_inner.SetActive(state);
         building_lot_west.SetActive(state);
+
+        traffic_tilemap_go.SetActive(state);
 
         track_manager.bottom_tilemap_go_1.SetActive(!state);
         track_manager.bottom_tilemap_go_2.SetActive(!state);

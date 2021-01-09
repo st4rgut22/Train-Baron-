@@ -112,23 +112,6 @@ public class TrainRouteManager : RouteManager
         }
     }
 
-    public static Vector2Int get_depart_tile_position(Orientation orientation, Vector3Int tile_coord)
-    {
-        switch (orientation)
-        {
-            case Orientation.North:
-                return new Vector2Int(tile_coord.x, tile_coord.y + 1);
-            case Orientation.East:
-                return new Vector2Int(tile_coord.x + 1, tile_coord.y);
-            case Orientation.West:
-                return new Vector2Int(tile_coord.x - 1, tile_coord.y);
-            case Orientation.South:
-                return new Vector2Int(tile_coord.x, tile_coord.y - 1);
-            default:
-                return new Vector2Int(tile_coord.x, tile_coord.y);
-        }
-    }
-
     public static PositionPair get_initial_destination(MovingObject vehicle, Tilemap tilemap)
     {
         Orientation original_orientation = vehicle.orientation;

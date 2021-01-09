@@ -350,6 +350,34 @@ public class RouteManager : MonoBehaviour
         return new PositionPair(final_cell_dest, next_tilemap_pos);
     }
 
+    public static Vector2Int get_depart_tile_position(Orientation orientation, Vector3Int tile_coord)
+    {
+        switch (orientation)
+        {
+            case Orientation.North:
+                return new Vector2Int(tile_coord.x, tile_coord.y + 1);
+            case Orientation.East:
+                return new Vector2Int(tile_coord.x + 1, tile_coord.y);
+            case Orientation.West:
+                return new Vector2Int(tile_coord.x - 1, tile_coord.y);
+            case Orientation.South:
+                return new Vector2Int(tile_coord.x, tile_coord.y - 1);
+            default:
+                return new Vector2Int(tile_coord.x, tile_coord.y);
+        }
+    }
+
+    public static PositionPair get_destination(TrafficLightManager moving_thing, Tilemap tilemap, Vector2 offset)
+    {
+        // modify by offset for a person boarding a train (so hes not standing on the tracks)
+        Vector3Int tile_coord = new Vector3Int(moving_thing.tile_position[0], moving_thing.tile_position[1], 0);
+        Tile track_tile = (Tile)tilemap.GetTile(tile_coord);
+        Vector2 tile_world_coord = tilemap.GetCellCenterWorld(tile_coord);
+        PositionPair pos_pair = get_next_tile_pos(tilemap, track_tile, moving_thing, tile_coord, offset);
+        Tile city_tile = (Tile)city_tilemap.GetTile(tile_coord);
+        return pos_pair;
+    }
+
     public static PositionPair get_destination(Simple_Moving_Object moving_thing, Tilemap tilemap, Vector2 offset)
     {
         // modify by offset for a person boarding a train (so hes not standing on the tracks)

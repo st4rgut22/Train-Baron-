@@ -209,9 +209,11 @@ public class Person : Simple_Moving_Object
             leave_review(city, review);
             return;
         }
-        float trip_rating = 1.0f - boarding_duration / board_desire_timeout / 2 - trip_duration / trip_desire_timeout / 2; // One minus the average rating
-        print("trip rating is " + trip_rating);
-        int star_rating = (int)(trip_rating * 5) + 1;
+        float boarding_rating = Math.Min(1, boarding_duration / board_desire_timeout / 2);
+        float trip_rating = Math.Min(1, trip_duration / trip_desire_timeout / 2);
+        float train_rating = 1.0f - boarding_rating / 2 - trip_rating / 2; // One minus the average rating of boarding and trip
+        print("trip rating is " + train_rating);
+        int star_rating = (int)(train_rating * 5) + 1;
         star_rating = Math.Min(5, star_rating);
         review = (Review)star_rating;
         print("FINISHED TRIP. Board duration was " + boarding_duration + " trip duration was " + trip_duration + "review was " + review);
