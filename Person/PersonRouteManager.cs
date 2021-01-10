@@ -79,7 +79,6 @@ public class PersonRouteManager : RouteManager
         return door_parent;
     }
 
-
     public static void get_hor_flip_with_location(Vector3 start_pos, Vector3 end_pos, GameObject person_go_instance)
     {
         if (end_pos.x > start_pos.x)
@@ -118,7 +117,6 @@ public class PersonRouteManager : RouteManager
         occupant.board_train();
         GameObject door = get_exit_door(boxcar, room);
         room.unlocked_door = door;
-        room.has_person = false;
         room.booked = false; // new stuff
         Door unlocked_door = room.unlocked_door.GetComponent<Door>();
         // 2 checkpoints. In first go to doorstep and rotate accordingly. In the next only rotate to face track direction
@@ -138,7 +136,7 @@ public class PersonRouteManager : RouteManager
         string go_to_door_animation_name = get_animation_from_orientation(end_orientation,"walk");
         if (end_orientation == Orientation.West) occupant_go.GetComponent<SpriteRenderer>().flipX = true;
         else if (end_orientation == Orientation.East) occupant_go.GetComponent<SpriteRenderer>().flipX = false;
-        yield return occupant.set_animation_clip(go_to_door_animation_name);
+        yield return StartCoroutine(occupant.set_animation_clip(go_to_door_animation_name));
         yield return StartCoroutine(occupant.bezier_move(occupant.transform, start_orientation, end_orientation));
         StartCoroutine(unlocked_door.rotate(3)); // wait 3 seconds before closing the door
         // go to doorstep (update tile position and orientation)
@@ -157,6 +155,7 @@ public class PersonRouteManager : RouteManager
         // if destination is reached immediately move to boxcar
         occupant.is_tight_curve = is_curve_inner(boxcar);
         yield return StartCoroutine(occupant.move_checkpoints(board_train_checkpoints)); // wait for all preboarding movements to end before going to boxcar
+        room.has_person = false; // egghead is outside the room
         print("start follow track sequence");
         occupant.in_tile = false; // allow person to follow the track to the destination boxcar
                                   // if all goes well then boarding is all that's left
@@ -226,13 +225,16 @@ public class PersonRouteManager : RouteManager
         Vector2Int doorstep_position = get_straight_next_tile_pos(exit_home_orientation, room.tile_position);
         Vector2 room_abs_position = track_tilemap.GetCellCenterWorld((Vector3Int)doorstep_position); //one tile offset from home in the center. Because boxcars always stop at tile edges, so center tells us which direction person should exit boxcar
         person.final_dest_pos = room.unlocked_door.GetComponent<Door>().door_sprite_go.transform.position;
+        yield return StartCoroutine(person.move_checkpoints(go_home_checkpoints));
+        go_home_checkpoints.Clear();
         if (!person.is_destination_reached(cell_width))
         {
             Orientation align_track_orientation = TrackManager.get_start_orientation(track_name, boxcar.transform.position, room_abs_position, boxcar);
-            Checkpoint align_track_cp = new Checkpoint(exit_boxcar_checkpoint.dest_pos, exit_boxcar_checkpoint.tile_position, exit_boxcar_checkpoint.end_orientation, align_track_orientation, "idle");
+
+            Checkpoint align_track_cp = new Checkpoint(exit_boxcar_checkpoint.dest_pos, exit_boxcar_checkpoint.tile_position, exit_boxcar_checkpoint.end_orientation, align_track_orientation, "walk");
             go_home_checkpoints.Add(align_track_cp);
+            yield return StartCoroutine(person.move_checkpoints(go_home_checkpoints));
         }
-        yield return StartCoroutine(person.move_checkpoints(go_home_checkpoints));
         boxcar.passenger_go = null;
         person.boxcar_go = null;
         person.is_exit_boxcar = true; // set off follow track back home sequence

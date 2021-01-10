@@ -446,13 +446,13 @@ public class TrackManager : BoardManager
         }
         else if (track_tile_name == "ES")
         {
-            return get_x_axis_orientation(track_location, destination);
+            return get_y_axis_orientation(track_location, destination);
         }
         else if (track_tile_name == "WS")
         {
             if (station_orientation == RouteManager.Orientation.North)
             {
-                return get_x_axis_orientation(track_location, destination);
+                return get_y_axis_orientation(track_location, destination);
             }
             else // SOUTH STATION
             {
@@ -462,7 +462,7 @@ public class TrackManager : BoardManager
         }
         else if (track_tile_name == "WN")
         {
-            return get_x_axis_orientation(track_location, destination);
+            return get_y_axis_orientation(track_location, destination);
         }
         else
         {

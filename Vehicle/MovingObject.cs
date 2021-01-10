@@ -49,8 +49,9 @@ public class MovingObject : Simple_Moving_Object
             if (!in_tile && !end_of_track) // Completed tile route. update destination to next tile. Prevents repeated calls to StartCoroutine()
             {
                 orientation = final_orientation; // updating the orientation at every new tile
-                Vector3Int prev_tile_position = tile_position;
+                Vector3Int prev_tile_position = tile_position;  
                 tile_position = new Vector3Int(next_tilemap_position.x, next_tilemap_position.y, 0);
+                print("tile position of " + gameObject.name + " is tile_position " + tile_position);
                 PositionPair position_pair;
                 if (!in_city)
                 {
@@ -72,6 +73,7 @@ public class MovingObject : Simple_Moving_Object
                     StartCoroutine(gameObject.GetComponent<Train>().wait_for_track_placement(next_tilemap_position));
                     gameObject.GetComponent<Train>().halt_train(false, true);
                     end_of_track = true;
+                    return; // cancel any further movemnt updates
                 }         
                 Vector3 train_destination = new Vector3(train_dest_xy[0], train_dest_xy[1], z_pos);
                  if (orientation != final_orientation) // curved track
@@ -161,7 +163,9 @@ public class MovingObject : Simple_Moving_Object
         else
         {
             if (TrackManager.is_track_a_path(orientation, next_tile.name, cur_tile.name)) return false;
-            else { return true; }
+            else {
+                return true;
+            }
         }
     }
 

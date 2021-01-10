@@ -252,7 +252,7 @@ public class City : Structure
                 foreach (GameObject room_go in bldg.roomba)
                 {
                     Room room = room_go.GetComponent<Room>();
-                    if (!room.booked)
+                    if (!room.has_person)
                     {
                         Person person = room.spawn_person();
                         person.initialize_egghead(true, true);
@@ -620,7 +620,10 @@ public class City : Structure
             print("excess lots is " + excess_rollover_lot);
         }
         if (this == CityManager.Activated_City_Component)
-            show_all_undeveloped_plots(false); 
+        {
+            show_all_undeveloped_plots(false);
+            set_all_room_sprites();
+        }
         reputation = Mathf.Max(0, reputation);
         reputation = Mathf.Min(100, reputation);
         print("reputation is now " + reputation);

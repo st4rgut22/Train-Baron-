@@ -95,7 +95,7 @@ public class CityManager : BoardManager
                             "vert", RouteManager.Orientation.West
                         },
                         {
-                            "NE", RouteManager.Orientation.West
+                            "NE", RouteManager.Orientation.North // west
                         }
                     }
             },
@@ -110,7 +110,7 @@ public class CityManager : BoardManager
                             "vert", RouteManager.Orientation.East
                         },
                         {
-                            "NE", RouteManager.Orientation.East
+                            "NE", RouteManager.Orientation.North
                         },
                         {
                             "WS", RouteManager.Orientation.North
@@ -149,7 +149,7 @@ public class CityManager : BoardManager
                             "hor", RouteManager.Orientation.North
                         },
                         {
-                            "WN", RouteManager.Orientation.North
+                            "WN", RouteManager.Orientation.West //TODOED change to West
                         },
                         {
                             "vert", RouteManager.Orientation.West
@@ -176,7 +176,7 @@ public class CityManager : BoardManager
                             "hor", RouteManager.Orientation.North
                         },
                         {
-                            "WS", RouteManager.Orientation.East
+                            "WS", RouteManager.Orientation.North
                         }
                     }
             },
@@ -191,7 +191,7 @@ public class CityManager : BoardManager
                             "vert", RouteManager.Orientation.West
                         },
                         {
-                            "WS", RouteManager.Orientation.West
+                            "WS", RouteManager.Orientation.South
                         },
                         {
                             "NE", RouteManager.Orientation.South

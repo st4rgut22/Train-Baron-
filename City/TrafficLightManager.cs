@@ -87,7 +87,7 @@ public class TrafficLightManager : Simple_Moving_Object
                 break;
             }
             seen_track_tile_set.Add(tile_position);
-            GameObject vehicle_go = VehicleManager.vehicle_board[tile_position.x - 1, tile_position.y - 1]; // remove offset
+            GameObject vehicle_go = VehicleManager.vehicle_board[tile_position.x + 1, tile_position.y + 1]; // remove offset
             if (!tile_position.Equals(city_tile_position) && vehicle_go != null)
             {
                 print("RED warning for orientation " + orientation + " vehicle " + vehicle_go.name + " found at " + tile_position);
@@ -112,11 +112,12 @@ public class TrafficLightManager : Simple_Moving_Object
                     // return green or red depending on whether another train station is full todoed
                     // return city_object;
                     City city = city_object.GetComponent<City>();
-                    Station incoming_station = city.get_station_by_orientation(final_orientation);
+                    RouteManager.Orientation flipped_final_orientation = TrackManager.flip_straight_orientation(final_orientation);
+                    Station incoming_station = city.get_station_by_orientation(flipped_final_orientation);
                     bool station_available = incoming_station.is_station_track_available();
                     if (station_available)
                     {
-                        print("GREEN for orientation " + orientation + " GOOD TO GO");
+                        print("GREEN for orientation " + orientation + " stations available GOOD TO GO");
                         signal = update_signal(signal, Traffic_Light.Green);
                     }
                     else

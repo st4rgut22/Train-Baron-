@@ -245,13 +245,28 @@ public class Train : MovingObject
 
     public IEnumerator wait_for_track_placement(Vector2Int next_tile_pos)
     {
+        Tilemap tilemap = GameManager.track_manager.top_tilemap; // TODOED update the next tile pos if track is switched 
+        string cur_tile_name = tilemap.GetTile(tile_position).name;
         while (true)
         {
-            Tilemap tilemap = GameManager.track_manager.top_tilemap;
+            Tile next_track_tile = (Tile)tilemap.GetTile((Vector3Int)next_tile_pos);
             Tile cur_tile = (Tile)tilemap.GetTile(tile_position);
-            Tile tile = (Tile) tilemap.GetTile((Vector3Int)next_tile_pos);
-            if (tile != null && TrackManager.is_track_a_path(orientation, tile.name, cur_tile.name)) // make sure the train can cross this track
+            if (cur_tile_name != cur_tile.name) // if  the current track has switched, update the next track
+            {
+                print("current track has switched from " + cur_tile_name + " to " + cur_tile.name);
+                next_tile_pos = RouteManager.get_destination(this, tilemap, offset).tile_dest_pos;
+                next_track_tile = (Tile)tilemap.GetTile((Vector3Int)next_tile_pos);
+                print("update next track to " + next_track_tile.name);           
+            }
+            cur_tile_name = cur_tile.name;
+            Tile city_tile = (Tile) RouteManager.city_tilemap.GetTile((Vector3Int)next_tile_pos);
+            // also need to check if a city is placed in the next tile
+            if (city_tile != null || (next_track_tile != null && TrackManager.is_track_a_path(orientation, next_track_tile.name, cur_tile.name))) // TODOED make sure the train can cross this track
+            {
+                this.next_tilemap_position = (Vector2Int)tile_position; // reset train's position & orientation
+                this.final_orientation = orientation;
                 break;
+            }
             else { yield return new WaitForEndOfFrame(); }
         }
         end_of_track = false;
