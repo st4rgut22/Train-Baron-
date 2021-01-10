@@ -123,9 +123,9 @@ public class Person : Simple_Moving_Object
         if (boarding_duration >= board_desire_timeout && !trip_in_progress && !activity_in_progress) // waiting for a train
         {
             leave_review(room.building.city, Review.Zero_Star); // worst review is if person is not picked up
-            pop_thought_bubble();
             if (room.building.city.city_type != "Entrance") // if city is entrance, then person keeps desiring to go home
             {
+                pop_thought_bubble();
                 StartCoroutine(schedule_activity());
             }
             else

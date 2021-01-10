@@ -55,7 +55,7 @@ public class MovingObject : Simple_Moving_Object
                 if (!in_city)
                 {
                     Tilemap toggled_tilemap = GameManager.track_manager.top_tilemap;
-                    print("update vehicle board at " + tile_position);
+                    //print("update vehicle board at " + tile_position);
                     GameManager.vehicle_manager.update_vehicle_board(VehicleManager.vehicle_board, gameObject, tile_position, prev_tile_position);
                     position_pair = RouteManager.get_destination(this, toggled_tilemap, offset); // set the final orientation and destination
                 }
@@ -143,16 +143,26 @@ public class MovingObject : Simple_Moving_Object
 
     public bool is_end_of_track()
     {
-        Tilemap next_tilemap = GameManager.track_manager.top_tilemap;
-        if (next_tilemap.GetTile((Vector3Int)next_tilemap_position) == null)
+        Tilemap track_tilemap = GameManager.track_manager.top_tilemap;
+        Tile next_tile = (Tile)track_tilemap.GetTile((Vector3Int)next_tilemap_position);
+        Tile cur_tile = (Tile)track_tilemap.GetTile((Vector3Int)tile_position); 
+        if (next_tile == null) 
         {
             GameObject city_object = GameManager.city_manager.get_city(next_tilemap_position);
             if (city_object == null)
             {
                 return true;
             }
+            else
+            {
+                return false;
+            }
         }
-        return false;
+        else
+        {
+            if (TrackManager.is_track_a_path(orientation, next_tile.name, cur_tile.name)) return false;
+            else { return true; }
+        }
     }
 
     public static void switch_sprite_renderer(GameObject vehicle_object, bool state)

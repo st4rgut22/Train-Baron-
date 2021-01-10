@@ -243,10 +243,8 @@ public class City : Structure
     {
         //use delta reputation to populate as many rooms as possible
         int people_to_add = PersonManager.reputation - start_reputation;
-        print("populate entrance. delta peeps is " + people_to_add);
         int total_vacancy_count = get_total_occupant_count();
         if (total_vacancy_count < people_to_add) people_to_add = total_vacancy_count;
-        print("people to add is " + people_to_add);
         for (int i = 0; i < people_to_add; i++)
         {
             foreach (Building bldg in city_building_list)
@@ -593,7 +591,7 @@ public class City : Structure
         int added_lot_count = 0;
         foreach (Building bldg in city_building_list)
         {
-            while(bldg.current_capacity < bldg.max_capacity && affected_lot < added_lot_count)
+            while(bldg.current_capacity < bldg.max_capacity && added_lot_count < affected_lot)
             {
                 bldg.spawn_room();
                 added_lot_count += 1;
@@ -606,20 +604,26 @@ public class City : Structure
     {
         // change number of lots 
         int delta_reputation = reputation + unapplied_reputation_count - last_checked_reputation;
-        int lot_affected = Math.Abs(delta_reputation) / reputation_per_lot;
+        print("delta reputation is " + delta_reputation);
+        int lot_affected = Math.Abs(delta_reputation); //TESTING UNDO!! TODOED / reputation_per_lot;
         int leftover_reputation = delta_reputation % reputation_per_lot;
         int rollover_reputation = 0; // rollover lots are how many lots over the max capacity should be affected. Applied when more lots are available
         if (delta_reputation < 0)
         {
             int underwater_rollover_lot = remove_lot(lot_affected);
             rollover_reputation = underwater_rollover_lot * -reputation_per_lot;
+            print("underwater lots is " + underwater_rollover_lot);
         }
         else if (delta_reputation > 0){
             int excess_rollover_lot = add_lot(lot_affected);
             rollover_reputation = excess_rollover_lot * reputation_per_lot;
+            print("excess lots is " + excess_rollover_lot);
         }
+        if (this == CityManager.Activated_City_Component)
+            show_all_undeveloped_plots(false); 
         reputation = Mathf.Max(0, reputation);
         reputation = Mathf.Min(100, reputation);
+        print("reputation is now " + reputation);
         unapplied_reputation_count = leftover_reputation + rollover_reputation;
         if (reputation != last_checked_reputation)
         {

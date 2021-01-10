@@ -163,7 +163,6 @@ public class TrafficLightManager : Simple_Moving_Object
             set_signal_from_exit_route(city_position, RouteManager.Orientation.West, west_light_tile_pos);
             set_signal_from_exit_route(city_position, RouteManager.Orientation.South, south_light_tile_pos);
             yield return new WaitForSeconds(1); // every second update traffic signals
-            print("changed traffic signal");
         }
     }
 }
