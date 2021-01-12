@@ -327,6 +327,19 @@ public class GameManager : EventDetector
         }
     }
 
+    Vector2Int find_boxcar_in_city(GameObject boxcar_go)
+    {
+        GameObject[,] city_board = CityManager.Activated_City_Component.city_board;
+        for (int i = 0; i < city_board.GetLength(0); i++)
+        {
+            for (int j = 0; j < city_board.GetLength(1); j++)
+            {
+                if (city_board[i, j] == boxcar_go) return new Vector2Int(i-1, j-1); // remove offset because 
+            }
+        }
+        throw new Exception("boxcar should be in city because you clicked on it");
+    }
+
     public override void OnPointerClick(PointerEventData eventData)
     {
         // use the previous hint context to do something, called on click anywhere in board 
@@ -335,14 +348,18 @@ public class GameManager : EventDetector
         List<string> collider_tag_list = get_collider_name_list(collider_list);
         if (hint_context_list.Contains("board")) // behaves different from other hint contexts because eligible tiles are offset from tilemap and must be found by cloesst distance
         {
-            Vector2Int selected_tile = (Vector2Int) get_selected_tile_for_boxcar(Input.mousePosition);
-            int hint_index = is_selected_tile_in_context(selected_tile);
             print("board from city to boxcar");
-            if (collider_tag_list.Contains("boxcar") && hint_index != -1) // second condition checks if it is an eligible tile
+            if (collider_tag_list.Contains("boxcar")) // second condition checks if it is an eligible tile
             {
-                Collider2D collider = get_from_collider_list("boxcar", collider_list);
-                GameObject boxcar_go = collider.gameObject;
-                CityManager.Activated_City_Component.board_train(boxcar_go, hint_tile_pos);
+                Collider2D boxcar_collider = collider_list[0];
+                Vector2Int boxcar_city_location = find_boxcar_in_city(boxcar_collider.gameObject);
+                int hint_index = is_selected_tile_in_context(boxcar_city_location);
+                if (hint_index != -1)
+                {
+                    Collider2D collider = get_from_collider_list("boxcar", collider_list);
+                    GameObject boxcar_go = collider.gameObject;
+                    CityManager.Activated_City_Component.board_train(boxcar_go, hint_tile_pos);
+                }
             }
             else
             {
@@ -482,14 +499,14 @@ public class GameManager : EventDetector
         MovingObject boxcar = boxcar_object.GetComponent<MovingObject>();
         if (game_menu_state)
             if (!boxcar.in_city)
-                MovingObject.switch_sprite_renderer(boxcar_object, true);
-            else { MovingObject.switch_sprite_renderer(boxcar_object, false); }
+                MovingObject.switch_on_vehicle(boxcar_object, true);
+            else { MovingObject.switch_on_vehicle(boxcar_object, false); }
         if (city_menu_state)
         {
-            MovingObject.switch_sprite_renderer(boxcar_object, false);
+            MovingObject.switch_on_vehicle(boxcar_object, false);
             if (boxcar.in_city)
                 if (boxcar.city == CityManager.Activated_City_Component)
-                    MovingObject.switch_sprite_renderer(boxcar_object, true);
+                    MovingObject.switch_on_vehicle(boxcar_object, true);
         }
     }
 

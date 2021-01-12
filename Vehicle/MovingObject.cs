@@ -169,15 +169,18 @@ public class MovingObject : Simple_Moving_Object
         }
     }
 
-    public static void switch_sprite_renderer(GameObject vehicle_object, bool state)
+    public static void switch_on_vehicle(GameObject vehicle_object, bool state)
     {
         if (vehicle_object.tag == "boxcar")
         {
             Boxcar boxcar = vehicle_object.GetComponent<Boxcar>();
             if (boxcar.is_occupied)
+            {
                 boxcar.passenger_go.GetComponent<SpriteRenderer>().enabled = state;
+            }
         }
         vehicle_object.GetComponent<SpriteRenderer>().enabled = state;
+        vehicle_object.GetComponent<BoxCollider2D>().enabled = state;
     }
 
     public void reset_departure_flag()

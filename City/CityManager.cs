@@ -58,9 +58,12 @@ public class CityManager : BoardManager
         new int[]{0,7 }, new int[]{0,8 }, new int[]{0,9 }, new int[]{3,9 }, new int[]{4,9 }, new int[]{5,9 }, new int[]{6,9 }, new int[]{10,1 }, new int[]{11,1 }, new int[]{12,1 },
         new int[]{13,1 }, new int[]{16,1 }, new int[]{16,2 }, new int[]{16,3 }, new int[]{16,9 }, new int[]{15,9 }, new int[]{14,9 }, new int[]{13,9 }, new int[]{12,9 }, new int[]{11,9 } };
 
+    public int entrance_update_interval;
+
     private void Awake()
     {
         base.Awake();
+        entrance_update_interval = 15;
         create_city((Vector3Int)home_base_location); // initialize train entrance
         home_base = get_city(home_base_location).GetComponent<City>();
         orientation_to_rotation_map = new Dictionary<RouteManager.Orientation, float>()
@@ -233,6 +236,7 @@ public class CityManager : BoardManager
     void Start()
     {
         base.Start();
+        StartCoroutine(populate_entrance());
     }
 
     // Update is called once per frame
@@ -362,7 +366,16 @@ public class CityManager : BoardManager
                 tilemap.SetTile(new Vector3Int(i, j, 0), null);
             }
         }
-    }  
+    }
+
+    public IEnumerator populate_entrance()
+    {
+        while (true)
+        {
+            home_base.populate_entrance();
+            yield return new WaitForSeconds(entrance_update_interval);
+        }
+    }
 
     public void set_activated_city(GameObject city_object=null)
     {
@@ -391,8 +404,8 @@ public class CityManager : BoardManager
             city.change_traffic_signal(true);
             city.apply_reputation();         
             city.display_boxcar();
-            if (city.city_type == "Entrance")
-                city.populate_entrance();
+            //if (city.city_type == "Entrance")
+            //    city.populate_entrance();
             hide_exit_route(RouteManager.Orientation.North, city, RouteManager.exit_north_tilemap);
             hide_exit_route(RouteManager.Orientation.East, city, RouteManager.exit_east_tilemap);
             hide_exit_route(RouteManager.Orientation.West, city, RouteManager.exit_west_tilemap);

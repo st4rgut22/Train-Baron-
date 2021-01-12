@@ -245,6 +245,7 @@ public class City : Structure
         int people_to_add = PersonManager.reputation - start_reputation;
         int total_vacancy_count = get_total_occupant_count();
         if (total_vacancy_count < people_to_add) people_to_add = total_vacancy_count;
+        start_reputation = PersonManager.reputation;
         for (int i = 0; i < people_to_add; i++)
         {
             foreach (Building bldg in city_building_list)
@@ -255,8 +256,8 @@ public class City : Structure
                     if (!room.has_person)
                     {
                         Person person = room.spawn_person();
-                        person.initialize_egghead(true, true);
-                        person.thought_bubble.GetComponent<SpriteRenderer>().enabled = true;
+                        if (CityManager.Activated_City_Component == this) person.initialize_egghead(true, true); // if entrance is activated
+                        else { person.initialize_egghead(false, false); }
                         break;
                     }
                 }
@@ -761,14 +762,14 @@ public class City : Structure
 
     public void delete_boxcar(GameObject boxcar_object)
     {   // delete boxcar after it has left the city (delayed from train)
-        if (CityManager.Activated_City == gameObject) MovingObject.switch_sprite_renderer(boxcar_object, false);
-        if (GameManager.game_menu_state) MovingObject.switch_sprite_renderer(boxcar_object, true);
+        if (CityManager.Activated_City == gameObject) MovingObject.switch_on_vehicle(boxcar_object, false);
+        if (GameManager.game_menu_state) MovingObject.switch_on_vehicle(boxcar_object, true);
     }
 
     public void add_boxcar(GameObject boxcar_object)
     {   // add boxcar after it has entered the city (delayed from train)
-        if (CityManager.Activated_City == gameObject) MovingObject.switch_sprite_renderer(boxcar_object, true);
-        if (GameManager.game_menu_state) MovingObject.switch_sprite_renderer(boxcar_object, false);
+        if (CityManager.Activated_City == gameObject) MovingObject.switch_on_vehicle(boxcar_object, true);
+        if (GameManager.game_menu_state) MovingObject.switch_on_vehicle(boxcar_object, false);
     }
 
     public void add_train_to_list(GameObject train_object)
@@ -781,7 +782,7 @@ public class City : Structure
             train_object.GetComponent<Train>().turn_on_train(true);
         }
         if (GameManager.game_menu_state) // this is not causing boxcar to disappear prematurely
-            MovingObject.switch_sprite_renderer(train_object, false);
+            MovingObject.switch_on_vehicle(train_object, false);
     }
 
 

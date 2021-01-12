@@ -58,7 +58,7 @@ public class Boxcar : MovingObject
             else if (train.is_boxcar_first(boxcar_id))
             {
                 if (station_track.inner == 0) // outer
-                    passenger_go.transform.eulerAngles = new Vector3(0, 0, -90);
+                    passenger_go.transform.eulerAngles = new Vector3(0, 0, -90); // north
             }
         }
         //departing = true;

@@ -22,7 +22,7 @@ public class Building : Structure
     {
         occupant_id = 0;
         total_occupant = 0;
-        room_id = -1;
+        room_id = 0;
     }
 
     public void Start()
@@ -94,15 +94,32 @@ public class Building : Structure
         Vector2Int room_tile_pos = RouteManager.get_straight_next_tile_pos_multiple(building_orientation, offset_position, room.id-1);
         city.city_tilemap.SetTile((Vector3Int)room_pos, null);
         current_capacity -= 1;
-        last_room_position = room_tile_pos;
+    }
+
+    public Vector2Int get_last_room_position()
+    {
+        for (int i = roomba.Length - 1; i >= 0; i--)
+        {
+            if (roomba[i] != null) return roomba[i].GetComponent<Room>().tile_position;
+        }
+        throw new System.Exception("there are no rooms left");
+    }
+
+    public int get_new_room_id()
+    {
+        for (int i=0; i<roomba.Length; i++)
+        {
+            GameObject room_go = roomba[i];
+            if (room_go == null) return i;
+        }
+        throw new System.Exception("there are no rooms available");
     }
 
     public virtual Room spawn_room()
     {
         GameObject room_object = Instantiate(this.room);
         Room room = room_object.GetComponent<Room>();
-        room_id += 1;
-        room.id = room_id;
+        room.id = get_new_room_id();
         Vector2Int room_tile_pos = RouteManager.get_straight_next_tile_pos_multiple(building_orientation, offset_position, room.id);
         city.city_room_matrix[room_tile_pos.x, room_tile_pos.y] = room;
         room.tile_position = room_tile_pos;
@@ -111,7 +128,6 @@ public class Building : Structure
         room.spawn_door_container();
         room.building = this;
         roomba[room.id] = room_object;
-        last_room_position = room_tile_pos;
         current_capacity += 1;
         return room;
     }

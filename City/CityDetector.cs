@@ -139,7 +139,7 @@ public class CityDetector : EventDetector
                             Tilemap boxcar_tilemap = boxcar_orientation_to_offset_tilemap(boxcar.orientation);
                             offset_tile_list.Add(new Offset_Tile(boxcar_go));
                             boxcar_tile_tracker[new Vector2Int(boxcar_loc[0], boxcar_loc[1])] = boxcar_tilemap;
-                            available_boxcar_list.Add(boxcar_loc);
+                            available_boxcar_list.Add(new int[]{ boxcar_loc[0], boxcar_loc[1]});
                             available_boxcar++;
                         }
                     }
@@ -150,6 +150,31 @@ public class CityDetector : EventDetector
         all_eligible_boxcar.AddRange(offset_tile_list);
         print("available boxcar tally is " + available_boxcar + " size of available boxcar list is " + available_boxcar_list.Count);
         return available_boxcar_list;
+    }
+
+    public List<List<int[]>> city_coord_to_box_coord(List<List<int[]>> city_coord)
+    {
+        //TODOED
+        List<List<int[]>> box_coord = new List<List<int[]>>();
+        List<int[]> city_locations = city_coord[0];
+        box_coord.Add(new List<int[]>());
+        if (city_coord.Count > 1) throw new Exception("too many liusts in here");
+        for (int i = 0; i < city_coord.Count; i++)
+        {
+            for (int j = 0; j < city_coord[0].Count; j++)
+            {
+                if (city_coord[i][j] != null)
+                {
+                    int[] coord = city_coord[i][j];
+                    Boxcar boxcar = CityManager.Activated_City_Component.city_board[coord[0], coord[1]].GetComponent<Boxcar>();
+                    if (boxcar != null)
+                    {
+                        box_coord[0].Add(new int[] { boxcar.tile_position.x, boxcar.tile_position.y });
+                    }
+                }
+            }
+        }
+        return box_coord;
     }
 
     public void click_room(PointerEventData eventData)
@@ -191,6 +216,7 @@ public class CityDetector : EventDetector
                     inner_outer_coord.AddRange(available_inner_track_vehicle);
                 }
                 List<List<int[]>> city_action_coord = new List<List<int[]>> { inner_outer_coord };
+                //List<List<int[]>> boxcar_coord = city_coord_to_box_coord(city_action_coord);
                 train_hint_list.Add("board");
                 GameObject.Find("GameManager").GetComponent<GameManager>().mark_tile_as_eligible(city_action_coord, train_hint_list, gameObject, true);
             }

@@ -44,17 +44,17 @@ public class Train : MovingObject
     public void turn_on_train(bool is_train_on)
     {
 
-        MovingObject.switch_sprite_renderer(gameObject, is_train_on);
+        switch_on_vehicle(gameObject, is_train_on);
         foreach (GameObject boxcar_object in boxcar_squad)
         {
             Boxcar boxcar = boxcar_object.GetComponent<Boxcar>();
             if (!boxcar.departing)
             {
-                MovingObject.switch_sprite_renderer(boxcar_object, is_train_on);
+                switch_on_vehicle(boxcar_object, is_train_on);
             }
             else
             {
-                MovingObject.switch_sprite_renderer(boxcar_object, !is_train_on); // if train is shown, hide boxcars. if train is hidden. show boxcars
+                switch_on_vehicle(boxcar_object, !is_train_on); // if train is shown, hide boxcars. if train is hidden. show boxcars
             }
         }
     }
