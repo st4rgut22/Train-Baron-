@@ -43,10 +43,12 @@ public class PersonManager : MonoBehaviour
         public Notification(Vector3Int city_pos)
         {
             notification_go = Instantiate(notification_prefab);
-            notification_count_ui = notification_go.GetComponentInChildren<Text>();
             notification_go.transform.parent = notification_canvas.transform;
+
+            notification_count_ui = notification_go.GetComponentInChildren<Text>();
             Vector3 offset_notification_pos = city_tilemap.GetCellCenterWorld(city_pos) + offset;
-            notification_go.transform.position = GameManager.camera.WorldToScreenPoint(offset_notification_pos);
+            notification_go.transform.position = offset_notification_pos;
+            notification_go.transform.localScale = new Vector3(.02f, .02f);
         }
     }
 

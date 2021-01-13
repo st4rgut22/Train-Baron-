@@ -49,12 +49,12 @@ public class Station
             outer_track.train = train;
             return outer_track;
         }
-        else if (inner_track.train == null)
+        else //if (inner_track.train == null) // TODOED just for testing uncomment later
         {
             inner_track.train = train;
             return inner_track;
         }
-        else { throw new Exception("track is not available"); }
+        //else { throw new Exception("track is not available"); }
     }
 
     public Station_Track get_station_track(GameObject train)

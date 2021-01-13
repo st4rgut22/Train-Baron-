@@ -13,7 +13,8 @@ public class Train : MovingObject
     string destination_type = ""; // get destination type. If city, then disable after reaching destination.
     int id;
     int boxcar_counter;
-
+    public GameObject explosion;
+    public List<GameObject> explosion_list;
     private void Awake()
     {
         boxcar_counter = 0;
@@ -31,6 +32,57 @@ public class Train : MovingObject
     void Update()
     {
         base.Update();
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        // should still trigger when not visible in inspector
+        // not updated in unity's inspector
+        print("animate train " + id + " at " + Time.time);
+
+        if (collision.gameObject.tag == "boxcar" || collision.gameObject.tag == "train")
+        {
+            halt_train(false, true);
+            GameObject explosion_go = Instantiate(explosion);
+            print("explode");
+            explode explosion_anim = explosion_go.transform.GetChild(0).gameObject.GetComponent<explode>();
+            explosion_anim.exploded_train = this;
+            explosion_list = new List<GameObject> { explosion_go };
+            explosion_go.transform.position = transform.position;
+            explosion_go.transform.localScale = new Vector3(.2f, .2f);
+            foreach (GameObject boxcar_go in boxcar_squad)
+            {
+                GameObject boxcar_explosion = Instantiate(explosion);
+                explosion_list.Add(boxcar_explosion);
+                boxcar_explosion.transform.position = boxcar_go.transform.position;
+            }
+            if (city != CityManager.Activated_City_Component) hide_explosion(explosion_list);
+        }
+    }
+
+    public void destroy_train()
+    {
+        // destroy train and collided train/boxcar
+        // TODOED: remove car from city tilemap or vehicle tilemap
+        print("destroy train " + id + " at " + Time.time);
+        game_manager.train_list.Remove(gameObject);
+        city.train_list.Remove(gameObject);
+        foreach (GameObject boxcar_go in boxcar_squad)
+        {
+            Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
+            if (boxcar.passenger_go != null)
+            {
+                Destroy(boxcar.passenger_go);
+            }
+            boxcar.remove_vehicle_from_board();
+            Destroy(boxcar_go);
+        }
+        foreach (GameObject explosion in explosion_list)
+        {
+            Destroy(explosion);
+        }
+        remove_vehicle_from_board();
+        Destroy(gameObject);
     }
 
     public GameObject get_last_vehicle_added()

@@ -49,7 +49,7 @@ public class MovingObject : Simple_Moving_Object
             if (!in_tile && !end_of_track) // Completed tile route. update destination to next tile. Prevents repeated calls to StartCoroutine()
             {
                 orientation = final_orientation; // updating the orientation at every new tile
-                Vector3Int prev_tile_position = tile_position;  
+                prev_tile_position = tile_position;  
                 tile_position = new Vector3Int(next_tilemap_position.x, next_tilemap_position.y, 0);
                 print("tile position of " + gameObject.name + " is tile_position " + tile_position);
                 PositionPair position_pair;
@@ -62,6 +62,7 @@ public class MovingObject : Simple_Moving_Object
                 }
                 else
                 {
+                    print("vehicle " + gameObject.GetComponent<Train>().get_id() + " update position to " + tile_position);
                     GameManager.vehicle_manager.update_vehicle_board(city.city_board, gameObject, tile_position, prev_tile_position);
                     position_pair = RouteManager.get_destination(this, station_track.tilemap, offset); // set the final orientation and destination
                 }
@@ -143,6 +144,32 @@ public class MovingObject : Simple_Moving_Object
         }
     }
 
+    public void hide_explosion(List<GameObject> explosion_list)
+    {
+        foreach (GameObject explosion_go in explosion_list)
+        {
+            SpriteRenderer[] explosion_sprite_arr = explosion_go.GetComponentsInChildren<SpriteRenderer>();
+            for (int c = 0; c < explosion_sprite_arr.Length; c++)
+            {
+                explosion_sprite_arr[c].enabled = false;
+            }
+        }
+    }
+
+    public void remove_vehicle_from_board()
+    {
+        if (in_city)
+        {
+            if (city.city_board[tile_position.x+1, tile_position.y+1] == null) print("vehicle not found in city");
+            city.city_board[tile_position.x + 1, tile_position.y + 1] = null;
+        }
+        else
+        {
+            if (city.city_board[tile_position.x+1, tile_position.y+1] == null) print("vehicle not found in game view");
+            VehicleManager.vehicle_board[tile_position.x + 1, tile_position.y + 1] = null;
+        }
+    }
+
     public bool is_end_of_track()
     {
         Tilemap track_tilemap = GameManager.track_manager.top_tilemap;
@@ -180,7 +207,7 @@ public class MovingObject : Simple_Moving_Object
             }
         }
         vehicle_object.GetComponent<SpriteRenderer>().enabled = state;
-        vehicle_object.GetComponent<BoxCollider2D>().enabled = state;
+        //vehicle_object.GetComponent<PolygonCollider2D>().enabled = state;
     }
 
     public void reset_departure_flag()

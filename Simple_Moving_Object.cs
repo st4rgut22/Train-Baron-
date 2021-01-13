@@ -18,6 +18,7 @@ public class Simple_Moving_Object : EventDetector
     public RouteManager.Orientation prev_orientation; // orientation during the last idle state
     public RouteManager.Orientation depart_city_orientation = RouteManager.Orientation.None;
     public Vector3Int tile_position;
+    public Vector3Int prev_tile_position;
     public Vector2Int next_tilemap_position;
     protected const float z_pos = 0;
 

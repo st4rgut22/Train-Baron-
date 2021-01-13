@@ -17,7 +17,6 @@ public class VehicleManager : BoardManager
     public GameObject Work_Boxcar;
     public GameObject Food_Boxcar;
     public GameObject Home_Boxcar;
-
     public static GameObject[,] vehicle_board; //contains moving objects eg trains, boxcars
     City start_city;
     public static int train_counter;
@@ -216,6 +215,7 @@ public class VehicleManager : BoardManager
     {
         moving_object.tile_position = new Vector3Int(pos_pair.tile_dest_pos.x, pos_pair.tile_dest_pos.y, 0);
         moving_object.next_tilemap_position = pos_pair.tile_dest_pos;
+        moving_object.prev_tile_position = (Vector3Int)pos_pair.prev_tile_dest_pos;
         moving_object.transform.position = pos_pair.abs_dest_pos;
         moving_object.orientation = pos_pair.orientation;
         moving_object.final_orientation = pos_pair.orientation;

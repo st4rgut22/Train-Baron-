@@ -327,19 +327,6 @@ public class GameManager : EventDetector
         }
     }
 
-    Vector2Int find_boxcar_in_city(GameObject boxcar_go)
-    {
-        GameObject[,] city_board = CityManager.Activated_City_Component.city_board;
-        for (int i = 0; i < city_board.GetLength(0); i++)
-        {
-            for (int j = 0; j < city_board.GetLength(1); j++)
-            {
-                if (city_board[i, j] == boxcar_go) return new Vector2Int(i-1, j-1); // remove offset because 
-            }
-        }
-        throw new Exception("boxcar should be in city because you clicked on it");
-    }
-
     public override void OnPointerClick(PointerEventData eventData)
     {
         // use the previous hint context to do something, called on click anywhere in board 
@@ -352,8 +339,9 @@ public class GameManager : EventDetector
             if (collider_tag_list.Contains("boxcar")) // second condition checks if it is an eligible tile
             {
                 Collider2D boxcar_collider = collider_list[0];
-                Vector2Int boxcar_city_location = find_boxcar_in_city(boxcar_collider.gameObject);
-                int hint_index = is_selected_tile_in_context(boxcar_city_location);
+                Vector2Int unoffset_boxcar_city_location = (Vector2Int)boxcar_collider.GetComponent<Boxcar>().prev_tile_position;
+                //Vector2Int offset_boxcar_city_location = new Vector2Int(unoffset_boxcar_city_location.x + 1, unoffset_boxcar_city_location.y + 1);
+                int hint_index = is_selected_tile_in_context(unoffset_boxcar_city_location);
                 if (hint_index != -1)
                 {
                     Collider2D collider = get_from_collider_list("boxcar", collider_list);
@@ -426,8 +414,12 @@ public class GameManager : EventDetector
                 }
                 else if (collider_tag_list.Contains("train"))
                 {
+
                     Collider2D collider = get_from_collider_list("train", collider_list);
-                    collider.gameObject.GetComponent<Train>().click_train(eventData);
+                    if (collider.gameObject.GetComponent<Train>().city == CityManager.Activated_City_Component)
+                    {
+                        collider.gameObject.GetComponent<Train>().click_train(eventData);
+                    }
                 }
                 else if (collider_tag_list.Contains("inventory"))
                 {
@@ -509,7 +501,7 @@ public class GameManager : EventDetector
                     MovingObject.switch_on_vehicle(boxcar_object, true);
         }
     }
-
+     
     public void enable_train_for_screen()
     {
         //rendering trains
