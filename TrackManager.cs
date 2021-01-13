@@ -361,6 +361,58 @@ public class TrackManager : BoardManager
         }
     }
 
+    public static RouteManager.Orientation get_steep_orientation(string track_name)
+    {
+        if (track_name == "less_diag_ne_turn")
+        {
+            return RouteManager.Orientation.ne_LessSteepCurve;
+        }
+        else if (track_name == "less_diag_nw_turn")
+        {
+            return RouteManager.Orientation.nw_LessSteepCurve;
+        }
+        else if (track_name == "less_diag_se_turn")
+        {
+            return RouteManager.Orientation.se_LessSteepCurve;
+        }
+        else if (track_name == "less_diag_sw_turn")  
+        {
+            return RouteManager.Orientation.sw_LessSteepCurve;
+        }
+        else if (track_name == "ne_diag")
+        {
+            return RouteManager.Orientation.ne_SteepCurve;
+        }
+        else if (track_name == "se_diag")
+        {
+            return RouteManager.Orientation.se_SteepCurve;
+        }
+        else if (track_name == "nw_diag")
+        {
+            return RouteManager.Orientation.nw_SteepCurve;
+        }
+        else if (track_name == "sw_diag")
+        {
+            return RouteManager.Orientation.sw_SteepCurve;
+        }
+        else
+        {
+            return RouteManager.Orientation.None;
+        }
+
+    }
+
+    public static bool is_curve_steep(string track_name)
+    {
+        if (track_name == "less_diag_ne_turn" || track_name == "less_diag_nw_turn" || track_name == "less_diag_se_turn" || track_name == "less_diag_sw_turn" ||
+            track_name == "ne_diag" || track_name == "se_diag" || track_name == "nw_diag" || track_name == "sw_diag")
+            return true;
+        else
+        {
+            return false;
+        }
+    }
+
     public static RouteManager.Orientation is_curve_steep(RouteManager.Orientation orientation)
     {
         if (orientation == RouteManager.Orientation.ne_SteepCurve || orientation == RouteManager.Orientation.nw_SteepCurve

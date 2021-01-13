@@ -347,7 +347,7 @@ public class RouteManager : MonoBehaviour
         //print("final cell dest without offset is " + final_cell_dest + " + with offset is " + (final_cell_dest+offset));
 
         final_cell_dest += offset;
-        return new PositionPair(final_cell_dest, next_tilemap_pos, (Vector2Int) moving_thing.prev_tile_position);
+        return new PositionPair(final_cell_dest, next_tilemap_pos, (Vector2Int)moving_thing.prev_tile_position);
     }
 
 
