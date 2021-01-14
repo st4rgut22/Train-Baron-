@@ -10,8 +10,11 @@ public class Turntable : MonoBehaviour
     public RouteManager.Orientation orientation;
     public Queue<GameObject> train_queue;
 
+    public float turntable_speed_multiplier;
+
     private void Awake()
     {
+        turntable_speed_multiplier = .5f;
         orientation = RouteManager.Orientation.North;
     }
 
@@ -55,7 +58,7 @@ public class Turntable : MonoBehaviour
         float end_angle = start_angle + turn_angle;
         while (t_param < 1)
         {
-            t_param += Time.deltaTime;
+            t_param += Time.deltaTime * turntable_speed_multiplier;
             float angle = Mathf.LerpAngle(start_angle, end_angle, t_param);
             transform.eulerAngles = new Vector3(0, 0, angle);
             yield return new WaitForEndOfFrame();

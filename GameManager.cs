@@ -420,7 +420,6 @@ public class GameManager : EventDetector
                     {
                         collider.gameObject.GetComponent<Train>().click_train(eventData);
                     }
-                    collider.gameObject.GetComponent<Train>().GetComponent<CapsuleCollider2D>().enabled = false;
 
                 }
                 else if (collider_tag_list.Contains("inventory"))

@@ -15,10 +15,13 @@ public class Train : MovingObject
     int boxcar_counter;
     public GameObject explosion;
     public List<GameObject> explosion_list;
+    public bool is_train_departed_for_turntable;
+
     private void Awake()
     {
         boxcar_counter = 0;
         base.Awake();
+        is_train_departed_for_turntable = false;
     }
 
     // Start is called before the first frame update
@@ -185,6 +188,7 @@ public class Train : MovingObject
     {
         base.arrive_at_city();
         //city.add_train_to_list(gameObject);
+        is_train_departed_for_turntable = false; //reset
         station_track = city.add_train_to_station(gameObject, orientation);
         //city.turn_table.GetComponent<Turntable>().add_train_to_queue(gameObject);
         if (station_track != null)
@@ -238,6 +242,7 @@ public class Train : MovingObject
         {
             halt_train(true, false); //unhalt the boxcars
             halt_train(is_halt = false, is_pause = false); // unpause the train
+            is_train_departed_for_turntable = true;
         }
         else // leaving the turntable
         {
@@ -247,7 +252,6 @@ public class Train : MovingObject
             foreach (GameObject boxcar_object in boxcar_squad)
             {
                 Boxcar boxcar = boxcar_object.GetComponent<Boxcar>();
-                bool halt = boxcar.is_halt;
                 boxcar.leave_city = true;
                 boxcar.orientation = this.orientation;
                 boxcar.final_orientation = this.orientation;

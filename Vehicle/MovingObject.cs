@@ -85,7 +85,9 @@ public class MovingObject : Simple_Moving_Object
                     StartCoroutine(wait_for_turntable(next_tile.name));
                 }
                 if (orientation != final_orientation) // curved track
+                {
                     StartCoroutine(bezier_move(transform, orientation, final_orientation));
+                }
                 else // straight track
                 {
                     if (leave_turntable) // go to end of turn table in straight line
@@ -223,7 +225,7 @@ public class MovingObject : Simple_Moving_Object
         leave_turntable = false;
         leave_city = false;
         complete_exit = false; // on verge of departing city
-        departure_track_chosen = false;
+        departure_track_chosen = false;        
     }
 
     public void initialize_orientation(RouteManager.Orientation orientation)
@@ -302,7 +304,7 @@ public class MovingObject : Simple_Moving_Object
                         yield return new WaitForEndOfFrame();
                 }
                 RouteManager.Orientation orio = TrackManager.get_steep_orientation(track_name);
-                city.turn_turntable(gameObject, orio, depart_for_turntable);
+                city.turn_turntable(gameObject, orio, depart_for_turntable); // halt the boxcar and train
             }
             //depart_for_turntable = false;
             //leave_turntable = true;
@@ -320,28 +322,11 @@ public class MovingObject : Simple_Moving_Object
         float end_angle;
         RouteManager.Orientation curve_type = TrackManager.is_curve_steep(final_orientation);
         in_tile = true;
+        float vehicle_speed = speed;
+
         if (curve_type == RouteManager.Orientation.Less_Steep_Angle || curve_type == RouteManager.Orientation.Steep_Angle) // turntable adjustements
         {
             steep_angle_orientation = final_orientation;
-            //if (depart_for_turntable && !leave_turntable)
-            //{
-            //    if (gameObject.name == "train(Clone)")
-            //    {
-            //        Train train = gameObject.GetComponent<Train>();
-            //        gameObject.GetComponent<Train>().halt_train(false, true); // will pause the train until the turntable has arrived
-            //        // wait for train's turn
-            //        while (true)
-            //        {
-            //            bool is_train_turn = city.turn_table.GetComponent<Turntable>().is_train_turn(gameObject);
-            //            if (is_train_turn) break;
-            //            else
-            //                yield return new WaitForEndOfFrame();
-            //        }
-            //        city.turn_turntable(gameObject, final_orientation, depart_for_turntable);
-            //    }
-            //    depart_for_turntable = false;
-            //    leave_turntable = true;
-            //}
             end_angle = start_angle + TrackManager.get_steep_angle_rotation(final_orientation);
             depart_for_turntable = false;
             leave_turntable = true;
@@ -351,6 +336,7 @@ public class MovingObject : Simple_Moving_Object
             end_angle = start_angle + TrackManager.get_rotation(orientation, final_orientation); //end_angle is a static field for steep curves
         }
         //print("Start angle is " + start_angle + " End angle is " + end_angle);
+
         while (!final_step)
         {
             if (is_pause)
@@ -358,14 +344,14 @@ public class MovingObject : Simple_Moving_Object
                 yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling
                 continue; // don't execute the code below
             }
-            float interp = 1.0f - t_param;
-            if (gameObject.tag == "boxcar")
-                t_param -= Time.deltaTime * speed * speed_multiplier; // use the speed multiplier when boxcar is first instantiated due to gap between train and lead boxcar
-            else
+            if (gameObject.tag == "boxcar" && in_city)
             {
-                t_param -= Time.deltaTime * speed;
+                bool is_train_departed = GetComponent<Boxcar>().train.is_train_departed_for_turntable; // false if train going to truntable
+                if (!is_train_departed) vehicle_speed = 0; // use the speed multiplier when boxcar is first instantiated due to gap between train and lead boxcar
+                else { vehicle_speed = speed; }
             }
-
+            float interp = 1.0f - t_param;
+            t_param -= Time.deltaTime * vehicle_speed; // use the speed multiplier when boxcar is first instantiated due to gap between train and lead boxcar
             if (t_param < 0) // set t_param to 0 to get bezier coordinates closer to the destination (and be within tolerance)
             {
                 interp = 1;
@@ -392,9 +378,6 @@ public class MovingObject : Simple_Moving_Object
         float distance = og_distance;
         in_tile = true;
         next_position = start_position;
-        //if (gameObject.tag == "boxcar")
-        //    print("Destination of Boxcar is " + destination);
-        // Move our position a step closer to the target.
         while (distance > GameManager.tolerance)
         {
             if (is_pause)
@@ -407,7 +390,7 @@ public class MovingObject : Simple_Moving_Object
             }
             float step;
             if (gameObject.tag == "boxcar")
-                step = speed * Time.deltaTime * speed_multiplier; // calculate distance to move
+                step = speed * Time.deltaTime;// * speed_multiplier; // TODOED
             else
             {
                 step = speed * Time.deltaTime; // calculate distance to move
@@ -433,6 +416,7 @@ public class MovingObject : Simple_Moving_Object
                 {
                     yield return new WaitForEndOfFrame();
                 }
+                yield return new WaitForSeconds(1);
                 city.turn_turntable(gameObject, exit_track_orientation); // turntable turns to destination track
             }
             else // reset boxcar speed multiplier after it has been created
@@ -459,7 +443,6 @@ public class MovingObject : Simple_Moving_Object
                 city.turn_table.GetComponent<Turntable>().remove_train_from_queue(gameObject);
                 GameManager.enable_vehicle_for_screen(gameObject);
                 gameObject.GetComponent<Train>().set_boxcar_to_depart(); // set depart = true so boxcars leave city
-                GetComponent<PolygonCollider2D>().enabled = true;
                 //if (city==CityManager.Activated_City_Component) GameManager.train_menu_manager.update_train_menu(city);
                 //print("after moving to city edge. the train tile position is " + next_tilemap_position);// depart train at correct tile position
             }
