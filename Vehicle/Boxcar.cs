@@ -66,6 +66,7 @@ public class Boxcar : MovingObject
         Destroy(gameObject);
     }
 
+
     public override void arrive_at_city()
     {
         base.arrive_at_city();

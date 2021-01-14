@@ -7,8 +7,10 @@ using UnityEngine.Tilemaps;
 public class Simple_Moving_Object : EventDetector
 {
     protected Vector2 target_position;
-    protected float speed = 2f; // Temporary. changed from 2f
-    protected float speed_multiplier = 1f;
+    public float speed = 2f; // Temporary. changed from 2f
+    public float stopping_speed = 0;
+    public float normal_speed = 2f;
+    public float speed_multiplier = 1f;
     protected Vector2 next_position;
     public bool in_tile = false; // if an object is in a tile, it is already has a destination
     public bool is_tight_curve = true;

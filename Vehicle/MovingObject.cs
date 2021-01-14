@@ -51,10 +51,6 @@ public class MovingObject : Simple_Moving_Object
                 orientation = final_orientation; // updating the orientation at every new tile
                 prev_tile_position = tile_position;
                 tile_position = new Vector3Int(next_tilemap_position.x, next_tilemap_position.y, 0);
-                if (gameObject.tag == "boxcar")
-                {
-                    print("stop drop ");
-                }
                 PositionPair position_pair;
                 if (!in_city)
                 {
@@ -79,10 +75,13 @@ public class MovingObject : Simple_Moving_Object
                     return; // cancel any further movemnt updates
                 }
                 Vector3 train_destination = new Vector3(train_dest_xy[0], train_dest_xy[1], z_pos);
-                Tile next_tile = (Tile)station_track.tilemap.GetTile((Vector3Int)next_tilemap_position);
-                if (next_tile != null && TrackManager.is_curve_steep(next_tile.name))
+                if (in_city)
                 {
-                    StartCoroutine(wait_for_turntable(next_tile.name));
+                Tile next_tile = (Tile)station_track.tilemap.GetTile((Vector3Int)next_tilemap_position);
+                    if (next_tile != null && TrackManager.is_curve_steep(next_tile.name))
+                    {
+                        StartCoroutine(wait_for_turntable(next_tile.name));
+                    }
                 }
                 if (orientation != final_orientation) // curved track
                 {
@@ -181,6 +180,7 @@ public class MovingObject : Simple_Moving_Object
 
     public bool is_end_of_track()
     {
+        // assume we are NOT in city
         Tilemap track_tilemap = GameManager.track_manager.top_tilemap;
         Tile next_tile = (Tile)track_tilemap.GetTile((Vector3Int)next_tilemap_position);
         Tile cur_tile = (Tile)track_tilemap.GetTile((Vector3Int)tile_position);
@@ -322,7 +322,6 @@ public class MovingObject : Simple_Moving_Object
         float end_angle;
         RouteManager.Orientation curve_type = TrackManager.is_curve_steep(final_orientation);
         in_tile = true;
-        float vehicle_speed = speed;
 
         if (curve_type == RouteManager.Orientation.Less_Steep_Angle || curve_type == RouteManager.Orientation.Steep_Angle) // turntable adjustements
         {
@@ -344,14 +343,10 @@ public class MovingObject : Simple_Moving_Object
                 yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling
                 continue; // don't execute the code below
             }
-            if (gameObject.tag == "boxcar" && in_city)
-            {
-                bool is_train_departed = GetComponent<Boxcar>().train.is_train_departed_for_turntable; // false if train going to truntable
-                if (!is_train_departed) vehicle_speed = 0; // use the speed multiplier when boxcar is first instantiated due to gap between train and lead boxcar
-                else { vehicle_speed = speed; }
-            }
+            if (gameObject.tag == "boxcar" && in_city && CityManager.boxcar_city_wait_tile.Contains(new int[] { tile_position.x, tile_position.y })) // STOP 
+                GetComponent<Boxcar>().train.stop_all_boxcar_at_turntable();
             float interp = 1.0f - t_param;
-            t_param -= Time.deltaTime * vehicle_speed; // use the speed multiplier when boxcar is first instantiated due to gap between train and lead boxcar
+            t_param -= Time.deltaTime * speed; // use the speed multiplier when boxcar is first instantiated due to gap between train and lead boxcar
             if (t_param < 0) // set t_param to 0 to get bezier coordinates closer to the destination (and be within tolerance)
             {
                 interp = 1;
@@ -424,7 +419,7 @@ public class MovingObject : Simple_Moving_Object
                 set_halt(true); // otherwise the boxcar wont spin with the turntable
                 speed_multiplier = 1.0f;
             }
-        }
+        } 
         in_tile = false;
         //print(gameObject.name + " reached destination " + destination);
         if (exit_dest)

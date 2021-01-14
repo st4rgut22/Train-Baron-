@@ -321,15 +321,14 @@ public class Train : MovingObject
                 print("current track has switched from " + cur_tile_name + " to " + cur_tile.name);
                 next_tile_pos = RouteManager.get_destination(this, tilemap, offset).tile_dest_pos;
                 next_track_tile = (Tile)tilemap.GetTile((Vector3Int)next_tile_pos);
-                print("update next track to " + next_track_tile.name);           
             }
             cur_tile_name = cur_tile.name;
             Tile city_tile = (Tile) RouteManager.city_tilemap.GetTile((Vector3Int)next_tile_pos);
             // also need to check if a city is placed in the next tile
             if (city_tile != null || (next_track_tile != null && TrackManager.is_track_a_path(orientation, next_track_tile.name, cur_tile.name))) // TODOED make sure the train can cross this track
             {
-                this.next_tilemap_position = (Vector2Int)tile_position; // reset train's position & orientation
-                this.final_orientation = orientation;
+                next_tilemap_position = (Vector2Int)tile_position; // reset train's position & orientation
+                final_orientation = orientation;
                 break;
             }
             else { yield return new WaitForEndOfFrame(); }
@@ -378,6 +377,16 @@ public class Train : MovingObject
         GameObject boxcar_go = boxcar_squad[remove_boxcar_index];
         boxcar_squad.RemoveAt(remove_boxcar_index);
         Destroy(boxcar_go);
+    }
+
+    public void stop_all_boxcar_at_turntable()
+    {
+        foreach (GameObject boxcar_go in boxcar_squad)
+        {
+            Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
+            if (is_train_departed_for_turntable) boxcar.speed = normal_speed; 
+            else { boxcar.speed = stopping_speed; }
+        }
     }
 
     public bool is_boxcar_first(int boxcar_id)
