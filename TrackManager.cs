@@ -78,6 +78,8 @@ public class TrackManager : BoardManager
     public static Dictionary<RouteManager.Orientation, List<List<int[]>>> add_to_train_coord_map;
     public static Dictionary<RouteManager.Orientation, List<int[]>> exit_track_map; // positions of all exit tiles
 
+    public static Dictionary<string, int> track_count_dict = new Dictionary<string, int>(); // <track name, building count>
+
 
     private void Awake()
     {
@@ -712,30 +714,25 @@ public class TrackManager : BoardManager
         }
     }
 
-    public static void add_track(string track_type)
+    public static int get_track_count(string track_name)
     {
-        switch (track_type)
+        if (track_count_dict.ContainsKey(track_name))
+            return track_count_dict[track_name];
+        else
         {
-            case "vert_desc":
-                vert_count++;
-                break;
-            case "hor_desc":
-                hor_count++;
-                break;
-            case "nw_desc":
-                wn_count++;
-                break;
-            case "ne_desc":
-                ne_count++;
-                break;
-            case "sw_desc":
-                ws_count++;
-                break;
-            case "se_desc":
-                es_count++;
-                break;
-            default:
-                break;
+            return 0;
+        }
+    }
+
+    public static void update_track_count(string track_name, int update_num)
+    {
+        if (track_count_dict.ContainsKey(track_name))
+        {
+            track_count_dict[track_name] += update_num;
+        }
+        else
+        {
+            track_count_dict[track_name] = 1;
         }
     }
 }

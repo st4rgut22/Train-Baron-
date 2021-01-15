@@ -20,17 +20,17 @@ public class StoreMenuManager : MonoBehaviour
             {"food_desc", 100 },
             {"work_desc",300 },
             {"vacation_desc", 400 },
-            {"vert_desc",50 },
-            {"hor_desc",50 },
-            {"nw_desc", 50 },
-            {"ne_desc", 50 },
-            {"sw_desc",50 },
-            {"se_desc", 50 },
+            {"vert",50 },
+            {"hor",50 },
+            {"WN", 50 },
+            {"NE", 50 },
+            {"WS",50 },
+            {"ES", 50 },
             {"factory", 200 },
             {"scenery", 60 },
             {"restaurant", 150 },
-            {"wealthy", 300 },
-            {"poor", 100 },
+            {"mansion", 300 },
+            {"apartment", 100 },
             {"diner", 100 },            
         };
     }
@@ -79,53 +79,39 @@ public class StoreMenuManager : MonoBehaviour
     {
         foreach (GameObject go in text_game_objects)
         {
+            // updates the count
             string count = go.GetComponent<Text>().text;
             string item_name = go.transform.parent.parent.gameObject.name;
             int item_count = Int16.Parse(count);
             for (int i = 0; i < item_count; i++)
             {
-                switch (item_name)
+                if (item_name == "train_desc" || item_name == "fast_train_desc")
+                    GameManager.vehicle_manager.create_vehicle_at_home_base();
+                else if (item_name == "home_desc")
                 {
-                    case "train_desc":
-                        GameManager.vehicle_manager.create_vehicle_at_home_base();
-                        break;
-                    case "fast_train_desc": // mytodo: change speed of train
-                        GameManager.vehicle_manager.create_vehicle_at_home_base();
-                        break;
-                    case "home_desc":
-                        GameManager.vehicle_manager.add_boxcar("home");
-                        break;
-                    case "food_desc":
-                        GameManager.vehicle_manager.add_boxcar("food");
-                        break;
-                    case "work_desc":
-                        GameManager.vehicle_manager.add_boxcar("work");
-                        break;
-                    case "vacation_desc":
-                        GameManager.vehicle_manager.add_boxcar("vacation");
-                        break;
-                    case "vert_desc":
-                        TrackManager.add_track(item_name);
-                        break;
-                    case "hor_desc":
-                        TrackManager.add_track(item_name);
-                        break;
-                    case "nw_desc":
-                        TrackManager.add_track(item_name);
-                        break;
-                    case "ne_desc":
-                        TrackManager.add_track(item_name);
-                        break;
-                    case "sw_desc":
-                        TrackManager.add_track(item_name);
-                        break;
-                    case "se_desc":
-                        TrackManager.add_track(item_name);
-                        break;
-                    default:
-                        CityManager.update_building_count(item_name);
-                        break;
+                    GameManager.vehicle_manager.add_boxcar("home");
                 }
+                else if (item_name == "food_desc")
+                {
+                    GameManager.vehicle_manager.add_boxcar("food");
+                }
+                else if (item_name == "work_desc")
+                {
+                    GameManager.vehicle_manager.add_boxcar("work");
+                }
+                else if (item_name == "vacation_desc")
+                    GameManager.vehicle_manager.add_boxcar("vacation");
+                else if (item_name == "hor" || item_name == "WN" || item_name == "NE" || item_name == "WS" || item_name == "ES" || item_name == "vert")
+                {
+                    TrackManager.update_track_count(item_name, 1);
+                    GameManager.game_menu_manager.GetComponent<GameMenuManager>().add_inventory_texture(item_name);
+                }
+                else
+                {
+                    CityManager.update_building_count(item_name, 1);
+                    GameManager.game_menu_manager.GetComponent<GameMenuManager>().add_inventory_texture(item_name);
+                }
+
             }
         }
     }

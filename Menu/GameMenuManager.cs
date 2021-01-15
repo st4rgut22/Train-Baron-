@@ -42,7 +42,12 @@ public class GameMenuManager : EventDetector
     string item_name;
 
     GameObject clicked_item;
-    GameObject train_menu;
+
+    public Texture empty_inventory_bubble;
+    public Texture food_inventory_bubble;
+    public Texture home_inventory_bubble;
+    public Texture work_inventory_bubble;
+    public Texture track_inventory_bubble;
 
     protected GameObject train_object; // the train is referenced in TrainDisplay which has MenuManager as a base class
 
@@ -65,25 +70,26 @@ public class GameMenuManager : EventDetector
         {
             Text item_count = inventory_item.GetComponent<Text>();
             string item_name = inventory_item.transform.parent.name;
+            print("item name " + item_name);
             switch (item_name)
             {
                 case "vert":
-                    item_count.text = "x" + TrackManager.vert_count.ToString();
+                    item_count.text = "x" + TrackManager.get_track_count(item_name).ToString();
                     break;
                 case "hor":
-                    item_count.text = "x" + TrackManager.hor_count.ToString();
+                    item_count.text = "x" + TrackManager.get_track_count(item_name).ToString();
                     break;
                 case "NE":
-                    item_count.text = "x" + TrackManager.ne_count.ToString();
+                    item_count.text = "x" + TrackManager.get_track_count(item_name).ToString();
                     break;
                 case "WS":
-                    item_count.text = "x" + TrackManager.ws_count.ToString();
+                    item_count.text = "x" + TrackManager.get_track_count(item_name).ToString();
                     break;
                 case "WN":
-                    item_count.text = "x" + TrackManager.wn_count.ToString();
+                    item_count.text = "x" + TrackManager.get_track_count(item_name).ToString();
                     break;
                 case "ES":
-                    item_count.text = "x" + TrackManager.es_count.ToString();
+                    item_count.text = "x" + TrackManager.get_track_count(item_name).ToString();
                     break;
                 case "restaurant":
                     item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
@@ -91,10 +97,10 @@ public class GameMenuManager : EventDetector
                 case "factory":
                     item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
                     break;
-                case "poor":
+                case "apartment":
                     item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
                     break;
-                case "wealthy":
+                case "mansion":
                     item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
                     break;
                 case "diner":
@@ -156,14 +162,68 @@ public class GameMenuManager : EventDetector
         GameObject.Find("GameManager").GetComponent<GameManager>().mark_tile_as_eligible(track_action_coord, track_hint_list, gameObject);
     }
 
+    public void add_inventory_texture(string item_name)
+    {
+        GameObject menu_go = gameObject.transform.Find(item_name).gameObject;
+        if (item_name == "hor" || item_name == "WN" || item_name == "NE" || item_name == "WS" || item_name == "ES" || item_name == "vert")
+        {
+            menu_go.GetComponent<RawImage>().texture = track_inventory_bubble; 
+        }
+        else // structure
+        {
+            if (item_name == "apartment" || item_name == "mansion")
+            {
+                menu_go.GetComponent<RawImage>().texture = home_inventory_bubble;
+            }
+            else if (item_name == "factory" || item_name == "office")
+            {
+                menu_go.GetComponent<RawImage>().texture = work_inventory_bubble;
+            }
+            else if (item_name == "diner" || item_name == "restaurant")
+            {
+                menu_go.GetComponent<RawImage>().texture = food_inventory_bubble;
+            }
+            else
+            {
+                throw new Exception("cannot find a structure with name " + item_name);
+            }
+        }
+    }
+
     public override void OnBeginDrag(PointerEventData eventData)
     {
         try
         {
-            item_name = eventData.pointerCurrentRaycast.gameObject.name;
+            GameObject clicked_go = eventData.pointerCurrentRaycast.gameObject;
+            item_name = clicked_go.name;
             string tag = eventData.pointerCurrentRaycast.gameObject.tag;
             Vector3 position = MenuManager.convert_screen_to_world_coord(eventData.position);
             clicked_tile = null; // reset this variable
+            if ((tag == "track" && TrackManager.get_track_count(item_name) <= 0) || // cancel the drag if none available
+                (tag == "structure" && CityManager.get_building_count(item_name) <= 0))
+            {
+                eventData.pointerDrag = null;
+                return;
+            }
+            else
+            {
+                if (tag == "track") {
+                    TrackManager.update_track_count(item_name, -1);
+                    if (TrackManager.get_track_count(item_name) == 0)
+                    {
+                        RawImage raw_image = clicked_go.GetComponent<RawImage>();
+                        raw_image.texture = empty_inventory_bubble;
+                    }
+                }
+                else if (tag == "structure") {
+                    CityManager.update_building_count(item_name, -1);
+                    if (CityManager.get_building_count(item_name) == 0)
+                    {
+                        RawImage raw_image = clicked_go.GetComponent<RawImage>();
+                        raw_image.texture = empty_inventory_bubble;
+                    }
+                }
+            }
             switch (item_name)
             {
                 case "ES":
@@ -197,7 +257,7 @@ public class GameMenuManager : EventDetector
                     clicked_item = Instantiate(restaurant, position, Quaternion.identity);
                     clicked_tile = restaurant_tile;
                     break;
-                case "wealthy": 
+                case "mansion": 
                     clicked_item = Instantiate(wealthy, position, Quaternion.identity);
                     clicked_tile = wealthy_tile;
                     break;
@@ -212,13 +272,14 @@ public class GameMenuManager : EventDetector
                     clicked_item = Instantiate(factory, position, Quaternion.identity);
                     clicked_tile = factory_tile;
                     break;
-                case "poor": 
+                case "apartment": 
                     clicked_item = Instantiate(poor, position, Quaternion.identity);
                     clicked_tile = poor_tile;
                     break;
                 default:
                     break;
             }
+            update_inventory();
         }
         catch (NullReferenceException)
         {

@@ -256,11 +256,11 @@ public class CityManager : BoardManager
         }
     }
 
-    public static void update_building_count(string building_name)
+    public static void update_building_count(string building_name, int update_num)
     {
         if (building_count_dict.ContainsKey(building_name))
         {
-            building_count_dict[building_name] += 1;
+            building_count_dict[building_name] += update_num;
         }
         else
         {

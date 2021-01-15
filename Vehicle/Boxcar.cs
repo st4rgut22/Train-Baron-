@@ -45,18 +45,18 @@ public class Boxcar : MovingObject
         speed_multiplier = 1.03f; // when boxcar is created go a little faster so it can keep up with train
     }
 
-    void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.tag == "boxcar" || collision.gameObject.tag == "train")
-        {
-            explosion_go = Instantiate(explosion);
-            explode explosion_anim = explosion_go.transform.GetChild(0).gameObject.GetComponent<explode>();
-            explosion_anim.exploded_boxcar = this;
-            explosion_go.transform.position = transform.position;
-            explosion_go.transform.localScale = new Vector3(.2f, .2f);
-            if (city != CityManager.Activated_City_Component) hide_explosion(new List<GameObject>() { explosion_go });
-        }
-    }
+    //void OnTriggerEnter2D(Collider2D collision)
+    //{
+    //    if (collision.gameObject.tag == "boxcar" || collision.gameObject.tag == "train")
+    //    {
+    //        explosion_go = Instantiate(explosion);
+    //        explode explosion_anim = explosion_go.transform.GetChild(0).gameObject.GetComponent<explode>();
+    //        explosion_anim.exploded_boxcar = this;
+    //        explosion_go.transform.position = transform.position;
+    //        explosion_go.transform.localScale = new Vector3(.2f, .2f);
+    //        if (city != CityManager.Activated_City_Component) hide_explosion(new List<GameObject>() { explosion_go });
+    //    }
+    //}
 
     public void destroy_boxcar()
     {

@@ -79,6 +79,8 @@ public class GameManager : EventDetector
     public static GameObject traffic_tilemap_go;
     public static Tilemap traffic_tilemap;
 
+    public static GameObject game_menu_manager;
+
     private void Awake()
     {
         traffic_tilemap_go = GameObject.Find("Traffic Light");
@@ -113,6 +115,7 @@ public class GameManager : EventDetector
         building_lot_south_inner = GameObject.Find("Building Lot South Inner");
         building_lot_west = GameObject.Find("Building Lot West");
         building_lot_east = GameObject.Find("Building Lot East");
+        game_menu_manager = GameObject.Find("Game Menu");
     }
 
     // Start is called before the first frame update
@@ -122,7 +125,6 @@ public class GameManager : EventDetector
         city_manager = GameObject.Find("CityManager").GetComponent<CityManager>();
         track_manager = GameObject.Find("TrackManager").GetComponent<TrackManager>();
         menu_manager = GameObject.Find("MenuManager").GetComponent<MenuManager>();
-        //game_menu_manager = GameObject.Find("Store Menu").GetComponent<StoreMenuManager>();
         switch_on_shipyard(false);
         macro_morale = 50;
         macro_economy = 50;
@@ -265,30 +267,6 @@ public class GameManager : EventDetector
         }
         return null;
     }
-
-    //public override void OnBeginDrag(PointerEventData eventData)
-    //{
-    //    RaycastHit2D[] selected_objects = get_all_object_at_cursor(Input.mousePosition);
-    //    GameObject big_lot_object = get_collider_by_tag("big_lot", selected_objects);
-    //    if (big_lot_object != null)
-    //    {
-    //        string name = big_lot_object.name;
-    //        print("dragging object " + name);
-    //        BuildingLot bl = City.building_map[name].GetComponent<BuildingLot>();
-    //        building_expansion = CityManager.Activated_City_Component.get_city_building(bl.origin_tile);
-    //    }
-    //}
-
-    //public override void OnEndDrag(PointerEventData eventData)
-    //{
-    //    // add new rooms
-    //    if (building_expansion != null)
-    //    {
-    //        Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
-    //        CityManager.Activated_City_Component.expand_building(building_expansion, selected_tile);
-    //    }
-    //    building_expansion = null;
-    //}
 
     public List<Collider2D> get_all_collider(RaycastHit2D[] all_raycast_hit)
     {
@@ -485,21 +463,24 @@ public class GameManager : EventDetector
         hint_context_list.Clear(); // after completing or failing to complete an action, remove context to prepare for new context
     }
 
-    public static void enable_vehicle_for_screen(GameObject boxcar_object)
+    public void enable_vehicle_for_screen(GameObject vehicle_go)
     {
-        //allow turn on vehicles individually instead of all trains
+        //allow turn on vehicles individually instead of all trains. 
         // like enable_train_for_screen() except focus on vehicle exiting or entering the screen
-        MovingObject boxcar = boxcar_object.GetComponent<MovingObject>();
+        MovingObject moving_object = vehicle_go.GetComponent<MovingObject>();
         if (game_menu_state)
-            if (!boxcar.in_city)
-                MovingObject.switch_on_vehicle(boxcar_object, true);
-            else { MovingObject.switch_on_vehicle(boxcar_object, false); }
+            if (!moving_object.in_city)
+            {
+                
+                StartCoroutine(moving_object.switch_on_vehicle(true, is_delayed:true)); // delay
+            }
+            else { StartCoroutine(moving_object.switch_on_vehicle(false)); }
         if (city_menu_state)
         {
-            MovingObject.switch_on_vehicle(boxcar_object, false);
-            if (boxcar.in_city)
-                if (boxcar.city == CityManager.Activated_City_Component)
-                    MovingObject.switch_on_vehicle(boxcar_object, true);
+            StartCoroutine(moving_object.switch_on_vehicle(false));
+            if (moving_object.in_city)
+                if (moving_object.city == CityManager.Activated_City_Component)
+                    StartCoroutine(moving_object.switch_on_vehicle(true));
         }
     }
      

@@ -8,16 +8,16 @@ using UnityEngine.Tilemaps;
 public class MovingObject : Simple_Moving_Object
 {
     // all the vehicle movement math goes here
-    Vector2 stranded_state = new Vector2(-10, -10); // waiting for a new track or turntable
     public bool is_pause = false; // pause state
     public bool is_halt = false;
-
+    public float sprite_renderer_delay; // used when vehicles depart city to prevent vehicle buttt showing
     public bool depart_for_turntable = true;
     public bool leave_turntable = false;
     public bool leave_city = false;
     public bool complete_exit = false; // on verge of departing city
     public bool departure_track_chosen = false;
     public bool end_of_track = false;
+    public bool is_idle; 
     public string train_name = "train(Clone)";
     VehicleManager vehicle_manager;
     public RouteManager.Orientation exit_track_orientation = RouteManager.Orientation.None;
@@ -33,6 +33,8 @@ public class MovingObject : Simple_Moving_Object
         prev_city = null;
         orientation = RouteManager.Orientation.East;
         final_orientation = orientation;
+        sprite_renderer_delay = .3f;
+        is_idle = false;
     }
 
     public override void Start()
@@ -69,6 +71,7 @@ public class MovingObject : Simple_Moving_Object
                 // stop the train here if track ends
                 if (!in_city && gameObject.tag == "train" && is_end_of_track() && !is_pause)
                 {
+                    is_idle = true;
                     StartCoroutine(gameObject.GetComponent<Train>().wait_for_track_placement(next_tilemap_position));
                     gameObject.GetComponent<Train>().halt_train(false, true);
                     end_of_track = true;
@@ -80,6 +83,7 @@ public class MovingObject : Simple_Moving_Object
                 Tile next_tile = (Tile)station_track.tilemap.GetTile((Vector3Int)next_tilemap_position);
                     if (next_tile != null && TrackManager.is_curve_steep(next_tile.name))
                     {
+                        is_idle = true;
                         StartCoroutine(wait_for_turntable(next_tile.name));
                     }
                 }
@@ -206,17 +210,22 @@ public class MovingObject : Simple_Moving_Object
         }
     }
 
-    public static void switch_on_vehicle(GameObject vehicle_object, bool state)
+    public IEnumerator switch_on_vehicle(bool state, bool is_delayed = false)
     {
-        if (vehicle_object.tag == "boxcar")
+        if (is_delayed)
+            yield return new WaitForSeconds(sprite_renderer_delay);
+        else {
+            yield return null;
+        }
+        if (gameObject.tag == "boxcar")
         {
-            Boxcar boxcar = vehicle_object.GetComponent<Boxcar>();
+            Boxcar boxcar = gameObject.GetComponent<Boxcar>();
             if (boxcar.is_occupied)
             {
                 boxcar.passenger_go.GetComponent<SpriteRenderer>().enabled = state;
             }
         }
-        vehicle_object.GetComponent<SpriteRenderer>().enabled = state;
+        GetComponent<SpriteRenderer>().enabled = state;
     }
 
     public void reset_departure_flag()
@@ -289,7 +298,6 @@ public class MovingObject : Simple_Moving_Object
 
     public IEnumerator wait_for_turntable(string track_name)
     {
-        //steep_angle_orientation = final_orientation;
         if (depart_for_turntable && !leave_turntable)
         {
             if (gameObject.name == "train(Clone)")
@@ -306,10 +314,7 @@ public class MovingObject : Simple_Moving_Object
                 RouteManager.Orientation orio = TrackManager.get_steep_orientation(track_name);
                 city.turn_turntable(gameObject, orio, depart_for_turntable); // halt the boxcar and train
             }
-            //depart_for_turntable = false;
-            //leave_turntable = true;
         }
-        //end_angle = start_angle + TrackManager.get_steep_angle_rotation(final_orientation);
     }
 
     public override IEnumerator bezier_move(Transform location, RouteManager.Orientation orientation, RouteManager.Orientation final_orientation)
@@ -436,7 +441,7 @@ public class MovingObject : Simple_Moving_Object
                 Vector3Int city_location = city.get_location();
                 vehicle_manager.depart(gameObject, city_location);
                 city.turn_table.GetComponent<Turntable>().remove_train_from_queue(gameObject);
-                GameManager.enable_vehicle_for_screen(gameObject);
+                game_manager.enable_vehicle_for_screen(gameObject);
                 gameObject.GetComponent<Train>().set_boxcar_to_depart(); // set depart = true so boxcars leave city
                 //if (city==CityManager.Activated_City_Component) GameManager.train_menu_manager.update_train_menu(city);
                 //print("after moving to city edge. the train tile position is " + next_tilemap_position);// depart train at correct tile position

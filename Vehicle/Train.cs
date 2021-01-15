@@ -45,6 +45,11 @@ public class Train : MovingObject
 
         if (collision.gameObject.tag == "boxcar" || collision.gameObject.tag == "train")
         {
+            if (collision.gameObject.tag == "boxcar")
+            {
+                if (collision.gameObject.GetComponent<Boxcar>().train.boxcar_squad[0] == collision.gameObject)
+                    return;
+            }
             halt_train(false, true);
             GameObject explosion_go = Instantiate(explosion);
             print("explode");
@@ -108,17 +113,17 @@ public class Train : MovingObject
     public void turn_on_train(bool is_train_on)
     {
 
-        switch_on_vehicle(gameObject, is_train_on);
+        StartCoroutine(switch_on_vehicle(is_train_on));
         foreach (GameObject boxcar_object in boxcar_squad)
         {
             Boxcar boxcar = boxcar_object.GetComponent<Boxcar>();
             if (!boxcar.departing)
             {
-                switch_on_vehicle(boxcar_object, is_train_on);
+                StartCoroutine(boxcar.switch_on_vehicle(is_train_on));
             }
             else
             {
-                switch_on_vehicle(boxcar_object, !is_train_on); // if train is shown, hide boxcars. if train is hidden. show boxcars
+                StartCoroutine(boxcar.switch_on_vehicle(!is_train_on)); // if train is shown, hide boxcars. if train is hidden. show boxcars
             }
         }
     }
@@ -238,6 +243,7 @@ public class Train : MovingObject
 
     public void board_turntable(RouteManager.Orientation orientation, bool depart_turntable)
     {
+        is_idle = false;
         if (depart_turntable)
         {
             halt_train(true, false); //unhalt the boxcars
@@ -333,6 +339,7 @@ public class Train : MovingObject
             }
             else { yield return new WaitForEndOfFrame(); }
         }
+        is_idle = false;
         end_of_track = false;
         halt_train(false, false); // unpause the train
     }

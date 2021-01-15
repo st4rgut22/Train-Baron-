@@ -760,18 +760,6 @@ public class City : Structure
         game_manager.train_list.Add(train_object);
     }
 
-    public void delete_boxcar(GameObject boxcar_object)
-    {   // delete boxcar after it has left the city (delayed from train)
-        if (CityManager.Activated_City == gameObject) MovingObject.switch_on_vehicle(boxcar_object, false);
-        if (GameManager.game_menu_state) MovingObject.switch_on_vehicle(boxcar_object, true);
-    }
-
-    public void add_boxcar(GameObject boxcar_object)
-    {   // add boxcar after it has entered the city (delayed from train)
-        if (CityManager.Activated_City == gameObject) MovingObject.switch_on_vehicle(boxcar_object, true);
-        if (GameManager.game_menu_state) MovingObject.switch_on_vehicle(boxcar_object, false);
-    }
-
     public void add_train_to_list(GameObject train_object)
     {
         // add train to the city
@@ -782,7 +770,7 @@ public class City : Structure
             train_object.GetComponent<Train>().turn_on_train(true);
         }
         if (GameManager.game_menu_state) // this is not causing boxcar to disappear prematurely
-            MovingObject.switch_on_vehicle(train_object, false);
+            StartCoroutine(train_object.GetComponent<Train>().switch_on_vehicle(false));
     }
 
 
