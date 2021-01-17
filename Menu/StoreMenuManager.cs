@@ -10,9 +10,16 @@ public class StoreMenuManager : MonoBehaviour
     public Button buy_btn;
     public Dictionary<String, int> item_price_dict;
     public Text money_text;
-
+    public List<GameObject> text_game_objects;
+    public Text game_money_text;
+    public Text cost_text;
+    public Text remainder_text;
+    public int total_cost;
+    public Dictionary<string, int> shopping_cart;
     private void Awake()
     {
+        shopping_cart = new Dictionary<string, int>();
+        total_cost = 0;
         item_price_dict = new Dictionary<string, int>() {
             { "train_desc", 200 },
             {"fast_train_desc", 400 },
@@ -31,7 +38,8 @@ public class StoreMenuManager : MonoBehaviour
             {"restaurant", 150 },
             {"mansion", 300 },
             {"apartment", 100 },
-            {"diner", 100 },            
+            {"diner", 100 },
+            {"business", 300 }
         };
     }
 
@@ -41,6 +49,8 @@ public class StoreMenuManager : MonoBehaviour
         close_btn.onClick.AddListener(close_menu);
         buy_btn.onClick.AddListener(buy_item);
         add_listener_to_all_btn();
+        string[] find_name_list = new string[] { "count" };
+        random_algos.dfs_find_child_objects(transform, text_game_objects, find_name_list);
         //initialize_bomb_boxcar(); //todo temporary! remove
     }
 
@@ -50,14 +60,32 @@ public class StoreMenuManager : MonoBehaviour
         
     }
 
+    void add_item_to_cart(string item)
+    {
+        if (!shopping_cart.ContainsKey(item))
+        {
+            shopping_cart[item] = 1;
+        }
+        else
+        {
+            shopping_cart[item] += 1;
+        }
+    }
+
+    void remove_item_from_cart(string item)
+    {
+        shopping_cart[item] -= 1;
+    }
+
     void update_money_text()
     {
         money_text.text = GameManager.money.ToString();
+        game_money_text.text = GameManager.money.ToString();
     }
 
     private void OnEnable() // update money when first visitingn the store
     {
-        update_money_text();
+
     }
 
     void buy_item()
@@ -68,10 +96,13 @@ public class StoreMenuManager : MonoBehaviour
         {
             game_menu_manager.update_inventory(); // change game mneu item count
         }
+        update_money_text();
+        close_menu();
     }
 
     void close_menu()
     {
+        reset_count();
         MenuManager.activate_default_handler(); // activates the game menu
     }
 
@@ -118,23 +149,11 @@ public class StoreMenuManager : MonoBehaviour
 
     bool change_item_count()
     {
-        //update inventory with bought items
-        List<GameObject> text_game_objects = new List<GameObject>();
-        string[] find_name_list = new string[] { "count" };
-        random_algos.dfs_find_child_objects(transform, text_game_objects, find_name_list);
-        int total_price = 0;
-        foreach (GameObject go in text_game_objects)
-        {
-            string count = go.GetComponent<Text>().text;
-            string item_name = go.transform.parent.parent.gameObject.name;
-            int item_count = Int16.Parse(count);
-            total_price += item_count * item_price_dict[item_name];
-        }
-        print("total price is " + total_price);
-        if (total_price <= GameManager.money)
+        print("total price is " + total_cost);
+        if (total_cost <= GameManager.money)
         {
             create_purchased_items(text_game_objects);
-            GameManager.money -= total_price;
+            GameManager.money -= total_cost;
             update_money_text();
             return true;
         }
@@ -145,17 +164,40 @@ public class StoreMenuManager : MonoBehaviour
 
     }
 
-    void update_text(string item_name, Text item_count)
+    void reset_count()
     {
+        shopping_cart.Clear();
+        foreach (GameObject go in text_game_objects)
+        {
+            go.GetComponent<Text>().text = "0";
+        }
+        remainder_text.text = GameManager.money.ToString();
+        cost_text.text = "- 0";
+
+    }
+
+    void update_text(GameObject btn_go, Text item_count)
+    {
+        string btn_name = btn_go.name;
+        string item_name = btn_go.transform.parent.parent.gameObject.name;
         int cur_count = Int16.Parse(item_count.text);
         //update inventory with bought items
-        if (item_name == "add")
+        if (btn_name == "add")
+        {
+            total_cost += item_price_dict[item_name];
+            add_item_to_cart(item_name);
             cur_count++;
-        else if (item_name == "minus" && cur_count >= 0)
+        }
+        else if (btn_name == "minus" && cur_count > 0)
+        {
+            total_cost -= item_price_dict[item_name];
+            remove_item_from_cart(item_name);
             cur_count--;
-        //else
-        //    print("UNSUPPORTED btn action");
+        }
         item_count.text = cur_count.ToString();
+        cost_text.text = "- " + total_cost.ToString();
+        int remainder = GameManager.money - total_cost;
+        remainder_text.text = remainder.ToString();
     }
 
     void add_listener_to_all_btn()
@@ -168,7 +210,7 @@ public class StoreMenuManager : MonoBehaviour
             GameObject item = btn_go.transform.parent.parent.gameObject;
             Button btn = btn_go.GetComponent<Button>();
             Text btn_text = btn_go.transform.parent.Find("count").GetComponent<Text>();
-            btn.onClick.AddListener(delegate { update_text(btn_go.name, btn_text); });
+            btn.onClick.AddListener(delegate { update_text(btn_go, btn_text); });
         }
     }
 }

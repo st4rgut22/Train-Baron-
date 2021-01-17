@@ -17,7 +17,7 @@ public class Building : Structure
     public Vector2Int offset_position; // offset from bottom left of tilemap to get the true tile coordinates
     public Vector2Int last_room_position;
     public BuildingLot building_lot;
-    
+
     private void Awake()
     {
         occupant_id = 0;
@@ -27,6 +27,7 @@ public class Building : Structure
 
     public void Start()
     {
+        print(gameObject.name);
         city.city_tilemap_go.SetActive(false); // after setting tile deactivate gameobject
         roomba = new GameObject[max_capacity];
         spawn_room();
@@ -34,7 +35,6 @@ public class Building : Structure
 
     private void Update()
     {
-        
     }
 
     public int get_vacancy_count()

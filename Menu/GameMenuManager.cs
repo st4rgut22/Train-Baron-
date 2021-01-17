@@ -16,10 +16,11 @@ public class GameMenuManager : EventDetector
     public GameObject boxcar;
     public GameObject restaurant;
     public GameObject scenery;
-    public GameObject wealthy;
+    public GameObject mansion;
     public GameObject diner;
     public GameObject factory;
-    public GameObject poor;
+    public GameObject apartment;
+    public GameObject business;
 
     public Camera camera;
 
@@ -38,6 +39,7 @@ public class GameMenuManager : EventDetector
     public Tile pond_tile;
     public Tile entrance_tile;
     public Tile restaurant_tile;
+    public Tile business_tile;
 
     string item_name;
 
@@ -50,6 +52,8 @@ public class GameMenuManager : EventDetector
     public Texture track_inventory_bubble;
 
     protected GameObject train_object; // the train is referenced in TrainDisplay which has MenuManager as a base class
+    Building building_component;
+
 
     City city;
     void Start()
@@ -98,6 +102,9 @@ public class GameMenuManager : EventDetector
                     item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
                     break;
                 case "apartment":
+                    item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
+                    break;
+                case "business":
                     item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
                     break;
                 case "mansion":
@@ -175,8 +182,9 @@ public class GameMenuManager : EventDetector
             {
                 menu_go.GetComponent<RawImage>().texture = home_inventory_bubble;
             }
-            else if (item_name == "factory" || item_name == "office")
+            else if (item_name == "factory" || item_name == "business")
             {
+
                 menu_go.GetComponent<RawImage>().texture = work_inventory_bubble;
             }
             else if (item_name == "diner" || item_name == "restaurant")
@@ -256,30 +264,41 @@ public class GameMenuManager : EventDetector
                 case "restaurant": 
                     clicked_item = Instantiate(restaurant, position, Quaternion.identity);
                     clicked_tile = restaurant_tile;
+                    building_component = clicked_item.GetComponent<Restaurant>();
                     break;
                 case "mansion": 
-                    clicked_item = Instantiate(wealthy, position, Quaternion.identity);
+                    clicked_item = Instantiate(mansion, position, Quaternion.identity);
                     clicked_tile = wealthy_tile;
-                    break;
-                case "scenery": 
-                    clicked_item = Instantiate(scenery, position, Quaternion.identity);
+                    building_component = clicked_item.GetComponent<Mansion>();
                     break;
                 case "diner":
                     clicked_item = Instantiate(diner, position, Quaternion.identity);
                     clicked_tile = diner_tile;
+                    building_component = clicked_item.GetComponent<Diner>();
                     break;
                 case "factory": 
                     clicked_item = Instantiate(factory, position, Quaternion.identity);
                     clicked_tile = factory_tile;
+                    building_component = clicked_item.GetComponent<Factory>();
                     break;
-                case "apartment": 
-                    clicked_item = Instantiate(poor, position, Quaternion.identity);
+                case "apartment":
+                    clicked_item = Instantiate(apartment, position, Quaternion.identity);
+                    building_component = clicked_item.GetComponent<Apartment>();
                     clicked_tile = poor_tile;
+                    break;
+                case "business":
+                    clicked_item = Instantiate(business, position, Quaternion.identity);
+                    building_component = clicked_item.GetComponent<Business>();
+                    clicked_tile = business_tile;
                     break;
                 default:
                     break;
             }
             update_inventory();
+            if (tag == "structure")
+            {
+                building_component.enabled = false;
+            }
         }
         catch (NullReferenceException)
         {
@@ -296,6 +315,8 @@ public class GameMenuManager : EventDetector
     public override void OnEndDrag(PointerEventData eventData)
     {
         // REVISE ME!!!
+        int frame = Time.frameCount;
+        building_component.enabled = true;
         TrackManager track_manager = GameObject.Find("TrackManager").GetComponent<TrackManager>();
         Vector2Int final_tilemap_position = GameManager.get_selected_tile(eventData.position);
         try

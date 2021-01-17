@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Wealthy : Building
+public class Mansion : Building
 {
 
 

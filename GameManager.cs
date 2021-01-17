@@ -80,6 +80,7 @@ public class GameManager : EventDetector
     public static Tilemap traffic_tilemap;
 
     public static GameObject game_menu_manager;
+    public GameObject money_go;
 
     private void Awake()
     {

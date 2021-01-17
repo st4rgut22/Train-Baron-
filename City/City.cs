@@ -13,6 +13,7 @@ public class City : Structure
     public Tile factory_room_tile;
     public Tile entrance_room_tile;
     public Tile restaurant_room_tile;
+    public Tile business_room_tile;
 
     public Tile undeveloped_tile;
 
@@ -43,8 +44,8 @@ public class City : Structure
 
     public GameObject Business;
     public GameObject Residential;
-    public GameObject Wealthy;
-    public GameObject Poor;
+    public GameObject Mansion;
+    public GameObject Apartment;
     public GameObject Restaurant;
     public GameObject Factory;
     public GameObject Pond;
@@ -402,15 +403,20 @@ public class City : Structure
             city_tile = entrance_room_tile;
             building_object = Instantiate(Entrance);
         }
-        else if (city_type == "Poor")
+        else if (city_type == "Apartment")
         {
             city_tile = poor_room_tile;
-            building_object = Instantiate(Poor);
+            building_object = Instantiate(Apartment);
         }
-        else if (city_type == "Wealthy")
+        else if (city_type == "Mansion")
         {
             city_tile = wealthy_room_tile;
-            building_object = Instantiate(Wealthy);
+            building_object = Instantiate(Mansion);
+        }
+        else if (city_type == "business")
+        {
+            city_tile = business_room_tile;
+            building_object = Instantiate(Business);
         }
         else if (city_type == "Factory")
         {
@@ -429,7 +435,7 @@ public class City : Structure
         }
         else
         {
-            throw new Exception("not a valid tile");
+            throw new Exception("city type " + city_type + " not a valid tile");
         }
         return building_object.GetComponent<Building>(); 
     }

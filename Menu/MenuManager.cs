@@ -15,6 +15,7 @@ public class MenuManager : MonoBehaviour
     public static GameObject game_menu;
     public static GameObject shipyard_exit_menu;
     public static GameObject game_icon_canvas;
+
     static List<GameObject> event_handler_list; // names of gameobjects that listen for events
     City city;
 
@@ -22,7 +23,6 @@ public class MenuManager : MonoBehaviour
 
     private void Awake()
     {
-        
     }
 
     // Start is called before the first frame update

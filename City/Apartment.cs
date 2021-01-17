@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Poor : Building
+public class Apartment : Building
 {
 
     // Update is called once per frame

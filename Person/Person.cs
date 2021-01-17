@@ -206,11 +206,11 @@ public class Person : Simple_Moving_Object
         // if destination is incorrect, leave the lowest review
         if (destination_name == "Diner" || destination_name == "Restaurant")
             if (desired_activity != "restaurant_thought_bubble") review = Review.One_Star;
-        if (destination_name == "Factory")
+        if (destination_name == "Factory" || destination_name == "business")
         {
             if (desired_activity != "work_thought_bubble") review = Review.One_Star;
         }
-        if (destination_name == "Poor" || destination_name == "Wealthy")
+        if (destination_name == "Apartment" || destination_name == "Mansion")
         {
             if (desired_activity != "home_thought_bubble") review = Review.One_Star;
         }
