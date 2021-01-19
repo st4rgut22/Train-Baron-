@@ -75,14 +75,16 @@ public class Boxcar : MovingObject
 
             passenger_go.GetComponent<Person>().set_animation_clip("player_idle_front");
             print("orientation of station is " + station_track.station.orientation);
-            if (station_track.station.orientation == RouteManager.Orientation.North || station_track.station.orientation == RouteManager.Orientation.South)
+            Quaternion current_rotation = new Quaternion();
+            if (station_track.station.orientation == RouteManager.Orientation.North || station_track.station.orientation == RouteManager.Orientation.West)
             {
-                passenger_go.transform.eulerAngles = new Vector3(0, 0, -90); // rotate to correct for occupant turning at bend
+                current_rotation.eulerAngles = new Vector3(0, 0, 90);
+                passenger_go.transform.localRotation = current_rotation; // rotate to correct for occupant turning at bend
             }
-            else if (train.is_boxcar_first(boxcar_id))
+            if (station_track.station.orientation == RouteManager.Orientation.East || station_track.station.orientation == RouteManager.Orientation.South)
             {
-                if (station_track.inner == 0) // outer
-                    passenger_go.transform.eulerAngles = new Vector3(0, 0, -90); // north
+                current_rotation.eulerAngles = new Vector3(0, 0, -90);
+                passenger_go.transform.localRotation = current_rotation; // rotate to correct for occupant turning at bend
             }
         }
         //departing = true;
