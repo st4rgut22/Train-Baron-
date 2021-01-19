@@ -11,6 +11,7 @@ public class CityManager : BoardManager
     //maintain lists of allied / enemy cities
     //oversee routes between cities for to inform decision making
 
+    public static List<City> city_list;
     public static City home_base;
     //public static Vector2Int home_base_location = new Vector2Int(3, 6); // location of city
     public static Vector2Int home_base_location = new Vector2Int(5, 6); // TODO: temporary to test structure
@@ -24,6 +25,7 @@ public class CityManager : BoardManager
     public Tilemap exit_east;
 
     public GameObject city_tilemap_go;
+    public static int total_people;
 
     // distances for train to travel before exiting the city (not before stopping)
     public static float exit_dest_west_east = 6;
@@ -65,6 +67,8 @@ public class CityManager : BoardManager
     private void Awake()
     {
         base.Awake();
+        city_list = new List<City>();
+        total_people = 0;
         entrance_update_interval = 15;
         create_city((Vector3Int)home_base_location); // initialize train entrance
         home_base = get_city(home_base_location).GetComponent<City>();
@@ -244,6 +248,15 @@ public class CityManager : BoardManager
     // Update is called once per frame
     void Update()
     {
+    }
+
+    public static void increment_total_people()
+    {
+        total_people += 1;
+        if (total_people >= GameManager.goal)
+        {
+            GameManager.end_level(true);
+        }
     }
 
     public static int get_building_count(string building_name)
@@ -459,9 +472,11 @@ public class CityManager : BoardManager
         {
             string city_type = structure_tile.name;
             GameObject city = Instantiate(City);
-            city.GetComponent<City>().set_location(cell_position);
-            city.GetComponent<City>().city_type = city_type;
-            city.GetComponent<City>().city_id = city_id;
+            City city_component = city.GetComponent<City>();
+            city_list.Add(city_component);
+            city_component.set_location(cell_position);
+            city_component.city_type = city_type;
+            city_component.city_id = city_id;
             gameobject_board[cell_position.x, cell_position.y] = city;
             city_id++;
         }

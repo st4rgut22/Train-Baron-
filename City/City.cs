@@ -25,6 +25,7 @@ public class City : Structure
     public string city_type;
     public int city_id;
     public Vector2Int first_structure_location;
+    public int total_people;
 
     // track city control as a function of supplies, troops, artillery
     public Vector3Int tilemap_position;
@@ -71,12 +72,6 @@ public class City : Structure
     public const int reputation_per_lot = 5;
     public int unapplied_reputation_count;
 
-    public Texture zero_star_texture;
-    public Texture one_star_texture;
-    public Texture two_star_texture;
-    public Texture three_star_texture;
-    public Texture four_star_texture;
-    public Texture five_star_texture;
     public int total_review_count;
     public int total_star;
 
@@ -218,26 +213,11 @@ public class City : Structure
 
     public Texture get_star_image_from_reputation()
     {
-        if (total_review_count == 0) return zero_star_texture;
+        PersonManager pm = GameManager.person_manager.GetComponent<PersonManager>();
+        if (total_review_count == 0) return pm.zero_star_texture;
         int texture_id = (int)(total_star / total_review_count);
         print("total stars is " + total_star + " total reviews is " + total_review_count);
-        switch (texture_id)
-        {
-            case 0:
-                return zero_star_texture;
-            case 1:
-                return one_star_texture;
-            case 2:
-                return two_star_texture;
-            case 3:
-                return three_star_texture;
-            case 4:
-                return four_star_texture;
-            case 5:
-                return five_star_texture;
-            default:
-                throw new Exception("not a valid texture: " + texture_id);
-        }
+        return pm.get_star_texture(texture_id);
     }
 
     public void populate_entrance()
@@ -257,6 +237,8 @@ public class City : Structure
                     if (!room.has_person)
                     {
                         Person person = room.spawn_person();
+                        CityManager.increment_total_people();
+                        total_people += 1;
                         if (CityManager.Activated_City_Component == this) person.initialize_egghead(true, true); // if entrance is activated
                         else { person.initialize_egghead(false, false); }
                         break;

@@ -11,7 +11,6 @@ public class Room : Structure
     public Building building;
     public int id;
     public bool booked;
-    public GameObject person_go;
     public GameObject person_go_instance;
     public Vector2Int tile_position;
     public GameObject bottom_left_door;
@@ -135,11 +134,13 @@ public class Room : Structure
 
     public Person spawn_person()
     {
-        person_go_instance = Instantiate(person_go);
+        person_go_instance = GameManager.person_manager.GetComponent<PersonManager>().create_person();
         has_person = true;
         Person person = person_go_instance.GetComponent<Person>();
         person.is_egghead_thinking = true;
         person.room = this;
+        person.city = building.city;
+        person.prev_city = building.city;
         set_person_position(person);
         add_occupant(this.person_go_instance);
         return person;

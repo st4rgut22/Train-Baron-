@@ -125,8 +125,7 @@ public class TrainRouteManager : RouteManager
         PositionPair pos_pair = get_next_tile_pos(tilemap, track_tile, vehicle, prev_tile_coord, new Vector2(0, 0)); // go in direction opposite of train
         TrackManager.set_opposite_direction(track_name, vehicle); // set direction same as train
         //print("final direction is " + vehicle.orientation);
-        pos_pair.prev_tile_dest_pos = pos_pair.tile_dest_pos;
-        pos_pair.tile_dest_pos = prev_pos_pair.tile_dest_pos; // use previous tile, not the previous previous tile
+        pos_pair.tile_dest_pos = prev_pos_pair.prev_tile_dest_pos; // use previous tile, not the previous previous tile
         pos_pair.orientation = vehicle.orientation;
         vehicle.orientation = original_orientation; // restore original orientation
         vehicle.final_orientation = original_final_orientation;

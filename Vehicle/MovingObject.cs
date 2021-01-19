@@ -348,8 +348,8 @@ public class MovingObject : Simple_Moving_Object
                 yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling
                 continue; // don't execute the code below
             }
-            if (gameObject.tag == "boxcar" && in_city && CityManager.boxcar_city_wait_tile.Contains(new int[] { tile_position.x, tile_position.y })) // STOP 
-                GetComponent<Boxcar>().train.stop_all_boxcar_at_turntable();
+            if (random_algos.list_contains_arr(CityManager.boxcar_city_wait_tile, tile_position) && gameObject.tag == "boxcar" && in_city) 
+                        GetComponent<Boxcar>().train.stop_all_boxcar_at_turntable();
             float interp = 1.0f - t_param;
             t_param -= Time.deltaTime * speed; // use the speed multiplier when boxcar is first instantiated due to gap between train and lead boxcar
             if (t_param < 0) // set t_param to 0 to get bezier coordinates closer to the destination (and be within tolerance)

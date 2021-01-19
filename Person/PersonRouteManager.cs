@@ -214,6 +214,7 @@ public class PersonRouteManager : RouteManager
         // the final dest tile is offset from the person's route, so find the offset using city map
         Orientation home_orientation = CityManager.station_track_boarding_map[boxcar.station_track.start_location];
         person.room = room; // assign room to person
+        person.city = room.building.city;
         person.final_dest_tile_pos = (Vector3Int)get_straight_next_tile_pos(home_orientation, room.tile_position);//(Vector3Int) room.tile_position;
         person.enter_home_orientation = TrackManager.flip_straight_orientation(home_orientation); // reverse direction of exiting the home
         Orientation flip_exit_orientation = TrackManager.flip_straight_orientation(exit_orientation); // need to flip because offset is in the opposite direction the person is traveling

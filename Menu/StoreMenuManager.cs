@@ -37,7 +37,7 @@ public class StoreMenuManager : MonoBehaviour
             {"scenery", 60 },
             {"restaurant", 150 },
             {"mansion", 300 },
-            {"apartment", 100 },
+            {"Apartment", 100 },
             {"diner", 100 },
             {"business", 300 }
         };

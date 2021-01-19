@@ -13,6 +13,7 @@ public class MenuManager : MonoBehaviour
     protected GameMenuManager game_menu_manager;
     public static GameObject store_menu;
     public static GameObject game_menu;
+    public static GameObject review_menu;
     public static GameObject shipyard_exit_menu;
     public static GameObject game_icon_canvas;
 
@@ -30,6 +31,7 @@ public class MenuManager : MonoBehaviour
     {
         store_menu = GameObject.Find("Store Menu");
         game_menu = GameObject.Find("Game Menu");
+        review_menu = GameObject.Find("Review Canvas");
         shipyard_exit_menu = GameObject.Find("Exit Bar");
         game_icon_canvas = GameObject.Find("Iconic Canvas");
         store_menu_manager = store_menu.GetComponent<StoreMenuManager>();
@@ -40,6 +42,7 @@ public class MenuManager : MonoBehaviour
         event_handler_list.Add(game_menu);
         event_handler_list.Add(shipyard_exit_menu);
         event_handler_list.Add(game_icon_canvas);
+        event_handler_list.Add(review_menu);
         activate_default_handler();
         store_btn.onClick.AddListener(delegate { activate_handler(new List<GameObject> { store_menu }); });
         shipyard_exit_btn.onClick.AddListener(turn_off_shipyard);
@@ -69,7 +72,7 @@ public class MenuManager : MonoBehaviour
         //open one menu, set listeners from all other screens off
         //is_open stands for activating a screen versus closing the active one
         if (menu[0] == game_menu) GameManager.game_menu_state = true;
-        if (menu[0] == store_menu)
+        if (menu[0] == store_menu || menu[0] == review_menu)
             GameManager.Structure.GetComponent<TilemapCollider2D>().enabled = false;
         else
         {

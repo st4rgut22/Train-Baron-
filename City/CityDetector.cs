@@ -103,13 +103,13 @@ public class CityDetector : EventDetector
         switch (orientation)
         {
             case RouteManager.Orientation.North:
-                return offset_hint_tilemap_north;
+                return offset_hint_tilemap_south; // offset in opposite direction as orientation because boxcar is on the border of previous tile and current tile
             case RouteManager.Orientation.East:
-                return offset_hint_tilemap_east;
-            case RouteManager.Orientation.West:
                 return offset_hint_tilemap_west;
+            case RouteManager.Orientation.West:
+                return offset_hint_tilemap_east;
             case RouteManager.Orientation.South:
-                return offset_hint_tilemap_south;
+                return offset_hint_tilemap_north;
             default:
                 return null;
         }

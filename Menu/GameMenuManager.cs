@@ -51,6 +51,8 @@ public class GameMenuManager : EventDetector
     public Texture work_inventory_bubble;
     public Texture track_inventory_bubble;
 
+    GameObject clicked_go;
+
     protected GameObject train_object; // the train is referenced in TrainDisplay which has MenuManager as a base class
     Building building_component;
 
@@ -101,7 +103,7 @@ public class GameMenuManager : EventDetector
                 case "factory":
                     item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
                     break;
-                case "apartment":
+                case "Apartment":
                     item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
                     break;
                 case "business":
@@ -178,7 +180,7 @@ public class GameMenuManager : EventDetector
         }
         else // structure
         {
-            if (item_name == "apartment" || item_name == "mansion")
+            if (item_name == "Apartment" || item_name == "mansion")
             {
                 menu_go.GetComponent<RawImage>().texture = home_inventory_bubble;
             }
@@ -202,7 +204,7 @@ public class GameMenuManager : EventDetector
     {
         try
         {
-            GameObject clicked_go = eventData.pointerCurrentRaycast.gameObject;
+            clicked_go = eventData.pointerCurrentRaycast.gameObject;
             item_name = clicked_go.name;
             string tag = eventData.pointerCurrentRaycast.gameObject.tag;
             Vector3 position = MenuManager.convert_screen_to_world_coord(eventData.position);
@@ -212,25 +214,6 @@ public class GameMenuManager : EventDetector
             {
                 eventData.pointerDrag = null;
                 return;
-            }
-            else
-            {
-                if (tag == "track") {
-                    TrackManager.update_track_count(item_name, -1);
-                    if (TrackManager.get_track_count(item_name) == 0)
-                    {
-                        RawImage raw_image = clicked_go.GetComponent<RawImage>();
-                        raw_image.texture = empty_inventory_bubble;
-                    }
-                }
-                else if (tag == "structure") {
-                    CityManager.update_building_count(item_name, -1);
-                    if (CityManager.get_building_count(item_name) == 0)
-                    {
-                        RawImage raw_image = clicked_go.GetComponent<RawImage>();
-                        raw_image.texture = empty_inventory_bubble;
-                    }
-                }
             }
             switch (item_name)
             {
@@ -281,7 +264,7 @@ public class GameMenuManager : EventDetector
                     clicked_tile = factory_tile;
                     building_component = clicked_item.GetComponent<Factory>();
                     break;
-                case "apartment":
+                case "Apartment":
                     clicked_item = Instantiate(apartment, position, Quaternion.identity);
                     building_component = clicked_item.GetComponent<Apartment>();
                     clicked_tile = poor_tile;
@@ -294,7 +277,6 @@ public class GameMenuManager : EventDetector
                 default:
                     break;
             }
-            update_inventory();
             if (tag == "structure")
             {
                 building_component.enabled = false;
@@ -314,23 +296,47 @@ public class GameMenuManager : EventDetector
 
     public override void OnEndDrag(PointerEventData eventData)
     {
-        // REVISE ME!!!
-        int frame = Time.frameCount;
-        building_component.enabled = true;
+        if (clicked_go.tag == "structure")
+            building_component.enabled = true;
         TrackManager track_manager = GameObject.Find("TrackManager").GetComponent<TrackManager>();
         Vector2Int final_tilemap_position = GameManager.get_selected_tile(eventData.position);
         try
         {
             string tag = clicked_item.tag;
             string item_name = clicked_item.name.Replace("(Clone)", ""); // remove clone from the game object name
-            if (tag == "structure")
+            Tilemap structure_tilemap = GameManager.Structure.GetComponent<Tilemap>();
+            List<Tile> track_tile = GameManager.track_manager.track_grid[final_tilemap_position.x,final_tilemap_position.y];
+            Tile city_tile = (Tile)structure_tilemap.GetTile((Vector3Int)final_tilemap_position);
+            print("final tilemap position is " + final_tilemap_position);
+            if (GameManager.is_position_in_bounds(final_tilemap_position))
             {
-                RouteManager.city_tilemap.SetTile((Vector3Int)final_tilemap_position, clicked_tile);
-                GameManager.city_manager.create_city((Vector3Int)final_tilemap_position);
-            }
-            else if (tag == "track")
-            {
-                track_manager.place_tile(final_tilemap_position, clicked_tile, true);
+                if (tag == "structure")
+                {
+                    if (city_tile == null && track_tile.Count == 0)
+                    {
+                        RouteManager.city_tilemap.SetTile((Vector3Int)final_tilemap_position, clicked_tile);
+                        GameManager.city_manager.create_city((Vector3Int)final_tilemap_position);
+                        CityManager.update_building_count(item_name, -1);
+                        if (CityManager.get_building_count(item_name) == 0)
+                        {
+                            RawImage raw_image = clicked_go.GetComponent<RawImage>();
+                            raw_image.texture = empty_inventory_bubble;
+                        }
+                    }
+                }
+                else if (tag == "track")
+                {
+                    if (city_tile == null)
+                    {
+                        track_manager.place_tile(final_tilemap_position, clicked_tile, true);
+                        TrackManager.update_track_count(item_name, -1);
+                        if (TrackManager.get_track_count(item_name) == 0)
+                        {
+                            RawImage raw_image = clicked_go.GetComponent<RawImage>();
+                            raw_image.texture = empty_inventory_bubble;
+                        }
+                    }
+                }
             }
             if (clicked_item != null)
             {
@@ -345,6 +351,7 @@ public class GameMenuManager : EventDetector
         {
             print(e.Message); // tried to drag something that is not draggable
         }
+        update_inventory();
     }
 
 }

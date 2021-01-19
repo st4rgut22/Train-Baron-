@@ -5,6 +5,15 @@ using UnityEngine;
 public static class random_algos
 {
 
+    public static bool list_contains_arr(List<int[]>list_of_arr, Vector3 arr)
+    {
+        foreach (int[] array in list_of_arr)
+        {
+            if (array[0] == arr.x && array[1] == arr.y) return true;
+        }
+        return false;
+    }
+
     static string matching_string(string str, string[] str_list)
     {
         foreach (string s in str_list)

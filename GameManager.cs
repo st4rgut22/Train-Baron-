@@ -11,6 +11,8 @@ public class GameManager : EventDetector
     public static Camera camera;
     // manage score, game state 
 
+    public static int goal;
+
     public static int macro_morale; // effected by health and economy
     public static int macro_health;
     public static int macro_economy;
@@ -35,6 +37,11 @@ public class GameManager : EventDetector
     public static GameObject building_lot_south_inner;
     public static GameObject building_lot_west;
     public static GameObject building_lot_east;
+
+    public static int west_bound;
+    public static int east_bound;
+    public static int north_bound;
+    public static int south_bound;
 
     public static VehicleManager vehicle_manager;
     public static CityManager city_manager;
@@ -79,11 +86,17 @@ public class GameManager : EventDetector
     public static GameObject traffic_tilemap_go;
     public static Tilemap traffic_tilemap;
 
+    public static GameObject person_manager;
     public static GameObject game_menu_manager;
+    public static GameObject scroll_handler;
     public GameObject money_go;
 
     private void Awake()
     {
+        east_bound = 16;
+        south_bound = 1;
+        north_bound = 9;
+        west_bound = 0;
         traffic_tilemap_go = GameObject.Find("Traffic Light");
         traffic_tilemap = traffic_tilemap_go.GetComponent<Tilemap>();
         traffic_tilemap_go.SetActive(false);
@@ -117,6 +130,8 @@ public class GameManager : EventDetector
         building_lot_west = GameObject.Find("Building Lot West");
         building_lot_east = GameObject.Find("Building Lot East");
         game_menu_manager = GameObject.Find("Game Menu");
+        person_manager = GameObject.Find("People Manager");
+        scroll_handler = GameObject.Find("scrollHandler");
     }
 
     // Start is called before the first frame update
@@ -131,6 +146,19 @@ public class GameManager : EventDetector
         macro_economy = 50;
         macro_health = 50;
         day = 1;
+        goal = 10;
+    }
+
+    public static bool is_position_in_bounds(Vector2Int position)
+    {
+        if (position.x >= west_bound && position.x <= east_bound && position.y >= south_bound && position.y <= north_bound)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public void activate_train()
@@ -148,6 +176,12 @@ public class GameManager : EventDetector
         Vector2 mouse_pos_2d = new Vector2(mouse_pos.x, mouse_pos.y);
         RaycastHit2D hit = Physics2D.Raycast(mouse_pos_2d, Vector2.zero);
         return hit;
+    }
+
+    public static void end_level(bool is_level_beaten)
+    {
+        if (is_level_beaten)
+            print("you beat this level"); 
     }
 
     public static RaycastHit2D[] get_all_object_at_cursor(Vector3 cursor_pos)
@@ -439,7 +473,7 @@ public class GameManager : EventDetector
                     string object_tag = clicked_gameobject.tag;
                     if (object_tag == "track_layer")
                     {
-                        GameManager.track_manager.toggle_on_train_track(selected_tile);
+                        track_manager.toggle_on_train_track(selected_tile);
                     }
                     else if (object_tag == "structure")
                     {
@@ -448,8 +482,6 @@ public class GameManager : EventDetector
                         switch_on_shipyard(true);
                         city_manager.set_activated_city(city_object);
                         MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
-                        City activated_city = city_object.GetComponent<City>();
-                        //train_menu_manager.update_train_menu(activated_city);
                     }
                 }
             }

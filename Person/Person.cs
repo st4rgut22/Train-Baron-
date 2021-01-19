@@ -44,6 +44,8 @@ public class Person : Simple_Moving_Object
 
     public Room room;
 
+    public string name;
+
     public RouteManager.Orientation enter_home_orientation;
 
     public enum Review
@@ -199,35 +201,80 @@ public class Person : Simple_Moving_Object
         //eggheads_thought_bubble.SetActive(is_egghead_thinking);
     }
 
+    public string get_desired_activity_text()
+    {
+        switch (desired_activity)
+        {
+            case "restaurant_thought_bubble":
+                return "eat";
+            case "work_thought_bubble":
+                return "work";
+            case "home_thought_bubble":
+                return "relax at home";
+            default:
+                throw new Exception("not a valid activity");
+        }
+    }
+
+    public string review_board_trip_time(int rating)
+    {
+        string critique = "";
+        switch (rating)
+        {
+            case 1:
+                critique = "extremely slow";
+                break;
+            case 2:
+                critique = "very slow";
+                break;
+            case 3:
+                critique = "decent";
+                break;
+            case 4:
+                critique = "fast";
+                break;
+            case 5:
+                critique = "insanely fast";
+                break;
+        }
+        return critique;
+    }
+
     public void leave_review(City city)
     {
         string destination_name = city.gameObject.name;
         Review review = 0;
+        string review_summary = "";
         // if destination is incorrect, leave the lowest review
-        if (destination_name == "Diner" || destination_name == "Restaurant")
-            if (desired_activity != "restaurant_thought_bubble") review = Review.One_Star;
-        if (destination_name == "Factory" || destination_name == "business")
+        if (desired_activity != "work_thought_bubble" && (destination_name == "Factory" || destination_name == "business") ||
+            desired_activity != "home_thought_bubble" && (destination_name == "Apartment" || destination_name == "Mansion") ||
+            desired_activity != "restaurant_thought_bubble" && (destination_name == "Diner" || destination_name == "Restaurant"))
         {
-            if (desired_activity != "work_thought_bubble") review = Review.One_Star;
+            review = Review.One_Star;
+            review_summary = get_desired_activity_text();
         }
-        if (destination_name == "Apartment" || destination_name == "Mansion")
+        else
         {
-            if (desired_activity != "home_thought_bubble") review = Review.One_Star;
+            float boarding_rating = Math.Min(1, boarding_duration / board_desire_timeout / 2);
+            float trip_rating = Math.Min(1, trip_duration / trip_desire_timeout / 2);
+            float train_rating = 1.0f - boarding_rating / 2 - trip_rating / 2; // One minus the average rating of boarding and trip
+            string trip_critique = review_board_trip_time((int)boarding_rating);
+            string board_critique = review_board_trip_time((int)boarding_rating);
+            review_summary = "The trip was " + trip_critique + " and boarding was " + board_critique;
+            print("trip rating is " + train_rating);
+            int star_rating = (int)(train_rating * 5) + 1;
+            star_rating = Math.Min(5, star_rating);
+            review = (Review)star_rating;
+            print("FINISHED TRIP. Board duration was " + boarding_duration + " trip duration was " + trip_duration + "review was " + review);
         }
-        if (review == Review.One_Star)
-        {
-            leave_review(city, review);
-            return;
-        }
-        float boarding_rating = Math.Min(1, boarding_duration / board_desire_timeout / 2);
-        float trip_rating = Math.Min(1, trip_duration / trip_desire_timeout / 2);
-        float train_rating = 1.0f - boarding_rating / 2 - trip_rating / 2; // One minus the average rating of boarding and trip
-        print("trip rating is " + train_rating);
-        int star_rating = (int)(train_rating * 5) + 1;
-        star_rating = Math.Min(5, star_rating);
-        review = (Review)star_rating;
-        print("FINISHED TRIP. Board duration was " + boarding_duration + " trip duration was " + trip_duration + "review was " + review);
         leave_review(city, review);
+        update_review_page(review_summary, (int)review);
+    }
+
+    void update_review_page(string review_summary, int star_rating)
+    {
+        scrollScript.update_notification_count(1);
+        GameManager.scroll_handler.GetComponent<scrollScript>().generateItem(review_summary, name, star_rating, city.name);
     }
 
     public bool is_boxcar_match_desired_activity(string boxcar_type)
