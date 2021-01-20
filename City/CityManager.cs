@@ -352,7 +352,7 @@ public class CityManager : BoardManager
         {
             City activated_city = Activated_City.GetComponent<City>();
             GameObject train_object = activated_city.get_station_track(tile_pos).train;
-            if (train_object != null)
+            if (train_object != null && train_object.GetComponent<Train>().is_wait_for_turntable)
             {
                 GameManager.vehicle_manager.add_boxcar_to_train(train_object.GetComponent<Train>(), boxcar_type);
                 activated_city.remove_boxcar_from_inventory(boxcar_tile_pos); // after adding a boxcar to train, remove it from inventory

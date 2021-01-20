@@ -240,6 +240,7 @@ public class VehicleManager : BoardManager
             boxcar_component.station_track = train.station_track;
             boxcar_component.arrive_at_city();
             boxcar_component.initialize_boxcar(boxcar_counter);
+            boxcar_component.is_wait_for_turntable = true;
             train.boxcar_squad.Add(boxcar);
             // save gameobject tile with adjustments. when a user clicks on a tile, it will be in the tile opposite the vehicle's orientation. Therefore, flip orientation
             //Vector2Int boxcar_board_position = RouteManager.get_straight_next_tile_pos(TrackManager.flip_straight_orientation(boxcar_component.orientation), (Vector2Int)boxcar_component.tile_position);
