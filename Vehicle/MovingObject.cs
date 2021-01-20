@@ -54,6 +54,7 @@ public class MovingObject : Simple_Moving_Object
                 orientation = final_orientation; // updating the orientation at every new tile
                 prev_tile_position = tile_position;
                 tile_position = new Vector3Int(next_tilemap_position.x, next_tilemap_position.y, 0);
+                print(gameObject.name + " tile position is " + tile_position);
                 PositionPair position_pair;
                 if (!in_city)
                 {
@@ -311,6 +312,7 @@ public class MovingObject : Simple_Moving_Object
                     bool is_train_turn = city.turn_table.GetComponent<Turntable>().is_train_turn(gameObject);
                     if (is_train_turn && !PauseManager.game_is_paused)
                     {
+                        city.remove_train_from_station(gameObject);
                         gameObject.GetComponent<Train>().set_boxcar_wait_flag(false);
                         break;
                     } 
@@ -436,7 +438,6 @@ public class MovingObject : Simple_Moving_Object
         if (exit_dest)
         {
             in_city = false;
-            city.remove_train_from_station(gameObject);
             orientation = exit_track_orientation;
             final_orientation = orientation;
             if (gameObject.tag == "train")

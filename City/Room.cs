@@ -140,6 +140,7 @@ public class Room : Structure
         person.is_egghead_thinking = true;
         person.room = this;
         person.city = building.city;
+        person.prev_city = person.city;
         person.prev_city = building.city;
         set_person_position(person);
         add_occupant(this.person_go_instance);

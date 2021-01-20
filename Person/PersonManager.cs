@@ -16,6 +16,7 @@ public class PersonManager : MonoBehaviour
     public static GameObject notification_prefab;
     public static string[] men_name_arr;
     public static string[] women_name_arr;
+    public static int total_notification; 
     public GameObject person_go;
     public Texture zero_star_texture;
     public Texture one_star_texture;
@@ -34,6 +35,7 @@ public class PersonManager : MonoBehaviour
         public void add_notification()
         {
             notification_count += 1;
+            total_notification += 1;
             notification_count_ui.text = notification_count.ToString();
             notification_go.SetActive(true);
         }
@@ -41,6 +43,7 @@ public class PersonManager : MonoBehaviour
         public void subtract_notification()
         {
             notification_count -= 1;
+            total_notification -= 1;
             notification_count_ui.text = notification_count.ToString();
             if (notification_count == 0) hide_notification();
         }
@@ -65,6 +68,7 @@ public class PersonManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        total_notification = 0;
         notification_prefab = (GameObject)Resources.Load("UI/notification"); // note: not .prefab!
         notification_canvas = GameObject.Find("People Manager");
         city_tilemap = GameObject.Find("Structure").GetComponent<Tilemap>();
@@ -76,7 +80,14 @@ public class PersonManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (total_notification == 0) // override wait period if no notifications avilable
+        {
+            if (CityManager.Activated_City_Component != CityManager.home_base) // dont spawn if in entnrace, or else it will look weird
+            {
+                print("force populate entrance");
+                CityManager.home_base.populate_entrance();
+            }
+        }
     }
 
     public GameObject create_person()

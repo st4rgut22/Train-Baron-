@@ -227,6 +227,7 @@ public class City : Structure
         int total_vacancy_count = get_total_occupant_count();
         if (total_vacancy_count < people_to_add) people_to_add = total_vacancy_count;
         start_reputation = PersonManager.reputation;
+        print("people to add " + people_to_add);
         for (int i = 0; i < people_to_add; i++)
         {
             foreach (Building bldg in city_building_list)

@@ -221,11 +221,14 @@ public class Person : Simple_Moving_Object
         string critique = "";
         switch (rating)
         {
-            case 1:
+            case 0:
                 critique = "extremely slow";
                 break;
-            case 2:
+            case 1:
                 critique = "very slow";
+                break;
+            case 2:
+                critique = "slow";
                 break;
             case 3:
                 critique = "decent";
@@ -246,7 +249,11 @@ public class Person : Simple_Moving_Object
         Review review = 0;
         string review_summary = "";
         // if destination is incorrect, leave the lowest review
-        if (desired_activity != "work_thought_bubble" && (destination_name == "Factory" || destination_name == "business") ||
+        if (city == prev_city) // person did not go anywhere
+        {
+            review = Review.Zero_Star;
+        }
+        else if (desired_activity != "work_thought_bubble" && (destination_name == "Factory" || destination_name == "business") ||
             desired_activity != "home_thought_bubble" && (destination_name == "Apartment" || destination_name == "Mansion") ||
             desired_activity != "restaurant_thought_bubble" && (destination_name == "Diner" || destination_name == "Restaurant"))
         {
@@ -260,11 +267,11 @@ public class Person : Simple_Moving_Object
             print("boarding pause duration is " + boarding_pause_duration + " and trip pause duration is " + trip_pause_duration);
             float accurate_boarding_duration = boarding_duration - boarding_pause_duration;
             float accurate_trip_duration = trip_duration - trip_pause_duration;
-            float boarding_rating = Math.Min(1, accurate_boarding_duration / board_desire_timeout / 2);
-            float trip_rating = Math.Min(1, accurate_trip_duration / trip_desire_timeout / 2);
-            float train_rating = 1.0f - boarding_rating / 2 - trip_rating / 2; // One minus the average rating of boarding and trip
-            string trip_critique = review_board_trip_time((int)boarding_rating * 5);
-            string board_critique = review_board_trip_time((int)boarding_rating * 5);
+            float boarding_rating = 1 - Math.Min(1, accurate_boarding_duration / board_desire_timeout);
+            float trip_rating = 1 - Math.Min(1, accurate_trip_duration / trip_desire_timeout);
+            float train_rating = (boarding_rating + trip_rating) / 2; // One minus the average rating of boarding and trip
+            string trip_critique = review_board_trip_time((int)(boarding_rating * 5));
+            string board_critique = review_board_trip_time((int)(boarding_rating * 5));
             review_summary = "The trip was " + trip_critique + " and boarding was " + board_critique;
             print("trip rating is " + train_rating);
             int star_rating = (int)(train_rating * 5) + 1;

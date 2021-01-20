@@ -259,6 +259,19 @@ public class CityManager : BoardManager
         }
     }
 
+    public static GameObject get_vehicle_in_activated_city(List<Collider2D> colliders, string tag)
+    {
+        foreach (Collider2D collider in colliders)
+        {
+            MovingObject moving_go = collider.gameObject.GetComponent<MovingObject>();
+            if (moving_go != null && moving_go.tag == tag)
+            {
+                if (moving_go.city == Activated_City_Component) return moving_go.gameObject;
+            }
+        }
+        return null;
+    }
+
     public static int get_building_count(string building_name)
     {
         if (building_count_dict.ContainsKey(building_name))

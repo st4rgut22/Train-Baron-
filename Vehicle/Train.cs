@@ -42,29 +42,35 @@ public class Train : MovingObject
         // should still trigger when not visible in inspector
         // not updated in unity's inspector
         print("animate train " + id + " at " + Time.time);
-        print("collided with " + collision.gameObject.name);
+        print("collided with " + collision.gameObject.name);        
         if (collision.gameObject.tag == "boxcar" || collision.gameObject.tag == "train")
         {
-            if (collision.gameObject.tag == "boxcar")
+            bool collide_go_in_city = collision.gameObject.GetComponent<MovingObject>().in_city;
+            if (in_city == collide_go_in_city)
             {
-                if (collision.gameObject.GetComponent<Boxcar>().train.boxcar_squad[0] == collision.gameObject)
+                if (in_city && collision.gameObject.GetComponent<MovingObject>().city != city) // collide with a train in another city
                     return;
+                if (collision.gameObject.tag == "boxcar")
+                {
+                    if (boxcar_squad[0] == collision.gameObject)
+                        return;
+                }
+                halt_train(false, true);
+                GameObject explosion_go = Instantiate(explosion);
+                print("explode");
+                explode explosion_anim = explosion_go.transform.GetChild(0).gameObject.GetComponent<explode>();
+                explosion_anim.exploded_train = this;
+                explosion_list = new List<GameObject> { explosion_go };
+                explosion_go.transform.position = transform.position;
+                explosion_go.transform.localScale = new Vector3(.2f, .2f);
+                foreach (GameObject boxcar_go in boxcar_squad)
+                {
+                    GameObject boxcar_explosion = Instantiate(explosion);
+                    explosion_list.Add(boxcar_explosion);
+                    boxcar_explosion.transform.position = boxcar_go.transform.position;
+                }
+                if (city != CityManager.Activated_City_Component) hide_explosion(explosion_list);
             }
-            halt_train(false, true);
-            GameObject explosion_go = Instantiate(explosion);
-            print("explode");
-            explode explosion_anim = explosion_go.transform.GetChild(0).gameObject.GetComponent<explode>();
-            explosion_anim.exploded_train = this;
-            explosion_list = new List<GameObject> { explosion_go };
-            explosion_go.transform.position = transform.position;
-            explosion_go.transform.localScale = new Vector3(.2f, .2f);
-            foreach (GameObject boxcar_go in boxcar_squad)
-            {
-                GameObject boxcar_explosion = Instantiate(explosion);
-                explosion_list.Add(boxcar_explosion);
-                boxcar_explosion.transform.position = boxcar_go.transform.position;
-            }
-            if (city != CityManager.Activated_City_Component) hide_explosion(explosion_list);
         }
     }
 
