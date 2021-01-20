@@ -27,7 +27,7 @@ public class MovingObject : Simple_Moving_Object
     // Start is called before the first frame update
     public void Awake()
     {
-        is_wait_for_turntable = false;
+        is_wait_for_turntable = true;
         Vector2Int home_base = CityManager.home_base_location;
         tile_position = new Vector3Int(home_base.x, home_base.y, 0);
         next_tilemap_position = home_base;

@@ -59,7 +59,7 @@ public class CityDetector : EventDetector
         }
     }
 
-    public GameObject is_boxcar_tile_clicked(Vector2 click_position)
+    public GameObject is_boxcar_tile_clicked(Vector2 click_position) 
     {
         Offset_Tile closest_offset_tile = null;
         float closest_distance_to_boxcar = Mathf.Infinity;
@@ -130,8 +130,8 @@ public class CityDetector : EventDetector
                 GameObject boxcar_go = city_board[boxcar_loc[0]+1, boxcar_loc[1]+1]; // offset
                 if (boxcar_go != null && boxcar_go.tag == "boxcar")
                 {
-                    Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
-                    if (!boxcar.is_occupied)
+                    Boxcar boxcar = boxcar_go.GetComponent<Boxcar>(); 
+                    if (!boxcar.is_occupied && boxcar.is_wait_for_turntable) // boxcar is ready to be loaded
                     {
                         bool is_boxcar_match = person.is_boxcar_match_desired_activity(boxcar.boxcar_type);
                         if (is_boxcar_match)

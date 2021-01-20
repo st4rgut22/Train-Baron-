@@ -536,32 +536,6 @@ public class City : Structure
         else { return false; }
     }
 
-    public void expand_building(Building building, Vector2Int selected_tile)
-    {
-        int expansion_count = 0;
-        if (selected_tile.x == building.offset_position.x && selected_tile.y > building.last_room_position.y)
-        {
-            expansion_count = selected_tile.y - building.last_room_position.y;
-        }
-        else if (selected_tile.y == building.offset_position.y && selected_tile.x > building.last_room_position.x)
-        {
-            expansion_count = selected_tile.x - building.last_room_position.x;
-        }
-        else
-        {
-            print("not a valid location for expansion");
-        }
-        expansion_count = Math.Min(expansion_count, building.max_capacity - building.current_capacity);
-        print("expansion count is " + expansion_count);
-        for (int e = 0; e < expansion_count; e++)
-        {
-            Room room = building.spawn_room();
-            set_city_tile((Vector3Int)room.tile_position);
-            GameManager.undeveloped_land.GetComponent<Tilemap>().SetTile((Vector3Int)room.tile_position, null);
-            room.display_contents(true);
-        }
-    }
-
     public int remove_lot(int affected_lot)
     {
         int remove_lot_count = 0;

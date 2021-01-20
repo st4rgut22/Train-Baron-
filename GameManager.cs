@@ -354,7 +354,8 @@ public class GameManager : EventDetector
                 GameObject boxcar_go = CityManager.get_vehicle_in_activated_city(collider_list, "boxcar"); // get the right boxcar (if exists) if they are on top of each other
                 if (boxcar_go != null)
                 {
-                    Vector2Int unoffset_boxcar_city_location = (Vector2Int)boxcar_go.GetComponent<Boxcar>().prev_tile_position;
+                    Vector2Int unoffset_boxcar_city_location = (Vector2Int)boxcar_go.GetComponent<Boxcar>().tile_position;
+                    print("board boxcar with tile position " + unoffset_boxcar_city_location);
                     int hint_index = is_selected_tile_in_context(unoffset_boxcar_city_location);
                     if (hint_index != -1)
                     {
