@@ -183,6 +183,7 @@ public class Simple_Moving_Object : EventDetector
         //print("Start angle is " + start_angle + " End angle is " + end_angle);
         while (!final_step)
         {
+            if (PauseManager.game_is_paused) yield return new WaitForEndOfFrame();
             t_param -= Time.deltaTime * speed;
 
             if (t_param < 0) // set t_param to 0 to get bezier coordinates closer to the destination (and be within tolerance)
@@ -295,6 +296,7 @@ public class Simple_Moving_Object : EventDetector
         next_position = start_position;
         while (distance > GameManager.tolerance)
         {
+            if (PauseManager.game_is_paused) yield return new WaitForEndOfFrame();
             float step;
             step = speed * Time.deltaTime; // calculate distance to move
             next_position = Vector2.MoveTowards(next_position, destination, step);

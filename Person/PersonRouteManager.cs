@@ -231,7 +231,6 @@ public class PersonRouteManager : RouteManager
         if (!person.is_destination_reached(cell_width))
         {
             Orientation align_track_orientation = TrackManager.get_start_orientation(track_name, boxcar.transform.position, room_abs_position, boxcar);
-
             Checkpoint align_track_cp = new Checkpoint(exit_boxcar_checkpoint.dest_pos, exit_boxcar_checkpoint.tile_position, exit_boxcar_checkpoint.end_orientation, align_track_orientation, "walk");
             go_home_checkpoints.Add(align_track_cp);
             yield return StartCoroutine(person.move_checkpoints(go_home_checkpoints));

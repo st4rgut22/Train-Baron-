@@ -17,7 +17,8 @@ public class MovingObject : Simple_Moving_Object
     public bool complete_exit = false; // on verge of departing city
     public bool departure_track_chosen = false;
     public bool end_of_track = false;
-    public bool is_idle; 
+    public bool is_idle;
+    public bool is_wait_for_turntable;
     public string train_name = "train(Clone)";
     VehicleManager vehicle_manager;
     public RouteManager.Orientation exit_track_orientation = RouteManager.Orientation.None;
@@ -26,7 +27,7 @@ public class MovingObject : Simple_Moving_Object
     // Start is called before the first frame update
     public void Awake()
     {
-        //is_halt = false;
+        is_wait_for_turntable = false;
         Vector2Int home_base = CityManager.home_base_location;
         tile_position = new Vector3Int(home_base.x, home_base.y, 0);
         next_tilemap_position = home_base;
@@ -304,14 +305,19 @@ public class MovingObject : Simple_Moving_Object
             {
                 gameObject.GetComponent<Train>().halt_train(false, true); // will pause the train until the turntable has arrived
                                                                           // wait for train's turn
+                gameObject.GetComponent<Train>().set_boxcar_wait_flag(true);
                 while (true)
                 {
                     bool is_train_turn = city.turn_table.GetComponent<Turntable>().is_train_turn(gameObject);
-                    if (is_train_turn) break;
+                    if (is_train_turn && !PauseManager.game_is_paused)
+                    {
+                        gameObject.GetComponent<Train>().set_boxcar_wait_flag(false);
+                        break;
+                    } 
                     else
                         yield return new WaitForEndOfFrame();
                 }
-                RouteManager.Orientation orio = TrackManager.get_steep_orientation(track_name);
+                RouteManager.Orientation orio = TrackManager.get_steep_orientation(track_name); // trigger bezier move along steep path
                 city.turn_turntable(gameObject, orio, depart_for_turntable); // halt the boxcar and train
             }
         }

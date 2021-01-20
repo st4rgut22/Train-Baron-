@@ -158,7 +158,7 @@ public class CityManager : BoardManager
                             "hor", RouteManager.Orientation.North
                         },
                         {
-                            "WN", RouteManager.Orientation.West //TODOED change to West
+                            "WN", RouteManager.Orientation.North
                         },
                         {
                             "vert", RouteManager.Orientation.West
@@ -461,6 +461,15 @@ public class CityManager : BoardManager
         return gameobject_board[city_location.x, city_location.y];
     }
 
+    public static List<GameObject> get_all_city_train()
+    {
+        List<GameObject> train_list = new List<GameObject>();
+        foreach (City city in city_list)
+        {
+            train_list.AddRange(city.train_list);
+        }
+        return train_list;
+    }
 
     public void create_city(Vector3Int cell_position)
     {

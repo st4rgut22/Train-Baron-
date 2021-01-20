@@ -16,6 +16,7 @@ public class MenuManager : MonoBehaviour
     public static GameObject review_menu;
     public static GameObject shipyard_exit_menu;
     public static GameObject game_icon_canvas;
+    public static GameObject previous_menu;
 
     static List<GameObject> event_handler_list; // names of gameobjects that listen for events
     City city;
@@ -31,6 +32,7 @@ public class MenuManager : MonoBehaviour
     {
         store_menu = GameObject.Find("Store Menu");
         game_menu = GameObject.Find("Game Menu");
+        previous_menu = game_menu;
         review_menu = GameObject.Find("Review Canvas");
         shipyard_exit_menu = GameObject.Find("Exit Bar");
         game_icon_canvas = GameObject.Find("Iconic Canvas");
@@ -71,9 +73,16 @@ public class MenuManager : MonoBehaviour
     {
         //open one menu, set listeners from all other screens off
         //is_open stands for activating a screen versus closing the active one
-        if (menu[0] == game_menu) GameManager.game_menu_state = true;
+        if (menu[0] == game_menu && (previous_menu == store_menu || previous_menu == review_menu)) // transition from a pause menu. otherwise no need to unpause the game
+        {
+            PauseManager.pause_game(false);
+            GameManager.game_menu_state = true;
+        }
         if (menu[0] == store_menu || menu[0] == review_menu)
+        {
+            PauseManager.pause_game(true);
             GameManager.Structure.GetComponent<TilemapCollider2D>().enabled = false;
+        }            
         else
         {
             GameManager.Structure.GetComponent<TilemapCollider2D>().enabled = true;
@@ -86,6 +95,7 @@ public class MenuManager : MonoBehaviour
             }
             else { handler.SetActive(false); }
         }
+        previous_menu = menu[0];
     }
 
     public static Vector3 convert_screen_to_world_coord(Vector3 position)

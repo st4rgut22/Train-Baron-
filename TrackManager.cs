@@ -506,17 +506,17 @@ public class TrackManager : BoardManager
         {
             if (station_orientation == RouteManager.Orientation.North)
             {
-                return get_y_axis_orientation(track_location, destination);
+                return get_x_axis_orientation(track_location, destination);
             }
             else // SOUTH STATION
             {
-                if (inner_track == 0) return get_y_axis_orientation(track_location, destination);
+                if (inner_track == 0) return get_x_axis_orientation(track_location, destination);
                 else { return RouteManager.Orientation.North; } // unloading
             }
         }
         else if (track_tile_name == "WN")
         {
-            return get_y_axis_orientation(track_location, destination);
+            return get_x_axis_orientation(track_location, destination);
         }
         else
         {

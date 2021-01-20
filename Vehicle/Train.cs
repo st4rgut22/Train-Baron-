@@ -42,7 +42,7 @@ public class Train : MovingObject
         // should still trigger when not visible in inspector
         // not updated in unity's inspector
         print("animate train " + id + " at " + Time.time);
-
+        print("collided with " + collision.gameObject.name);
         if (collision.gameObject.tag == "boxcar" || collision.gameObject.tag == "train")
         {
             if (collision.gameObject.tag == "boxcar")
@@ -73,7 +73,7 @@ public class Train : MovingObject
         // destroy train and collided train/boxcar
         // TODOED: remove car from city tilemap or vehicle tilemap
         print("destroy train " + id + " at " + Time.time);
-        game_manager.train_list.Remove(gameObject);
+        GameManager.train_list.Remove(gameObject);
         city.train_list.Remove(gameObject);
         foreach (GameObject boxcar_go in boxcar_squad)
         {
@@ -298,6 +298,16 @@ public class Train : MovingObject
             else { boxcar.GetComponent<Boxcar>().is_pause = state; }
         }
     }
+
+    public void set_boxcar_wait_flag (bool flag)
+    {
+        is_wait_for_turntable = flag;
+        foreach (GameObject boxcar_go in boxcar_squad)
+        {
+            boxcar_go.GetComponent<Boxcar>().is_wait_for_turntable = flag;
+        }
+    }
+
 
     public bool is_all_boxcar_boarded()
     {

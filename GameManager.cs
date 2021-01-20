@@ -73,7 +73,7 @@ public class GameManager : EventDetector
 
     public static bool shipyard_state;
 
-    public List<GameObject> train_list; // list of trains inside the game view
+    public static List<GameObject> train_list; // list of trains inside the game view
 
     public static float tolerance = .004f;
     public static float speed = 1;

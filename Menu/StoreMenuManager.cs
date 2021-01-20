@@ -167,6 +167,7 @@ public class StoreMenuManager : MonoBehaviour
     void reset_count()
     {
         shopping_cart.Clear();
+        total_cost = 0;
         foreach (GameObject go in text_game_objects)
         {
             go.GetComponent<Text>().text = "0";

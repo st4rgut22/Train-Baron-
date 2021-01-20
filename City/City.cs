@@ -745,14 +745,14 @@ public class City : Structure
     public void delete_train(GameObject train_object)
     {
         remove_train_from_list(train_object, train_list);
-        game_manager.train_list.Add(train_object);
+        GameManager.train_list.Add(train_object);
     }
 
     public void add_train_to_list(GameObject train_object)
     {
         // add train to the city
         train_list.Add(train_object);
-        remove_train_from_list(train_object, game_manager.train_list); // remove train from the game manager list
+        remove_train_from_list(train_object, GameManager.train_list); // remove train from the game manager list
         if (CityManager.Activated_City == gameObject) // city screen is on, containing the relvant vehicle
         {
             train_object.GetComponent<Train>().turn_on_train(true);

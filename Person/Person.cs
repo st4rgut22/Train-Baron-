@@ -255,17 +255,22 @@ public class Person : Simple_Moving_Object
         }
         else
         {
-            float boarding_rating = Math.Min(1, boarding_duration / board_desire_timeout / 2);
-            float trip_rating = Math.Min(1, trip_duration / trip_desire_timeout / 2);
+            float boarding_pause_duration = PauseManager.find_cumulative_pause(board_start_time);
+            float trip_pause_duration = PauseManager.find_cumulative_pause(trip_start_time);
+            print("boarding pause duration is " + boarding_pause_duration + " and trip pause duration is " + trip_pause_duration);
+            float accurate_boarding_duration = boarding_duration - boarding_pause_duration;
+            float accurate_trip_duration = trip_duration - trip_pause_duration;
+            float boarding_rating = Math.Min(1, accurate_boarding_duration / board_desire_timeout / 2);
+            float trip_rating = Math.Min(1, accurate_trip_duration / trip_desire_timeout / 2);
             float train_rating = 1.0f - boarding_rating / 2 - trip_rating / 2; // One minus the average rating of boarding and trip
-            string trip_critique = review_board_trip_time((int)boarding_rating);
-            string board_critique = review_board_trip_time((int)boarding_rating);
+            string trip_critique = review_board_trip_time((int)boarding_rating * 5);
+            string board_critique = review_board_trip_time((int)boarding_rating * 5);
             review_summary = "The trip was " + trip_critique + " and boarding was " + board_critique;
             print("trip rating is " + train_rating);
             int star_rating = (int)(train_rating * 5) + 1;
             star_rating = Math.Min(5, star_rating);
             review = (Review)star_rating;
-            print("FINISHED TRIP. Board duration was " + boarding_duration + " trip duration was " + trip_duration + "review was " + review);
+            print("FINISHED TRIP. Board duration was " + accurate_boarding_duration + " trip duration was " + accurate_trip_duration + "review was " + review);
         }
         leave_review(city, review);
         update_review_page(review_summary, (int)review);
