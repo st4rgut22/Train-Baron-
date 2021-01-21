@@ -208,10 +208,6 @@ public class Train : MovingObject
             GameManager.vehicle_manager.depart(gameObject, station_tile_position, city.city_board);
             assign_station_to_boxcar();
         }
-        //else
-        //{
-        //    print("This city has no open stations from " + gameObject.name + " direction");
-        //}
         set_boxcar_to_depart();
         city.add_train_to_list(gameObject);
     }
@@ -295,12 +291,12 @@ public class Train : MovingObject
         // stop the train. await user action or signal
         // halting the train stops it from going anywhere. Used to await new track.
         // if false, pause the train. meaning delay the action. Used to stop mid turn/mid motion
-        if (is_halt) set_halt(state); 
+        if (is_halt) is_halt = state; 
         else { is_pause = state; }
         for (int i = 0; i < boxcar_squad.Count; i++)
         {
             GameObject boxcar = boxcar_squad[i];
-            if (is_halt) boxcar.GetComponent<Boxcar>().set_halt(state); 
+            if (is_halt) boxcar.GetComponent<Boxcar>().is_halt = state; 
             else { boxcar.GetComponent<Boxcar>().is_pause = state; }
         }
     }

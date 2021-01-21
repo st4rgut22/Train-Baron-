@@ -35,6 +35,8 @@ public class Boxcar : MovingObject
     // Update is called once per frame
     void Update()
     {
+        if (boxcar_id == 3)
+            print("break a leg man");
         if (!in_city || (in_city && receive_train_order)) // delay movement updates until train orders boxcar to depart
             base.Update();
     }

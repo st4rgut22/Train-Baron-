@@ -250,16 +250,10 @@ public class MovingObject : Simple_Moving_Object
         in_city = true;
     }
 
-    public void set_halt(bool is_halt)
-    {
-        //print("setting " + gameObject.tag + " halt to " + is_halt);
-        this.is_halt = is_halt;
-    }
-
     public void prepare_for_departure()
     {
         in_tile = true; // allow vehicle to move to the border of tile before resuming its route
-        set_halt(false); // indicates a vehicle is about to leave
+        is_halt = false; // indicates a vehicle is about to leave
         Vector3 vehicle_departure_point = TrainRouteManager.get_city_boundary_location(tile_position, orientation); // tile pos is 3,6 not 10,6
         if (in_city) next_tilemap_position = BoardManager.pos_to_tile(vehicle_departure_point);
         //print("Next tilemap position initialized to " + next_tilemap_position); // if not in city, don't overwrite boxcar's next tile pos
@@ -429,7 +423,7 @@ public class MovingObject : Simple_Moving_Object
             }
             else // reset boxcar speed multiplier after it has been created
             {
-                set_halt(true); // otherwise the boxcar wont spin with the turntable
+                is_halt = true; // otherwise the boxcar wont spin with the turntable
                 speed_multiplier = 1.0f;
             }
         } 

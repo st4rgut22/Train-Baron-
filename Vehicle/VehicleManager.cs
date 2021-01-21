@@ -163,7 +163,7 @@ public class VehicleManager : BoardManager
                 if (train.in_city) moving_boxcar.receive_train_order = true;
                 moving_boxcar.tile_position = last_location;
                 place_vehicle(boxcar);
-                moving_boxcar.set_halt(false);
+                moving_boxcar.is_halt = false;
                 spawn_moving_object(moving_boxcar);
                 moving_boxcar.set_depart_status(false);
                 boxcar_depart_id++;
