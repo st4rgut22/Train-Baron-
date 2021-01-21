@@ -150,13 +150,16 @@ public class VehicleManager : BoardManager
         Vector3Int last_location = train.tile_position; //todo? // 3,6,0 && 4,6,0 dont work
         //print("train last location is " + last_location);
         RouteManager.Orientation depart_orientation = train.orientation;
+        MovingObject last_vehicle = train;
         if (train.in_city) board = train.get_city().city_board;
         while (boxcar_depart_id < boxcar_count) 
         {
             GameObject boxcar = boxcar_list[boxcar_depart_id];
             Boxcar moving_boxcar = boxcar.GetComponent<Boxcar>();
-            if (!is_vehicle_in_cell(last_location, board) && moving_boxcar.in_city == train.in_city && !moving_boxcar.is_pause) // dont depart until boxcar has arrived at city
+            
+            if (!is_vehicle_in_cell(last_location, board) && moving_boxcar.in_city == last_vehicle.in_city && !moving_boxcar.is_pause) // dont depart until boxcar has arrived at city
             {
+                last_vehicle = moving_boxcar;
                 moving_boxcar.departing = false; 
                 //print("Make Boxcar depart. boxcar orientation is " + moving_boxcar.get_orientation() + " tile position is " + last_location);
                 moving_boxcar.set_depart_status(true);
@@ -169,10 +172,6 @@ public class VehicleManager : BoardManager
                 boxcar_depart_id++;
                 game_manager.enable_vehicle_for_screen(boxcar); // switch on when boxcar is departing from the city. Dont show entire train cargo.
             }
-            //else
-            //{
-            //    print("Can't activate boxcar, there is a vehicle departing the city");
-            //}
             yield return new WaitForEndOfFrame();
         }
     }
@@ -255,6 +254,8 @@ public class VehicleManager : BoardManager
         Vector3Int tile_position = moving_object.tile_position;
         Vector3 moving_object_position = TrainRouteManager.get_spawn_location(tile_position, moving_object.orientation);
         moving_object.transform.position = moving_object_position;
+        if (moving_object.tag == "boxcar" && moving_object.GetComponent<Boxcar>().boxcar_id == 3)
+            print("Spawn boxcar " + moving_object.GetComponent<Boxcar>().boxcar_id + " at pos " + tile_position); //poopies
         moving_object.prepare_for_departure();
     }
 

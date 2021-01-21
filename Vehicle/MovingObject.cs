@@ -256,8 +256,6 @@ public class MovingObject : Simple_Moving_Object
         is_halt = false; // indicates a vehicle is about to leave
         Vector3 vehicle_departure_point = TrainRouteManager.get_city_boundary_location(tile_position, orientation); // tile pos is 3,6 not 10,6
         if (in_city) next_tilemap_position = BoardManager.pos_to_tile(vehicle_departure_point);
-        //print("Next tilemap position initialized to " + next_tilemap_position); // if not in city, don't overwrite boxcar's next tile pos
-        //print("move " + gameObject.name + " from " + transform.position + " to " + vehicle_departure_point);
         StartCoroutine(straight_move(transform.position, vehicle_departure_point));
     }
 
