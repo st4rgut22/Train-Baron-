@@ -334,8 +334,20 @@ public class CityManager : BoardManager
         }
         else
         {
-            exit_tilemap.GetComponent<TilemapRenderer>().enabled = true;
-            return false;
+            if ((orientation == RouteManager.Orientation.South && (tile_type.name=="vert" || tile_type.name == "WN" || tile_type.name == "NE")) ||
+                (orientation == RouteManager.Orientation.North && (tile_type.name == "vert" || tile_type.name == "WS" || tile_type.name == "ES")) ||
+                (orientation == RouteManager.Orientation.East && (tile_type.name == "hor" || tile_type.name == "WN" || tile_type.name == "WS")) ||
+                (orientation == RouteManager.Orientation.West && (tile_type.name == "hor" || tile_type.name == "NE" || tile_type.name == "ES")))
+            {
+                exit_tilemap.GetComponent<TilemapRenderer>().enabled = true;
+                return false;
+            }
+            else
+            {
+                exit_tilemap.GetComponent<TilemapRenderer>().enabled = false;
+                return true;
+            }
+            
         }
     }
 
@@ -429,7 +441,6 @@ public class CityManager : BoardManager
             city.set_all_room_sprites();
             city.show_all_building_occupants(true);
             city.show_all_undeveloped_plots(false);
-            city.change_traffic_signal(true);
             city.apply_reputation();         
             city.display_boxcar();
             //if (city.city_type == "Entrance")
@@ -438,6 +449,7 @@ public class CityManager : BoardManager
             hide_exit_route(RouteManager.Orientation.East, city, RouteManager.exit_east_tilemap);
             hide_exit_route(RouteManager.Orientation.West, city, RouteManager.exit_west_tilemap);
             hide_exit_route(RouteManager.Orientation.South, city, RouteManager.exit_south_tilemap);
+            city.change_traffic_signal(true);
         }
         if (city_object == null) Activated_City.GetComponent<City>().show_turntable(false);
         else { city_object.GetComponent<City>().show_turntable(true); }

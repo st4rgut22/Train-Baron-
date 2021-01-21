@@ -442,10 +442,10 @@ public class City : Structure
     {
         Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
         print("boarding train from room  position " + room_position + " to " + boxcar.tile_position);
-
         Room room = city_room_matrix[room_position.x, room_position.y];
         GameObject occupant_go = room.person_go_instance; //todo: laster move the occupant to the room (first checkpoint). 
         Person occupant = occupant_go.GetComponent<Person>();
+        occupant.is_selected = false;
         boxcar.is_occupied = true; // prevent another pserson from boarding the same boxcar
         boxcar.passenger_go = occupant_go;
         occupant.is_board_boxcar = true;

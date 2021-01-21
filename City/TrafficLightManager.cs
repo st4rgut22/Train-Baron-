@@ -66,9 +66,9 @@ public class TrafficLightManager : Simple_Moving_Object
 
     public void set_signal_from_exit_route(Vector3Int city_tile_position, RouteManager.Orientation orientation, Vector2Int signal_tile_pos)
     {
+        bool exit_route_is_shown = CityManager.is_exit_route_shown(orientation);
         Tilemap toggled_tilemap = GameManager.track_manager.top_tilemap;
-        tile_position = (Vector3Int) RouteManager.get_depart_tile_position(orientation, city_tile_position);
-        if (toggled_tilemap.GetTile(tile_position) == null) // no route exists, dont show signal
+        if (!exit_route_is_shown) // no route exists, dont show signal
         {
             change_traffic_signal_tile(Traffic_Light.None, (Vector3Int)signal_tile_pos);
             return;
@@ -77,8 +77,10 @@ public class TrafficLightManager : Simple_Moving_Object
         // used by traffic lights to warn of incoming trains etc.
         final_orientation = orientation;
         Traffic_Light signal = Traffic_Light.Green;
+        int tile_count = 0;
         while (true)
         {
+            tile_count += 1;
             this.orientation = final_orientation; // updating the orientation at every new tile
             if (seen_track_tile_set.Contains(tile_position))
             {
@@ -155,14 +157,19 @@ public class TrafficLightManager : Simple_Moving_Object
         traffic_light_matrix[signal_tile_position.x, signal_tile_position.y] = traffic_signal;
     }
 
+    public void update_all_traffic_signal(Vector3Int city_position)
+    {
+        set_signal_from_exit_route(city_position, RouteManager.Orientation.North, north_light_tile_pos);
+        set_signal_from_exit_route(city_position, RouteManager.Orientation.East, east_light_tile_pos);
+        set_signal_from_exit_route(city_position, RouteManager.Orientation.West, west_light_tile_pos);
+        set_signal_from_exit_route(city_position, RouteManager.Orientation.South, south_light_tile_pos);
+    }
+
     public IEnumerator change_traffic_signal_coroutine(Vector3Int city_position) // only fire when City is Active
     {
         while (change_traffic_signal_flag)
         {
-            set_signal_from_exit_route(city_position, RouteManager.Orientation.North, north_light_tile_pos);
-            set_signal_from_exit_route(city_position, RouteManager.Orientation.East, east_light_tile_pos);
-            set_signal_from_exit_route(city_position, RouteManager.Orientation.West, west_light_tile_pos);
-            set_signal_from_exit_route(city_position, RouteManager.Orientation.South, south_light_tile_pos);
+            update_all_traffic_signal(city_position);
             yield return new WaitForSeconds(1); // every second update traffic signals
         }
     }

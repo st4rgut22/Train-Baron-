@@ -41,6 +41,7 @@ public class Person : Simple_Moving_Object
 
     public bool trip_in_progress;
     public bool activity_in_progress;
+    public bool is_selected; // selected to board a boxcar
 
     public Room room;
 
@@ -64,13 +65,14 @@ public class Person : Simple_Moving_Object
         trip_in_progress = false;
         activity_in_progress = false;
         base.Awake();
+        is_selected = false;
     }
 
     public void Start()
     {
         wealth = 0;
-        board_desire_timeout = 45;
-        trip_desire_timeout = 130;
+        board_desire_timeout = 90;
+        trip_desire_timeout = 260;
         in_tile = true;
         arrived_at_room = true;
         is_egghead_thinking = true;
@@ -122,7 +124,7 @@ public class Person : Simple_Moving_Object
             final_destination_reached = false;
         }
         boarding_duration = Time.time - board_start_time;
-        if (boarding_duration >= board_desire_timeout && !trip_in_progress && !activity_in_progress) // waiting for a train
+        if (boarding_duration >= board_desire_timeout && !trip_in_progress && !activity_in_progress && !is_selected) // waiting for a train
         {
             leave_review(room.building.city, Review.Zero_Star); // worst review is if person is not picked up
             if (room.building.city.city_type != "Entrance") // if city is entrance, then person keeps desiring to go home
@@ -330,7 +332,7 @@ public class Person : Simple_Moving_Object
 
     public IEnumerator schedule_activity()
     {
-        // when a person has arrived at a destination, perform action for a specified time
+        // when a person has arrived at a destination, perform action for a specified time        
         thought_bubble.SetActive(false);
         int duration = activity_duration_map[desired_activity];
         string prev_desired_activity = desired_activity;

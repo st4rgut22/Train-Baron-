@@ -100,19 +100,21 @@ public class CityDetector : EventDetector
     public Tilemap boxcar_orientation_to_offset_tilemap(RouteManager.Orientation orientation)
     {
         //convert boxcar orientation to tilemaps to be used for marking the boxcar tiles, which are offset from the original tilemap by half a cell
-        switch (orientation)
-        {
-            case RouteManager.Orientation.North:
-                return offset_hint_tilemap_south; // offset in opposite direction as orientation because boxcar is on the border of previous tile and current tile
-            case RouteManager.Orientation.East:
-                return offset_hint_tilemap_west;
-            case RouteManager.Orientation.West:
-                return offset_hint_tilemap_east;
-            case RouteManager.Orientation.South:
-                return offset_hint_tilemap_north;
-            default:
-                return null;
-        }
+        if (orientation == RouteManager.Orientation.West || orientation == RouteManager.Orientation.East) return offset_hint_tilemap_west;
+        else { return offset_hint_tilemap_south;  }
+        //switch (orientation)
+        //{
+        //    case RouteManager.Orientation.North:
+        //        return offset_hint_tilemap_south; // offset in opposite direction as orientation because boxcar is on the border of previous tile and current tile
+        //    case RouteManager.Orientation.East:
+        //        return offset_hint_tilemap_west;
+        //    case RouteManager.Orientation.West:
+        //        return offset_hint_tilemap_east;
+        //    case RouteManager.Orientation.South:
+        //        return offset_hint_tilemap_north;
+        //    default:
+        //        return null;
+        //}
     }
 
 
@@ -194,7 +196,8 @@ public class CityDetector : EventDetector
         if (is_room_occupied)
         {
             Person person = room.person_go_instance.GetComponent<Person>();
-            print("room is occupied");
+            person.is_selected = true;
+            print("selected tile is " + selected_tile);
             Station cb_station = CityManager.Activated_City_Component.get_station_track(selected_tile).station;
             RouteManager.Orientation orientation = cb_station.orientation;
             bool[] outer_inner_arr = TrackManager.is_city_building_inner(selected_tile, orientation); // 0 means outer, 1 means inner
@@ -216,7 +219,7 @@ public class CityDetector : EventDetector
                     inner_outer_coord.AddRange(available_inner_track_vehicle);
                 }
                 List<List<int[]>> city_action_coord = new List<List<int[]>> { inner_outer_coord };
-                //List<List<int[]>> boxcar_coord = city_coord_to_box_coord(city_action_coord);
+                print("available boxcar position is " + inner_outer_coord);
                 train_hint_list.Add("board");
                 GameObject.Find("GameManager").GetComponent<GameManager>().mark_tile_as_eligible(city_action_coord, train_hint_list, gameObject, true);
             }
