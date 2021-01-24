@@ -390,7 +390,7 @@ public class GameManager : EventDetector
                 {
                     print("park");
                     Boxcar boxcar = hint_gameobject.GetComponent<Boxcar>();
-                    boxcar.city.place_boxcar_tile(hint_gameobject, selected_tile);
+                    boxcar.city.place_boxcar_tile(boxcar.boxcar_type, (Vector3Int) selected_tile);
                     vehicle_manager.boxcar_fill_void(hint_gameobject); // move boxcars behind this one forward
                     boxcar.train.remove_boxcar(boxcar.boxcar_id);
                 }

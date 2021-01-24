@@ -120,18 +120,18 @@ public class StoreMenuManager : MonoBehaviour
                     GameManager.vehicle_manager.create_vehicle_at_home_base();
                 else if (item_name == "home_desc")
                 {
-                    GameManager.vehicle_manager.add_boxcar("home");
+                    GameManager.vehicle_manager.add_boxcar("home boxcar");
                 }
                 else if (item_name == "food_desc")
                 {
-                    GameManager.vehicle_manager.add_boxcar("food");
+                    GameManager.vehicle_manager.add_boxcar("food boxcar");
                 }
                 else if (item_name == "work_desc")
                 {
-                    GameManager.vehicle_manager.add_boxcar("work");
+                    GameManager.vehicle_manager.add_boxcar("work boxcar");
                 }
                 else if (item_name == "vacation_desc")
-                    GameManager.vehicle_manager.add_boxcar("vacation");
+                    GameManager.vehicle_manager.add_boxcar("vacation boxcar");
                 else if (item_name == "hor" || item_name == "WN" || item_name == "NE" || item_name == "WS" || item_name == "ES" || item_name == "vert")
                 {
                     TrackManager.update_track_count(item_name, 1);

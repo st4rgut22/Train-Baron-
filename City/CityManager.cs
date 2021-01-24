@@ -441,7 +441,6 @@ public class CityManager : BoardManager
             city.set_all_room_sprites();
             city.show_all_building_occupants(true);
             city.show_all_undeveloped_plots(false);
-            city.apply_reputation();         
             city.display_boxcar();
             //if (city.city_type == "Entrance")
             //    city.populate_entrance();
@@ -459,6 +458,8 @@ public class CityManager : BoardManager
             Activated_City_Component = Activated_City.GetComponent<City>();
             Activated_City_Component.enable_train_for_screen(); // hide trains before setting activated city to null
         }
+        Activated_City_Component.apply_reputation();
+
     }
 
     //public static RouteManager.Orientation set_orientation_of_new_train()

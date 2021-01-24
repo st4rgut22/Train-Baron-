@@ -16,7 +16,7 @@ public class PoorPerson : Person
         };
 
         activity_duration_map = new Dictionary<string, int>(){
-            { "home_thought_bubble", 30}, 
+            { "home_thought_bubble", 5}, 
             {"restaurant_thought_bubble", 10 },
             {"vacation_thought_bubble", 60 },
             {"work_thought_bubble", 30 }

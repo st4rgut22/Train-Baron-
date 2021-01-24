@@ -17,9 +17,11 @@ public class Building : Structure
     public Vector2Int offset_position; // offset from bottom left of tilemap to get the true tile coordinates
     public Vector2Int last_room_position;
     public BuildingLot building_lot;
+    public string initial_building_lot_name;
 
     private void Awake()
     {
+        initial_building_lot_name = "Building Lot West";
         occupant_id = 0;
         total_occupant = 0;
         room_id = 0;
@@ -28,9 +30,12 @@ public class Building : Structure
     public void Start()
     {
         print(gameObject.name);
-        city.city_tilemap_go.SetActive(false); // after setting tile deactivate gameobject
         roomba = new GameObject[max_capacity];
-        spawn_room();
+        city.city_tilemap_go.SetActive(false); // after setting tile deactivate gameobject
+        if (building_lot.id == initial_building_lot_name)
+        {
+            spawn_room();
+        }
     }
 
     private void Update()

@@ -78,12 +78,21 @@ public class City : Structure
     public static Dictionary<string, GameObject> building_map;
     List<string> initial_building_lot_list;
     public GameObject BuildingLot;
-
     public GameObject TrafficLightManager;
     public GameObject Traffic_Light_Manager_Instance;
     public TrafficLightManager traffic_manager;
+    public Inventory_Item[,] inventory_item_board;
 
     //public List<GameObject> person_in_transit; //people unloading from trains
+
+    public class Inventory_Item
+    {
+        public string name;
+        public Inventory_Item(string name)
+        {
+            this.name = name;
+        }
+    }
 
     private void Awake()
     {
@@ -94,7 +103,7 @@ public class City : Structure
         unapplied_reputation_count = 0;
         total_review_count = 0;
         last_checked_reputation = reputation;
-        initial_building_lot_list = new List<string>() { "Building Lot West" };
+        initial_building_lot_list = new List<string>() { "Building Lot West", "Building Lot North Outer", "Building Lot North Inner", "Building Lot South Outer", "Building Lot South Inner", "Building Lot East"};
         West_Station = new Station(CityManager.west_start_outer, CityManager.west_start_inner, RouteManager.Orientation.West, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
         North_Station = new Station(CityManager.north_start_outer, CityManager.north_start_inner, RouteManager.Orientation.North, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
         East_Station = new Station(CityManager.east_start_outer, CityManager.east_start_inner, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
@@ -103,6 +112,7 @@ public class City : Structure
         city_tilemap = city_tilemap_go.GetComponent<Tilemap>();
         city_room_matrix = new Room[board_width, board_height];
         city_board = new GameObject[board_width, board_height]; // zero out the negative tile coordinates
+        inventory_item_board = new Inventory_Item[board_width, board_height];
         GameObject north_outer_bl = Instantiate(BuildingLot);
         GameObject north_inner_bl = Instantiate(BuildingLot);
         GameObject east_bl = Instantiate(BuildingLot);
@@ -532,7 +542,7 @@ public class City : Structure
             int end_x = TrackManager.parking_coord[i, 2];
             if (y == tile_pos.y && tile_pos.x >= start_x && tile_pos.x <= end_x) is_valid = true;
         }
-        if (is_valid && gameobject_board[tile_pos.x, tile_pos.y] == null) return true;
+        if (is_valid && inventory_item_board[tile_pos.x, tile_pos.y] == null) return true;
         else { return false; }
     }
 
@@ -605,7 +615,7 @@ public class City : Structure
         // traverse row until an empty parking spot is found and return its location
         for (int i = start_x; i <= end_x; i++)
         {
-            if (gameobject_board[i, y] == null)
+            if (inventory_item_board[i, y] == null)
             {
                 return new Vector2Int(i, y);
             }
@@ -640,45 +650,45 @@ public class City : Structure
         }
     }
 
-    public void add_boxcar_to_tilemap(GameObject boxcar_object)
+    public void add_boxcar_to_tilemap(string boxcar_type)
     {
         // called when displaying a city
+        Inventory_Item boxcar_item = new Inventory_Item(boxcar_type);
         Vector2Int parking_spot = get_parking_spot();
-        gameobject_board[parking_spot.x, parking_spot.y] = boxcar_object;
+        inventory_item_board[parking_spot.x, parking_spot.y] = boxcar_item;
     }
 
     public void remove_boxcar_from_inventory(Vector2Int tile_pos)
     {
         Tilemap shipyard_inventory = GameManager.Shipyard_Inventory.GetComponent<Tilemap>();
         shipyard_inventory.SetTile((Vector3Int)tile_pos, null);
-        gameobject_board[tile_pos.x, tile_pos.y] = null;
+        inventory_item_board[tile_pos.x, tile_pos.y] = null;
     }
 
-    public void place_boxcar_tile(GameObject boxcar_object, Vector2Int tile_pos)
+    public void place_boxcar_tile(string boxcar_name, Vector3Int tile_pos)
     {
         Tilemap shipyard_inventory = GameManager.Shipyard_Inventory.GetComponent<Tilemap>();
-        string boxcar_name = boxcar_object.name.Replace("(Clone)", "");
-        if (boxcar_name == "food boxcar") place_tile(tile_pos, boxcar_object, food_boxcar_tile, shipyard_inventory);
-        else if (boxcar_name == "work boxcar") place_tile(tile_pos, boxcar_object, work_boxcar_tile, shipyard_inventory);
-        else if (boxcar_name == "vacation boxcar") place_tile(tile_pos, boxcar_object, vacation_boxcar_tile, shipyard_inventory);
-        else if (boxcar_name == "home boxcar") place_tile(tile_pos, boxcar_object, home_boxcar_tile, shipyard_inventory);
+        if (boxcar_name == "food boxcar") shipyard_inventory.SetTile(tile_pos, food_boxcar_tile); 
+        else if (boxcar_name == "work boxcar") shipyard_inventory.SetTile(tile_pos, work_boxcar_tile); 
+        else if (boxcar_name == "vacation boxcar") shipyard_inventory.SetTile(tile_pos, vacation_boxcar_tile); 
+        else if (boxcar_name == "home boxcar") shipyard_inventory.SetTile(tile_pos, home_boxcar_tile);
         else
         {
-            throw new Exception("not a valid boxcar to store");
+            throw new Exception("not a valid boxcar to store: " + boxcar_name);
         }
     }
 
     public void display_boxcar()
     {
-        for (int i = 0; i < gameobject_board.GetLength(0); i++)
+        for (int i = 0; i < inventory_item_board.GetLength(0); i++)
         {
-            for (int j = 0; j < gameobject_board.GetLength(1); j++)
+            for (int j = 0; j < inventory_item_board.GetLength(1); j++)
             {
-                GameObject boxcar_object = gameobject_board[i, j];
+                Inventory_Item boxcar_object = inventory_item_board[i, j];
                 if (boxcar_object != null)
                 {
                     Vector2Int tile_pos = new Vector2Int(i, j);
-                    place_boxcar_tile(boxcar_object, tile_pos);
+                    place_boxcar_tile(boxcar_object.name, (Vector3Int)tile_pos);
                 }
             }
         }

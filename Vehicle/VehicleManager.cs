@@ -178,36 +178,7 @@ public class VehicleManager : BoardManager
 
     public void add_boxcar(string boxcar_type)
     {
-        GameObject boxcar;
-        //add boxcar to the inventory after exiting store
-        if (boxcar_type == "food")
-        {
-            boxcar = Instantiate(Food_Boxcar);
-            Food_Boxcar_Inventory.Add(boxcar);
-        }
-        else if (boxcar_type == "work")
-        {
-            boxcar = Instantiate(Work_Boxcar);
-            Work_Boxcar_Inventory.Add(boxcar);
-        }
-        else if (boxcar_type == "vacation")
-        {
-            boxcar = Instantiate(Vacation_Boxcar);
-            Vacation_Boxcar_Inventory.Add(boxcar);
-        }
-        else if (boxcar_type == "home")
-        {
-            boxcar = Instantiate(Home_Boxcar);
-            Home_Boxcar_Inventory.Add(boxcar);
-        }
-        else
-        {
-            //print("No other type of boxcar");
-            return;
-        }
-        boxcar.GetComponent<SpriteRenderer>().enabled = false;
-        //todo : fix me pls
-        CityManager.home_base.add_boxcar_to_tilemap(boxcar);
+        CityManager.home_base.add_boxcar_to_tilemap(boxcar_type);
     }
 
     public static void initialize_position(MovingObject moving_object, PositionPair pos_pair)
