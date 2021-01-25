@@ -337,6 +337,10 @@ public class RouteManager : MonoBehaviour
                 final_cell_dest = get_straight_final_dest(moving_thing.orientation, tile_world_coord);
                 next_tilemap_pos = get_straight_next_tile_pos(moving_thing.orientation, next_tilemap_pos);
             }
+            if (next_tilemap_pos.Equals(new Vector2Int(7, 6)))
+            {
+                print("klsdjfls");
+            }
         }
         catch (NullReferenceException e)
         {
@@ -393,11 +397,8 @@ public class RouteManager : MonoBehaviour
             if (city_tile != null) //check if arriving at city
             {
                 City city = GameManager.city_manager.gameobject_board[tile_coord.x, tile_coord.y].GetComponent<City>(); // check if city arrived at is not the same city we're leaving
-                //if (city != moving_thing.prev_city)
-                //{
                 pos_pair.abs_dest_pos = tile_world_coord; // destination is the center of the tile
                 moving_thing.prepare_to_arrive_at_city(city);
-                //}
             }
         }
         return pos_pair;

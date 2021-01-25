@@ -244,15 +244,18 @@ public class City : Structure
             {
                 foreach (GameObject room_go in bldg.roomba)
                 {
-                    Room room = room_go.GetComponent<Room>();
-                    if (!room.has_person)
+                    if (room_go != null )
                     {
-                        Person person = room.spawn_person();
-                        CityManager.increment_total_people();
-                        total_people += 1;
-                        if (CityManager.Activated_City_Component == this) person.initialize_egghead(true, true); // if entrance is activated
-                        else { person.initialize_egghead(false, false); }
-                        break;
+                        Room room = room_go.GetComponent<Room>();
+                        if (!room.has_person)
+                        {
+                            Person person = room.spawn_person();
+                            CityManager.increment_total_people();
+                            total_people += 1;
+                            if (CityManager.Activated_City_Component == this) person.initialize_egghead(true, true); // if entrance is activated
+                            else { person.initialize_egghead(false, false); }
+                            break;
+                        }
                     }
                 }
             }

@@ -6,17 +6,20 @@ using System;
 using UnityEngine.Tilemaps;
 public class CityDetector : EventDetector
 {
-    public Tilemap offset_hint_tilemap_north;
-    public Tilemap offset_hint_tilemap_east;
-    public Tilemap offset_hint_tilemap_west;
-    public Tilemap offset_hint_tilemap_south;
+    public static Tilemap offset_hint_tilemap_north;
+    public static Tilemap offset_hint_tilemap_east;
+    public static Tilemap offset_hint_tilemap_west;
+    public static Tilemap offset_hint_tilemap_south;
     public Dictionary<Vector2Int, Tilemap> boxcar_tile_tracker = new Dictionary<Vector2Int, Tilemap>();
     List<Offset_Tile> all_eligible_boxcar;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        offset_hint_tilemap_east = GameObject.Find("Offset East").GetComponent<Tilemap>();
+        offset_hint_tilemap_north = GameObject.Find("Offset North").GetComponent<Tilemap>();
+        offset_hint_tilemap_west = GameObject.Find("Offset West").GetComponent<Tilemap>();
+        offset_hint_tilemap_south = GameObject.Find("Offset South").GetComponent<Tilemap>();
     }
 
     // Update is called once per frame
@@ -97,7 +100,7 @@ public class CityDetector : EventDetector
         return false;
     }
 
-    public Tilemap boxcar_orientation_to_offset_tilemap(RouteManager.Orientation orientation)
+    public static Tilemap boxcar_orientation_to_offset_tilemap(RouteManager.Orientation orientation)
     {
         //convert boxcar orientation to tilemaps to be used for marking the boxcar tiles, which are offset from the original tilemap by half a cell
         if (orientation == RouteManager.Orientation.West || orientation == RouteManager.Orientation.East) return offset_hint_tilemap_west;
@@ -138,7 +141,7 @@ public class CityDetector : EventDetector
                         bool is_boxcar_match = person.is_boxcar_match_desired_activity(boxcar.boxcar_type);
                         if (is_boxcar_match)
                         {
-                            Tilemap boxcar_tilemap = boxcar_orientation_to_offset_tilemap(boxcar.orientation);
+                            Tilemap boxcar_tilemap = CityDetector.boxcar_orientation_to_offset_tilemap(boxcar.orientation);
                             offset_tile_list.Add(new Offset_Tile(boxcar_go));
                             boxcar_tile_tracker[new Vector2Int(boxcar_loc[0], boxcar_loc[1])] = boxcar_tilemap;
                             available_boxcar_list.Add(new int[]{ boxcar_loc[0], boxcar_loc[1]});

@@ -404,7 +404,13 @@ public class Train : MovingObject
         foreach (GameObject boxcar_go in boxcar_squad)
         {
             Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
-            if (is_train_departed_for_turntable) boxcar.speed = normal_speed; 
+            Tilemap boxcar_tilemap = CityDetector.boxcar_orientation_to_offset_tilemap(boxcar.orientation);
+            Vector3Int boxcar_cell_pos = boxcar_tilemap.WorldToCell(boxcar_go.transform.position);
+            print("boxcar " + boxcar_go.name + " tile position " + boxcar.tile_position + " prev tile position " + boxcar.prev_tile_position);
+            boxcar.prev_tile_position = boxcar.tile_position; // move up  one
+            boxcar.tile_position = boxcar_cell_pos;
+            GameManager.vehicle_manager.update_vehicle_board(city.city_board, boxcar_go, boxcar_cell_pos, boxcar.prev_tile_position); // nullify prev tile
+            if (is_train_departed_for_turntable) boxcar.speed = normal_speed;
             else { boxcar.speed = stopping_speed; }
         }
     }

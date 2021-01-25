@@ -37,15 +37,18 @@ public class TrainRouteManager : RouteManager
     {
         if (in_city)
         {
-            Tile track_tile = (Tile)track_tilemap.GetTile(tile_coord);
-            Tile city_tile = (Tile)city_tilemap.GetTile(tile_coord);
-            if (track_tile != null) return "track";
-            if (city_tile != null) return "city";
+            Tile shipyard_tile = (Tile)shipyard_track_tilemap.GetTile(tile_coord);
+            if (shipyard_tile != null)
+                return "track";
         }
         else
         {
-            Tile shipyard_tile = (Tile)shipyard_track_tilemap.GetTile(tile_coord);
-            if (shipyard_tile != null) return "track";
+            Tile track_tile = (Tile)track_tilemap.GetTile(tile_coord);
+            Tile city_tile = (Tile)city_tilemap.GetTile(tile_coord);
+            if (city_tile != null)
+                return "city";
+            else if (track_tile != null)
+                return "track";
         }
         return ""; // cannot go to this tile
     }

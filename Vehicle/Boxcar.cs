@@ -21,7 +21,7 @@ public class Boxcar : MovingObject
     {      
         base.Awake();
         is_occupied = false;
-
+        is_halt = true;
     }
 
     void Start()
@@ -35,8 +35,11 @@ public class Boxcar : MovingObject
     // Update is called once per frame
     void Update()
     {
-        if (boxcar_id == 3)
-            print("break a leg man");
+        if (tile_position.Equals(new Vector3Int(7, 6, 0)))
+        {
+            print("bbb");
+        }
+        print("tile psoition " + tile_position);
         if (!in_city || (in_city && receive_train_order)) // delay movement updates until train orders boxcar to depart
             base.Update();
     }

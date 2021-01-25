@@ -147,8 +147,8 @@ public class VehicleManager : BoardManager
         // 5. train updates tile position
         // 6. train confirms end of track is next tile
         // 7. train stops and tells boxcars to stop
-        Vector3Int last_location = train.tile_position; //todo? // 3,6,0 && 4,6,0 dont work
-        //print("train last location is " + last_location);
+        Vector3Int last_location = train.tile_position; 
+        print("train last location is " + last_location);
         RouteManager.Orientation depart_orientation = train.orientation;
         MovingObject last_vehicle = train;
         if (train.in_city) board = train.get_city().city_board;
@@ -270,7 +270,7 @@ public class VehicleManager : BoardManager
             {
                 if (vehicle_board[prev_position.x, prev_position.y] == null)
                 {
-                    //print("WARNING. Gameobject " + game_object.name + " not found in previous position " + prev_position);
+                    print("WARNING. Gameobject " + game_object.name + " not found in previous position " + prev_position);
                 }
                 else
                 {
@@ -280,19 +280,23 @@ public class VehicleManager : BoardManager
             }
             bool in_city = game_object.GetComponent<MovingObject>().in_city;
             GameObject city_object = GameManager.city_manager.get_city(new Vector2Int(position.x, position.y));
-            string destination_type = TrainRouteManager.get_destination_type(position, in_city);
-            if (destination_type=="city" && !in_city) // if vehicle arriving at city is a boxcar, don't update tile
+            string destination_type = TrainRouteManager.get_destination_type(unadjusted_position, in_city);
+            if (destination_type=="city") // if vehicle arriving at city is a boxcar, don't update tile
             {
                 if (game_object.tag=="train") vehicle_board[position.x, position.y] = game_object; // only trains should be in cities, it stores a list of attached boxcars
-                else if (game_object.tag == "boxcar") // only update city tile with boxcar if the boxcar is departing. 
-                {
-                    bool boxcar_is_departing = game_object.GetComponent<Boxcar>().get_depart_status();
-                    if (boxcar_is_departing) vehicle_board[position.x, position.y] = game_object;
-                }
+                //else if (game_object.tag == "boxcar") // only update city tile with boxcar if the boxcar is departing. 
+                //{
+                //    bool boxcar_is_departing = game_object.GetComponent<Boxcar>().get_depart_status();
+                //    if (boxcar_is_departing) vehicle_board[position.x, position.y] = game_object;
+                //}
             }
             else
             {
                 vehicle_board[position.x, position.y] = game_object;
+                if (position.Equals(new Vector3Int(8, 7, 0)))
+                {
+                    print("Break"); // CHECK WHY BOXCAR IS IN CITY LOCATION!!!
+                }
                 //print("Update Vehicle Board with object " + game_object.name + " to position " + position);
             }
             //print("updating vehicle board tile at " + position + " with vehicle " + game_object.tag);

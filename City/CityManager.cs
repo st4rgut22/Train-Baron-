@@ -60,7 +60,7 @@ public class CityManager : BoardManager
         new int[]{0,7 }, new int[]{0,8 }, new int[]{0,9 }, new int[]{3,9 }, new int[]{4,9 }, new int[]{5,9 }, new int[]{6,9 }, new int[]{10,1 }, new int[]{11,1 }, new int[]{12,1 },
         new int[]{13,1 }, new int[]{16,1 }, new int[]{16,2 }, new int[]{16,3 }, new int[]{16,9 }, new int[]{15,9 }, new int[]{14,9 }, new int[]{13,9 }, new int[]{12,9 }, new int[]{11,9 } };
 
-    public static List<int[]> boxcar_city_wait_tile = new List<int[]> { new int[] { 6, 1 }, new int[] { 6, 8 }, new int[] { 10, 9 }, new int[] { 10, 2 } };
+    public static List<int[]>  boxcar_city_wait_tile = new List<int[]> { new int[] { 6, 1 }, new int[] { 12, 2 } , new int[] { 12, 3 } }; // ADD MORE 
 
     public int entrance_update_interval;
 
@@ -457,9 +457,8 @@ public class CityManager : BoardManager
         else {
             Activated_City_Component = Activated_City.GetComponent<City>();
             Activated_City_Component.enable_train_for_screen(); // hide trains before setting activated city to null
+            Activated_City_Component.apply_reputation();
         }
-        Activated_City_Component.apply_reputation();
-
     }
 
     //public static RouteManager.Orientation set_orientation_of_new_train()
