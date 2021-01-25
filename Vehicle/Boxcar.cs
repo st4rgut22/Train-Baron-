@@ -92,8 +92,6 @@ public class Boxcar : MovingObject
                 passenger_go.transform.localRotation = current_rotation; // rotate to correct for occupant turning at bend
             }
         }
-        //departing = true;
-        //city.add_boxcar(gameObject);
     }
 
     public RouteManager.Orientation get_orientation()

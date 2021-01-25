@@ -467,10 +467,12 @@ public class MovingObject : Simple_Moving_Object
             exit_track_orientation = RouteManager.Orientation.None;
             steep_angle_orientation = RouteManager.Orientation.None;
             reset_departure_flag();
+            // disable until given the goahead
         }
-        if (arriving_in_city) // triggerwhen about to enter city on any route
+        if (arriving_in_city) // WHAT ARE YOU thinking?
         {
-            in_city = true;
+            tile_position = new Vector3Int(-1, -1, 0);
+            arrive_at_city();
             arriving_in_city = false;
         }
     }

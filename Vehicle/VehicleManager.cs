@@ -293,11 +293,7 @@ public class VehicleManager : BoardManager
             else
             {
                 vehicle_board[position.x, position.y] = game_object;
-                if (position.Equals(new Vector3Int(8, 7, 0)))
-                {
-                    print("Break"); // CHECK WHY BOXCAR IS IN CITY LOCATION!!!
-                }
-                //print("Update Vehicle Board with object " + game_object.name + " to position " + position);
+                print("Update Vehicle Board with object " + game_object.name + " to position " + position);
             }
             //print("updating vehicle board tile at " + position + " with vehicle " + game_object.tag);
 
