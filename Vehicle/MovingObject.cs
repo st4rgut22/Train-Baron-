@@ -102,6 +102,13 @@ public class MovingObject : Simple_Moving_Object
                 }
                 if (orientation != final_orientation) // curved track
                 {
+                    if (gameObject.tag == "boxcar" && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
+                    {
+                        if (tile_position.Equals(new Vector3Int(6,7,0)) && next_tilemap_position.Equals(new Vector2Int(7, 7)))
+                        {
+                            print("A GRAVE MISTAKE");
+                        }
+                    }
                     StartCoroutine(bezier_move(transform, orientation, final_orientation));
                 }
                 else // straight track
@@ -367,7 +374,7 @@ public class MovingObject : Simple_Moving_Object
         RouteManager.Orientation curve_type = TrackManager.is_curve_steep(final_orientation);
         in_tile = true;
 
-        if (gameObject.tag == "boxcar")// && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
+        if (gameObject.tag == "boxcar" && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
         {
             print("BOXCAR 3 BEZIER MOVE FROM " + tile_position + " TO " + next_tilemap_position);
         }
@@ -414,7 +421,7 @@ public class MovingObject : Simple_Moving_Object
             yield return new WaitForEndOfFrame();
         }
         in_tile = false;
-        if (gameObject.tag == "boxcar")// && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
+        if (gameObject.tag == "boxcar" && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
         {
             print("FINISH BOXCAR 3 BEZIER MOVE FROM " + tile_position + " TO " + next_tilemap_position);
         }
@@ -426,14 +433,9 @@ public class MovingObject : Simple_Moving_Object
         float distance = og_distance;
         in_tile = true;
         next_position = start_position;
-        if (gameObject.tag == "boxcar")// && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
+        if (gameObject.tag == "boxcar" && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
         {
             print("BOXCAR 3 STRAIGHT MOVE FROM " + tile_position + " TO " + next_tilemap_position);
-            if (tile_position.Equals(new Vector3Int(6,7,0)) && next_tilemap_position.Equals(new Vector2Int(6, 7)))
-            {
-                print("STOP CHECK BOXCAR 3 BEZIER MOVE INVALID ACTION");
-            }
-
         }
 
         while (distance > GameManager.tolerance)
@@ -463,7 +465,7 @@ public class MovingObject : Simple_Moving_Object
             distance = Vector2.Distance(next_position, destination);
             yield return new WaitForEndOfFrame();
         }
-        if (gameObject.tag == "boxcar")// && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
+        if (gameObject.tag == "boxcar" && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
         {
             print("FINISH BOXCAR 3 STRAIGHT MOVE FROM " + tile_position + " TO " + next_tilemap_position);
         }
@@ -530,6 +532,7 @@ public class MovingObject : Simple_Moving_Object
             //if (gameObject.tag == "boxcar") print("boxcar id " + gameObject.GetComponent<Boxcar>().boxcar_id + " set tile pos to -1,-1,0 ");
             //tile_position = new Vector3Int(-1, -1, 0);
             //next_tilemap_position = (Vector2Int)tile_position;
+            is_halt = true; // NO MREO UPDATES UNTNIL THE TRAIN IS IN NEW CITY LOCATION OTHERWISE IT WILL DERP AND TRY TO GO TO INVALID SPACE
             arrive_at_city();
             arriving_in_city = false;
         }
