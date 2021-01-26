@@ -28,6 +28,7 @@ public class Boxcar : MovingObject
     {
         base.Start();
         boxcar_type = gameObject.name.Replace("(Clone)", "");
+        stop_car_if_wait_tile();
         idling_position = new Vector3(-1, -1, -1);
         departing = false;
     }
@@ -35,7 +36,7 @@ public class Boxcar : MovingObject
     // Update is called once per frame
     void Update()
     {
-        if (tile_position.Equals(new Vector3Int(7, 6, 0)))
+        if (boxcar_id == 3)
         {
             print("bbb");
         }

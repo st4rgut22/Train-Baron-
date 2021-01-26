@@ -391,6 +391,15 @@ public class RouteManager : MonoBehaviour
         Tile track_tile = (Tile)tilemap.GetTile(tile_coord);
         Vector2 tile_world_coord = tilemap.GetCellCenterWorld(tile_coord);
         PositionPair pos_pair = get_next_tile_pos(tilemap, track_tile, moving_thing, tile_coord, offset);
+        if (moving_thing.gameObject.tag == "boxcar")
+        {
+            Boxcar bcar = (Boxcar)moving_thing;
+            if (bcar.boxcar_id == 3)
+            {
+                print("break");
+
+            }
+        }
         if (!moving_thing.in_city) //not inside a city, so check if arrived at city
         {
             Tile city_tile = (Tile)city_tilemap.GetTile(tile_coord);

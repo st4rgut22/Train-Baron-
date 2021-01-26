@@ -248,6 +248,7 @@ public class Train : MovingObject
         is_idle = false;
         if (depart_turntable)
         {
+            start_all_boxcar_at_turntable();
             halt_train(true, false); //unhalt the boxcars
             halt_train(is_halt = false, is_pause = false); // unpause the train
             is_train_departed_for_turntable = true;
@@ -399,6 +400,15 @@ public class Train : MovingObject
         Destroy(boxcar_go);
     }
 
+    public void start_all_boxcar_at_turntable()
+    {
+        foreach (GameObject boxcar_go in boxcar_squad)
+        {
+            Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
+            boxcar.speed = normal_speed;
+        }
+    }
+
     public void stop_all_boxcar_at_turntable()
     {
         foreach (GameObject boxcar_go in boxcar_squad)
@@ -410,8 +420,8 @@ public class Train : MovingObject
             boxcar.prev_tile_position = boxcar.tile_position; // move up  one
             boxcar.tile_position = boxcar_cell_pos;
             GameManager.vehicle_manager.update_vehicle_board(city.city_board, boxcar_go, boxcar_cell_pos, boxcar.prev_tile_position); // nullify prev tile
-            if (is_train_departed_for_turntable) boxcar.speed = normal_speed;
-            else { boxcar.speed = stopping_speed; }
+            boxcar.speed = stopping_speed;
+            boxcar.is_halt = true; // only call ONCE when first called
         }
     }
 

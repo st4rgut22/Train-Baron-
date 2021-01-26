@@ -19,6 +19,8 @@ public class MovingObject : Simple_Moving_Object
     public bool end_of_track = false;
     public bool is_idle;
     public bool is_wait_for_turntable;
+    public bool is_boxcar_stopped;
+
     public string train_name = "train(Clone)";
     VehicleManager vehicle_manager;
     public RouteManager.Orientation exit_track_orientation = RouteManager.Orientation.None;
@@ -27,6 +29,7 @@ public class MovingObject : Simple_Moving_Object
     // Start is called before the first frame update
     public void Awake()
     {
+        is_boxcar_stopped = false;
         is_wait_for_turntable = false;
         Vector2Int home_base = CityManager.home_base_location;
         tile_position = new Vector3Int(home_base.x, home_base.y, 0);
@@ -51,12 +54,12 @@ public class MovingObject : Simple_Moving_Object
         {
             if (!in_tile && !end_of_track) // Completed tile route. update destination to next tile. Prevents repeated calls to StartCoroutine()
             {
+                if (gameObject.tag == "boxcar" && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
+                {
+                    print("debug");
+                }
                 orientation = final_orientation; // updating the orientation at every new tile
                 prev_tile_position = tile_position;
-                if (next_tilemap_position.Equals(new Vector2Int(7, 6)))
-                {
-                    print("bbb");
-                }
                 tile_position = new Vector3Int(next_tilemap_position.x, next_tilemap_position.y, 0);
                 print(gameObject.name + " tile position is " + tile_position);
                 PositionPair position_pair;
@@ -71,6 +74,10 @@ public class MovingObject : Simple_Moving_Object
                 {
                     GameManager.vehicle_manager.update_vehicle_board(city.city_board, gameObject, tile_position, prev_tile_position);
                     position_pair = RouteManager.get_destination(this, station_track.tilemap, offset); // set the final orientation and destination
+                    if (gameObject.tag == "boxcar" && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
+                    {
+                        print("destination is " + position_pair.abs_dest_pos + " at tile " + position_pair.tile_dest_pos);
+                    }
                 }
                 Vector2 train_dest_xy = position_pair.abs_dest_pos;
                 next_tilemap_position = position_pair.tile_dest_pos;
@@ -240,7 +247,8 @@ public class MovingObject : Simple_Moving_Object
         leave_turntable = false;
         leave_city = false;
         complete_exit = false; // on verge of departing city
-        departure_track_chosen = false;        
+        departure_track_chosen = false;
+        is_boxcar_stopped = false;
     }
 
     public void initialize_orientation(RouteManager.Orientation orientation)
@@ -260,6 +268,10 @@ public class MovingObject : Simple_Moving_Object
         is_halt = false; // indicates a vehicle is about to leave
         Vector3 vehicle_departure_point = TrainRouteManager.get_city_boundary_location(tile_position, orientation); // tile pos is 3,6 not 10,6
         if (in_city) next_tilemap_position = BoardManager.pos_to_tile(vehicle_departure_point);
+        if (gameObject.tag == "boxcar" && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
+        {
+            print("BOXCAR 3 PREPARE FOR DEPARTURE");
+        }
         StartCoroutine(straight_move(transform.position, vehicle_departure_point));
     }
 
@@ -325,7 +337,14 @@ public class MovingObject : Simple_Moving_Object
     public void stop_car_if_wait_tile()
     {
         if (random_algos.list_contains_arr(CityManager.boxcar_city_wait_tile, tile_position) && gameObject.tag == "boxcar" && in_city) // STOP CONDITION
-            GetComponent<Boxcar>().train.stop_all_boxcar_at_turntable();
+            if (gameObject == gameObject.GetComponent<Boxcar>().train.boxcar_squad[0]) // is lead boxcar
+            {
+                if (!is_boxcar_stopped)
+                {
+                    GetComponent<Boxcar>().train.stop_all_boxcar_at_turntable();
+                    is_boxcar_stopped = true;
+                }
+            }
     }
 
     public override IEnumerator bezier_move(Transform location, RouteManager.Orientation orientation, RouteManager.Orientation final_orientation)
@@ -338,6 +357,11 @@ public class MovingObject : Simple_Moving_Object
         float end_angle;
         RouteManager.Orientation curve_type = TrackManager.is_curve_steep(final_orientation);
         in_tile = true;
+
+        if (gameObject.tag == "boxcar" && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
+        {
+            print("BOXCAR 3 BEZIER MOVE FROM " + tile_position + " TO " + next_tilemap_position);
+        }
 
         if (curve_type == RouteManager.Orientation.Less_Steep_Angle || curve_type == RouteManager.Orientation.Steep_Angle) // turntable adjustements
         {
@@ -354,6 +378,7 @@ public class MovingObject : Simple_Moving_Object
 
         while (!final_step)
         {
+
             if (is_pause)
             {
                 yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling
@@ -380,6 +405,10 @@ public class MovingObject : Simple_Moving_Object
             yield return new WaitForEndOfFrame();
         }
         in_tile = false;
+        if (gameObject.tag == "boxcar" && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
+        {
+            print("FINISH BOXCAR 3 BEZIER MOVE FROM " + tile_position + " TO " + next_tilemap_position);
+        }
     }
 
     public IEnumerator straight_move(Vector2 start_position, Vector2 destination, bool turntable_dest = false, bool exit_dest = false)
@@ -388,8 +417,22 @@ public class MovingObject : Simple_Moving_Object
         float distance = og_distance;
         in_tile = true;
         next_position = start_position;
+        if (gameObject.tag == "boxcar" && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
+        {
+            print("BOXCAR 3 STRAIGHT MOVE FROM " + tile_position + " TO " + next_tilemap_position);
+            if (tile_position.Equals(new Vector3Int(6,7,0)) && next_tilemap_position.Equals(new Vector2Int(6, 7)))
+            {
+                print("STOP CHECK BOXCAR 3 BEZIER MOVE INVALID ACTION");
+            }
+
+        }
+
         while (distance > GameManager.tolerance)
         {
+            if (gameObject.tag == "boxcar" && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
+            {
+                print("debug");
+            }
             if (is_pause)
             {
                 if (gameObject.tag != "boxcar" || !gameObject.GetComponent<Boxcar>().departing)
@@ -410,6 +453,10 @@ public class MovingObject : Simple_Moving_Object
             transform.position = next_position;
             distance = Vector2.Distance(next_position, destination);
             yield return new WaitForEndOfFrame();
+        }
+        if (gameObject.tag == "boxcar" && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
+        {
+            print("FINISH BOXCAR 3 STRAIGHT MOVE FROM " + tile_position + " TO " + next_tilemap_position);
         }
         if (turntable_dest) // train reaches other end of turntable
         {
@@ -435,7 +482,7 @@ public class MovingObject : Simple_Moving_Object
                 is_halt = true; // otherwise the boxcar wont spin with the turntable
                 speed_multiplier = 1.0f;
             }
-        } 
+        }
         in_tile = false;
         //print(gameObject.name + " reached destination " + destination);
         if (exit_dest)
@@ -469,9 +516,11 @@ public class MovingObject : Simple_Moving_Object
             reset_departure_flag();
             // disable until given the goahead
         }
-        if (arriving_in_city) // WHAT ARE YOU thinking?
+        if (arriving_in_city) 
         {
-            tile_position = new Vector3Int(-1, -1, 0);
+            //if (gameObject.tag == "boxcar") print("boxcar id " + gameObject.GetComponent<Boxcar>().boxcar_id + " set tile pos to -1,-1,0 ");
+            //tile_position = new Vector3Int(-1, -1, 0);
+            //next_tilemap_position = (Vector2Int)tile_position;
             arrive_at_city();
             arriving_in_city = false;
         }

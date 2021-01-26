@@ -157,11 +157,16 @@ public class VehicleManager : BoardManager
             GameObject boxcar = boxcar_list[boxcar_depart_id];
             Boxcar moving_boxcar = boxcar.GetComponent<Boxcar>();
             
-            if (!is_vehicle_in_cell(last_location, board) && moving_boxcar.in_city == last_vehicle.in_city && !moving_boxcar.is_pause) // dont depart until boxcar has arrived at city
+            if (!is_vehicle_in_cell(last_location, board) && moving_boxcar.in_city == last_vehicle.in_city)//TODOED && !moving_boxcar.is_pause) // dont depart until boxcar has arrived at city
             {
+                //if (moving_boxcar.in_city && moving_boxcar.city != last_vehicle.city)
+                //{
+                //    yield return new WaitForEndOfFrame();
+                //    continue;
+                //}
                 last_vehicle = moving_boxcar;
-                moving_boxcar.departing = false; 
-                //print("Make Boxcar depart. boxcar orientation is " + moving_boxcar.get_orientation() + " tile position is " + last_location);
+                moving_boxcar.departing = false;
+                print("Make Boxcar depart. boxcar orientation is " + moving_boxcar.get_orientation() + " new tile position is " + last_location + "old tile position is " + moving_boxcar.tile_position);
                 moving_boxcar.set_depart_status(true);
                 if (train.in_city) moving_boxcar.receive_train_order = true;
                 moving_boxcar.tile_position = last_location;
@@ -225,8 +230,15 @@ public class VehicleManager : BoardManager
         Vector3Int tile_position = moving_object.tile_position;
         Vector3 moving_object_position = TrainRouteManager.get_spawn_location(tile_position, moving_object.orientation);
         moving_object.transform.position = moving_object_position;
-        if (moving_object.tag == "boxcar" && moving_object.GetComponent<Boxcar>().boxcar_id == 3)
-            print("Spawn boxcar " + moving_object.GetComponent<Boxcar>().boxcar_id + " at pos " + tile_position); //poopies
+        if (moving_object.tag == "boxcar")
+        {
+            print("Spawn boxcar " + moving_object.GetComponent<Boxcar>().boxcar_id + " at pos " + tile_position + " " + moving_object_position); //poopies
+            Boxcar boxcar = (Boxcar)moving_object;
+            if (boxcar.boxcar_id == 3)
+            {
+                print("sldk");
+            }
+        }
         moving_object.prepare_for_departure();
     }
 
@@ -240,7 +252,7 @@ public class VehicleManager : BoardManager
         //assign the type of board depending on if leaving or arriving
         if (board==null) StartCoroutine(Make_All_Boxcars_Depart(vehicle_board, train.boxcar_squad, train)); // last location????
         else { StartCoroutine(Make_All_Boxcars_Depart(board, train.boxcar_squad, train)); }
-        spawn_moving_object(train);
+        spawn_moving_object(train);  
         //city.remove_train_from_list(train); 
     }
 
@@ -249,13 +261,14 @@ public class VehicleManager : BoardManager
         // place vehicle on entering or exiting a city
         MovingObject moving_object = moving_gameobject.GetComponent<MovingObject>();
         Vector3Int city_position = moving_object.city.get_location();
-        Vector3Int station_start_position = moving_object.tile_position;
         if (moving_object.city != null) // place the vehicle in a city
         {
             // orient the vehicles in any direction with a track
             moving_object.set_initial_rotation(moving_object.orientation);
         }
-        if (!moving_object.in_city) { update_vehicle_board(vehicle_board, moving_gameobject, city_position, new Vector3Int(-1, -1, -1));  }
+        if (!moving_object.in_city) {
+            update_vehicle_board(vehicle_board, moving_gameobject, city_position, new Vector3Int(-1, -1, -1));
+        }
     }
 
     public void update_vehicle_board(GameObject[,] vehicle_board, GameObject game_object, Vector3Int unadjusted_position, Vector3Int unadjusted_prev_position)
