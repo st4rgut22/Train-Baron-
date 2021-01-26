@@ -157,13 +157,13 @@ public class VehicleManager : BoardManager
             GameObject boxcar = boxcar_list[boxcar_depart_id];
             Boxcar moving_boxcar = boxcar.GetComponent<Boxcar>();
             
-            if (!is_vehicle_in_cell(last_location, board) && moving_boxcar.in_city == last_vehicle.in_city)//TODOED && !moving_boxcar.is_pause) // dont depart until boxcar has arrived at city
+            if (!is_vehicle_in_cell(last_location, board) && moving_boxcar.in_city == last_vehicle.in_city && !moving_boxcar.is_pause) // dont depart until boxcar has arrived at city
             {
-                //if (moving_boxcar.in_city && moving_boxcar.city != last_vehicle.city)
-                //{
-                //    yield return new WaitForEndOfFrame();
-                //    continue;
-                //}
+                if (moving_boxcar.in_city && moving_boxcar.city != last_vehicle.city)
+                {
+                    yield return new WaitForEndOfFrame();
+                    continue;
+                }
                 last_vehicle = moving_boxcar;
                 moving_boxcar.departing = false;
                 print("Make Boxcar depart. boxcar orientation is " + moving_boxcar.get_orientation() + " new tile position is " + last_location + "old tile position is " + moving_boxcar.tile_position);
@@ -239,7 +239,7 @@ public class VehicleManager : BoardManager
                 print("sldk");
             }
         }
-        moving_object.prepare_for_departure();
+        StartCoroutine(moving_object.prepare_for_departure());
     }
 
     public void depart(GameObject train_object, Vector3Int new_tile_position, GameObject[,] board=null)

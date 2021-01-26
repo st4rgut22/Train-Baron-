@@ -102,7 +102,7 @@ public class Boxcar : MovingObject
 
     public void set_depart_status(bool status)
     {
-        in_tile = true;
+        //in_tile = true;
         departing = status;
     }
 
