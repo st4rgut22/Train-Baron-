@@ -16,15 +16,15 @@ public class DestinationTurntable : EventDetector
         
     }
 
-    public override void OnPointerClick(PointerEventData eventData)
-    {
-        if (gameObject.name == "Shipyard Track Exit North")
-            GameManager.city_manager.set_destination_track(RouteManager.Orientation.North);
-        else if (gameObject.name == "Shipyard Track Exit South")
-            GameManager.city_manager.set_destination_track(RouteManager.Orientation.South);
-        else if (gameObject.name == "Shipyard Track Exit West")
-            GameManager.city_manager.set_destination_track(RouteManager.Orientation.West);
-        else if (gameObject.name == "Shipyard Track Exit East")
-            GameManager.city_manager.set_destination_track(RouteManager.Orientation.East);
-    }
+    //public override void OnPointerClick(PointerEventData eventData)
+    //{
+    //    if (gameObject.name == "Shipyard Track Exit North")
+    //        GameManager.city_manager.set_destination_track(RouteManager.Orientation.North);
+    //    else if (gameObject.name == "Shipyard Track Exit South")
+    //        GameManager.city_manager.set_destination_track(RouteManager.Orientation.South);
+    //    else if (gameObject.name == "Shipyard Track Exit West")
+    //        GameManager.city_manager.set_destination_track(RouteManager.Orientation.West);
+    //    else if (gameObject.name == "Shipyard Track Exit East")
+    //        GameManager.city_manager.set_destination_track(RouteManager.Orientation.East);
+    //}
 }

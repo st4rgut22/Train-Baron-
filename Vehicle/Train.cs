@@ -52,8 +52,13 @@ public class Train : MovingObject
                     return;
                 if (collision.gameObject.tag == "boxcar")
                 {
-                    if (boxcar_squad[0] == collision.gameObject)
+                    if (boxcar_squad[0] == collision.gameObject) //ignore coll9isions with own lead boxcar
                         return;
+                }
+                if (!in_city && boxcar_squad.Contains(collision.gameObject))
+                {
+                    Tile city_tile = (Tile)RouteManager.city_tilemap.GetTile((Vector3Int)collision.gameObject.GetComponent<Boxcar>().tile_position);
+                    if (city_tile != null) return; // colliding with boxcar that just left a city. technically not out of city yet. 
                 }
                 halt_train(false, true);
                 GameObject explosion_go = Instantiate(explosion);
