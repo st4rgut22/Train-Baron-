@@ -391,11 +391,6 @@ public class CityManager : BoardManager
             return false;
     }
 
-    public void set_destination_track(RouteManager.Orientation orientation)
-    {
-        Activated_City.GetComponent<City>().set_destination_track(orientation);
-    }
-
     public void hide_shipyard_inventory()
     {
         Tilemap tilemap = GameManager.Shipyard_Inventory.GetComponent<Tilemap>();

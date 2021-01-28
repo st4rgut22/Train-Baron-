@@ -36,11 +36,8 @@ public class Boxcar : MovingObject
     // Update is called once per frame
     void Update()
     {
-        if (boxcar_id == 3)
-        {
-            print("bbb");
-        }
-        print("tile psoition " + tile_position);
+        if (!is_halt && !in_tile && !end_of_track)
+            set_destination();
         if (!in_city || (in_city && receive_train_order)) // delay movement updates until train orders boxcar to depart
             base.Update();
     }

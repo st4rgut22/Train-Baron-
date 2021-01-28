@@ -495,7 +495,7 @@ public class GameManager : EventDetector
         if (game_menu_state)
             if (!moving_object.in_city)
             {
-                
+                print("enable vehicle for screen line 498");
                 StartCoroutine(moving_object.switch_on_vehicle(true, is_delayed:true)); // delay
             }
             else { StartCoroutine(moving_object.switch_on_vehicle(false)); }
@@ -504,7 +504,11 @@ public class GameManager : EventDetector
             StartCoroutine(moving_object.switch_on_vehicle(false));
             if (moving_object.in_city)
                 if (moving_object.city == CityManager.Activated_City_Component)
+                {
+                    print("enable vehicle for screen line 508");
                     StartCoroutine(moving_object.switch_on_vehicle(true));
+
+                }
         }
     }
      

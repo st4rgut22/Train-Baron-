@@ -61,7 +61,6 @@ public class City : Structure
     public GameObject city_tilemap_go;
     public Tilemap city_tilemap;
 
-    public RouteManager.Orientation destination_orientation;
     
     public int prev_train_list_length = 0;
 
@@ -210,7 +209,6 @@ public class City : Structure
 
         turn_table_circle = Instantiate(Turn_Table_Circle);
         turn_table_circle.GetComponent<SpriteRenderer>().enabled = false;
-        destination_orientation = RouteManager.Orientation.None;
         game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
         building_id = 1;
     }
@@ -518,11 +516,6 @@ public class City : Structure
         city_building_list.Add(building);
     }
 
-    public void set_destination_track(RouteManager.Orientation orientation)
-    {
-        destination_orientation = orientation;
-    }
-
     public Vector3Int get_location()
     {
         return tilemap_position;
@@ -745,7 +738,7 @@ public class City : Structure
         {
             train_object.GetComponent<Train>().turn_on_train(true);
         }
-        if (GameManager.game_menu_state) // this is not causing boxcar to disappear prematurely
+        if (GameManager.game_menu_state) // in city AND game menu state
             StartCoroutine(train_object.GetComponent<Train>().switch_on_vehicle(false));
     }
 

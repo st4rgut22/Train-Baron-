@@ -21,18 +21,6 @@ public class TrainRouteManager : RouteManager
         }
     }
 
-    public static void set_destination_track(string exit_track_name)
-    {
-        if (exit_track_name == "Shipyard Track Exit North")
-            GameManager.city_manager.set_destination_track(Orientation.North);
-        else if (exit_track_name == "Shipyard Track Exit South")
-            GameManager.city_manager.set_destination_track(Orientation.South);
-        else if (exit_track_name == "Shipyard Track Exit West")
-            GameManager.city_manager.set_destination_track(Orientation.West);
-        else if (exit_track_name == "Shipyard Track Exit East")
-            GameManager.city_manager.set_destination_track(Orientation.East);
-    }
-
     public static string get_destination_type(Vector3Int tile_coord, bool in_city)
     {
         if (in_city)

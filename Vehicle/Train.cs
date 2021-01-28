@@ -34,6 +34,17 @@ public class Train : MovingObject
     // Update is called once per frame
     void Update()
     {
+        if (!is_halt && !in_tile && !end_of_track)
+        {
+            set_destination();
+            if (!in_city && gameObject.tag == "train" && is_end_of_track() && !is_pause)
+            {
+                StartCoroutine(gameObject.GetComponent<Train>().wait_for_track_placement(next_tilemap_position));
+                gameObject.GetComponent<Train>().halt_train(false, true);
+                end_of_track = true;
+                return; // cancel any further movemnt updates
+            }
+        }
         base.Update();
     }
 
@@ -121,20 +132,21 @@ public class Train : MovingObject
         return boxcar_squad[boxcar_squad.Count - 1];
     }
 
-    public void turn_on_train(bool is_train_on)
+    public void turn_on_train(bool is_game_menu_on)
     {
 
-        StartCoroutine(switch_on_vehicle(is_train_on));
+        StartCoroutine(switch_on_vehicle(is_game_menu_on));
         foreach (GameObject boxcar_object in boxcar_squad)
         {
             Boxcar boxcar = boxcar_object.GetComponent<Boxcar>();
-            if (!boxcar.departing)
+            if (boxcar.departing && is_game_menu_on)
             {
-                StartCoroutine(boxcar.switch_on_vehicle(is_train_on));
+                print("big boxcar " + boxcar.boxcar_id + " is departing and game menu is " + is_game_menu_on + " switch vehicle " + !is_game_menu_on);
+                StartCoroutine(boxcar.switch_on_vehicle(!is_game_menu_on));
             }
-            else
-            {
-                StartCoroutine(boxcar.switch_on_vehicle(!is_train_on)); // if train is shown, hide boxcars. if train is hidden. show boxcars
+            else {
+                print("big boxcar " + boxcar.boxcar_id + " is departing switch vehicle " + is_game_menu_on);
+                StartCoroutine(boxcar.switch_on_vehicle(is_game_menu_on));
             }
         }
     }
@@ -250,7 +262,6 @@ public class Train : MovingObject
 
     public void board_turntable(RouteManager.Orientation orientation, bool depart_turntable)
     {
-        is_idle = false;
         if (depart_turntable)
         {
             start_all_boxcar_at_turntable();
@@ -260,15 +271,11 @@ public class Train : MovingObject
         }
         else // leaving the turntable
         {
-            this.orientation = city.destination_orientation;
-            this.final_orientation = this.orientation; // dont overwrite orientation with shipyard orientation after departing city
             leave_city = true;
             foreach (GameObject boxcar_object in boxcar_squad)
             {
                 Boxcar boxcar = boxcar_object.GetComponent<Boxcar>();
                 boxcar.leave_city = true;
-                boxcar.orientation = this.orientation;
-                boxcar.final_orientation = this.orientation;
             }
         }
     }
@@ -358,7 +365,6 @@ public class Train : MovingObject
             }
             else { yield return new WaitForEndOfFrame(); }
         }
-        is_idle = false;
         end_of_track = false;
         halt_train(false, false); // unpause the train
     }

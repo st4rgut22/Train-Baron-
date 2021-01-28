@@ -165,7 +165,7 @@ public class VehicleManager : BoardManager
                     continue;
                 }
                 last_vehicle = moving_boxcar;
-                moving_boxcar.departing = false;
+                moving_boxcar.departing = false; // reset departing 
                 print("Make Boxcar depart. boxcar orientation is " + moving_boxcar.get_orientation() + " new tile position is " + last_location + "old tile position is " + moving_boxcar.tile_position);
                 moving_boxcar.set_depart_status(true);
                 if (train.in_city) moving_boxcar.receive_train_order = true;
