@@ -184,7 +184,6 @@ public class CityDetector : EventDetector
 
     public void click_room(PointerEventData eventData)
     {
-        print("set a city hint in frame " + Time.frameCount);
         // get station
         // get adjacent boarding track
         // if train is on track, then search for appropriate boxcars on track
@@ -200,7 +199,6 @@ public class CityDetector : EventDetector
         {
             Person person = room.person_go_instance.GetComponent<Person>();
             person.is_selected = true;
-            print("selected tile is " + selected_tile);
             Station cb_station = CityManager.Activated_City_Component.get_station_track(selected_tile).station;
             RouteManager.Orientation orientation = cb_station.orientation;
             bool[] outer_inner_arr = TrackManager.is_city_building_inner(selected_tile, orientation); // 0 means outer, 1 means inner
@@ -222,7 +220,6 @@ public class CityDetector : EventDetector
                     inner_outer_coord.AddRange(available_inner_track_vehicle);
                 }
                 List<List<int[]>> city_action_coord = new List<List<int[]>> { inner_outer_coord };
-                print("available boxcar position is " + inner_outer_coord);
                 train_hint_list.Add("board");
                 GameObject.Find("GameManager").GetComponent<GameManager>().mark_tile_as_eligible(city_action_coord, train_hint_list, gameObject, true);
             }

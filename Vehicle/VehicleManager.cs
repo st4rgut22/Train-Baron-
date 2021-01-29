@@ -155,8 +155,10 @@ public class VehicleManager : BoardManager
         while (boxcar_depart_id < boxcar_count) 
         {
             GameObject boxcar = boxcar_list[boxcar_depart_id];
+            if (boxcar == null)
+                yield break; // the boxcar collidd with another train while entering city. 
             Boxcar moving_boxcar = boxcar.GetComponent<Boxcar>();
-            
+
             if (!is_vehicle_in_cell(last_location, board) && moving_boxcar.in_city == last_vehicle.in_city && !moving_boxcar.is_pause) // dont depart until boxcar has arrived at city
             {
                 if (moving_boxcar.in_city && moving_boxcar.city != last_vehicle.city)
@@ -232,12 +234,7 @@ public class VehicleManager : BoardManager
         moving_object.transform.position = moving_object_position;
         if (moving_object.tag == "boxcar")
         {
-            print("Spawn boxcar " + moving_object.GetComponent<Boxcar>().boxcar_id + " at pos " + tile_position + " " + moving_object_position); //poopies
             Boxcar boxcar = (Boxcar)moving_object;
-            if (boxcar.boxcar_id == 3)
-            {
-                print("sldk");
-            }
         }
         StartCoroutine(moving_object.prepare_for_departure());
     }
@@ -297,18 +294,12 @@ public class VehicleManager : BoardManager
             if (destination_type=="city") // if vehicle arriving at city is a boxcar, don't update tile
             {
                 if (game_object.tag=="train") vehicle_board[position.x, position.y] = game_object; // only trains should be in cities, it stores a list of attached boxcars
-                //else if (game_object.tag == "boxcar") // only update city tile with boxcar if the boxcar is departing. 
-                //{
-                //    bool boxcar_is_departing = game_object.GetComponent<Boxcar>().get_depart_status();
-                //    if (boxcar_is_departing) vehicle_board[position.x, position.y] = game_object;
-                //}
             }
             else
             {
                 vehicle_board[position.x, position.y] = game_object;
                 print("Update Vehicle Board with object " + game_object.name + " to position " + position);
             }
-            //print("updating vehicle board tile at " + position + " with vehicle " + game_object.tag);
 
         }
         catch (IndexOutOfRangeException e)

@@ -328,7 +328,6 @@ public class RouteManager : MonoBehaviour
                     break;
                 default:
                     moving_thing.final_orientation = Orientation.None;
-                    //print("none of the track tiles matched"); // return current position
                     break;
             }
             if (tile_name == "ne_diag" || tile_name == "nw_diag" || tile_name == "se_diag" || tile_name == "sw_diag" || tile_name == "less_diag_ne_turn" ||
@@ -337,18 +336,12 @@ public class RouteManager : MonoBehaviour
                 final_cell_dest = get_straight_final_dest(moving_thing.orientation, tile_world_coord);
                 next_tilemap_pos = get_straight_next_tile_pos(moving_thing.orientation, next_tilemap_pos);
             }
-            if (next_tilemap_pos.Equals(new Vector2Int(7, 6)))
-            {
-                print("klsdjfls");
-            }
         }
         catch (NullReferenceException e)
         {
             final_cell_dest = tile_world_coord;
-            //print("Vehicle Should not reach end of track due to look ahead. tilemap " + tilemap + " position of " + moving_thing.name + " is " + moving_thing.tile_position);
             print(e.Message);
         }
-        //print("final cell dest without offset is " + final_cell_dest + " + with offset is " + (final_cell_dest+offset));
 
         final_cell_dest += offset;
         return new PositionPair(final_cell_dest, next_tilemap_pos, (Vector2Int)moving_thing.prev_tile_position);
@@ -394,11 +387,6 @@ public class RouteManager : MonoBehaviour
         if (moving_thing.gameObject.tag == "boxcar")
         {
             Boxcar bcar = (Boxcar)moving_thing;
-            if (bcar.boxcar_id == 3)
-            {
-                print("break");
-
-            }
         }
         if (!moving_thing.in_city) //not inside a city, so check if arrived at city
         {

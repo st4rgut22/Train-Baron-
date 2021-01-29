@@ -224,7 +224,6 @@ public class City : Structure
         PersonManager pm = GameManager.person_manager.GetComponent<PersonManager>();
         if (total_review_count == 0) return pm.zero_star_texture;
         int texture_id = (int)(total_star / total_review_count);
-        print("total stars is " + total_star + " total reviews is " + total_review_count);
         return pm.get_star_texture(texture_id);
     }
 
@@ -235,7 +234,7 @@ public class City : Structure
         int total_vacancy_count = get_total_occupant_count();
         if (total_vacancy_count < people_to_add) people_to_add = total_vacancy_count;
         start_reputation = PersonManager.reputation;
-        print("people to add " + people_to_add);
+        print("POPUPLATE ENTRANCE people to add " + people_to_add);
         for (int i = 0; i < people_to_add; i++)
         {
             foreach (Building bldg in city_building_list)
@@ -444,7 +443,6 @@ public class City : Structure
         room.booked = true; // set true even tho person hasnt arrived to lock in this room and lock out others
         room.person_go_instance = boxcar.passenger_go;
         string track_name = RouteManager.shipyard_track_tilemap.GetTile(boxcar.tile_position).name;
-        print("unloading train from room  position " + room_position + " to " + boxcar.tile_position);
         RouteManager.Orientation exit_orientation = CityManager.station_track_unloading_map[boxcar.station_track.start_location][track_name];
         StartCoroutine(GameObject.Find("PersonRouteManager").GetComponent<PersonRouteManager>().unload_train(boxcar, room, exit_orientation));
     }
@@ -452,7 +450,6 @@ public class City : Structure
     public void board_train(GameObject boxcar_go, Vector2Int room_position)
     {
         Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
-        print("boarding train from room  position " + room_position + " to " + boxcar.tile_position);
         Room room = city_room_matrix[room_position.x, room_position.y];
         GameObject occupant_go = room.person_go_instance; //todo: laster move the occupant to the room (first checkpoint). 
         Person occupant = occupant_go.GetComponent<Person>();
@@ -574,9 +571,13 @@ public class City : Structure
     {
         // change number of lots 
         int delta_reputation = reputation + unapplied_reputation_count - last_checked_reputation;
-        print("delta reputation is " + delta_reputation);
-        int lot_affected = Math.Abs(delta_reputation); //TESTING UNDO!! TODOED / reputation_per_lot;
-        int leftover_reputation = delta_reputation % reputation_per_lot;
+        print("APPLY reputation " + delta_reputation + " formula is reputation " + reputation + " plus " + unapplied_reputation_count + " minus " + last_checked_reputation);
+        int lot_affected = Math.Abs(delta_reputation);
+        int leftover_reputation = 0;
+        if (delta_reputation > reputation_per_lot)
+        {
+            leftover_reputation = delta_reputation % reputation_per_lot;
+        }        
         int rollover_reputation = 0; // rollover lots are how many lots over the max capacity should be affected. Applied when more lots are available
         if (delta_reputation < 0)
         {
@@ -736,7 +737,7 @@ public class City : Structure
         remove_train_from_list(train_object, GameManager.train_list); // remove train from the game manager list
         if (CityManager.Activated_City == gameObject) // city screen is on, containing the relvant vehicle
         {
-            train_object.GetComponent<Train>().turn_on_train(true);
+            train_object.GetComponent<Train>().turn_on_train(true, false);
         }
         if (GameManager.game_menu_state) // in city AND game menu state
             StartCoroutine(train_object.GetComponent<Train>().switch_on_vehicle(false));
@@ -806,7 +807,7 @@ public class City : Structure
             {
                 foreach (GameObject train in train_list) // hide or show trains depending on whether I'm in a game view
                 {
-                    train.GetComponent<Train>().turn_on_train(GameManager.city_menu_state);
+                    train.GetComponent<Train>().turn_on_train(GameManager.city_menu_state, false);
                 }
                 GameManager.prev_city_menu_state = GameManager.city_menu_state;
             }

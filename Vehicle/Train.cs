@@ -52,7 +52,6 @@ public class Train : MovingObject
     {
         // should still trigger when not visible in inspector
         // not updated in unity's inspector
-        print("animate train " + id + " at " + Time.time);
         print("collided with " + collision.gameObject.name);        
         if (collision.gameObject.tag == "boxcar" || collision.gameObject.tag == "train")
         {
@@ -124,30 +123,51 @@ public class Train : MovingObject
         }
     }
 
+    public int get_boxcar_position(GameObject boxcar_go)
+    {
+        int position = 0;
+        foreach (GameObject boxcar in boxcar_squad)
+        {            
+            position += 1;
+            if (boxcar == boxcar_go) return position;
+        }
+        throw new Exception("the boxcar does not exist in train list");
+    }
+
     public GameObject get_last_vehicle_added()
     {
         if (boxcar_squad.Count == 0) return gameObject;
         Boxcar boxcar = boxcar_squad[boxcar_squad.Count - 1].GetComponent<Boxcar>();
-        print("last vehicle added is " + boxcar.boxcar_id + "tile position is " + boxcar.tile_position);
         return boxcar_squad[boxcar_squad.Count - 1];
     }
 
-    public void turn_on_train(bool is_game_menu_on)
+    public void turn_on_train(bool menu_state, bool is_game_menu)
     {
 
-        StartCoroutine(switch_on_vehicle(is_game_menu_on));
+        StartCoroutine(switch_on_vehicle(menu_state));
         foreach (GameObject boxcar_object in boxcar_squad)
         {
             Boxcar boxcar = boxcar_object.GetComponent<Boxcar>();
-            if (boxcar.departing && is_game_menu_on)
+            if (is_game_menu)
             {
-                print("big boxcar " + boxcar.boxcar_id + " is departing and game menu is " + is_game_menu_on + " switch vehicle " + !is_game_menu_on);
-                StartCoroutine(boxcar.switch_on_vehicle(!is_game_menu_on));
+                if (!boxcar.in_city && menu_state) 
+                {
+                    print("turn on train boxcar " + boxcar.boxcar_id + " NOT IN CITY and game mneu is on. Turn ON sprit e renderer");
+                    StartCoroutine(boxcar.switch_on_vehicle(true));
+                    continue;
+                }
             }
-            else {
-                print("big boxcar " + boxcar.boxcar_id + " is departing switch vehicle " + is_game_menu_on);
-                StartCoroutine(boxcar.switch_on_vehicle(is_game_menu_on));
+            else // is city menu
+            {
+                if (boxcar.in_city && menu_state)
+                {
+                    print("not GAME MENU. TURN ON TRAIN boxcar " + boxcar.boxcar_id + " IN CITY and . Turn ON sprit e renderer");
+                    StartCoroutine(boxcar.switch_on_vehicle(true));
+                    continue;
+                }
             }
+            print("switch vehicle OFF");
+            StartCoroutine(boxcar.switch_on_vehicle(false));
         }
     }
 
@@ -253,7 +273,6 @@ public class Train : MovingObject
             Boxcar boxcar = boxcar_squad[i].GetComponent<Boxcar>();
             if (boxcar.boxcar_id == boxcar_id)
             {
-                //print("distance from train is " + (i + 1));
                 return i + 1;
             }
         }
@@ -420,19 +439,24 @@ public class Train : MovingObject
         }
     }
 
+    public void stop_single_boxcar_at_turntable(GameObject boxcar_go)
+    {
+        Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
+        Tilemap boxcar_tilemap = CityDetector.boxcar_orientation_to_offset_tilemap(boxcar.orientation);
+        Vector3Int boxcar_cell_pos = boxcar_tilemap.WorldToCell(boxcar_go.transform.position);
+        print("boxcar " + boxcar_go.name + " tile position " + boxcar.tile_position + " prev tile position " + boxcar.prev_tile_position);
+        boxcar.prev_tile_position = boxcar.tile_position; // move up  one
+        boxcar.tile_position = boxcar_cell_pos;
+        GameManager.vehicle_manager.update_vehicle_board(city.city_board, boxcar_go, boxcar_cell_pos, boxcar.prev_tile_position); // nullify prev tile
+        boxcar.speed = stopping_speed;
+        boxcar.is_halt = true; // only call ONCE when first called
+    }
+
     public void stop_all_boxcar_at_turntable()
     {
         foreach (GameObject boxcar_go in boxcar_squad)
         {
-            Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
-            Tilemap boxcar_tilemap = CityDetector.boxcar_orientation_to_offset_tilemap(boxcar.orientation);
-            Vector3Int boxcar_cell_pos = boxcar_tilemap.WorldToCell(boxcar_go.transform.position);
-            print("boxcar " + boxcar_go.name + " tile position " + boxcar.tile_position + " prev tile position " + boxcar.prev_tile_position);
-            boxcar.prev_tile_position = boxcar.tile_position; // move up  one
-            boxcar.tile_position = boxcar_cell_pos;
-            GameManager.vehicle_manager.update_vehicle_board(city.city_board, boxcar_go, boxcar_cell_pos, boxcar.prev_tile_position); // nullify prev tile
-            boxcar.speed = stopping_speed;
-            boxcar.is_halt = true; // only call ONCE when first called
+            stop_single_boxcar_at_turntable(boxcar_go);
         }
     }
 

@@ -149,7 +149,6 @@ public class StoreMenuManager : MonoBehaviour
 
     bool change_item_count()
     {
-        print("total price is " + total_cost);
         if (total_cost <= GameManager.money)
         {
             create_purchased_items(text_game_objects);

@@ -253,7 +253,6 @@ public class TrackManager : BoardManager
         int toggle_count = toggle_count_grid[tilemap_position.x, tilemap_position.y];
         toggle_count = (toggle_count + 1) % track_list.Count; // increment toggle count to activate the next track tile
         toggle_count_grid[tilemap_position.x, tilemap_position.y] = toggle_count;
-        //print("toggle count " + toggle_count);
         int bottom_tilemap_idx = 0;
         for (int i = 0; i < track_list.Count; i++) // inactivate all track tiles, except for the one toggled on
         {
@@ -679,7 +678,6 @@ public class TrackManager : BoardManager
         double delta_y = final_position.y - cur_position.y;
         double delta_x = final_position.x - cur_position.x;
         double rot = Math.Atan2(delta_y, delta_x);
-        print("straight rotation is " + rot);
         return rot;
     }
 

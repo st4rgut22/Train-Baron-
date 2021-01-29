@@ -84,7 +84,6 @@ public class PersonManager : MonoBehaviour
         {
             if (CityManager.Activated_City_Component != CityManager.home_base) // dont spawn if in entnrace, or else it will look weird
             {
-                print("force populate entrance");
                 CityManager.home_base.populate_entrance();
             }
         }

@@ -29,7 +29,6 @@ public class Building : Structure
 
     public void Start()
     {
-        print(gameObject.name);
         roomba = new GameObject[max_capacity];
         city.city_tilemap_go.SetActive(false); // after setting tile deactivate gameobject
         if (building_lot.id == initial_building_lot_name)

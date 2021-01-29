@@ -156,7 +156,6 @@ public class PersonRouteManager : RouteManager
         occupant.is_tight_curve = is_curve_inner(boxcar);
         yield return StartCoroutine(occupant.move_checkpoints(board_train_checkpoints)); // wait for all preboarding movements to end before going to boxcar
         room.has_person = false; // egghead is outside the room
-        print("start follow track sequence");
         occupant.in_tile = false; // allow person to follow the track to the destination boxcar
                                   // if all goes well then boarding is all that's left
         occupant.exit_home();

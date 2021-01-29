@@ -75,7 +75,6 @@ public class Simple_Moving_Object : EventDetector
             position_pair = RouteManager.get_destination(this, station_track.tilemap, offset); // set the final orientation and destination
             next_tilemap_position = position_pair.tile_dest_pos;
             Vector2 train_dest_xy = position_pair.abs_dest_pos;
-            //print("person path is from " + next_tilemap_position + " to " + position_pair.tile_dest_pos);
             // stop the train here if track ends
 
             Vector3 train_destination = new Vector3(train_dest_xy[0], train_dest_xy[1], z_pos);
@@ -92,8 +91,6 @@ public class Simple_Moving_Object : EventDetector
     public IEnumerator set_animation_clip(string animation_clip)
     {
         // change the sprite's animation clip
-        //print("set animation clip " + animation_clip + " true");
-        //print("set old animation clip " + current_animation + " false");
         animator.SetBool(animation_clip, true);
         animator.SetBool(current_animation, false);
         current_animation = animation_clip;
@@ -180,7 +177,6 @@ public class Simple_Moving_Object : EventDetector
         // change animation clip
         string animation_name = PersonRouteManager.get_animation_from_orientation(final_orientation, "walk");
         StartCoroutine(set_animation_clip(animation_name));
-        //print("Start angle is " + start_angle + " End angle is " + end_angle);
         while (!final_step)
         {
             if (PauseManager.game_is_paused)

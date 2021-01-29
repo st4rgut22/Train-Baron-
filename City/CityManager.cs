@@ -60,8 +60,10 @@ public class CityManager : BoardManager
         new int[]{0,7 }, new int[]{0,8 }, new int[]{0,9 }, new int[]{3,9 }, new int[]{4,9 }, new int[]{5,9 }, new int[]{6,9 }, new int[]{10,1 }, new int[]{11,1 }, new int[]{12,1 },
         new int[]{13,1 }, new int[]{16,1 }, new int[]{16,2 }, new int[]{16,3 }, new int[]{16,9 }, new int[]{15,9 }, new int[]{14,9 }, new int[]{13,9 }, new int[]{12,9 }, new int[]{11,9 } };
 
+
+    public static List<int[]> boxcar_city_outer_wait_tile = new List<int[]> { new int[] { 13, 3 } , new int[] { 2, 7 } };
+    public static List<int[]> boxcar_city_inner_wait_tile = new List<int[]> { new int[] { 13, 2 } , new int[] { 3, 8 } };
     public static List<int[]>  boxcar_city_wait_tile = new List<int[]> { new int[] { 6, 1 }, new int[] { 11, 2 } , new int[] { 12, 3 } , new int[] { 4, 3 }, new int[] { 5, 8 }, new int[] { 4, 7 }, new int[] { 12, 7 }, new int[] { 10, 9 } }; // ADD MORE 
-    //TODOED ADD WAIT TILES FORTHE OTHER STATIONS
     public int entrance_update_interval;
 
     private void Awake()
@@ -455,14 +457,6 @@ public class CityManager : BoardManager
             Activated_City_Component.apply_reputation();
         }
     }
-
-    //public static RouteManager.Orientation set_orientation_of_new_train()
-    //{
-    //    // when a train is created, find which direction train should be in to pick up passengers
-    //    RouteManager.Orientation train_orientation = home_base.get_orientation_of_open_track();
-    //    print("orientation of new train is " + train_orientation);
-    //    return train_orientation;
-    //}
 
     public static float get_exit_dist(RouteManager.Orientation orientation)
     {

@@ -17,6 +17,8 @@ public class MenuManager : MonoBehaviour
     public static GameObject shipyard_exit_menu;
     public static GameObject game_icon_canvas;
     public static GameObject previous_menu;
+    public static GameObject exit_bck;// = GameObject.Find("Exit Bck"); // just a blue background
+
 
     static List<GameObject> event_handler_list; // names of gameobjects that listen for events
     City city;
@@ -25,6 +27,7 @@ public class MenuManager : MonoBehaviour
 
     private void Awake()
     {
+        exit_bck = GameObject.Find("Exit Bck");
     }
 
     // Start is called before the first frame update
@@ -58,6 +61,9 @@ public class MenuManager : MonoBehaviour
 
     public static void turn_off_shipyard()
     {
+        exit_bck.SetActive(false);
+        GameManager.game_menu_state = true;
+        print("turn OFF SHIPYARD, set game menu state true");
         GameManager.city_manager.set_activated_city(); // hide all the trains in the city
         GameObject.Find("GameManager").GetComponent<GameManager>().switch_on_shipyard(false);
         activate_default_handler();
@@ -77,6 +83,7 @@ public class MenuManager : MonoBehaviour
         {
             PauseManager.pause_game(false);
             GameManager.game_menu_state = true;
+            print("set game menu state TRUE becuase prev menu is store menu/review menu");
         }
         if (menu[0] == store_menu || menu[0] == review_menu)
         {
@@ -87,7 +94,6 @@ public class MenuManager : MonoBehaviour
         {
             GameManager.Structure.GetComponent<TilemapCollider2D>().enabled = true;
         }
-        //else { GameManager.game_menu_state = true; }
         foreach (GameObject handler in event_handler_list)
         {
             if (menu.Contains(handler)) {

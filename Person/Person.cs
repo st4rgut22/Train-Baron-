@@ -266,7 +266,6 @@ public class Person : Simple_Moving_Object
         {
             float boarding_pause_duration = PauseManager.find_cumulative_pause(board_start_time);
             float trip_pause_duration = PauseManager.find_cumulative_pause(trip_start_time);
-            print("boarding pause duration is " + boarding_pause_duration + " and trip pause duration is " + trip_pause_duration);
             float accurate_boarding_duration = boarding_duration - boarding_pause_duration;
             float accurate_trip_duration = trip_duration - trip_pause_duration;
             float boarding_rating = 1 - Math.Min(1, accurate_boarding_duration / board_desire_timeout);
@@ -275,10 +274,10 @@ public class Person : Simple_Moving_Object
             string trip_critique = review_board_trip_time((int)(boarding_rating * 5));
             string board_critique = review_board_trip_time((int)(boarding_rating * 5));
             review_summary = "The trip was " + trip_critique + " and boarding was " + board_critique;
-            print("trip rating is " + train_rating);
             int star_rating = (int)(train_rating * 5) + 1;
             star_rating = Math.Min(5, star_rating);
             review = (Review)star_rating;
+            print("boarding pause duration is " + boarding_pause_duration + " and trip pause duration is " + trip_pause_duration + "trip rating is " + train_rating);
             print("FINISHED TRIP. Board duration was " + accurate_boarding_duration + " trip duration was " + accurate_trip_duration + "review was " + review);
         }
         leave_review(city, review);
@@ -342,7 +341,6 @@ public class Person : Simple_Moving_Object
         yield return new WaitForSeconds(duration);
         board_start_time = Time.time;
         activity_in_progress = false;
-        print("room type is " + room.building.city.city_type);
         if (room.building.city.city_type == "Entrance") desired_activity = "home_thought_bubble";
         else
         {

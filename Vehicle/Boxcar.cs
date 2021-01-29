@@ -77,7 +77,6 @@ public class Boxcar : MovingObject
         {
 
             passenger_go.GetComponent<Person>().set_animation_clip("player_idle_front");
-            print("orientation of station is " + station_track.station.orientation);
             Quaternion current_rotation = new Quaternion();
             if (station_track.station.orientation == RouteManager.Orientation.North || station_track.station.orientation == RouteManager.Orientation.West)
             {
@@ -99,7 +98,6 @@ public class Boxcar : MovingObject
 
     public void set_depart_status(bool status)
     {
-        //in_tile = true;
         departing = status;
     }
 
@@ -118,7 +116,6 @@ public class Boxcar : MovingObject
         List<List<int[]>> boxcar_action_coord = new List<List<int[]>>();
         if (train !=null && in_city && train.is_pause)
         {
-            print("set boxcar hint");
             RouteManager.Orientation station_orientation = station_track.station.orientation;
             int is_inner = station_track.inner;
             List<List<int[]>> loading_coord = TrackManager.unloading_coord_map[station_orientation];

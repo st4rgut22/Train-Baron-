@@ -48,7 +48,6 @@ public class GameManager : EventDetector
     public static RouteManager route_manager;
     public static TrackManager track_manager;
     public static MenuManager menu_manager;
-    public static TrainMenuManager train_menu_manager;
 
     public static bool city_menu_state = false;
     public static bool prev_city_menu_state = false;
@@ -106,7 +105,6 @@ public class GameManager : EventDetector
         train_list = new List<GameObject>();
         hint_context_list = new List<string>();
         hint_context_pos_list = new List<List<int[]>>();
-        train_menu_manager = GameObject.Find("Exit Bar").GetComponent<TrainMenuManager>();
         shipyard_state = false;
         Structure = GameObject.Find("Structure");
         Base = GameObject.Find("Base");
@@ -283,7 +281,6 @@ public class GameManager : EventDetector
                 List<int[]> hint_context = hint_context_pos_list[i];
                 foreach (int[] coord in hint_context)
                 {
-                    //print("hint context coordinate is (" + coord[0] + "," + coord[1] + ") and selected tile is " + selected_tile);
                     if (coord[0] == selected_tile.x && coord[1] == selected_tile.y) return i;
                 }
             }
@@ -348,7 +345,6 @@ public class GameManager : EventDetector
         List<string> collider_tag_list = get_collider_name_list(collider_list);
         if (hint_context_list.Contains("board")) // behaves different from other hint contexts because eligible tiles are offset from tilemap and must be found by cloesst distance
         {
-            print("board from city to boxcar");
             if (collider_tag_list.Contains("boxcar")) // second condition checks if it is an eligible tile
             {
                 GameObject boxcar_go = CityManager.get_vehicle_in_activated_city(collider_list, "boxcar"); // get the right boxcar (if exists) if they are on top of each other
@@ -362,10 +358,6 @@ public class GameManager : EventDetector
                         CityManager.Activated_City_Component.board_train(boxcar_go, hint_tile_pos);
                     }
                 }
-            }
-            else
-            {
-                print("boxcar tile is not clicked. abort board action");
             }
             StartCoroutine(clear_hint_list()); // clearn hint list so no other hints get triggered during executing of this hint
         }
@@ -388,7 +380,6 @@ public class GameManager : EventDetector
                 }
                 else if (hint_context == "park")
                 {
-                    print("park");
                     Boxcar boxcar = hint_gameobject.GetComponent<Boxcar>();
                     boxcar.city.place_boxcar_tile(boxcar.boxcar_type, (Vector3Int) selected_tile);
                     vehicle_manager.boxcar_fill_void(hint_gameobject); // move boxcars behind this one forward
@@ -495,21 +486,47 @@ public class GameManager : EventDetector
         if (game_menu_state)
             if (!moving_object.in_city)
             {
-                print("enable vehicle for screen line 498");
+                if (moving_object.gameObject.tag == "boxcar")
+                    print("enable boxcar " + moving_object.gameObject.GetComponent<Boxcar>().boxcar_id + "  for screen line. GAME menu state is TRUE but moving object NOT IN city");
+                print("GAME MENU ON object NOT in city. TURN on VEHICLE");
+                if (moving_object.gameObject.tag == "boxcar")
+                    print("boÎxcar " + moving_object.gameObject.GetComponent<Boxcar>().boxcar_id);
                 StartCoroutine(moving_object.switch_on_vehicle(true, is_delayed:true)); // delay
             }
-            else { StartCoroutine(moving_object.switch_on_vehicle(false)); }
+            else {
+                print("GAME MENU OFF object IN city turn OFF vehicle");
+                if (moving_object.gameObject.tag == "boxcar")
+                    print("boÎxcar " + moving_object.gameObject.GetComponent<Boxcar>().boxcar_id);
+                StartCoroutine(moving_object.switch_on_vehicle(false));
+            }
         if (city_menu_state)
         {
-            StartCoroutine(moving_object.switch_on_vehicle(false));
-            if (moving_object.in_city)
-                if (moving_object.city == CityManager.Activated_City_Component)
-                {
-                    print("enable vehicle for screen line 508");
-                    StartCoroutine(moving_object.switch_on_vehicle(true));
-
-                }
+            
+            if (moving_object.in_city && moving_object.city == CityManager.Activated_City_Component)
+            {
+                print("CITY MENU ON object IN ACTIVATED city turn ON vehicle");
+                StartCoroutine(moving_object.switch_on_vehicle(true));
+                if (moving_object.gameObject.tag == "boxcar")
+                    print("boÎxcar " + moving_object.gameObject.GetComponent<Boxcar>().boxcar_id);
+            }
+            else
+            {
+                print("CITY MENU ON object not IN ACTIVATED city turn OFF vehicle");
+                StartCoroutine(moving_object.switch_on_vehicle(false));
+            }
         }
+    }
+
+    public List<GameObject> get_all_train()
+    {
+        List<City> city_list = CityManager.city_list;
+        List<GameObject> all_train_list = new List<GameObject>();
+        all_train_list.AddRange(train_list);
+        foreach (City city in city_list)
+        {
+            all_train_list.AddRange(city.train_list);
+        }
+        return all_train_list;
     }
      
     public void enable_train_for_screen()
@@ -517,9 +534,20 @@ public class GameManager : EventDetector
         //rendering trains
         if (game_menu_state != prev_game_menu_state)
         {
-            foreach (GameObject train in train_list) // hide or show trains depending on whether I'm in a game view
+            if (game_menu_state)
             {
-                train.GetComponent<Train>().turn_on_train(game_menu_state);  // show trains and boxcars
+                foreach (GameObject train in train_list) // hide or show trains depending on whether I'm in a game view
+                {
+                    train.GetComponent<Train>().turn_on_train(game_menu_state, true);  // show trains and boxcars
+                }
+            }
+            else
+            {
+                List<GameObject> all_train_list = get_all_train();
+                foreach (GameObject train in all_train_list) // hide or show trains depending on whether I'm in a game view
+                {
+                    train.GetComponent<Train>().turn_on_train(game_menu_state, false);  // TURN OFF ALL trains and boxcars including those in GAME VIEW and in OTHER CITIES
+                }
             }
         }
         prev_game_menu_state = game_menu_state;
@@ -559,6 +587,11 @@ public class GameManager : EventDetector
 
         game_menu_state = !state;
         city_menu_state = state;
+
+        if (state)
+        {
+            MenuManager.exit_bck.SetActive(true); // show the star reviews
+        }
 
         enable_train_for_screen(); // switch on trains if exit shipyard
     }

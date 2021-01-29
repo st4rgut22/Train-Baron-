@@ -76,7 +76,6 @@ public class GameMenuManager : EventDetector
         {
             Text item_count = inventory_item.GetComponent<Text>();
             string item_name = inventory_item.transform.parent.name;
-            print("item name " + item_name);
             switch (item_name)
             {
                 case "vert":
@@ -307,7 +306,6 @@ public class GameMenuManager : EventDetector
             Tilemap structure_tilemap = GameManager.Structure.GetComponent<Tilemap>();
             List<Tile> track_tile = GameManager.track_manager.track_grid[final_tilemap_position.x,final_tilemap_position.y];
             Tile city_tile = (Tile)structure_tilemap.GetTile((Vector3Int)final_tilemap_position);
-            print("final tilemap position is " + final_tilemap_position);
             if (GameManager.is_position_in_bounds(final_tilemap_position))
             {
                 if (tag == "structure")
