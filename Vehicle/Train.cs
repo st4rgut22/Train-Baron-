@@ -62,17 +62,16 @@ public class Train : MovingObject
                     return;
                 if (collision.gameObject.tag == "boxcar")
                 {
-                    if (boxcar_squad[0] == collision.gameObject) //ignore coll9isions with own lead boxcar
+                    if (boxcar_squad.Count > 0 && boxcar_squad[0] == collision.gameObject) //ignore coll9isions with own lead boxcar
                         return;
                 }
                 if (!in_city && boxcar_squad.Contains(collision.gameObject))
                 {
-                    Tile city_tile = (Tile)RouteManager.city_tilemap.GetTile((Vector3Int)collision.gameObject.GetComponent<Boxcar>().tile_position);
+                    Tile city_tile = (Tile)RouteManager.city_tilemap.GetTile(collision.gameObject.GetComponent<Boxcar>().tile_position);
                     if (city_tile != null) return; // colliding with boxcar that just left a city. technically not out of city yet. 
                 }
                 halt_train(false, true);
                 GameObject explosion_go = Instantiate(explosion);
-                print("explode");
                 explode explosion_anim = explosion_go.transform.GetChild(0).gameObject.GetComponent<explode>();
                 explosion_anim.exploded_train = this;
                 explosion_list = new List<GameObject> { explosion_go };
@@ -83,6 +82,15 @@ public class Train : MovingObject
                     GameObject boxcar_explosion = Instantiate(explosion);
                     explosion_list.Add(boxcar_explosion);
                     boxcar_explosion.transform.position = boxcar_go.transform.position;
+                }
+                if (collision.gameObject.tag == "boxcar")
+                {
+                    GameObject other_boxcar_explosion = Instantiate(explosion);
+                    explosion_list.Add(other_boxcar_explosion);
+                    explode other_boxcar_explosion_anim = other_boxcar_explosion.transform.GetChild(0).gameObject.GetComponent<explode>();
+                    other_boxcar_explosion_anim.exploded_boxcar = collision.gameObject.GetComponent<Boxcar>();
+                    other_boxcar_explosion.transform.position = collision.gameObject.transform.position;
+                    other_boxcar_explosion.transform.localScale = new Vector3(.2f, .2f);
                 }
                 if (city != CityManager.Activated_City_Component) hide_explosion(explosion_list);
             }
@@ -159,7 +167,7 @@ public class Train : MovingObject
             }
             else // is city menu
             {
-                if (boxcar.in_city && menu_state)
+                if (boxcar.in_city && menu_state && boxcar.city == CityManager.Activated_City_Component)
                 {
                     print("not GAME MENU. TURN ON TRAIN boxcar " + boxcar.boxcar_id + " IN CITY and . Turn ON sprit e renderer");
                     StartCoroutine(boxcar.switch_on_vehicle(true));

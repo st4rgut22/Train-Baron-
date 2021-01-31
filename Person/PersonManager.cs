@@ -17,13 +17,16 @@ public class PersonManager : MonoBehaviour
     public static string[] men_name_arr;
     public static string[] women_name_arr;
     public static int total_notification; 
-    public GameObject person_go;
+    public GameObject poor_person_go;
+    public GameObject rich_person_go;
     public Texture zero_star_texture;
     public Texture one_star_texture;
     public Texture two_star_texture;
     public Texture three_star_texture;
     public Texture four_star_texture;
     public Texture five_star_texture;
+    public int how_to_become_rich; // below this levele, a rich man becomes a poor man
+    public int how_to_become_poor;
 
     public class Notification
     {
@@ -68,6 +71,8 @@ public class PersonManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        how_to_become_poor = 90;
+        how_to_become_rich = 55;        //how_to_become_rich = 200;     
         total_notification = 0;
         notification_prefab = (GameObject)Resources.Load("UI/notification"); // note: not .prefab!
         notification_canvas = GameObject.Find("People Manager");
@@ -89,17 +94,51 @@ public class PersonManager : MonoBehaviour
         }
     }
 
-    public GameObject create_person()
+    public void reinitialize_person(GameObject person_go_instance, GameObject old_person_go_instance)
     {
-        GameObject person_go_instance;
-        bool sex_is_male = is_sex_male();
-        if (sex_is_male) // women or men
+        // update person sprite after changing wealth class
+        person_go_instance.GetComponent<Person>().wealth = old_person_go_instance.GetComponent<Person>().wealth;
+        person_go_instance.GetComponent<Person>().schedule_activity();
+        person_go_instance.transform.position = old_person_go_instance.transform.position;
+        Destroy(old_person_go_instance);
+    }
+
+    public void change_wealth(GameObject person_go, int delta_wealth)
+    {
+        person_go.GetComponent<Person>().wealth += delta_wealth;
+        int wealth = person_go.GetComponent<Person>().wealth;
+        if (person_go.tag == "poor")
         {
-            person_go_instance = Instantiate(person_go);
+            print("wealth is " + wealth);
+            if (wealth > how_to_become_rich)
+            {
+                print("HOW TO BECOME RICH");
+                GameObject rich_person = Instantiate(rich_person_go);
+                reinitialize_person(rich_person, person_go);
+            }
         }
         else
         {
-            person_go_instance = Instantiate(person_go);
+            if (wealth < how_to_become_poor)
+            {
+                print("HOW TO BECOME POOR");
+                GameObject poor_person = Instantiate(poor_person_go);
+                reinitialize_person(poor_person, person_go);
+            }
+        }
+    }
+
+    public GameObject create_person(bool is_person_poor)
+    {
+        GameObject person_go_instance;
+        bool sex_is_male = is_sex_male();
+        if (is_person_poor) // women or men
+        {
+            person_go_instance = Instantiate(poor_person_go);
+        }
+        else
+        {
+            person_go_instance = Instantiate(rich_person_go);
         }
         string name = get_random_name(sex_is_male);
         person_go_instance.GetComponent<Person>().name = name;

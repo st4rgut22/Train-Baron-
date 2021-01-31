@@ -7,6 +7,14 @@ public class PoorPerson : Person
     void Awake()
     {
         base.Awake();
+        ticket_cost_map = new Dictionary<string, int>()
+        {
+            { "work_thought_bubble", 5 },
+            {"home_thought_bubble", 5 },
+            {"restaurant_thought_bubble", 10 },
+            {"vacation_thought_bubble", 30 }
+        };
+
         activity_likelihood_map = new Dictionary<string, int>()
         {
             { "work_thought_bubble", 50 },
@@ -20,14 +28,13 @@ public class PoorPerson : Person
             {"restaurant_thought_bubble", 10 },
             {"vacation_thought_bubble", 60 },
             {"work_thought_bubble", 30 }
-        }; // the time it takes to complete an action (if destination4 matches thought bubble)
+        }; // the time it takes to complete an action (if destinatikon4 matches thought bubble)
     }
 
     // Start is called before the first frame update
     void Start()
     {
         base.Start();
-        rent = 10;
     }
 
     // Update is called once per frame

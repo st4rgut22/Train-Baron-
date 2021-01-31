@@ -16,6 +16,10 @@ public class TrafficLightManager : Simple_Moving_Object
     public Vector2Int west_light_tile_pos;
     public Vector2Int south_light_tile_pos;
     public bool change_traffic_signal_flag;
+    public Traffic_Light_Loc north_light_loc;
+    public Traffic_Light_Loc east_light_loc;
+    public Traffic_Light_Loc west_light_loc;
+    public Traffic_Light_Loc south_light_loc;
 
     public enum Traffic_Light
     {
@@ -39,13 +43,29 @@ public class TrafficLightManager : Simple_Moving_Object
     // Start is called before the first frame update
     void Start()
     {
-        
+        north_light_loc = new Traffic_Light_Loc(north_light_tile_pos, GameManager.traffic_tilemap_offset_east, RouteManager.Orientation.North);
+        east_light_loc = new Traffic_Light_Loc(east_light_tile_pos, GameManager.traffic_tilemap_offset_south, RouteManager.Orientation.East);
+        west_light_loc = new Traffic_Light_Loc(west_light_tile_pos, GameManager.traffic_tilemap_offset_north, RouteManager.Orientation.West);
+        south_light_loc = new Traffic_Light_Loc(south_light_tile_pos, GameManager.traffic_tilemap_offset_west, RouteManager.Orientation.South);
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    public class Traffic_Light_Loc
+    {
+        public Vector3Int tile_pos;
+        public Tilemap traffic_tilemap;
+        public RouteManager.Orientation orientation;
+        public Traffic_Light_Loc(Vector2Int tile_pos, Tilemap traffic_tilemap, RouteManager.Orientation orientation)
+        {
+            this.tile_pos = (Vector3Int)tile_pos;
+            this.traffic_tilemap = traffic_tilemap;
+            this.orientation = orientation;
+        }
     }
 
     public bool is_end_of_track()
@@ -64,19 +84,19 @@ public class TrafficLightManager : Simple_Moving_Object
         else { return signal; }
     }
 
-    public void set_signal_from_exit_route(Vector3Int city_tile_position, RouteManager.Orientation orientation, Vector2Int signal_tile_pos)
+    public void set_signal_from_exit_route(Vector3Int city_tile_position, Traffic_Light_Loc traffic_light_loc)
     {
-        bool exit_route_is_shown = CityManager.is_exit_route_shown(orientation);
+        bool exit_route_is_shown = CityManager.is_exit_route_shown(traffic_light_loc.orientation);
         Tilemap toggled_tilemap = GameManager.track_manager.top_tilemap;
         tile_position = (Vector3Int)RouteManager.get_depart_tile_position(orientation, city_tile_position);
         if (!exit_route_is_shown) // no route exists, dont show signal
         {
-            change_traffic_signal_tile(Traffic_Light.None, (Vector3Int)signal_tile_pos);
+            change_traffic_signal_tile(Traffic_Light.None, traffic_light_loc);
             return;
         }
         HashSet<Vector3Int> seen_track_tile_set = new HashSet<Vector3Int>(); // keep track of tracks to discover loop routes
         // used by traffic lights to warn of incoming trains etc.
-        final_orientation = orientation;
+        final_orientation = traffic_light_loc.orientation;
         Traffic_Light signal = Traffic_Light.Green;
         int tile_count = 0;
         while (true)
@@ -132,38 +152,37 @@ public class TrafficLightManager : Simple_Moving_Object
                 }
             }
         }
-        change_traffic_signal_tile(signal, (Vector3Int)signal_tile_pos);
+        change_traffic_signal_tile(signal, traffic_light_loc);
     }
 
-    public void change_traffic_signal_tile(Traffic_Light traffic_signal, Vector3Int signal_tile_position)
+    public void change_traffic_signal_tile(Traffic_Light traffic_signal, Traffic_Light_Loc traffic_light_loc)
     {
         if (traffic_signal == Traffic_Light.Green)
-        {
-            
-            GameManager.traffic_tilemap.SetTile(signal_tile_position, green_light_tile);
+        {            
+            traffic_light_loc.traffic_tilemap.SetTile(traffic_light_loc.tile_pos, green_light_tile);
         }
         else if (traffic_signal == Traffic_Light.Yellow)
         {
-            GameManager.traffic_tilemap.SetTile(signal_tile_position, yellow_light_tile);
+            traffic_light_loc.traffic_tilemap.SetTile(traffic_light_loc.tile_pos, yellow_light_tile);
         }
         else if (traffic_signal == Traffic_Light.Red)
         {
-            GameManager.traffic_tilemap.SetTile(signal_tile_position, red_light_tile);
+            traffic_light_loc.traffic_tilemap.SetTile(traffic_light_loc.tile_pos, red_light_tile);
         }
         else if (traffic_signal == Traffic_Light.None)
         {
-            GameManager.traffic_tilemap.SetTile(signal_tile_position, null);
+            traffic_light_loc.traffic_tilemap.SetTile(traffic_light_loc.tile_pos, null);
         }
         else { throw new Exception(traffic_signal + " is not a valid traffic light"); }
-        traffic_light_matrix[signal_tile_position.x, signal_tile_position.y] = traffic_signal;
+        traffic_light_matrix[traffic_light_loc.tile_pos.x, traffic_light_loc.tile_pos.y] = traffic_signal;
     }
 
     public void update_all_traffic_signal(Vector3Int city_position)
     {
-        set_signal_from_exit_route(city_position, RouteManager.Orientation.North, north_light_tile_pos);
-        set_signal_from_exit_route(city_position, RouteManager.Orientation.East, east_light_tile_pos);
-        set_signal_from_exit_route(city_position, RouteManager.Orientation.West, west_light_tile_pos);
-        set_signal_from_exit_route(city_position, RouteManager.Orientation.South, south_light_tile_pos);
+        set_signal_from_exit_route(city_position, north_light_loc);
+        set_signal_from_exit_route(city_position, east_light_loc);
+        set_signal_from_exit_route(city_position, west_light_loc);
+        set_signal_from_exit_route(city_position, south_light_loc);
     }
 
     public IEnumerator change_traffic_signal_coroutine(Vector3Int city_position) // only fire when City is Active

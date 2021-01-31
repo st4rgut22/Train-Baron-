@@ -22,13 +22,13 @@ public class RouteManager : MonoBehaviour
     public static float cell_width = .88f;
     public static float offset_amount = .1f;
 
-    public static Vector2 offset_right = new Vector2(cell_width / 4, 0);
-    public static Vector2 offset_left = new Vector2(-cell_width / 4, 0);
-    public static Vector2 offset_up = new Vector2(0, cell_width / 4);
-    public static Vector2 offset_down = new Vector2(0, -cell_width / 4);
-    public static Vector2 offset_diag_ne = new Vector2(cell_width / 4, cell_width / 4);
-    public static Vector2 offset_diag_sw = new Vector2(-cell_width / 4, -cell_width / 4);
-    public static Vector2 offset_diag_se = new Vector2(-cell_width / 4, cell_width / 4);
+    public static Vector2 offset_right = new Vector2(cell_width / 3, 0);
+    public static Vector2 offset_left = new Vector2(-cell_width / 3, 0);
+    public static Vector2 offset_up = new Vector2(0, cell_width / 3);
+    public static Vector2 offset_down = new Vector2(0, -cell_width / 3);
+    public static Vector2 offset_diag_ne = new Vector2(cell_width / 3, cell_width / 3);
+    public static Vector2 offset_diag_sw = new Vector2(-cell_width / 3, -cell_width / 3);
+    public static Vector2 offset_diag_se = new Vector2(-cell_width / 3, cell_width / 3);
     public static Vector2 no_offset = new Vector2(0, 0);
     public static Dictionary<Vector3Int, Dictionary<string, Vector2>> offset_route_map;
 
@@ -222,119 +222,122 @@ public class RouteManager : MonoBehaviour
         Vector2 final_cell_dest = moving_thing.transform.position; // end of track default destination ( dont move )
         try
         {
-            string tile_name = track_tile.name;
-            switch (tile_name)
+            if (track_tile != null)
             {
-                //tricky curve tile updates. the train has already arrived in the tile so only adjust one coordinate
-                case "ES":
-                    if (moving_thing.orientation == Orientation.West || moving_thing.orientation == Orientation.South)
-                    {
-                        moving_thing.final_orientation = Orientation.South;
-                        final_cell_dest = get_straight_final_dest(Orientation.South, tile_world_coord);
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y - 1);
-                    }
-                    else if (moving_thing.orientation == Orientation.North || moving_thing.orientation == Orientation.East) // 2nd condition is for opposite direction when placing boxcars using flipped orientation
-                    {
-                        moving_thing.final_orientation = Orientation.East;
-                        final_cell_dest = get_straight_final_dest(Orientation.East, tile_world_coord);
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x + 1, next_tilemap_pos.y);
-                    }
-                    else { throw new NullReferenceException(); }
-                    break;
-                case "NE":
-                    if (moving_thing.orientation == Orientation.South || moving_thing.orientation == Orientation.East)
-                    {
-                        moving_thing.final_orientation = Orientation.East;
-                        final_cell_dest = get_straight_final_dest(Orientation.East, tile_world_coord);
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x + 1, next_tilemap_pos.y);
-                    }
-                    else if (moving_thing.orientation == Orientation.West || moving_thing.orientation == Orientation.North)
-                    {
-                        moving_thing.final_orientation = Orientation.North;
-                        final_cell_dest = get_straight_final_dest(Orientation.North, tile_world_coord);
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y + 1);
-                    }
-                    else { throw new NullReferenceException(); }
-                    break;
-                case "WN":
-                    if (moving_thing.orientation == Orientation.East || moving_thing.orientation == Orientation.North)
-                    {
-                        moving_thing.final_orientation = Orientation.North;
-                        final_cell_dest = get_straight_final_dest(Orientation.North, tile_world_coord);
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y + 1);
-                    }
-                    else if (moving_thing.orientation == Orientation.South || moving_thing.orientation == Orientation.West)
-                    {
-                        moving_thing.final_orientation = Orientation.West;
-                        final_cell_dest = get_straight_final_dest(Orientation.West, tile_world_coord);
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x - 1, next_tilemap_pos.y);
-                    }
-                    else { throw new NullReferenceException(); }
-                    break;
-                case "WS":
-                    if (moving_thing.orientation == Orientation.East || moving_thing.orientation == Orientation.South)
-                    {
-                        moving_thing.final_orientation = Orientation.South;
-                        final_cell_dest = get_straight_final_dest(Orientation.South, tile_world_coord);
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y - 1);
-                    }
-                    else if (moving_thing.orientation == Orientation.North || moving_thing.orientation == Orientation.West)
-                    {
-                        moving_thing.final_orientation = Orientation.West;
-                        final_cell_dest = get_straight_final_dest(Orientation.West, tile_world_coord);
-                        next_tilemap_pos = new Vector2Int(next_tilemap_pos.x - 1, next_tilemap_pos.y);
-                    }
-                    else { throw new NullReferenceException(); }
-                    break;
-                case "vert":
-                    if (moving_thing.orientation == Orientation.North || moving_thing.orientation == Orientation.South)
-                    {
-                        final_cell_dest = get_straight_final_dest(moving_thing.orientation, tile_world_coord);
-                        next_tilemap_pos = get_straight_next_tile_pos(moving_thing.orientation, next_tilemap_pos);
-                    }
-                    else { throw new NullReferenceException(); }
-                    break;
-                case "hor":
-                    if (moving_thing.orientation == Orientation.East || moving_thing.orientation == Orientation.West)
-                    {
-                        final_cell_dest = get_straight_final_dest(moving_thing.orientation, tile_world_coord);
-                        next_tilemap_pos = get_straight_next_tile_pos(moving_thing.orientation, next_tilemap_pos);
-                    }
-                    else { throw new NullReferenceException(); }
-                    break;
-                case "ne_diag":
-                    moving_thing.final_orientation = Orientation.ne_SteepCurve;
-                    break;
-                case "nw_diag":
-                    moving_thing.final_orientation = Orientation.nw_SteepCurve;
-                    break;
-                case "se_diag":
-                    moving_thing.final_orientation = Orientation.se_SteepCurve;
-                    break;
-                case "sw_diag":
-                    moving_thing.final_orientation = Orientation.sw_SteepCurve;
-                    break;
-                case "less_diag_ne_turn":
-                    moving_thing.final_orientation = Orientation.ne_LessSteepCurve;
-                    break;
-                case "less_diag_nw_turn":
-                    moving_thing.final_orientation = Orientation.nw_LessSteepCurve;
-                    break;
-                case "less_diag_se_turn":
-                    moving_thing.final_orientation = Orientation.se_LessSteepCurve;
-                    break;
-                case "less_diag_sw_turn":
-                    moving_thing.final_orientation = Orientation.sw_LessSteepCurve;
-                    break;
-                default:
-                    moving_thing.final_orientation = Orientation.None;
-                    break;
-            }
-            if (tile_name == "ne_diag" || tile_name == "nw_diag" || tile_name == "se_diag" || tile_name == "sw_diag" || tile_name == "less_diag_ne_turn" ||
-                tile_name == "less_diag_nw_turn" || tile_name == "less_diag_se_turn" || tile_name == "less_diag_sw_turn")
-            {
-                final_cell_dest = get_straight_final_dest(moving_thing.orientation, tile_world_coord);
-                next_tilemap_pos = get_straight_next_tile_pos(moving_thing.orientation, next_tilemap_pos);
+                string tile_name = track_tile.name;
+                switch (tile_name)
+                {
+                    //tricky curve tile updates. the train has already arrived in the tile so only adjust one coordinate
+                    case "ES":
+                        if (moving_thing.orientation == Orientation.West || moving_thing.orientation == Orientation.South)
+                        {
+                            moving_thing.final_orientation = Orientation.South;
+                            final_cell_dest = get_straight_final_dest(Orientation.South, tile_world_coord);
+                            next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y - 1);
+                        }
+                        else if (moving_thing.orientation == Orientation.North || moving_thing.orientation == Orientation.East) // 2nd condition is for opposite direction when placing boxcars using flipped orientation
+                        {
+                            moving_thing.final_orientation = Orientation.East;
+                            final_cell_dest = get_straight_final_dest(Orientation.East, tile_world_coord);
+                            next_tilemap_pos = new Vector2Int(next_tilemap_pos.x + 1, next_tilemap_pos.y);
+                        }
+                        else { throw new NullReferenceException(); }
+                        break;
+                    case "NE":
+                        if (moving_thing.orientation == Orientation.South || moving_thing.orientation == Orientation.East)
+                        {
+                            moving_thing.final_orientation = Orientation.East;
+                            final_cell_dest = get_straight_final_dest(Orientation.East, tile_world_coord);
+                            next_tilemap_pos = new Vector2Int(next_tilemap_pos.x + 1, next_tilemap_pos.y);
+                        }
+                        else if (moving_thing.orientation == Orientation.West || moving_thing.orientation == Orientation.North)
+                        {
+                            moving_thing.final_orientation = Orientation.North;
+                            final_cell_dest = get_straight_final_dest(Orientation.North, tile_world_coord);
+                            next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y + 1);
+                        }
+                        else { throw new NullReferenceException(); }
+                        break;
+                    case "WN":
+                        if (moving_thing.orientation == Orientation.East || moving_thing.orientation == Orientation.North)
+                        {
+                            moving_thing.final_orientation = Orientation.North;
+                            final_cell_dest = get_straight_final_dest(Orientation.North, tile_world_coord);
+                            next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y + 1);
+                        }
+                        else if (moving_thing.orientation == Orientation.South || moving_thing.orientation == Orientation.West)
+                        {
+                            moving_thing.final_orientation = Orientation.West;
+                            final_cell_dest = get_straight_final_dest(Orientation.West, tile_world_coord);
+                            next_tilemap_pos = new Vector2Int(next_tilemap_pos.x - 1, next_tilemap_pos.y);
+                        }
+                        else { throw new NullReferenceException(); }
+                        break;
+                    case "WS":
+                        if (moving_thing.orientation == Orientation.East || moving_thing.orientation == Orientation.South)
+                        {
+                            moving_thing.final_orientation = Orientation.South;
+                            final_cell_dest = get_straight_final_dest(Orientation.South, tile_world_coord);
+                            next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y - 1);
+                        }
+                        else if (moving_thing.orientation == Orientation.North || moving_thing.orientation == Orientation.West)
+                        {
+                            moving_thing.final_orientation = Orientation.West;
+                            final_cell_dest = get_straight_final_dest(Orientation.West, tile_world_coord);
+                            next_tilemap_pos = new Vector2Int(next_tilemap_pos.x - 1, next_tilemap_pos.y);
+                        }
+                        else { throw new NullReferenceException(); }
+                        break;
+                    case "vert":
+                        if (moving_thing.orientation == Orientation.North || moving_thing.orientation == Orientation.South)
+                        {
+                            final_cell_dest = get_straight_final_dest(moving_thing.orientation, tile_world_coord);
+                            next_tilemap_pos = get_straight_next_tile_pos(moving_thing.orientation, next_tilemap_pos);
+                        }
+                        else { throw new NullReferenceException(); }
+                        break;
+                    case "hor":
+                        if (moving_thing.orientation == Orientation.East || moving_thing.orientation == Orientation.West)
+                        {
+                            final_cell_dest = get_straight_final_dest(moving_thing.orientation, tile_world_coord);
+                            next_tilemap_pos = get_straight_next_tile_pos(moving_thing.orientation, next_tilemap_pos);
+                        }
+                        else { throw new NullReferenceException(); }
+                        break;
+                    case "ne_diag":
+                        moving_thing.final_orientation = Orientation.ne_SteepCurve;
+                        break;
+                    case "nw_diag":
+                        moving_thing.final_orientation = Orientation.nw_SteepCurve;
+                        break;
+                    case "se_diag":
+                        moving_thing.final_orientation = Orientation.se_SteepCurve;
+                        break;
+                    case "sw_diag":
+                        moving_thing.final_orientation = Orientation.sw_SteepCurve;
+                        break;
+                    case "less_diag_ne_turn":
+                        moving_thing.final_orientation = Orientation.ne_LessSteepCurve;
+                        break;
+                    case "less_diag_nw_turn":
+                        moving_thing.final_orientation = Orientation.nw_LessSteepCurve;
+                        break;
+                    case "less_diag_se_turn":
+                        moving_thing.final_orientation = Orientation.se_LessSteepCurve;
+                        break;
+                    case "less_diag_sw_turn":
+                        moving_thing.final_orientation = Orientation.sw_LessSteepCurve;
+                        break;
+                    default:
+                        moving_thing.final_orientation = Orientation.None;
+                        break;
+                }
+                if (tile_name == "ne_diag" || tile_name == "nw_diag" || tile_name == "se_diag" || tile_name == "sw_diag" || tile_name == "less_diag_ne_turn" ||
+                    tile_name == "less_diag_nw_turn" || tile_name == "less_diag_se_turn" || tile_name == "less_diag_sw_turn")
+                {
+                    final_cell_dest = get_straight_final_dest(moving_thing.orientation, tile_world_coord);
+                    next_tilemap_pos = get_straight_next_tile_pos(moving_thing.orientation, next_tilemap_pos);
+                }
             }
         }
         catch (NullReferenceException e)

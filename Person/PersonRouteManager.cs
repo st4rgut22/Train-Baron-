@@ -115,6 +115,7 @@ public class PersonRouteManager : RouteManager
         Person occupant = occupant_go.GetComponent<Person>();
         occupant.pop_thought_bubble();
         occupant.board_train();
+
         GameObject door = get_exit_door(boxcar, room);
         room.unlocked_door = door;
         room.booked = false; // new stuff
@@ -142,16 +143,13 @@ public class PersonRouteManager : RouteManager
         // go to doorstep (update tile position and orientation)
         Vector3 original_euler = occupant.transform.eulerAngles;
         occupant.transform.eulerAngles = new Vector3(0, 0, occupant.orient_angle); // use angle just to get direction of travelfor offset
-        Vector3 offset_pos = occupant.transform.position + occupant.transform.up * .45f;
+        Vector3 offset_pos = occupant.transform.position + occupant.transform.up * .25f;
         occupant.transform.eulerAngles = original_euler; // restore angle
         Checkpoint go_to_doorstep_cp = new Checkpoint(offset_pos, doorstep_position, end_orientation, end_orientation, "walk");
         board_train_checkpoints.Add(go_to_doorstep_cp);
-        if (!occupant.is_destination_reached(cell_width))
-        {
-            Orientation align_track_orientation = TrackManager.get_start_orientation(track_name, occupant.transform.position, boxcar.transform.position, boxcar);
-            Checkpoint align_track_cp = new Checkpoint(offset_pos, doorstep_position, end_orientation, align_track_orientation, "walk"); // dont move just rotate
+        Orientation align_track_orientation = TrackManager.get_start_orientation(track_name, occupant.transform.position, boxcar.transform.position, boxcar);
+        Checkpoint align_track_cp = new Checkpoint(offset_pos, doorstep_position, end_orientation, align_track_orientation, "walk"); // dont move just rotate
             board_train_checkpoints.Add(align_track_cp); // no need to align with track if destination is same tile as exit
-        }
         // if destination is reached immediately move to boxcar
         occupant.is_tight_curve = is_curve_inner(boxcar);
         yield return StartCoroutine(occupant.move_checkpoints(board_train_checkpoints)); // wait for all preboarding movements to end before going to boxcar
@@ -227,13 +225,10 @@ public class PersonRouteManager : RouteManager
         person.final_dest_pos = room.unlocked_door.GetComponent<Door>().door_sprite_go.transform.position;
         yield return StartCoroutine(person.move_checkpoints(go_home_checkpoints));
         go_home_checkpoints.Clear();
-        if (!person.is_destination_reached(cell_width))
-        {
-            Orientation align_track_orientation = TrackManager.get_start_orientation(track_name, boxcar.transform.position, room_abs_position, boxcar);
-            Checkpoint align_track_cp = new Checkpoint(exit_boxcar_checkpoint.dest_pos, exit_boxcar_checkpoint.tile_position, exit_boxcar_checkpoint.end_orientation, align_track_orientation, "walk");
-            go_home_checkpoints.Add(align_track_cp);
-            yield return StartCoroutine(person.move_checkpoints(go_home_checkpoints));
-        }
+        Orientation align_track_orientation = TrackManager.get_start_orientation(track_name, boxcar.transform.position, room_abs_position, boxcar);
+        Checkpoint align_track_cp = new Checkpoint(exit_boxcar_checkpoint.dest_pos, exit_boxcar_checkpoint.tile_position, exit_boxcar_checkpoint.end_orientation, align_track_orientation, "walk");
+        go_home_checkpoints.Add(align_track_cp);
+        yield return StartCoroutine(person.move_checkpoints(go_home_checkpoints));
         boxcar.passenger_go = null;
         person.boxcar_go = null;
         person.is_exit_boxcar = true; // set off follow track back home sequence

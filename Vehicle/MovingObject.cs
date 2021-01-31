@@ -392,30 +392,8 @@ public class MovingObject : Simple_Moving_Object
                 continue; // don't execute the code below
             }
             stop_car_if_wait_tile();
-            
-            if (gameObject.tag == "boxcar" && in_city)
-            {
-                if (station_track.station.orientation == RouteManager.Orientation.South || station_track.station.orientation == RouteManager.Orientation.North)
-                {
-                    int boxcar_position = gameObject.GetComponent<Boxcar>().train.get_boxcar_position(gameObject);
-                    if (station_track.inner == 0) // outer
-                    {
-                        if (boxcar_position == 3)
-                        {
-                            print("OUTER TRACk boxcar position 2. ");
-                            stop_single_car_if_wait_tile(false);
-                        }
-                    }
-                    else  // inner
-                    {
-                        if (boxcar_position == 4)
-                        {
-                            print("INNER TRACk boxcar position 4. ");
-                            stop_single_car_if_wait_tile(true);
-                        }
-                    }
-                }
-            }
+            if (gameObject.tag == "boxcar")
+                gameObject.GetComponent<Boxcar>().stop_single_boxcar();
             float interp = 1.0f - t_param;
             t_param -= Time.deltaTime * speed; // use the speed multiplier when boxcar is first instantiated due to gap between train and lead boxcar
             if (t_param < 0) // set t_param to 0 to get bezier coordinates closer to the destination (and be within tolerance)
@@ -460,13 +438,9 @@ public class MovingObject : Simple_Moving_Object
                 //}
             }
             stop_car_if_wait_tile();
-            float step;
             if (gameObject.tag == "boxcar")
-                step = speed * Time.deltaTime;// * speed_multiplier; // TODOED
-            else
-            {
-                step = speed * Time.deltaTime; // calculate distance to move
-            }
+                gameObject.GetComponent<Boxcar>().stop_single_boxcar(); float step;
+            step = speed * Time.deltaTime; // calculate distance to move
             next_position = Vector2.MoveTowards(next_position, destination, step);
             transform.position = next_position;
             distance = Vector2.Distance(next_position, destination);

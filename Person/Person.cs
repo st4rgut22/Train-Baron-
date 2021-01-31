@@ -6,7 +6,6 @@ using System;
 public class Person : Simple_Moving_Object
 {
     public Sprite egghead_sprite;
-    public int rent;
     public int wealth;
 
     public GameObject boxcar_go;
@@ -21,7 +20,7 @@ public class Person : Simple_Moving_Object
 
     public Vector2 thought_bubble_offset;
     public bool is_egghead_thinking;
-    public GameObject eggheads_thought_bubble; // default to home
+    public GameObject eggheads_thought_bubble; // TODOED default to home
     public string desired_activity;
     public GameObject thought_bubble;
     public Sprite restaurant_thought_bubble;
@@ -30,6 +29,7 @@ public class Person : Simple_Moving_Object
     public Sprite vacation_thought_bubble;
     public SpriteRenderer thought_bubble_renderer;
     public Dictionary<string, int> activity_duration_map;
+    public Dictionary<string, int> ticket_cost_map;
     public Dictionary<string, int> activity_likelihood_map;
 
     public float board_desire_timeout; // time until person gives up on activity. results in a 0 star review
@@ -42,6 +42,9 @@ public class Person : Simple_Moving_Object
     public bool trip_in_progress;
     public bool activity_in_progress;
     public bool is_selected; // selected to board a boxcar
+
+    public int poor_wage;
+    public int rich_wage;
 
     public Room room;
 
@@ -66,11 +69,12 @@ public class Person : Simple_Moving_Object
         activity_in_progress = false;
         base.Awake();
         is_selected = false;
+        poor_wage = 10;
+        rich_wage = 100;
     }
 
     public void Start()
     {
-        wealth = 0;
         board_desire_timeout = 90;
         trip_desire_timeout = 260;
         in_tile = true;
@@ -90,15 +94,24 @@ public class Person : Simple_Moving_Object
 
     public void initialize_egghead(bool is_egghead_on, bool is_bubble_on)
     {
+        if (gameObject.tag == "poor")
+            wealth = 50;
+        else
+        {
+            wealth = 200;
+        }
         gameObject.GetComponent<SpriteRenderer>().enabled = is_egghead_on;
         thought_bubble = Instantiate(eggheads_thought_bubble);
         thought_bubble_renderer = thought_bubble.GetComponent<SpriteRenderer>();
         desired_activity = thought_bubble.GetComponent<SpriteRenderer>().sprite.name;
+        print("desired activity is " + desired_activity);
         thought_bubble.transform.parent = gameObject.transform;
         thought_bubble.transform.localPosition = thought_bubble_offset;
         thought_bubble.GetComponent<SpriteRenderer>().enabled = is_bubble_on;
         PersonManager.add_notification_for_city(room.building.city.tilemap_position, true);
     }
+
+
 
     public void Update()
     {
@@ -179,12 +192,6 @@ public class Person : Simple_Moving_Object
     {
         tile_position = (Vector3Int)update_tile_pos;
     }
-
-    public void pay_rent()
-    {
-        change_wealth(-rent);
-    }
-
 
     public bool change_wealth(int delta)
     {
@@ -352,19 +359,59 @@ public class Person : Simple_Moving_Object
                 yield break; // dont render thought bubble if same action
             }
         }
+        if (desired_activity == "work_thought_bubble")
+            if (gameObject.tag == "poor")
+                GameManager.person_manager.GetComponent<PersonManager>().change_wealth(gameObject, poor_wage);
+            else
+            {
+                GameManager.person_manager.GetComponent<PersonManager>().change_wealth(gameObject, rich_wage);
+            }
         PersonManager.add_notification_for_city(room.building.city.tilemap_position, true);
         render_thought_bubble();
     }
 
-    public string pick_next_activity()
+    public List<string> filter_activity_by_price()
     {
-        int rand_num = UnityEngine.Random.Range(0, 100);
-        int num_counter = 0;
+        List<string> feasible_activity = new List<string>();
         foreach (KeyValuePair<string, int> entry in activity_likelihood_map)
         {
-            num_counter += entry.Value;
-            if (rand_num < num_counter) return entry.Key;
+            if (wealth > ticket_cost_map[entry.Key])
+            {
+                feasible_activity.Add(entry.Key);
+            }
         }
-        throw new Exception("couldnt pick next activity");
+        return feasible_activity;
+    }
+
+    public string pick_next_activity()
+    {
+        List<string> activity_list = filter_activity_by_price();
+        if (activity_list.Count == 0)
+        {
+            GameManager.money -= ticket_cost_map["work_thought_bubble"];
+            if (GameManager.money < 0) GameManager.end_level(false); // lose NO MORE money
+            print("STOLE FROM THE BOSS CUZ I GOT NO MONEY");
+            return "work_thought_bubble";
+        }
+        else
+        {
+            int num_counter = 0;
+            foreach (string activity in activity_list)
+            {
+                num_counter += activity_likelihood_map[activity];
+            }
+            int rand_num = UnityEngine.Random.Range(0, num_counter);
+            int rand_num_score = 0;
+            foreach (string activity in activity_list)
+            {
+                rand_num_score += activity_likelihood_map[activity];
+                if (rand_num_score > rand_num)
+                {
+                    GameManager.person_manager.GetComponent<PersonManager>().change_wealth(gameObject, -ticket_cost_map[activity]);
+                    return activity;
+                }
+            }
+            throw new Exception("couldnt pick next activity");
+        }
     }
 }

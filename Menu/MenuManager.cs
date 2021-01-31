@@ -20,6 +20,10 @@ public class MenuManager : MonoBehaviour
     public static GameObject exit_bck;// = GameObject.Find("Exit Bck"); // just a blue background
 
 
+    public Button test_pay;
+    public Button test_unpay;
+
+
     static List<GameObject> event_handler_list; // names of gameobjects that listen for events
     City city;
 
@@ -51,7 +55,30 @@ public class MenuManager : MonoBehaviour
         activate_default_handler();
         store_btn.onClick.AddListener(delegate { activate_handler(new List<GameObject> { store_menu }); });
         shipyard_exit_btn.onClick.AddListener(turn_off_shipyard);
+
+        //test_pay.onClick.AddListener(pay_all);
     }
+
+    //public void pay_all()
+    //{
+    //    foreach (City city in CityManager.city_list)
+    //    {
+    //        foreach (Building bldg in city.city_building_list)
+    //        {
+    //            foreach (GameObject room in bldg.roomba)
+    //            {
+    //                if (room != null)
+    //                {
+    //                    Room r = room.GetComponent<Room>();
+    //                    if (r.has_person)
+    //                    {                            
+    //                        GameManager.person_manager.GetComponent<PersonManager>().get_paid(r.person_go_instance);
+    //                    }                            
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
     // Update is called once per frame
     void Update()

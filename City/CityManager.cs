@@ -61,8 +61,8 @@ public class CityManager : BoardManager
         new int[]{13,1 }, new int[]{16,1 }, new int[]{16,2 }, new int[]{16,3 }, new int[]{16,9 }, new int[]{15,9 }, new int[]{14,9 }, new int[]{13,9 }, new int[]{12,9 }, new int[]{11,9 } };
 
 
-    public static List<int[]> boxcar_city_outer_wait_tile = new List<int[]> { new int[] { 13, 3 } , new int[] { 2, 7 } };
-    public static List<int[]> boxcar_city_inner_wait_tile = new List<int[]> { new int[] { 13, 2 } , new int[] { 3, 8 } };
+    public static List<int[]> boxcar_city_outer_wait_tile = new List<int[]> { new int[] { 15, 3 } , new int[] { 1, 7 } };
+    public static List<int[]> boxcar_city_inner_wait_tile = new List<int[]> { new int[] { 14, 2 } , new int[] { 2, 8 } };
     public static List<int[]>  boxcar_city_wait_tile = new List<int[]> { new int[] { 6, 1 }, new int[] { 11, 2 } , new int[] { 12, 3 } , new int[] { 4, 3 }, new int[] { 5, 8 }, new int[] { 4, 7 }, new int[] { 12, 7 }, new int[] { 10, 9 } }; // ADD MORE 
     public int entrance_update_interval;
 
@@ -258,7 +258,7 @@ public class CityManager : BoardManager
         if (total_people >= GameManager.goal)
         {
             GameManager.end_level(true);
-        }
+        }   
     }
 
     public static GameObject get_vehicle_in_activated_city(List<Collider2D> colliders, string tag)

@@ -246,7 +246,7 @@ public class City : Structure
                         Room room = room_go.GetComponent<Room>();
                         if (!room.has_person)
                         {
-                            Person person = room.spawn_person();
+                            Person person = room.spawn_person(true);
                             CityManager.increment_total_people();
                             total_people += 1;
                             if (CityManager.Activated_City_Component == this) person.initialize_egghead(true, true); // if entrance is activated

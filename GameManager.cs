@@ -84,6 +84,14 @@ public class GameManager : EventDetector
 
     public static GameObject traffic_tilemap_go;
     public static Tilemap traffic_tilemap;
+    public static Tilemap traffic_tilemap_offset_north;
+    public static Tilemap traffic_tilemap_offset_south;
+    public static Tilemap traffic_tilemap_offset_east;
+    public static Tilemap traffic_tilemap_offset_west;
+    public static GameObject traffic_tilemap_offset_north_go;
+    public static GameObject traffic_tilemap_offset_south_go;
+    public static GameObject traffic_tilemap_offset_east_go;
+    public static GameObject traffic_tilemap_offset_west_go;
 
     public static GameObject person_manager;
     public static GameObject game_menu_manager;
@@ -97,8 +105,22 @@ public class GameManager : EventDetector
         north_bound = 9;
         west_bound = 0;
         traffic_tilemap_go = GameObject.Find("Traffic Light");
-        traffic_tilemap = traffic_tilemap_go.GetComponent<Tilemap>();
-        traffic_tilemap_go.SetActive(false);
+        traffic_tilemap_offset_north_go = GameObject.Find("Traffic Light Offset North");
+        traffic_tilemap_offset_east_go = GameObject.Find("Traffic Light Offset East");
+        traffic_tilemap_offset_west_go = GameObject.Find("Traffic Light Offset West");
+        traffic_tilemap_offset_south_go = GameObject.Find("Traffic Light Offset South");
+        traffic_tilemap_offset_north = traffic_tilemap_offset_north_go.GetComponent<Tilemap>();
+        traffic_tilemap_offset_south = traffic_tilemap_offset_south_go.GetComponent<Tilemap>();
+        traffic_tilemap_offset_east = traffic_tilemap_offset_east_go.GetComponent<Tilemap>();
+        traffic_tilemap_offset_west = traffic_tilemap_offset_west_go.GetComponent<Tilemap>();
+
+        traffic_tilemap_offset_north_go.SetActive(false);
+        traffic_tilemap_offset_east_go.SetActive(false);
+        traffic_tilemap_offset_west_go.SetActive(false);
+        traffic_tilemap_offset_south_go.SetActive(false);
+
+        //traffic_tilemap = traffic_tilemap_go.GetComponent<Tilemap>();
+        //traffic_tilemap_go.SetActive(false);
         star_review_image_go = GameObject.Find("star_review");
         reputation_text_go = GameObject.Find("reputation_text");
         money = 5000;
@@ -573,7 +595,11 @@ public class GameManager : EventDetector
         building_lot_south_inner.SetActive(state);
         building_lot_west.SetActive(state);
 
-        traffic_tilemap_go.SetActive(state);
+        //traffic_tilemap_go.SetActive(state);
+        traffic_tilemap_offset_east_go.SetActive(state);
+        traffic_tilemap_offset_north_go.SetActive(state);
+        traffic_tilemap_offset_west_go.SetActive(state);
+        traffic_tilemap_offset_south_go.SetActive(state);
 
         track_manager.bottom_tilemap_go_1.SetActive(!state);
         track_manager.bottom_tilemap_go_2.SetActive(!state);

@@ -7,6 +7,14 @@ public class RichPerson : Person
     void Awake()
     {
         base.Awake();
+        ticket_cost_map = new Dictionary<string, int>()
+        {
+            { "work_thought_bubble", 15 },
+            {"home_thought_bubble", 20 },
+            {"restaurant_thought_bubble", 60 },
+            {"vacation_thought_bubble", 100 }
+        };
+
         activity_likelihood_map = new Dictionary<string, int>()
         {
             { "work_thought_bubble", 5 },
@@ -14,6 +22,7 @@ public class RichPerson : Person
             {"restaurant_thought_bubble", 30 },
             {"vacation_thought_bubble", 25 }
         };
+
         activity_duration_map = new Dictionary<string, int>(){
             { "home_thought_bubble", 50},
             {"restaurant_thought_bubble", 30 },
@@ -26,7 +35,6 @@ public class RichPerson : Person
     void Start()
     {
         base.Start();
-        rent = 50;
     }
 
     // Update is called once per frame

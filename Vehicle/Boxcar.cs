@@ -42,24 +42,35 @@ public class Boxcar : MovingObject
             base.Update();
     }
 
+    public void stop_single_boxcar()
+    {
+            if (station_track.station.orientation == RouteManager.Orientation.South || station_track.station.orientation == RouteManager.Orientation.North)
+            {
+                int boxcar_position = gameObject.GetComponent<Boxcar>().train.get_boxcar_position(gameObject);
+                if (station_track.inner == 0) // outer
+                {
+                    if (boxcar_position == 4)
+                    {
+                        print("OUTER TRACk boxcar position 3. tile position is " + tile_position);
+                        stop_single_car_if_wait_tile(false);
+                    }
+                }
+                else  // inner
+                {
+                    if (boxcar_position == 4)
+                    {
+                        print("INNER TRACk boxcar position 4. tile position is " + tile_position);
+                        stop_single_car_if_wait_tile(true);
+                    }
+                }
+            }
+    }
+
     public void initialize_boxcar(int id)
     {
         boxcar_id = id;
         speed_multiplier = 1.03f; // when boxcar is created go a little faster so it can keep up with train
     }
-
-    //void OnTriggerEnter2D(Collider2D collision)
-    //{
-    //    if (collision.gameObject.tag == "boxcar" || collision.gameObject.tag == "train")
-    //    {
-    //        explosion_go = Instantiate(explosion);
-    //        explode explosion_anim = explosion_go.transform.GetChild(0).gameObject.GetComponent<explode>();
-    //        explosion_anim.exploded_boxcar = this;
-    //        explosion_go.transform.position = transform.position;
-    //        explosion_go.transform.localScale = new Vector3(.2f, .2f);
-    //        if (city != CityManager.Activated_City_Component) hide_explosion(new List<GameObject>() { explosion_go });
-    //    }
-    //}
 
     public void destroy_boxcar()
     {
