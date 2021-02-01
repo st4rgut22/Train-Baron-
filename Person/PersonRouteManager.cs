@@ -113,9 +113,10 @@ public class PersonRouteManager : RouteManager
     public IEnumerator board_train(Boxcar boxcar, Room room, GameObject occupant_go, Vector3Int destination)
     {
         Person occupant = occupant_go.GetComponent<Person>();
+        GameManager.update_game_money_text(occupant.ticket_cost_map[occupant.desired_activity]);
         occupant.pop_thought_bubble();
         occupant.board_train();
-
+        boxcar.is_being_boarded = true;
         GameObject door = get_exit_door(boxcar, room);
         room.unlocked_door = door;
         room.booked = false; // new stuff
@@ -172,6 +173,7 @@ public class PersonRouteManager : RouteManager
         yield return StartCoroutine(person.move_checkpoints(board_train_checkpoints));
         StartCoroutine(person.set_animation_clip(rest_animation_name));
         person.transform.parent = boxcar.transform; // make person a passenger of boxcar
+        boxcar.is_being_boarded = false;
     }
 
     public IEnumerator enter_home(GameObject person_go_instance, Room room)

@@ -66,6 +66,9 @@ public class CityManager : BoardManager
     public static List<int[]>  boxcar_city_wait_tile = new List<int[]> { new int[] { 6, 1 }, new int[] { 11, 2 } , new int[] { 12, 3 } , new int[] { 4, 3 }, new int[] { 5, 8 }, new int[] { 4, 7 }, new int[] { 12, 7 }, new int[] { 10, 9 } }; // ADD MORE 
     public int entrance_update_interval;
 
+    public const int restaurant_cost = 100;
+    public const int diner_cost = 20;
+
     private void Awake()
     {
         base.Awake();
@@ -274,6 +277,30 @@ public class CityManager : BoardManager
         return null;
     }
 
+    public static bool does_activity_match_city(string activity_name, string city_name)
+    {
+        switch (activity_name)
+        {
+            case "work_thought_bubble":
+                if (city_name.Contains("Business") || city_name.Contains("Factory"))
+                    return true;
+                break;
+            case "home_thought_bubble":
+                if (city_name.Contains("Apartment") || city_name.Contains("Mansion"))
+                    return true;
+                break;
+            case "restaurant_thought_bubble":
+                if (city_name.Contains("Diner") || city_name.Contains("Restaurant"))
+                    return true;
+                break;
+            case "vacation_thought_bubble":
+                break; // vacation does not happen in a city
+            default:
+                throw new Exception("thought bubble " + activity_name + " does not exist");
+        }
+        return false;
+    }
+
     public static int get_building_count(string building_name)
     {
         if (building_count_dict.ContainsKey(building_name))
@@ -368,9 +395,13 @@ public class CityManager : BoardManager
             GameObject train_object = activated_city.get_station_track(tile_pos).train;
             if (train_object != null && train_object.GetComponent<Train>().is_wait_for_turntable)
             {
-                GameManager.vehicle_manager.add_boxcar_to_train(train_object.GetComponent<Train>(), boxcar_type);
-                activated_city.remove_boxcar_from_inventory(boxcar_tile_pos); // after adding a boxcar to train, remove it from inventory
-                return true;
+                if (train_object.GetComponent<Train>().is_boxcar_within_max_limit())
+                {
+                    GameManager.vehicle_manager.add_boxcar_to_train(train_object.GetComponent<Train>(), boxcar_type);
+                    activated_city.remove_boxcar_from_inventory(boxcar_tile_pos); // after adding a boxcar to train, remove it from inventory
+                    return true;
+                }
+                else { return false; }
             }
             else
             {
@@ -412,6 +443,31 @@ public class CityManager : BoardManager
             home_base.populate_entrance();
             yield return new WaitForSeconds(entrance_update_interval);
         }
+    }
+
+    public static void set_reputation_for_station()
+    {
+        int total_star = 0;
+        int total_rep = 0;
+        int total_rev = 0;
+        foreach (City city in city_list)
+        {
+            if (city != home_base.GetComponent<City>())
+            {
+                total_star += city.total_star;
+                total_rep += city.reputation;
+                total_rev += city.total_review_count;
+            }
+        }
+        int city_list_count = Math.Max(city_list.Count - 1, 1);
+        int avg_star = total_star / city_list_count;
+        int avg_rep = total_rep / city_list_count;
+        print("avg star is " + avg_star + " equals total star " + total_star + " divided by city count " + city_list_count);
+        print("avg rep is " + avg_rep + " equals total rep " + total_rep + " divided by city count " + city_list_count);
+        home_base.total_star = total_star;
+        home_base.total_review_count = total_rev;
+        home_base.reputation = total_rep;
+        print("home base total star is " + total_star + " total review count is " + total_rev + " total rep is " + total_rep);
     }
 
     public void set_activated_city(GameObject city_object=null)

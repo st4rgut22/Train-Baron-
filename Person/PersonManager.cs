@@ -105,6 +105,11 @@ public class PersonManager : MonoBehaviour
 
     public void change_wealth(GameObject person_go, int delta_wealth)
     {
+        if (person_go.GetComponent<Person>().wealth + delta_wealth < 0)
+        {
+            GameManager.update_game_money_text(delta_wealth);
+            return;
+        }
         person_go.GetComponent<Person>().wealth += delta_wealth;
         int wealth = person_go.GetComponent<Person>().wealth;
         if (person_go.tag == "poor")

@@ -33,7 +33,13 @@ public class Building : Structure
         city.city_tilemap_go.SetActive(false); // after setting tile deactivate gameobject
         if (building_lot.id == initial_building_lot_name)
         {
-            spawn_room();
+            Room room = spawn_room();
+            print("bldg name is " + gameObject.name);
+            if (gameObject.name.Contains("Station"))
+            {
+                Person person = room.spawn_person(true);
+                person.initialize_egghead(false, false);
+            }
         }
     }
 

@@ -230,13 +230,14 @@ public class City : Structure
     public void populate_entrance()
     {
         //use delta reputation to populate as many rooms as possible
-        int people_to_add = PersonManager.reputation - start_reputation;
+        int people_to_add = (PersonManager.reputation - start_reputation) / 2;
         int total_vacancy_count = get_total_occupant_count();
         if (total_vacancy_count < people_to_add) people_to_add = total_vacancy_count;
         start_reputation = PersonManager.reputation;
         print("POPUPLATE ENTRANCE people to add " + people_to_add);
         for (int i = 0; i < people_to_add; i++)
         {
+            bool found_room = false;
             foreach (Building bldg in city_building_list)
             {
                 foreach (GameObject room_go in bldg.roomba)
@@ -251,10 +252,12 @@ public class City : Structure
                             total_people += 1;
                             if (CityManager.Activated_City_Component == this) person.initialize_egghead(true, true); // if entrance is activated
                             else { person.initialize_egghead(false, false); }
-                            break;
+                            found_room = true;
                         }
                     }
+                    if (found_room) break;
                 }
+                if (found_room) break;
             }
         }
     }
@@ -390,6 +393,7 @@ public class City : Structure
 
     public Building get_city_building()
     {
+        // a building gets instantiated for each building lot in a city
         GameObject building_object;
         if (city_type == "Entrance")
         {
@@ -541,10 +545,11 @@ public class City : Structure
 
     public int remove_lot(int affected_lot)
     {
+        print("removed a lot");
         int remove_lot_count = 0;
         foreach (Building bldg in city_building_list)
         {
-            while (bldg.current_capacity > 0 && affected_lot < remove_lot_count)
+            while (bldg.current_capacity > 0 && remove_lot_count < affected_lot)
             {
                 bldg.remove_last_room();
                 remove_lot_count += 1;
@@ -569,7 +574,9 @@ public class City : Structure
 
     public void apply_reputation()
     {
-        // change number of lots 
+        // change number of lots
+        // why is delta reputation never negative ? 
+        // why are all city reputations the same ? 
         int delta_reputation = reputation + unapplied_reputation_count - last_checked_reputation;
         print("APPLY reputation " + delta_reputation + " formula is reputation " + reputation + " plus " + unapplied_reputation_count + " minus " + last_checked_reputation);
         int lot_affected = Math.Abs(delta_reputation);
@@ -599,12 +606,12 @@ public class City : Structure
         reputation = Mathf.Min(100, reputation);
         print("reputation is now " + reputation);
         unapplied_reputation_count = leftover_reputation + rollover_reputation;
-        if (reputation != last_checked_reputation)
-        {
-            GameManager.reputation_text_go.GetComponent<Text>().text = "Reputation: " + reputation;
-        }
+
+        GameManager.reputation_text_go.GetComponent<Text>().text = "Reputation: " + reputation;
+        print("apply reputation");
         last_checked_reputation = reputation;
         GameManager.star_review_image_go.GetComponent<RawImage>().texture = get_star_image_from_reputation();
+        CityManager.set_reputation_for_station();
     }
 
     public Vector2Int find_parking_spot(int y, int start_x, int end_x)
@@ -727,7 +734,7 @@ public class City : Structure
                 else { station_track = East_Station.outer_track; }
             }
         }
-        if (station_track.train != null) return true;
+        if (station_track.train != null && station_track.train.GetComponent<Train>().is_boxcar_within_max_limit()) return true;
         return false;
     }
 

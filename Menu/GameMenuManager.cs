@@ -76,7 +76,7 @@ public class GameMenuManager : EventDetector
         {
             Text item_count = inventory_item.GetComponent<Text>();
             string item_name = inventory_item.transform.parent.name;
-            print(item_name + " ite d");
+            //print(item_name + " ite d");
             switch (item_name)
             {
                 case "vert":
@@ -290,12 +290,14 @@ public class GameMenuManager : EventDetector
 
     public override void OnDrag(PointerEventData eventData)
     {
+        if (clicked_item == null) return;
         Vector3 world_position = MenuManager.convert_screen_to_world_coord(eventData.position);
         clicked_item.transform.position = world_position;
     }
 
     public override void OnEndDrag(PointerEventData eventData)
     {
+        if (clicked_item == null) return;
         if (clicked_go.tag == "structure")
             building_component.enabled = true;
         TrackManager track_manager = GameObject.Find("TrackManager").GetComponent<TrackManager>();

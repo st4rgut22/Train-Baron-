@@ -16,6 +16,7 @@ public class Train : MovingObject
     public GameObject explosion;
     public List<GameObject> explosion_list;
     public bool is_train_departed_for_turntable;
+    public const int max_boxcar_count = 4;
 
     private void Awake()
     {
@@ -79,9 +80,12 @@ public class Train : MovingObject
                 explosion_go.transform.localScale = new Vector3(.2f, .2f);
                 foreach (GameObject boxcar_go in boxcar_squad)
                 {
-                    GameObject boxcar_explosion = Instantiate(explosion);
-                    explosion_list.Add(boxcar_explosion);
-                    boxcar_explosion.transform.position = boxcar_go.transform.position;
+                    if (boxcar_go.GetComponent<SpriteRenderer>().enabled)
+                    {
+                        GameObject boxcar_explosion = Instantiate(explosion);
+                        explosion_list.Add(boxcar_explosion);
+                        boxcar_explosion.transform.position = boxcar_go.transform.position;
+                    }
                 }
                 if (collision.gameObject.tag == "boxcar")
                 {
@@ -95,6 +99,12 @@ public class Train : MovingObject
                 if (city != CityManager.Activated_City_Component) hide_explosion(explosion_list);
             }
         }
+    }
+
+    public bool is_boxcar_within_max_limit()
+    {
+        if (boxcar_squad.Count < max_boxcar_count) return true;
+        else { return false;  }
     }
 
     public void destroy_train()
@@ -179,16 +189,25 @@ public class Train : MovingObject
         }
     }
 
+    public bool is_any_boxcar_being_boarded()
+    {
+        foreach (GameObject boxcar_object in boxcar_squad)
+        {
+            if (boxcar_object.GetComponent<Boxcar>().is_being_boarded)
+                return true;
+        }
+        return false;
+    }
+
     public void click_train(PointerEventData eventData)
     {
         if (in_city)
         {
             // hlighlight unloading regions AND exit tracks
             // unloading regions
-
-
-            // highlight exit track
-            mark_exit_track();
+            // highlight exit trac
+            if (!is_any_boxcar_being_boarded())
+                mark_exit_track();
         }
     }
 

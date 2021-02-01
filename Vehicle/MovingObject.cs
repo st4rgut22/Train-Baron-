@@ -357,7 +357,7 @@ public class MovingObject : Simple_Moving_Object
         if (random_algos.list_contains_arr(CityManager.boxcar_city_wait_tile, tile_position) && gameObject.tag == "boxcar" && in_city) // STOP CONDITION
             if (gameObject == gameObject.GetComponent<Boxcar>().train.boxcar_squad[0]) // is lead boxcar
             {
-                print("STOP ALL BOXCARS at turntable");
+                //print("STOP ALL BOXCARS at turntable");
                 if (!is_boxcar_stopped)
                 {
                     GetComponent<Boxcar>().train.stop_all_boxcar_at_turntable();

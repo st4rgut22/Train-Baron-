@@ -69,8 +69,8 @@ public class Person : Simple_Moving_Object
         activity_in_progress = false;
         base.Awake();
         is_selected = false;
-        poor_wage = 10;
-        rich_wage = 100;
+        poor_wage = 100;
+        rich_wage = 1000;
     }
 
     public void Start()
@@ -169,8 +169,10 @@ public class Person : Simple_Moving_Object
     public void leave_review(City city, Review review)
     {
         int reputation_change = (int)review;
-        if (review == Review.Zero_Star) reputation_change = -2;
-        if (review == Review.One_Star) reputation_change = -1;
+        if (review == Review.Zero_Star) reputation_change = -3;
+        if (review == Review.One_Star) reputation_change = -2;
+        if (review == Review.Two_Star) reputation_change = -1;
+        print("LEFT REVIEW " + review);
         city.change_star_count((int)review);
         city.change_reputation(reputation_change);
         PersonManager.change_reputation(reputation_change);
@@ -278,8 +280,10 @@ public class Person : Simple_Moving_Object
             float boarding_rating = 1 - Math.Min(1, accurate_boarding_duration / board_desire_timeout);
             float trip_rating = 1 - Math.Min(1, accurate_trip_duration / trip_desire_timeout);
             float train_rating = (boarding_rating + trip_rating) / 2; // One minus the average rating of boarding and trip
-            string trip_critique = review_board_trip_time((int)(boarding_rating * 5));
+            string trip_critique = review_board_trip_time((int)(trip_rating * 5));
+            print("trip critique equals trip rating " + trip_rating + " times 5");
             string board_critique = review_board_trip_time((int)(boarding_rating * 5));
+            print("board critique equals boarding rating " + boarding_rating + " times 5");
             review_summary = "The trip was " + trip_critique + " and boarding was " + board_critique;
             int star_rating = (int)(train_rating * 5) + 1;
             star_rating = Math.Min(5, star_rating);
@@ -341,11 +345,27 @@ public class Person : Simple_Moving_Object
         // when a person has arrived at a destination, perform action for a specified time        
         thought_bubble.SetActive(false);
         int duration = activity_duration_map[desired_activity];
-        string prev_desired_activity = desired_activity;
+        string save_desired_activity = desired_activity;
         desired_activity = ""; // so person cant board another matching boxcar while performing action
         trip_in_progress = false;
         activity_in_progress = true;
         yield return new WaitForSeconds(duration);
+        if (save_desired_activity == "work_thought_bubble" && (room.building.name.Contains("Factory") || room.building.name.Contains("Business")))
+        {
+            if (gameObject.tag == "poor")
+                GameManager.person_manager.GetComponent<PersonManager>().change_wealth(gameObject, poor_wage);
+            else
+            {
+                GameManager.person_manager.GetComponent<PersonManager>().change_wealth(gameObject, rich_wage);
+            }
+        }
+        else if (desired_activity == "restaurant_thought_bubble")
+        {
+            if (room.building.name.Contains("Restaurant"))
+                GameManager.person_manager.GetComponent<PersonManager>().change_wealth(gameObject, CityManager.restaurant_cost);
+            else if (room.building.name.Contains("Diner"))
+                GameManager.person_manager.GetComponent<PersonManager>().change_wealth(gameObject, CityManager.diner_cost);
+        }
         board_start_time = Time.time;
         activity_in_progress = false;
         if (room.building.city.city_type == "Entrance") desired_activity = "home_thought_bubble";
@@ -353,19 +373,14 @@ public class Person : Simple_Moving_Object
         {
             desired_activity = pick_next_activity(); // when activity is over pick next activity
             print("next activity is " + desired_activity);
-            if (prev_desired_activity == desired_activity)
+            bool is_city_same_as_activity = CityManager.does_activity_match_city(desired_activity, room.building.gameObject.name);
+            print("is activity " + desired_activity + " same as " + room.building.gameObject.name + " " + is_city_same_as_activity);
+            if (is_city_same_as_activity) //TODOED POOPIES
             {
                 StartCoroutine(schedule_activity()); // if next activity is the same, dont need to board a train
                 yield break; // dont render thought bubble if same action
             }
         }
-        if (desired_activity == "work_thought_bubble")
-            if (gameObject.tag == "poor")
-                GameManager.person_manager.GetComponent<PersonManager>().change_wealth(gameObject, poor_wage);
-            else
-            {
-                GameManager.person_manager.GetComponent<PersonManager>().change_wealth(gameObject, rich_wage);
-            }
         PersonManager.add_notification_for_city(room.building.city.tilemap_position, true);
         render_thought_bubble();
     }
@@ -388,8 +403,7 @@ public class Person : Simple_Moving_Object
         List<string> activity_list = filter_activity_by_price();
         if (activity_list.Count == 0)
         {
-            GameManager.money -= ticket_cost_map["work_thought_bubble"];
-            if (GameManager.money < 0) GameManager.end_level(false); // lose NO MORE money
+            GameManager.update_game_money_text(-ticket_cost_map["work_thought_bubble"]);
             print("STOLE FROM THE BOSS CUZ I GOT NO MONEY");
             return "work_thought_bubble";
         }
@@ -408,6 +422,7 @@ public class Person : Simple_Moving_Object
                 if (rand_num_score > rand_num)
                 {
                     GameManager.person_manager.GetComponent<PersonManager>().change_wealth(gameObject, -ticket_cost_map[activity]);
+                    //GameManager.update_game_money_text(ticket_cost_map[activity]);
                     return activity;
                 }
             }

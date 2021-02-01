@@ -67,6 +67,7 @@ public class GameManager : EventDetector
     public static GameObject undeveloped_land;
 
     public static int money;
+    public static Text game_money_text;
 
     public Building building_expansion;
 
@@ -96,7 +97,6 @@ public class GameManager : EventDetector
     public static GameObject person_manager;
     public static GameObject game_menu_manager;
     public static GameObject scroll_handler;
-    public GameObject money_go;
 
     private void Awake()
     {
@@ -104,6 +104,7 @@ public class GameManager : EventDetector
         south_bound = 1;
         north_bound = 9;
         west_bound = 0;
+        game_money_text = GameObject.Find("Game Money Text").GetComponent<Text>();
         traffic_tilemap_go = GameObject.Find("Traffic Light");
         traffic_tilemap_offset_north_go = GameObject.Find("Traffic Light Offset North");
         traffic_tilemap_offset_east_go = GameObject.Find("Traffic Light Offset East");
@@ -169,6 +170,14 @@ public class GameManager : EventDetector
         goal = 10;
     }
 
+    public static void update_game_money_text(int delta_money)
+    {
+        money += delta_money;
+        if (money < 0)
+            end_level(false);
+        game_money_text.text = money.ToString();
+    }
+    
     public static bool is_position_in_bounds(Vector2Int position)
     {
         if (position.x >= west_bound && position.x <= east_bound && position.y >= south_bound && position.y <= north_bound)
@@ -203,6 +212,8 @@ public class GameManager : EventDetector
         if (is_level_beaten)
             print("you beat this level"); 
     }
+
+
 
     public static RaycastHit2D[] get_all_object_at_cursor(Vector3 cursor_pos)
     {
@@ -465,33 +476,35 @@ public class GameManager : EventDetector
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0) && hint_context_list.Count == 0)
+        if (hint_context_list != null)
         {
-            Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
-            RaycastHit2D selected_object = get_object_at_cursor(Input.mousePosition);
-            if (selected_object != null)
+            if (Input.GetMouseButtonDown(0) && hint_context_list.Count == 0)
             {
-                Collider2D collided_object = selected_object.collider;
-                if (collided_object != null) // the first collided object will be in the clickDetector Layer, which sould be ignored for non-hint clicks
+                Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
+                RaycastHit2D selected_object = get_object_at_cursor(Input.mousePosition);
+                if (selected_object != null)
                 {
-                    GameObject clicked_gameobject = collided_object.gameObject;
-                    string object_tag = clicked_gameobject.tag;
-                    if (object_tag == "track_layer")
+                    Collider2D collided_object = selected_object.collider;
+                    if (collided_object != null) // the first collided object will be in the clickDetector Layer, which sould be ignored for non-hint clicks
                     {
-                        track_manager.toggle_on_train_track(selected_tile);
-                    }
-                    else if (object_tag == "structure")
-                    {
-                        GameObject city_object = city_manager.get_city(selected_tile);
-                        // display boxcars
-                        switch_on_shipyard(true);
-                        city_manager.set_activated_city(city_object);
-                        MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
+                        GameObject clicked_gameobject = collided_object.gameObject;
+                        string object_tag = clicked_gameobject.tag;
+                        if (object_tag == "track_layer")
+                        {
+                            track_manager.toggle_on_train_track(selected_tile);
+                        }
+                        else if (object_tag == "structure")
+                        {
+                            GameObject city_object = city_manager.get_city(selected_tile);
+                            // display boxcars
+                            switch_on_shipyard(true);
+                            city_manager.set_activated_city(city_object);
+                            MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
+                        }
                     }
                 }
             }
         }
-
     }
 
     public static IEnumerator clear_hint_list()

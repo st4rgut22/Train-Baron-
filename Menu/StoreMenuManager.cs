@@ -11,7 +11,6 @@ public class StoreMenuManager : MonoBehaviour
     public Dictionary<String, int> item_price_dict;
     public Text money_text;
     public List<GameObject> text_game_objects;
-    public Text game_money_text;
     public Text cost_text;
     public Text remainder_text;
     public int total_cost;
@@ -80,7 +79,7 @@ public class StoreMenuManager : MonoBehaviour
     void update_money_text()
     {
         money_text.text = GameManager.money.ToString();
-        game_money_text.text = GameManager.money.ToString();
+        GameManager.update_game_money_text(0);       
     }
 
     private void OnEnable() // update money when first visitingn the store
@@ -153,7 +152,7 @@ public class StoreMenuManager : MonoBehaviour
         {
             create_purchased_items(text_game_objects);
             GameManager.money -= total_cost;
-            update_money_text();
+            //update_money_text();
             return true;
         }
         else

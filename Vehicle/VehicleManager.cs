@@ -120,6 +120,8 @@ public class VehicleManager : BoardManager
                 {
                     StartCoroutine(boxcar.one_time_straight_move(prev_boxcar));
                 }
+                boxcar.city.city_board[boxcar.tile_position.x + 1, boxcar.tile_position.y + 1] = null;
+                boxcar.city.city_board[prev_boxcar.tile_position.x + 1, prev_boxcar.tile_position.y + 1] = boxcar.gameObject;
                 prev_boxcar = boxcar; // set prev boxcar location to location of the boxcar that moved in to fill the void
             }
         }
@@ -149,7 +151,7 @@ public class VehicleManager : BoardManager
         // 6. train confirms end of track is next tile
         // 7. train stops and tells boxcars to stop
         Vector3Int last_location = train.tile_position; 
-        print("train last location is " + last_location);
+        //print("train last location is " + last_location);
         RouteManager.Orientation depart_orientation = train.orientation;
         MovingObject last_vehicle = train;
         if (train.in_city) board = train.get_city().city_board;
@@ -299,7 +301,7 @@ public class VehicleManager : BoardManager
             else
             {
                 vehicle_board[position.x, position.y] = game_object;
-                print("Update Vehicle Board with object " + game_object.name + " to position " + position);
+                //print("Update Vehicle Board with object " + game_object.name + " to position " + position);
             }
 
         }

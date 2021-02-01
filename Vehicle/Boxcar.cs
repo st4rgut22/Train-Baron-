@@ -17,6 +17,7 @@ public class Boxcar : MovingObject
     public GameObject explosion;
     public GameObject explosion_go;
     public bool is_stopped;
+    public bool is_being_boarded;
 
     private void Awake()
     {      
@@ -24,6 +25,7 @@ public class Boxcar : MovingObject
         is_stopped = false;
         is_occupied = false;
         is_halt = true;
+        is_being_boarded = false;
     }
 
     void Start()
@@ -130,13 +132,17 @@ public class Boxcar : MovingObject
     public void click_boxcar(PointerEventData eventData)
     {
         List<List<int[]>> boxcar_action_coord = new List<List<int[]>>();
+        List<int[]> valid_parking_pos_list = new List<int[]>();
+        List<int[]> valid_unloading_pos_list = new List<int[]>();
         if (train !=null && in_city && train.is_pause)
         {
             RouteManager.Orientation station_orientation = station_track.station.orientation;
             int is_inner = station_track.inner;
             List<List<int[]>> loading_coord = TrackManager.unloading_coord_map[station_orientation];
-            List<int[]> valid_unloading_pos_list = get_unloading_pos(loading_coord, is_inner);
-            List<int[]> valid_parking_pos_list = get_parking_list();
+            if (!is_being_boarded)
+                valid_unloading_pos_list = get_unloading_pos(loading_coord, is_inner);
+            if (!train.is_any_boxcar_being_boarded())
+                valid_parking_pos_list = get_parking_list();
             List<int[]> filtered_parking_pos_list = filter_available_parking_spot(valid_parking_pos_list);
             if (is_occupied) filtered_parking_pos_list.Clear(); // don't show available parking lots if boxcar is occupied
             // highlight the tiles for a second
@@ -184,6 +190,8 @@ public class Boxcar : MovingObject
     {
         //unload people to home, eligible tile covers the entire building
         List<int[]> unloading_pos_list = new List<int[]>();
+        if (!is_occupied)
+            return unloading_pos_list;
         bool building_has_room = false;
         int building_length = valid_pos[is_inner].Count;
         List<int[]> temp_unloading_pos_list = new List<int[]>();

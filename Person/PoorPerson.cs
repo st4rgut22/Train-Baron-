@@ -9,10 +9,10 @@ public class PoorPerson : Person
         base.Awake();
         ticket_cost_map = new Dictionary<string, int>()
         {
-            { "work_thought_bubble", 5 },
-            {"home_thought_bubble", 5 },
-            {"restaurant_thought_bubble", 10 },
-            {"vacation_thought_bubble", 30 }
+            { "work_thought_bubble", 50 },
+            {"home_thought_bubble", 50 },
+            {"restaurant_thought_bubble", 100 },
+            {"vacation_thought_bubble", 300 }
         };
 
         activity_likelihood_map = new Dictionary<string, int>()
