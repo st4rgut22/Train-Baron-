@@ -241,7 +241,9 @@ public class RouteManager : MonoBehaviour
                             final_cell_dest = get_straight_final_dest(Orientation.East, tile_world_coord);
                             next_tilemap_pos = new Vector2Int(next_tilemap_pos.x + 1, next_tilemap_pos.y);
                         }
-                        else { throw new NullReferenceException(); }
+                        else {
+                            throw new NullReferenceException();
+                        }
                         break;
                     case "NE":
                         if (moving_thing.orientation == Orientation.South || moving_thing.orientation == Orientation.East)
@@ -256,7 +258,9 @@ public class RouteManager : MonoBehaviour
                             final_cell_dest = get_straight_final_dest(Orientation.North, tile_world_coord);
                             next_tilemap_pos = new Vector2Int(next_tilemap_pos.x, next_tilemap_pos.y + 1);
                         }
-                        else { throw new NullReferenceException(); }
+                        else {
+                            throw new NullReferenceException();
+                        }
                         break;
                     case "WN":
                         if (moving_thing.orientation == Orientation.East || moving_thing.orientation == Orientation.North)
@@ -271,7 +275,9 @@ public class RouteManager : MonoBehaviour
                             final_cell_dest = get_straight_final_dest(Orientation.West, tile_world_coord);
                             next_tilemap_pos = new Vector2Int(next_tilemap_pos.x - 1, next_tilemap_pos.y);
                         }
-                        else { throw new NullReferenceException(); }
+                        else {
+                            throw new NullReferenceException();
+                        }
                         break;
                     case "WS":
                         if (moving_thing.orientation == Orientation.East || moving_thing.orientation == Orientation.South)
@@ -286,7 +292,9 @@ public class RouteManager : MonoBehaviour
                             final_cell_dest = get_straight_final_dest(Orientation.West, tile_world_coord);
                             next_tilemap_pos = new Vector2Int(next_tilemap_pos.x - 1, next_tilemap_pos.y);
                         }
-                        else { throw new NullReferenceException(); }
+                        else {
+                            throw new NullReferenceException();
+                        }
                         break;
                     case "vert":
                         if (moving_thing.orientation == Orientation.North || moving_thing.orientation == Orientation.South)
@@ -294,7 +302,9 @@ public class RouteManager : MonoBehaviour
                             final_cell_dest = get_straight_final_dest(moving_thing.orientation, tile_world_coord);
                             next_tilemap_pos = get_straight_next_tile_pos(moving_thing.orientation, next_tilemap_pos);
                         }
-                        else { throw new NullReferenceException(); }
+                        else {
+                            throw new NullReferenceException();
+                        }
                         break;
                     case "hor":
                         if (moving_thing.orientation == Orientation.East || moving_thing.orientation == Orientation.West)
@@ -302,7 +312,9 @@ public class RouteManager : MonoBehaviour
                             final_cell_dest = get_straight_final_dest(moving_thing.orientation, tile_world_coord);
                             next_tilemap_pos = get_straight_next_tile_pos(moving_thing.orientation, next_tilemap_pos);
                         }
-                        else { throw new NullReferenceException(); }
+                        else {
+                            throw new NullReferenceException();
+                        }
                         break;
                     case "ne_diag":
                         moving_thing.final_orientation = Orientation.ne_SteepCurve;

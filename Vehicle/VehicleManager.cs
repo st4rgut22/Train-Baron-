@@ -109,9 +109,10 @@ public class VehicleManager : BoardManager
         if (removed_boxcar_id > 0)
         {
             Boxcar prev_boxcar = boxcar_squad[remove_boxcar_idx].GetComponent<Boxcar>(); // spot of the previous boxcar
-            for (int i = remove_boxcar_idx; i < boxcar_squad.Count; i++)
+            for (int i = remove_boxcar_idx+1; i < boxcar_squad.Count; i++)
             {
                 boxcar = boxcar_squad[i].GetComponent<Boxcar>();
+                boxcar.is_fill_void = true;
                 if (boxcar.orientation != prev_boxcar.orientation)
                 {
                     StartCoroutine(boxcar.one_time_bezier_move(prev_boxcar));

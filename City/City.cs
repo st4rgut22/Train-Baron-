@@ -655,6 +655,13 @@ public class City : Structure
         inventory_item_board[parking_spot.x, parking_spot.y] = boxcar_item;
     }
 
+    public void add_boxcar_to_tilemap_with_location(string boxcar_type, Vector2Int parking_pos)
+    {
+        // called when displaying a city
+        Inventory_Item boxcar_item = new Inventory_Item(boxcar_type);
+        inventory_item_board[parking_pos.x, parking_pos.y] = boxcar_item;
+    }
+
     public void remove_boxcar_from_inventory(Vector2Int tile_pos)
     {
         Tilemap shipyard_inventory = GameManager.Shipyard_Inventory.GetComponent<Tilemap>();

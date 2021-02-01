@@ -88,7 +88,7 @@ public class TrafficLightManager : Simple_Moving_Object
     {
         bool exit_route_is_shown = CityManager.is_exit_route_shown(traffic_light_loc.orientation);
         Tilemap toggled_tilemap = GameManager.track_manager.top_tilemap;
-        tile_position = (Vector3Int)RouteManager.get_depart_tile_position(orientation, city_tile_position);
+        tile_position = (Vector3Int)RouteManager.get_depart_tile_position(traffic_light_loc.orientation, city_tile_position);
         if (!exit_route_is_shown) // no route exists, dont show signal
         {
             change_traffic_signal_tile(Traffic_Light.None, traffic_light_loc);

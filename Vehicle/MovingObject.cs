@@ -19,6 +19,7 @@ public class MovingObject : Simple_Moving_Object
     public bool end_of_track = false;
     public bool is_wait_for_turntable;
     public bool is_boxcar_stopped;
+    public bool is_fill_void;
 
     public string train_name = "train(Clone)";
     VehicleManager vehicle_manager;
@@ -29,6 +30,7 @@ public class MovingObject : Simple_Moving_Object
     // Start is called before the first frame update
     public void Awake()
     {
+        is_fill_void = false;
         is_boxcar_stopped = false;
         is_wait_for_turntable = false;
         Vector2Int home_base = CityManager.home_base_location;
@@ -285,10 +287,13 @@ public class MovingObject : Simple_Moving_Object
 
     public IEnumerator one_time_straight_move(Boxcar prev_boxcar)
     {
+        Vector3Int prev_boxcar_position = prev_boxcar.tile_position;
+        Vector2Int prevboxcar_next_tilemap_position = prev_boxcar.next_tilemap_position;
+        RouteManager.Orientation prev_orientation = prev_boxcar.orientation;
         yield return StartCoroutine(straight_move(transform.position, prev_boxcar.transform.position)); // dont set new positions until movement is completed
-        tile_position = prev_boxcar.tile_position;
-        next_tilemap_position = prev_boxcar.next_tilemap_position;
-        orientation = prev_boxcar.orientation;
+        tile_position = prev_boxcar_position;
+        next_tilemap_position = prevboxcar_next_tilemap_position;
+        orientation = prev_orientation;
     }
 
     public IEnumerator one_time_bezier_move(Boxcar prev_boxcar)
@@ -371,6 +376,9 @@ public class MovingObject : Simple_Moving_Object
         float end_angle;
         RouteManager.Orientation curve_type = TrackManager.is_curve_steep(final_orientation);
         in_tile = true;
+        float original_speed = speed;
+        if (is_fill_void)
+            speed = normal_speed;
         if (curve_type == RouteManager.Orientation.Less_Steep_Angle || curve_type == RouteManager.Orientation.Steep_Angle) // turntable adjustements
         {
             steep_angle_orientation = final_orientation;
@@ -418,6 +426,11 @@ public class MovingObject : Simple_Moving_Object
         {
             print("FINISH BOXCAR 3 BEZIER MOVE FROM " + tile_position + " TO " + next_tilemap_position);
         }
+        if (is_fill_void)
+        {
+            speed = original_speed;
+            is_fill_void = false;
+        }            
     }
 
     public IEnumerator straight_move(Vector2 start_position, Vector2 destination, bool turntable_dest = false, bool exit_dest = false)
@@ -426,21 +439,20 @@ public class MovingObject : Simple_Moving_Object
         float distance = og_distance;
         in_tile = true;
         next_position = start_position;
-
+        float original_speed = speed;
+        if (is_fill_void)
+            speed = normal_speed;
         while (distance > GameManager.tolerance)
         {
             if (is_pause)
             {
-                //if (gameObject.tag != "boxcar" || !gameObject.GetComponent<Boxcar>().departing)
-                //{
-                    yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling //TODOED
-                    continue; // don't execute the code below
-                //}
+                yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling //TODOED
+                continue; // don't execute the code below
             }
             stop_car_if_wait_tile();
             if (gameObject.tag == "boxcar")
-                gameObject.GetComponent<Boxcar>().stop_single_boxcar(); float step;
-            step = speed * Time.deltaTime; // calculate distance to move
+                gameObject.GetComponent<Boxcar>().stop_single_boxcar();
+            float step = speed * Time.deltaTime; // calculate distance to move
             next_position = Vector2.MoveTowards(next_position, destination, step);
             transform.position = next_position;
             distance = Vector2.Distance(next_position, destination);
@@ -504,5 +516,10 @@ public class MovingObject : Simple_Moving_Object
             arrive_at_city();
             arriving_in_city = false;
         }
+        if (is_fill_void)
+        {
+            speed = original_speed;
+            is_fill_void = false;
+        }            
     }
 }

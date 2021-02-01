@@ -33,13 +33,13 @@ public class StoreMenuManager : MonoBehaviour
             {"NE", 50 },
             {"WS",50 },
             {"ES", 50 },
-            {"factory", 200 },
-            {"scenery", 60 },
-            {"restaurant", 150 },
-            {"mansion", 300 },
+            {"Factory", 200 },
+            {"Scenery", 60 },
+            {"Restaurant", 150 },
+            {"Mansion", 300 },
             {"Apartment", 100 },
-            {"diner", 100 },
-            {"business", 300 }
+            {"Diner", 100 },
+            {"Business", 300 }
         };
     }
 

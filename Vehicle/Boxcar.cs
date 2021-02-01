@@ -16,10 +16,12 @@ public class Boxcar : MovingObject
     Vector3 idling_position;
     public GameObject explosion;
     public GameObject explosion_go;
+    public bool is_stopped;
 
     private void Awake()
     {      
         base.Awake();
+        is_stopped = false;
         is_occupied = false;
         is_halt = true;
     }
@@ -44,6 +46,8 @@ public class Boxcar : MovingObject
 
     public void stop_single_boxcar()
     {
+        if (!train.is_train_departed_for_turntable)
+        {
             if (station_track.station.orientation == RouteManager.Orientation.South || station_track.station.orientation == RouteManager.Orientation.North)
             {
                 int boxcar_position = gameObject.GetComponent<Boxcar>().train.get_boxcar_position(gameObject);
@@ -64,6 +68,7 @@ public class Boxcar : MovingObject
                     }
                 }
             }
+        }
     }
 
     public void initialize_boxcar(int id)

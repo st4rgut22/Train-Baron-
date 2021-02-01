@@ -76,6 +76,7 @@ public class GameMenuManager : EventDetector
         {
             Text item_count = inventory_item.GetComponent<Text>();
             string item_name = inventory_item.transform.parent.name;
+            print(item_name + " ite d");
             switch (item_name)
             {
                 case "vert":
@@ -96,25 +97,25 @@ public class GameMenuManager : EventDetector
                 case "ES":
                     item_count.text = "x" + TrackManager.get_track_count(item_name).ToString();
                     break;
-                case "restaurant":
+                case "Restaurant":
                     item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
                     break;
-                case "factory":
+                case "Factory":
                     item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
                     break;
                 case "Apartment":
                     item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
                     break;
-                case "business":
+                case "Business":
                     item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
                     break;
-                case "mansion":
+                case "Mansion":
                     item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
                     break;
-                case "diner":
+                case "Diner":
                     item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
                     break;
-                case "scenery":
+                case "Scenery":
                     item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
                     break;
                 default:
@@ -179,16 +180,16 @@ public class GameMenuManager : EventDetector
         }
         else // structure
         {
-            if (item_name == "Apartment" || item_name == "mansion")
+            if (item_name == "Apartment" || item_name == "Mansion")
             {
                 menu_go.GetComponent<RawImage>().texture = home_inventory_bubble;
             }
-            else if (item_name == "factory" || item_name == "business")
+            else if (item_name == "Factory" || item_name == "Business")
             {
 
                 menu_go.GetComponent<RawImage>().texture = work_inventory_bubble;
             }
-            else if (item_name == "diner" || item_name == "restaurant")
+            else if (item_name == "Diner" || item_name == "Restaurant")
             {
                 menu_go.GetComponent<RawImage>().texture = food_inventory_bubble;
             }
@@ -243,22 +244,22 @@ public class GameMenuManager : EventDetector
                 case "boxcar":
                     clicked_item = Instantiate(boxcar, position, Quaternion.identity);
                     break;
-                case "restaurant": 
+                case "Restaurant": 
                     clicked_item = Instantiate(restaurant, position, Quaternion.identity);
                     clicked_tile = restaurant_tile;
                     building_component = clicked_item.GetComponent<Restaurant>();
                     break;
-                case "mansion": 
+                case "Mansion": 
                     clicked_item = Instantiate(mansion, position, Quaternion.identity);
                     clicked_tile = wealthy_tile;
                     building_component = clicked_item.GetComponent<Mansion>();
                     break;
-                case "diner":
+                case "Diner":
                     clicked_item = Instantiate(diner, position, Quaternion.identity);
                     clicked_tile = diner_tile;
                     building_component = clicked_item.GetComponent<Diner>();
                     break;
-                case "factory": 
+                case "Factory": 
                     clicked_item = Instantiate(factory, position, Quaternion.identity);
                     clicked_tile = factory_tile;
                     building_component = clicked_item.GetComponent<Factory>();
@@ -268,7 +269,7 @@ public class GameMenuManager : EventDetector
                     building_component = clicked_item.GetComponent<Apartment>();
                     clicked_tile = poor_tile;
                     break;
-                case "business":
+                case "Business":
                     clicked_item = Instantiate(business, position, Quaternion.identity);
                     building_component = clicked_item.GetComponent<Business>();
                     clicked_tile = business_tile;
