@@ -72,7 +72,7 @@ public class TrackManager : BoardManager
     public Tilemap bottom_tilemap_5;
     public Tilemap[] bottom_tilemap_list;
 
-    public static int[,] parking_coord = { { 4, 0, 5 }, { 4, 11, 16 }, { 6, 11, 16 }, { 6, 0, 5 } }; // y, x start, x end 
+    public static int[,] parking_coord = { { 4, 0, 4 }, { 4, 11, 16 }, { 6, 12, 16 }, { 6, 0, 5 } }; // y, x start, x end  used by inventory pusher
     public static Dictionary<RouteManager.Orientation, List<int>> parking_coord_map;
     public static Dictionary<RouteManager.Orientation, List<List<int[]>>> unloading_coord_map; // positions of all unloading coordinates
     public static Dictionary<RouteManager.Orientation, List<List<int[]>>> add_to_train_coord_map;
@@ -91,11 +91,11 @@ public class TrackManager : BoardManager
     {
         base.Start();
 
-        parking_coord_map = new Dictionary<RouteManager.Orientation, List<int>>
+        parking_coord_map = new Dictionary<RouteManager.Orientation, List<int>> // parking boxcars
         { // {{coordinates of loading tiles for outer track},{coordinates of loading tiles for inner track}}
             { RouteManager.Orientation.North, new List<int>{6,0,5} },
-            { RouteManager.Orientation.East, new List<int>{6,11,16} },
-            { RouteManager.Orientation.West, new List<int> {4,0,5} },
+            { RouteManager.Orientation.East, new List<int>{6,12,16} },
+            { RouteManager.Orientation.West, new List<int> {4,0,4} },
             { RouteManager.Orientation.South, new List<int> {4,11,16} }
         };
 

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 public class Building : Structure
 {
@@ -18,9 +19,11 @@ public class Building : Structure
     public Vector2Int last_room_position;
     public BuildingLot building_lot;
     public string initial_building_lot_name;
+    public Stack last_room_position_stack;
 
     private void Awake()
     {
+        last_room_position_stack = new Stack();
         initial_building_lot_name = "Building Lot West";
         occupant_id = 0;
         total_occupant = 0;
@@ -97,22 +100,19 @@ public class Building : Structure
 
     public void remove_last_room()
     {
-        Vector2Int room_pos = last_room_position;
-        Room room = city.city_room_matrix[room_pos.x, room_pos.y];
+        Vector2Int room_pos = (Vector2Int) last_room_position_stack.Pop();
+        Room boarded_room = city.city_room_matrix[room_pos.x, room_pos.y];
+        
         city.city_room_matrix[room_pos.x, room_pos.y] = null;
-        roomba[room.id] = null;
-        Vector2Int room_tile_pos = RouteManager.get_straight_next_tile_pos_multiple(building_orientation, offset_position, room.id-1);
+        if (boarded_room.has_person)
+        {
+            DestroyImmediate(boarded_room.person_go_instance); // otherwise get error from coroutine
+        }
+        Destroy(boarded_room.primary_door_container);
+        Destroy(boarded_room.outer_door_container);
+        roomba[boarded_room.id] = null;
         city.city_tilemap.SetTile((Vector3Int)room_pos, null);
         current_capacity -= 1;
-    }
-
-    public Vector2Int get_last_room_position()
-    {
-        for (int i = roomba.Length - 1; i >= 0; i--)
-        {
-            if (roomba[i] != null) return roomba[i].GetComponent<Room>().tile_position;
-        }
-        throw new System.Exception("there are no rooms left");
     }
 
     public int get_new_room_id()
@@ -139,6 +139,7 @@ public class Building : Structure
         room.building = this;
         roomba[room.id] = room_object;
         current_capacity += 1;
+        last_room_position_stack.Push(room_tile_pos);
         return room;
     }
 

@@ -227,6 +227,23 @@ public class City : Structure
         return pm.get_star_texture(texture_id);
     }
 
+    public List<Building> get_available_building_list()
+    {
+        List<Building> available_building_list = new List<Building>();
+        foreach (Building bldg in city_building_list)
+        {
+            foreach (GameObject room_go in bldg.roomba)
+            {
+                if (room_go != null)
+                {
+                    available_building_list.Add(bldg);
+                    break;
+                }
+            }
+        }
+        return available_building_list;
+    }
+
     public void populate_entrance()
     {
         //use delta reputation to populate as many rooms as possible
@@ -235,29 +252,33 @@ public class City : Structure
         if (total_vacancy_count < people_to_add) people_to_add = total_vacancy_count;
         start_reputation = PersonManager.reputation;
         print("POPUPLATE ENTRANCE people to add " + people_to_add);
+        List<Building> available_building_list = get_available_building_list();
+
         for (int i = 0; i < people_to_add; i++)
         {
             bool found_room = false;
-            foreach (Building bldg in city_building_list)
+            Building bldg = available_building_list[total_people % available_building_list.Count];
+            foreach (GameObject room_go in bldg.roomba)
             {
-                foreach (GameObject room_go in bldg.roomba)
+                if (room_go != null )
                 {
-                    if (room_go != null )
+                    Room room = room_go.GetComponent<Room>();
+                    if (!room.has_person)
                     {
-                        Room room = room_go.GetComponent<Room>();
-                        if (!room.has_person)
-                        {
-                            Person person = room.spawn_person(true);
-                            CityManager.increment_total_people();
-                            total_people += 1;
-                            if (CityManager.Activated_City_Component == this) person.initialize_egghead(true, true); // if entrance is activated
-                            else { person.initialize_egghead(false, false); }
-                            found_room = true;
-                        }
+                        Person person = room.spawn_person(true);
+                        CityManager.increment_total_people();
+                        total_people += 1;
+                        if (CityManager.Activated_City_Component == this) person.initialize_egghead(true, true); // if entrance is activated
+                        else { person.initialize_egghead(false, false); }
+                        found_room = true;
                     }
-                    if (found_room) break;
                 }
                 if (found_room) break;
+            }
+            if (!found_room) // bldg has no available rooms, they're all filled
+            {
+                i -= 1; // add the person to an available building
+                available_building_list.Remove(bldg);
             }
         }
     }

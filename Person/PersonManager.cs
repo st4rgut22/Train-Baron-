@@ -71,8 +71,8 @@ public class PersonManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        how_to_become_poor = 90;
-        how_to_become_rich = 55;        //how_to_become_rich = 200;     
+        how_to_become_poor = 100;
+        how_to_become_rich = 300;
         total_notification = 0;
         notification_prefab = (GameObject)Resources.Load("UI/notification"); // note: not .prefab!
         notification_canvas = GameObject.Find("People Manager");
@@ -97,9 +97,23 @@ public class PersonManager : MonoBehaviour
     public void reinitialize_person(GameObject person_go_instance, GameObject old_person_go_instance)
     {
         // update person sprite after changing wealth class
-        person_go_instance.GetComponent<Person>().wealth = old_person_go_instance.GetComponent<Person>().wealth;
-        person_go_instance.GetComponent<Person>().schedule_activity();
+        Person person = person_go_instance.GetComponent<Person>();
+        Person old_person = old_person_go_instance.GetComponent<Person>();
+        person.schedule_activity();
+        bool is_egghead_on = old_person_go_instance.GetComponent<SpriteRenderer>().enabled;
+
+        person_go_instance.GetComponent<SpriteRenderer>().enabled = is_egghead_on;
+        if (old_person.room != null)
+        {
+            person.room = old_person.room;
+            person.room.person_go_instance = person_go_instance;
+        } else
+        {
+            throw new Exception("person should ben in a room when becomes rich");
+        }
         person_go_instance.transform.position = old_person_go_instance.transform.position;
+        person.initialize_egghead(is_egghead_on, is_egghead_on);
+        person.wealth = old_person_go_instance.GetComponent<Person>().wealth;
         Destroy(old_person_go_instance);
     }
 

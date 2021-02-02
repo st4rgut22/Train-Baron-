@@ -111,8 +111,6 @@ public class Person : Simple_Moving_Object
         PersonManager.add_notification_for_city(room.building.city.tilemap_position, true);
     }
 
-
-
     public void Update()
     {
         if (is_exit_home || is_exit_boxcar) // execute followo track after person has completed exit home sequence
@@ -254,6 +252,35 @@ public class Person : Simple_Moving_Object
         return critique;
     }
 
+    public string is_class_insensitive()
+    {
+        if (gameObject.tag == "rich")
+        {
+            string city_name = city.city_building_list[0].name;
+            if (city_name.Contains("Apartment"))
+            {
+                return "I expected to return to my mansion but got dumped in the slums.";
+            }
+            if (city_name.Contains("Factory"))
+            {
+                return "Terrible day at the mines today. I never want to labor again.";
+            }
+            if (city_name.Contains("Diner"))
+            {
+                return "Did they scrape my dinner from a dumpster? I only frequent 5 Star restaurants.";
+            }
+        }
+        if (gameObject.tag == "poor")
+        {
+            string city_name = city.city_building_list[0].name;
+            if (city_name.Contains("Restaurant"))
+            {
+                return "The food was great, but it's way too expensive.";
+            }
+        }
+        return "";
+    }
+
     public void leave_review(City city)
     {
         string destination_name = city.gameObject.name;
@@ -264,7 +291,7 @@ public class Person : Simple_Moving_Object
         {
             review = Review.Zero_Star;
         }
-        else if (desired_activity != "work_thought_bubble" && (destination_name == "Factory" || destination_name == "business") ||
+        else if (desired_activity != "work_thought_bubble" && (destination_name == "Factory" || destination_name == "Business") ||
             desired_activity != "home_thought_bubble" && (destination_name == "Apartment" || destination_name == "Mansion") ||
             desired_activity != "restaurant_thought_bubble" && (destination_name == "Diner" || destination_name == "Restaurant"))
         {
@@ -287,6 +314,9 @@ public class Person : Simple_Moving_Object
             review_summary = "The trip was " + trip_critique + " and boarding was " + board_critique;
             int star_rating = (int)(train_rating * 5) + 1;
             star_rating = Math.Min(5, star_rating);
+            string class_critique = is_class_insensitive();
+            if (class_critique != "") star_rating -= 1;
+            review_summary = class_critique + review_summary;
             review = (Review)star_rating;
             print("boarding pause duration is " + boarding_pause_duration + " and trip pause duration is " + trip_pause_duration + "trip rating is " + train_rating);
             print("FINISHED TRIP. Board duration was " + accurate_boarding_duration + " trip duration was " + accurate_trip_duration + "review was " + review);
@@ -353,10 +383,14 @@ public class Person : Simple_Moving_Object
         if (save_desired_activity == "work_thought_bubble" && (room.building.name.Contains("Factory") || room.building.name.Contains("Business")))
         {
             if (gameObject.tag == "poor")
+            {
                 GameManager.person_manager.GetComponent<PersonManager>().change_wealth(gameObject, poor_wage);
+                GameManager.update_game_money_text(poor_wage * 2); // profits you earn off your employee
+            }                
             else
             {
                 GameManager.person_manager.GetComponent<PersonManager>().change_wealth(gameObject, rich_wage);
+                // you don't earn any profits off your rich employees (they work for themselves)
             }
         }
         else if (desired_activity == "restaurant_thought_bubble")

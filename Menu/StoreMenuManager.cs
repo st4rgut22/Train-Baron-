@@ -183,6 +183,8 @@ public class StoreMenuManager : MonoBehaviour
         //update inventory with bought items
         if (btn_name == "add")
         {
+            if (item_price_dict[item_name] + total_cost > GameManager.money) // insufficient funds
+                return;
             total_cost += item_price_dict[item_name];
             add_item_to_cart(item_name);
             cur_count++;
