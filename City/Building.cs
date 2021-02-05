@@ -24,7 +24,7 @@ public class Building : Structure
     private void Awake()
     {
         last_room_position_stack = new Stack();
-        initial_building_lot_name = "Building Lot West";
+        initial_building_lot_name = "Building Lot South"; //TODOED temporary West
         occupant_id = 0;
         total_occupant = 0;
         room_id = 0;
@@ -34,8 +34,8 @@ public class Building : Structure
     {
         roomba = new GameObject[max_capacity];
         city.city_tilemap_go.SetActive(false); // after setting tile deactivate gameobject
-        if (building_lot.id == initial_building_lot_name)
-        {
+        //if (building_lot.id == initial_building_lot_name) //TODOED temporary
+        //{
             Room room = spawn_room();
             print("bldg name is " + gameObject.name);
             if (gameObject.name.Contains("Station"))
@@ -43,7 +43,7 @@ public class Building : Structure
                 Person person = room.spawn_person(true);
                 person.initialize_egghead(false, false);
             }
-        }
+        //}
     }
 
     private void Update()
@@ -106,10 +106,17 @@ public class Building : Structure
         city.city_room_matrix[room_pos.x, room_pos.y] = null;
         if (boarded_room.has_person)
         {
-            DestroyImmediate(boarded_room.person_go_instance); // otherwise get error from coroutine
+            GameObject person_go = boarded_room.person_go_instance;
+            Person person = person_go.GetComponent<Person>();
+            if (person.desired_activity != "") // not in a period of waiting for activity
+                PersonManager.add_notification_for_city(person.city.tilemap_position, false); // remove notification
+            string review_summary = "Imma go somewhere that can stick to the train schedule timetable. Peace.";
+            person.leave_review(person.city, Person.Review.One_Star);
+            person.update_review_page(review_summary, (int)Person.Review.One_Star);
+            DestroyImmediate(person_go); // otherwise get error from coroutine
         }
-        Destroy(boarded_room.primary_door_container);
-        Destroy(boarded_room.outer_door_container);
+        DestroyImmediate(boarded_room.primary_door_container);
+        DestroyImmediate(boarded_room.outer_door_container);
         roomba[boarded_room.id] = null;
         city.city_tilemap.SetTile((Vector3Int)room_pos, null);
         current_capacity -= 1;

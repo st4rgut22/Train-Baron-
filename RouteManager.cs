@@ -72,13 +72,13 @@ public class RouteManager : MonoBehaviour
                 CityManager.north_start_outer,
                     new Dictionary<string, Vector2>(){
                         {
-                            "hor", offset_down
+                            "hor", offset_up
                         },
                         {
-                            "vert", offset_left
+                            "vert", offset_right
                         },
                         {
-                            "NE", offset_left
+                            "NE", offset_right
                         }
                     }
             },
@@ -87,13 +87,13 @@ public class RouteManager : MonoBehaviour
                     new Dictionary<string, Vector2>()
                     {
                         {
-                            "hor", offset_up
+                            "hor", offset_down
                         },
                         {
-                            "NE", offset_right
+                            "NE", offset_left
                         },
                         {
-                            "WS", offset_up
+                            "WS", offset_down
                         }
                     }
             },
@@ -150,13 +150,13 @@ public class RouteManager : MonoBehaviour
                     new Dictionary<string, Vector2>()
                     {
                         {
-                            "vert", offset_right
+                            "vert", offset_left
                         },
                         {
-                            "WS", offset_right
+                            "WS", offset_left
                         },
                         {
-                            "hor", offset_up
+                            "hor", offset_down
                         }
                     }
             },
@@ -165,16 +165,16 @@ public class RouteManager : MonoBehaviour
                     new Dictionary<string, Vector2>()
                     {
                         {
-                            "hor", offset_down
+                            "hor", offset_up
                         },
                         {
-                            "vert", offset_left
+                            "vert", offset_right
                         },
                         {
-                            "NE", offset_down
+                            "NE", offset_up
                         },
                         {
-                            "WS", offset_left
+                            "WS", offset_right
                         }
                     }
             }

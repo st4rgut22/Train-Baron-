@@ -23,10 +23,7 @@ public class Person : Simple_Moving_Object
     public GameObject eggheads_thought_bubble; // TODOED default to home
     public string desired_activity;
     public GameObject thought_bubble;
-    public Sprite restaurant_thought_bubble;
-    public Sprite home_thought_bubble;
-    public Sprite work_thought_bubble;
-    public Sprite vacation_thought_bubble;
+
     public SpriteRenderer thought_bubble_renderer;
     public Dictionary<string, int> activity_duration_map;
     public Dictionary<string, int> ticket_cost_map;
@@ -106,7 +103,7 @@ public class Person : Simple_Moving_Object
         desired_activity = thought_bubble.GetComponent<SpriteRenderer>().sprite.name;
         print("desired activity is " + desired_activity);
         thought_bubble.transform.parent = gameObject.transform;
-        thought_bubble.transform.localPosition = thought_bubble_offset;
+        thought_bubble.transform.localPosition = GameManager.person_manager.GetComponent<PersonManager>().building_lot_to_thought_offset(room.building.building_lot);
         thought_bubble.GetComponent<SpriteRenderer>().enabled = is_bubble_on;
         PersonManager.add_notification_for_city(room.building.city.tilemap_position, true);
     }
@@ -321,11 +318,12 @@ public class Person : Simple_Moving_Object
             print("boarding pause duration is " + boarding_pause_duration + " and trip pause duration is " + trip_pause_duration + "trip rating is " + train_rating);
             print("FINISHED TRIP. Board duration was " + accurate_boarding_duration + " trip duration was " + accurate_trip_duration + "review was " + review);
         }
+        GameManager.convert_star_to_profit((int)review);
         leave_review(city, review);
         update_review_page(review_summary, (int)review);
     }
 
-    void update_review_page(string review_summary, int star_rating)
+    public void update_review_page(string review_summary, int star_rating)
     {
         scrollScript.update_notification_count(1);
         GameManager.scroll_handler.GetComponent<scrollScript>().generateItem(review_summary, name, star_rating, city.name);
@@ -351,23 +349,8 @@ public class Person : Simple_Moving_Object
     public void render_thought_bubble()
     {
         thought_bubble.SetActive(true);
-        switch (desired_activity)
-        {
-            case "work_thought_bubble":
-                thought_bubble_renderer.sprite = work_thought_bubble;
-                break;
-            case "home_thought_bubble":
-                thought_bubble_renderer.sprite = home_thought_bubble;
-                break;
-            case "restaurant_thought_bubble":
-                thought_bubble_renderer.sprite = restaurant_thought_bubble;
-                break;
-            case "vacation_thought_bubble":
-                thought_bubble_renderer.sprite = vacation_thought_bubble;
-                break;
-            default:
-                throw new Exception("not a valid thought bubble");
-        }
+        // get thought bubble from PersonManager
+        thought_bubble_renderer.sprite = GameManager.person_manager.GetComponent<PersonManager>().desired_activity_to_throught_sprite(desired_activity, room.building.building_lot);
     }
 
     public IEnumerator schedule_activity()

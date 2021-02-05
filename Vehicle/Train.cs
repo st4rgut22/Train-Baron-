@@ -53,7 +53,7 @@ public class Train : MovingObject
     {
         // should still trigger when not visible in inspector
         // not updated in unity's inspector
-        print("collided with " + collision.gameObject.name);        
+        //print("collided with " + collision.gameObject.name);        
         if (collision.gameObject.tag == "boxcar" || collision.gameObject.tag == "train")
         {
             bool collide_go_in_city = collision.gameObject.GetComponent<MovingObject>().in_city;
@@ -119,6 +119,16 @@ public class Train : MovingObject
             Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
             if (boxcar.passenger_go != null)
             {
+                // leave a RIP review
+                Person deceased_person = boxcar.passenger_go.GetComponent<Person>();
+                string review_summary = "I died in a train accident departing from " + city.name + ". It doesn't seem too safe.";
+                deceased_person.update_review_page(review_summary, 0);
+                if (boxcar.passenger_go.tag == "rich")
+                    GameManager.update_game_money_text(-100); // lawsuit fees
+                else
+                {
+                    GameManager.update_game_money_text(-250); // lawsuit fees
+                }
                 Destroy(boxcar.passenger_go);
             }
             boxcar.remove_vehicle_from_board();
@@ -471,7 +481,7 @@ public class Train : MovingObject
         Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
         Tilemap boxcar_tilemap = CityDetector.boxcar_orientation_to_offset_tilemap(boxcar.orientation);
         Vector3Int boxcar_cell_pos = boxcar_tilemap.WorldToCell(boxcar_go.transform.position);
-        print("boxcar " + boxcar_go.name + " tile position " + boxcar.tile_position + " prev tile position " + boxcar.prev_tile_position);
+        //print("boxcar " + boxcar_go.name + " tile position " + boxcar.tile_position + " prev tile position " + boxcar.prev_tile_position);
         boxcar.prev_tile_position = boxcar.tile_position; // move up  one
         boxcar.tile_position = boxcar_cell_pos;
         GameManager.vehicle_manager.update_vehicle_board(city.city_board, boxcar_go, boxcar_cell_pos, boxcar.prev_tile_position); // nullify prev tile

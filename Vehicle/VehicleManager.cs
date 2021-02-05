@@ -225,7 +225,7 @@ public class VehicleManager : BoardManager
             // save gameobject tile with adjustments. when a user clicks on a tile, it will be in the tile opposite the vehicle's orientation. Therefore, flip orientation
             //Vector2Int boxcar_board_position = RouteManager.get_straight_next_tile_pos(TrackManager.flip_straight_orientation(boxcar_component.orientation), (Vector2Int)boxcar_component.tile_position);
             boxcar_component.city.city_board[pos_pair.tile_dest_pos.x+1, pos_pair.tile_dest_pos.y+1] = boxcar; // offset boxcar to be consistent
-            print("new boxcar created at tile position " + pos_pair.tile_dest_pos);
+            print("new boxcar created at tile position " + boxcar_component.tile_position);
         }
     }
 

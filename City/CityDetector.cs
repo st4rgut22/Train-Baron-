@@ -201,11 +201,8 @@ public class CityDetector : EventDetector
             person.is_selected = true;
             Station cb_station = CityManager.Activated_City_Component.get_station_track(selected_tile).station;
             RouteManager.Orientation orientation = cb_station.orientation;
-            bool[] outer_inner_arr = TrackManager.is_city_building_inner(selected_tile, orientation); // 0 means outer, 1 means inner
-            bool is_outer_track_valid = false;
-            bool is_inner_track_valid = false;
-            if (outer_inner_arr[0]) is_outer_track_valid = is_track_contain_valid_boxcar(true, cb_station, building_type);
-            if (outer_inner_arr[1]) is_inner_track_valid = is_track_contain_valid_boxcar(false, cb_station, building_type);
+            bool is_outer_track_valid = is_track_contain_valid_boxcar(true, cb_station, building_type);
+            bool is_inner_track_valid = is_track_contain_valid_boxcar(false, cb_station, building_type);
             if (is_outer_track_valid || is_inner_track_valid)
             {
                 List<int[]> inner_outer_coord = new List<int[]>();

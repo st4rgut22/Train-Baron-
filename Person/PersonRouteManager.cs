@@ -129,9 +129,18 @@ public class PersonRouteManager : RouteManager
         string track_name = shipyard_track_tilemap.GetTile((Vector3Int)doorstep_position).name;
         occupant.final_dest_tile_pos = boxcar.tile_position;
         occupant.final_dest_pos = boxcar.transform.position;
-        Orientation[] orientation_pair = CityManager.station_track_curve_map[boxcar.station_track.start_location];
-        Orientation start_orientation = orientation_pair[0];
-        Orientation end_orientation = orientation_pair[1];
+        Orientation start_orientation;
+        Orientation end_orientation;
+        if (boxcar.station_track.inner == 0)
+        {
+            start_orientation = CityManager.outer_orientation_pair_map[0];
+            end_orientation = CityManager.outer_orientation_pair_map[1];
+        }
+        else
+        {
+            start_orientation = CityManager.inner_orientation_pair_map[0];
+            end_orientation = CityManager.inner_orientation_pair_map[1];
+        }
         occupant.is_tight_curve = true; // wide curve
         occupant.arrived_at_room = false; 
         yield return StartCoroutine(unlocked_door.rotate());

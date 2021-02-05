@@ -62,10 +62,7 @@ public class Room : Structure
 
     public bool is_sprite_right_door(Sprite sprite)
     {
-        if (sprite == right_door_bottom_left ||
-            sprite == right_door_bottom_right ||
-            sprite == right_door_top_left ||
-            sprite == right_door_top_right )
+        if (sprite == right_door_top_right)
         {
             return true;
         }
@@ -81,17 +78,12 @@ public class Room : Structure
         {
             door_sprite_go.transform.position += (Vector3)right_door_offset;
         }
-        if (door.door_sprite == right_door_top_right || door.door_sprite == left_door_top_right)
+        if (door.door_sprite == right_door_top_right)
         {
             pivot_door_offset = new Vector2(.37f, 0f);
             door_sprite_go.transform.position += (Vector3)pivot_door_offset;
         }
-        if (door.door_sprite == right_door_bottom_right)
-        {
-            pivot_door_offset = new Vector2(.37f, -.07f);
-            door_sprite_go.transform.position += (Vector3)pivot_door_offset;
-        }
-        if (door.door_sprite == left_door_bottom_left)
+        else
         {
             pivot_door_offset = new Vector2(0f, -.07f);
             door_sprite_go.transform.position += (Vector3)pivot_door_offset;

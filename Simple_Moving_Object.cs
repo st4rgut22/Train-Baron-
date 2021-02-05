@@ -100,13 +100,13 @@ public class Simple_Moving_Object : EventDetector
     public IEnumerator move_checkpoints(List<Checkpoint> checkpoint_list)
     {
         Person person = gameObject.GetComponent<Person>();
-        print("begin moving " + gameObject.name + " to checkpoints");
+        //print("begin moving " + gameObject.name + " to checkpoints");
         for (int i = 0; i < checkpoint_list.Count; i++)
         {
             Checkpoint cp = checkpoint_list[i];
             if (cp.animation_clip != "none") // animation has changed
             {
-                print("set animation clip " + cp.animation_clip);
+                //print("set animation clip " + cp.animation_clip);
                 // flip here
                 if (cp.animation_clip == "player_idle_hor" || cp.animation_clip == "player_walk_hor")
                 {

@@ -53,7 +53,6 @@ public class CityManager : BoardManager
 
     public static Dictionary<Vector3Int, RouteManager.Orientation> station_track_boarding_map;
     public static Dictionary<Vector3Int, Dictionary<string, RouteManager.Orientation>> station_track_unloading_map;
-    public static Dictionary<Vector3Int, RouteManager.Orientation[]> station_track_curve_map; // array index 0 is original orientation, 1 is final orientation
 
     public static Dictionary<string, int> building_count_dict = new Dictionary<string, int>(); // <building name, building count>
     public static List<int[]> city_plot_location = new List<int[]>() { new int[] { 0, 2 }, new int[] { 1, 2 }, new int[] { 2, 2 }, new int[] { 3, 2 },new int[]{4,2 }, new int[]{5,2 },
@@ -65,6 +64,10 @@ public class CityManager : BoardManager
     public static List<int[]> boxcar_city_inner_wait_tile = new List<int[]> { new int[] { 14, 2 } , new int[] { 2, 8 } };
     public static List<int[]>  boxcar_city_wait_tile = new List<int[]> { new int[] { 6, 1 }, new int[] { 11, 2 } , new int[] { 12, 3 } , new int[] { 4, 3 }, new int[] { 5, 8 }, new int[] { 4, 7 }, new int[] { 12, 7 }, new int[] { 10, 9 } }; // ADD MORE 
     public int entrance_update_interval;
+
+    public static RouteManager.Orientation[] outer_orientation_pair_map = new RouteManager.Orientation[] { RouteManager.Orientation.East, RouteManager.Orientation.South };
+    public static RouteManager.Orientation[] inner_orientation_pair_map = new RouteManager.Orientation[] { RouteManager.Orientation.East, RouteManager.Orientation.North };
+
 
     public const int restaurant_cost = 100;
     public const int diner_cost = 20;
@@ -86,13 +89,13 @@ public class CityManager : BoardManager
         };
         station_track_boarding_map = new Dictionary<Vector3Int, RouteManager.Orientation>() // the direction you leave building to board boxcar
         {
-            { north_start_outer, RouteManager.Orientation.East },
-            {north_start_inner, RouteManager.Orientation.South },
+            { north_start_outer, RouteManager.Orientation.South },
+            {north_start_inner, RouteManager.Orientation.North },
             {east_start_outer, RouteManager.Orientation.North },
             {east_start_inner, RouteManager.Orientation.South },
             {west_start_outer, RouteManager.Orientation.South },
             {west_start_inner, RouteManager.Orientation.North },
-            {south_start_outer, RouteManager.Orientation.West },
+            {south_start_outer, RouteManager.Orientation.South },
             {south_start_inner, RouteManager.Orientation.North }
         };
 
@@ -103,10 +106,10 @@ public class CityManager : BoardManager
                 north_start_outer,
                     new Dictionary<string, RouteManager.Orientation>(){
                         {
-                            "hor", RouteManager.Orientation.South
+                            "hor", RouteManager.Orientation.North
                         },
                         {
-                            "vert", RouteManager.Orientation.West
+                            "vert", RouteManager.Orientation.East
                         },
                         {
                             "NE", RouteManager.Orientation.North // west
@@ -118,16 +121,13 @@ public class CityManager : BoardManager
                     new Dictionary<string, RouteManager.Orientation>()
                     {
                         {
-                            "hor", RouteManager.Orientation.North
+                            "hor", RouteManager.Orientation.South
                         },
                         {
-                            "vert", RouteManager.Orientation.East
+                            "vert", RouteManager.Orientation.West
                         },
                         {
-                            "NE", RouteManager.Orientation.North
-                        },
-                        {
-                            "WS", RouteManager.Orientation.North
+                            "WS", RouteManager.Orientation.South
                         }
                     }
             },
@@ -184,13 +184,13 @@ public class CityManager : BoardManager
                     new Dictionary<string, RouteManager.Orientation>()
                     {
                         {
-                            "vert", RouteManager.Orientation.East
+                            "vert", RouteManager.Orientation.West
                         },
                         {
-                            "hor", RouteManager.Orientation.North
+                            "hor", RouteManager.Orientation.South
                         },
                         {
-                            "WS", RouteManager.Orientation.North
+                            "WS", RouteManager.Orientation.South // CHECK!
                         }
                     }
             },
@@ -199,47 +199,15 @@ public class CityManager : BoardManager
                     new Dictionary<string, RouteManager.Orientation>()
                     {
                         {
-                            "hor", RouteManager.Orientation.South
+                            "hor", RouteManager.Orientation.North
                         },
                         {
-                            "vert", RouteManager.Orientation.West
+                            "vert", RouteManager.Orientation.East
                         },
                         {
-                            "WS", RouteManager.Orientation.South
-                        },
-                        {
-                            "NE", RouteManager.Orientation.South
+                            "WS", RouteManager.Orientation.North
                         }
                     }
-            }
-        };
-
-        station_track_curve_map = new Dictionary<Vector3Int, RouteManager.Orientation[]>()
-        {
-            // a dictionary of orientations for person leaving a boxcar
-            {
-                north_start_outer, new RouteManager.Orientation[]{RouteManager.Orientation.North, RouteManager.Orientation.East}
-            },
-            {
-                north_start_inner, new RouteManager.Orientation[]{RouteManager.Orientation.West, RouteManager.Orientation.South}
-            },
-            {
-                east_start_outer, new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.North}
-            },
-            {
-                east_start_inner, new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.South}
-            },
-            {
-                west_start_outer,new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.South}
-            },
-            {
-                west_start_inner,new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.North}
-            },
-            {
-                south_start_outer, new RouteManager.Orientation[]{RouteManager.Orientation.South, RouteManager.Orientation.West}
-            },
-            {
-                south_start_inner, new RouteManager.Orientation[]{RouteManager.Orientation.East, RouteManager.Orientation.North}
             }
         };
     }
@@ -253,15 +221,6 @@ public class CityManager : BoardManager
     // Update is called once per frame
     void Update()
     {
-    }
-
-    public static void increment_total_people()
-    {
-        total_people += 1;
-        if (total_people >= GameManager.goal)
-        {
-            GameManager.end_level(true);
-        }   
     }
 
     public static GameObject get_vehicle_in_activated_city(List<Collider2D> colliders, string tag)
@@ -467,6 +426,10 @@ public class CityManager : BoardManager
         home_base.total_star = total_star;
         home_base.total_review_count = total_rev;
         home_base.reputation = total_rep;
+        if (home_base.total_star >= 4 && total_people > 7) // game ends when all avg star is 5 ADJUST THE DIFFICULTY
+        {
+            GameManager.end_level(true);
+        }
         print("home base total star is " + total_star + " total review count is " + total_rev + " total rep is " + total_rep);
     }
 

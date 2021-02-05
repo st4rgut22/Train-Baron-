@@ -20,6 +20,7 @@ public class MovingObject : Simple_Moving_Object
     public bool is_wait_for_turntable;
     public bool is_boxcar_stopped;
     public bool is_fill_void;
+    public bool is_instantiated;
 
     public string train_name = "train(Clone)";
     VehicleManager vehicle_manager;
@@ -30,6 +31,7 @@ public class MovingObject : Simple_Moving_Object
     // Start is called before the first frame update
     public void Awake()
     {
+        is_instantiated = true;
         is_fill_void = false;
         is_boxcar_stopped = false;
         is_wait_for_turntable = false;
@@ -37,7 +39,7 @@ public class MovingObject : Simple_Moving_Object
         tile_position = new Vector3Int(home_base.x, home_base.y, 0);
         next_tilemap_position = home_base;
         prev_city = null;
-        orientation = RouteManager.Orientation.East;
+        orientation = VehicleManager.round_robin_orientation();//RouteManager.Orientation.North; // TODOED temporary
         final_orientation = orientation;
         sprite_renderer_delay = .3f;
     }
@@ -243,6 +245,7 @@ public class MovingObject : Simple_Moving_Object
         complete_exit = false; // on verge of departing city
         departure_track_chosen = false;
         is_boxcar_stopped = false;
+        is_instantiated = false;
     }
 
     public void initialize_orientation(RouteManager.Orientation orientation)
@@ -354,7 +357,7 @@ public class MovingObject : Simple_Moving_Object
 
     public void stop_car_if_wait_tile()
     {
-        if (random_algos.list_contains_arr(CityManager.boxcar_city_wait_tile, tile_position) && gameObject.tag == "boxcar" && in_city) // STOP CONDITION
+        if (random_algos.list_contains_arr(CityManager.boxcar_city_wait_tile, tile_position) && gameObject.tag == "boxcar" && in_city && !is_instantiated) // STOP CONDITION
             if (gameObject == gameObject.GetComponent<Boxcar>().train.boxcar_squad[0]) // is lead boxcar
             {
                 //print("STOP ALL BOXCARS at turntable");

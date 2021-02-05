@@ -108,14 +108,14 @@ public class TrackManager : BoardManager
 
         //};
 
-        List<int[]> unload_north_outer = new List<int[]>() { new int[]{ 0, 7 }, new int[] { 0, 8 }, new int[] { 0, 9 } };
-        List<int[]> unload_north_inner = new List<int[]>() { new int[] { 3, 9 }, new int[] { 4, 9 }, new int[] { 5, 9 }, new int[] { 6, 9 } };
-        List<int[]> unload_east_outer = new List<int[]>() { new int[] { 16, 8 }, new int[] { 15, 8 }, new int[] { 14, 8 }, new int[] { 13, 8 }, new int[] { 12, 8 }, new int[] { 11, 8 } };
-        List<int[]> unload_east_inner = new List<int[]>() { new int[] { 16, 8 }, new int[] { 15, 8 }, new int[] { 14, 8 }, new int[] { 13, 8 }, new int[] { 12, 8 }, new int[] { 11, 8 } };
-        List<int[]> unload_west_outer = new List<int[]>() { new int[] { 0, 2 }, new int[] { 1, 2 }, new int[] { 2, 2 }, new int[] { 3, 2 }, new int[] { 4, 2 }, new int[] { 5, 2 } };
-        List<int[]> unload_west_inner = new List<int[]>() { new int[] { 0, 2 }, new int[] { 1, 2 }, new int[] { 2, 2 }, new int[] { 3, 2 }, new int[] { 4, 2 }, new int[] { 5, 2 } };
-        List<int[]> unload_south_outer = new List<int[]> { new int[] { 16, 3 }, new int[] { 16, 2 }, new int[] { 16, 1 } };
-        List<int[]> unload_south_inner = new List<int[]> { new int[] { 13, 1 }, new int[] { 12, 1 }, new int[] { 11, 1 }, new int[] { 10, 1 } };
+        List<int[]> unload_north_outer = new List<int[]>() { new int[]{ 2, 8 }, new int[] { 3, 8 }, new int[] { 4, 8 }, new int[] { 5, 8 } };
+        List<int[]> unload_north_inner = new List<int[]>() { new int[] { 2, 8 }, new int[] { 3, 8 }, new int[] { 4, 8 }, new int[] { 5, 8 } };
+        List<int[]> unload_east_outer = new List<int[]>() { new int[] { 14, 8 }, new int[] { 13, 8 }, new int[] { 12, 8 }, new int[] { 11, 8 } };
+        List<int[]> unload_east_inner = new List<int[]>() { new int[] { 14, 8 }, new int[] { 13, 8 }, new int[] { 12, 8 }, new int[] { 11, 8 } };
+        List<int[]> unload_west_outer = new List<int[]>() { new int[] { 2, 2 }, new int[] { 3, 2 }, new int[] { 4, 2 }, new int[] { 5, 2 } };
+        List<int[]> unload_west_inner = new List<int[]>() { new int[] { 2, 2 }, new int[] { 3, 2 }, new int[] { 4, 2 }, new int[] { 5, 2 } };
+        List<int[]> unload_south_outer = new List<int[]> { new int[] { 11, 2 }, new int[] { 12, 2 }, new int[] { 13, 2 }, new int[]{ 14, 2 } };
+        List<int[]> unload_south_inner = new List<int[]> { new int[] { 11, 2 }, new int[] { 12, 2 }, new int[] { 13, 2 }, new int[] { 14, 2 } };
         unloading_coord_map[RouteManager.Orientation.North] = new List<List<int[]>>() { unload_north_outer, unload_north_inner };
         unloading_coord_map[RouteManager.Orientation.East] = new List<List<int[]>>() { unload_east_outer, unload_east_inner };
         unloading_coord_map[RouteManager.Orientation.West] = new List<List<int[]>>() { unload_west_outer, unload_west_inner };
@@ -196,28 +196,6 @@ public class TrackManager : BoardManager
             if (next_track_tile == "WN" || next_track_tile == "NE" || next_track_tile == "vert")
                 return true;
         return false;
-    }
-
-    public static bool[] is_city_building_inner(Vector2Int cb_tile, RouteManager.Orientation orientation)
-    {
-        // determine if city building is adjacent to inner tile or not
-        List<List<int[]>> unloading_station_coord = unloading_coord_map[orientation];
-        bool[] outer_inner_arr = new bool[] { false, false }; // index 0 means outer track, index 1 means inner track
-        for (int i = 0; i < unloading_station_coord.Count; i++)
-        {
-            // i stands for outer (0) or inner(1)
-            for (int j=0; j < unloading_station_coord[i].Count; j++)
-            {
-                // j stands for coordinate pairs
-                if (cb_tile.x == unloading_station_coord[i][j][0] && cb_tile.y == unloading_station_coord[i][j][1])
-                {
-                    outer_inner_arr[i] = true;
-                }
-            }
-        }
-        if (!outer_inner_arr[0] && !outer_inner_arr[1])
-            throw new Exception("the city building could not be found in the list of coordinates in unloading_coord_map dictionary");
-        return outer_inner_arr;
     }
 
     public Tile activate_track_tile(string tile_name)

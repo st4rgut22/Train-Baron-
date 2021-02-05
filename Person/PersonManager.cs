@@ -27,6 +27,14 @@ public class PersonManager : MonoBehaviour
     public Texture five_star_texture;
     public int how_to_become_rich; // below this levele, a rich man becomes a poor man
     public int how_to_become_poor;
+    public Sprite restaurant_thought_bubble;
+    public Sprite home_thought_bubble;
+    public Sprite work_thought_bubble;
+    public Sprite vacation_thought_bubble;
+    public Sprite small_restaurant_thought_bubble;
+    public Sprite small_home_thought_bubble;
+    public Sprite small_work_thought_bubble;
+    public Sprite small_vacation_thought_bubble;
 
     public class Notification
     {
@@ -93,6 +101,49 @@ public class PersonManager : MonoBehaviour
             }
         }
     }
+
+    public Vector2 building_lot_to_thought_offset(BuildingLot bldg_lot)
+    {
+        Vector2 thought_bubble_offset = new Vector2(0, 0);
+        switch (bldg_lot.orientation)
+        {
+            case RouteManager.Orientation.North:
+                thought_bubble_offset = new Vector2(3.6f, 0);
+                break;
+            case RouteManager.Orientation.East:
+                thought_bubble_offset = new Vector2(2.6f, 2.6f);
+                break;
+            case RouteManager.Orientation.South:
+                thought_bubble_offset = new Vector2(-3.6f, 2.6f);
+                break;
+            case RouteManager.Orientation.West:
+                thought_bubble_offset = new Vector2(2.6f, 2.6f);
+                break;
+        }
+        return thought_bubble_offset;
+    }
+
+    public Sprite desired_activity_to_throught_sprite(string desired_activity, BuildingLot bldg_lot)
+    {
+        if (desired_activity == "work_thought_bubble")
+            if (bldg_lot.orientation == RouteManager.Orientation.West || bldg_lot.orientation == RouteManager.Orientation.East)
+                return work_thought_bubble;
+            else { return small_work_thought_bubble; }
+        if (desired_activity == "home_thought_bubble")
+            if (bldg_lot.orientation == RouteManager.Orientation.West || bldg_lot.orientation == RouteManager.Orientation.East)
+                return home_thought_bubble;
+            else { return small_home_thought_bubble;  }
+        if (desired_activity == "restaurant_thought_bubble")
+            if (bldg_lot.orientation == RouteManager.Orientation.West || bldg_lot.orientation == RouteManager.Orientation.East)
+                return restaurant_thought_bubble;
+            else { return small_restaurant_thought_bubble;  }
+        if (desired_activity == "vacation_thought_bubble")
+            if (bldg_lot.orientation == RouteManager.Orientation.West || bldg_lot.orientation == RouteManager.Orientation.East)
+                return vacation_thought_bubble;
+            else { return small_vacation_thought_bubble;  }
+        throw new Exception("no sprite matches bubble");
+    }
+
 
     public void reinitialize_person(GameObject person_go_instance, GameObject old_person_go_instance)
     {

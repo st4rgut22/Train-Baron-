@@ -31,10 +31,8 @@ public class GameManager : EventDetector
     public static GameObject exit_south;
     public static GameObject exit_west;
     public static GameObject exit_east;
-    public static GameObject building_lot_north_outer;
-    public static GameObject building_lot_north_inner;
-    public static GameObject building_lot_south_outer;
-    public static GameObject building_lot_south_inner;
+    public static GameObject building_lot_north;
+    public static GameObject building_lot_south;
     public static GameObject building_lot_west;
     public static GameObject building_lot_east;
 
@@ -144,10 +142,8 @@ public class GameManager : EventDetector
         test_btn.onClick.AddListener(activate_train);
         city_tilemap_go = GameObject.Find("City Tilemap");
         undeveloped_land = GameObject.Find("Undeveloped Land");
-        building_lot_north_outer = GameObject.Find("Building Lot North Outer");
-        building_lot_north_inner = GameObject.Find("Building Lot North Inner");
-        building_lot_south_outer = GameObject.Find("Building Lot South Outer");
-        building_lot_south_inner = GameObject.Find("Building Lot South Inner");
+        building_lot_north = GameObject.Find("Building Lot North");
+        building_lot_south = GameObject.Find("Building Lot South");
         building_lot_west = GameObject.Find("Building Lot West");
         building_lot_east = GameObject.Find("Building Lot East");
         game_menu_manager = GameObject.Find("Game Menu");
@@ -210,10 +206,40 @@ public class GameManager : EventDetector
     public static void end_level(bool is_level_beaten)
     {
         if (is_level_beaten)
-            print("you beat this level"); 
+            print("YOU WON");
+        else
+        {
+            print("YOU LOST");
+        }
     }
 
-
+    public static void convert_star_to_profit(int star_review)
+    {
+        int profit = 0;
+        switch (star_review)
+        {
+            case 0:
+                profit = -75;
+                break;
+            case 1:
+                profit = -25;
+                break;
+            case 2:
+                profit = -10;
+                break;
+            case 3:
+                profit = 10;
+                break;
+            case 4:
+                profit = 25;
+                break;
+            case 5:
+                profit = 50;
+                break;
+        }
+        update_game_money_text(profit);
+        print("STAR TO PROFIT IS " + star_review + " and " + profit);
+    }
 
     public static RaycastHit2D[] get_all_object_at_cursor(Vector3 cursor_pos)
     {
@@ -525,14 +551,10 @@ public class GameManager : EventDetector
                 if (moving_object.gameObject.tag == "boxcar")
                     print("enable boxcar " + moving_object.gameObject.GetComponent<Boxcar>().boxcar_id + "  for screen line. GAME menu state is TRUE but moving object NOT IN city");
                 print("GAME MENU ON object NOT in city. TURN on VEHICLE");
-                if (moving_object.gameObject.tag == "boxcar")
-                    print("boÎxcar " + moving_object.gameObject.GetComponent<Boxcar>().boxcar_id);
                 StartCoroutine(moving_object.switch_on_vehicle(true, is_delayed:true)); // delay
             }
             else {
                 print("GAME MENU OFF object IN city turn OFF vehicle");
-                if (moving_object.gameObject.tag == "boxcar")
-                    print("boÎxcar " + moving_object.gameObject.GetComponent<Boxcar>().boxcar_id);
                 StartCoroutine(moving_object.switch_on_vehicle(false));
             }
         if (city_menu_state)
@@ -542,8 +564,6 @@ public class GameManager : EventDetector
             {
                 print("CITY MENU ON object IN ACTIVATED city turn ON vehicle");
                 StartCoroutine(moving_object.switch_on_vehicle(true));
-                if (moving_object.gameObject.tag == "boxcar")
-                    print("boÎxcar " + moving_object.gameObject.GetComponent<Boxcar>().boxcar_id);
             }
             else
             {
@@ -603,10 +623,8 @@ public class GameManager : EventDetector
 
         undeveloped_land.SetActive(state);
         building_lot_east.SetActive(state);
-        building_lot_north_outer.SetActive(state);
-        building_lot_north_inner.SetActive(state);
-        building_lot_south_outer.SetActive(state);
-        building_lot_south_inner.SetActive(state);
+        building_lot_north.SetActive(state);
+        building_lot_south.SetActive(state);
         building_lot_west.SetActive(state);
 
         //traffic_tilemap_go.SetActive(state);

@@ -16,6 +16,7 @@ public class City : Structure
     public Tile business_room_tile;
 
     public Tile undeveloped_tile;
+    public Tile boarded_up_tile;
 
     public List<Building> city_building_list;
     public Room[,] city_room_matrix;
@@ -61,7 +62,7 @@ public class City : Structure
     public GameObject city_tilemap_go;
     public Tilemap city_tilemap;
 
-    
+
     public int prev_train_list_length = 0;
 
     public int reputation = 0;
@@ -81,6 +82,12 @@ public class City : Structure
     public GameObject Traffic_Light_Manager_Instance;
     public TrafficLightManager traffic_manager;
     public Inventory_Item[,] inventory_item_board;
+
+    public GameObject north_bl;
+    public GameObject east_bl;
+    public GameObject west_bl;
+    public GameObject south_bl;
+    
 
     //public List<GameObject> person_in_transit; //people unloading from trains
 
@@ -102,7 +109,7 @@ public class City : Structure
         unapplied_reputation_count = 0;
         total_review_count = 0;
         last_checked_reputation = reputation;
-        initial_building_lot_list = new List<string>() { "Building Lot West", "Building Lot North Outer", "Building Lot North Inner", "Building Lot South Outer", "Building Lot South Inner", "Building Lot East"};
+        initial_building_lot_list = new List<string>() { "Building Lot West", "Building Lot North", "Building Lot South", "Building Lot East" };
         West_Station = new Station(CityManager.west_start_outer, CityManager.west_start_inner, RouteManager.Orientation.West, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
         North_Station = new Station(CityManager.north_start_outer, CityManager.north_start_inner, RouteManager.Orientation.North, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
         East_Station = new Station(CityManager.east_start_outer, CityManager.east_start_inner, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
@@ -112,88 +119,62 @@ public class City : Structure
         city_room_matrix = new Room[board_width, board_height];
         city_board = new GameObject[board_width, board_height]; // zero out the negative tile coordinates
         inventory_item_board = new Inventory_Item[board_width, board_height];
-        GameObject north_outer_bl = Instantiate(BuildingLot);
-        GameObject north_inner_bl = Instantiate(BuildingLot);
-        GameObject east_bl = Instantiate(BuildingLot);
-        GameObject west_bl = Instantiate(BuildingLot);
-        GameObject south_inner_bl = Instantiate(BuildingLot);
-        GameObject south_outer_bl = Instantiate(BuildingLot);
+        north_bl = Instantiate(BuildingLot);
+        east_bl = Instantiate(BuildingLot);
+        west_bl = Instantiate(BuildingLot);
+        south_bl = Instantiate(BuildingLot);
         start_reputation = PersonManager.reputation; // 0
 
-        north_outer_bl.GetComponent<BuildingLot>().init_building_lot
+        //    public static int[,] parking_coord = { { 4, 0, 4 }, { 4, 11, 16 }, { 6, 12, 16 }, { 6, 0, 5 } }; // y, x start, x end  used by inventory pusher
+
+
+        north_bl.GetComponent<BuildingLot>().init_building_lot
             (
-                "Building Lot North Outer",
-                new Vector2Int(0, 7),
+                "Building Lot North",
+                new Vector2Int(2, 8),
                 4,
-                RouteManager.Orientation.North,
-                RouteManager.Orientation.South,
-                new List<Station_Track> { North_Station.outer_track },
-                null,
-                new Door_Prop(right_door_top_right, -90f, 90f)
-            );
-        north_inner_bl.GetComponent<BuildingLot>().init_building_lot
-            (
-                "Building Lot North Inner",
-                new Vector2Int(3, 9),
-                3,
                 RouteManager.Orientation.East,
                 RouteManager.Orientation.South,
-                new List<Station_Track> { North_Station.inner_track },
-                new Door_Prop(left_door_top_left, 90f, 0f),
-                null
+                new List<Station_Track> { North_Station.inner_track, North_Station.outer_track },
+                new int[] { 6, 0, 5 }
             );
         east_bl.GetComponent<BuildingLot>().init_building_lot
             (
                 "Building Lot East",
                 new Vector2Int(11, 8),
-                6,
+                4,
                 RouteManager.Orientation.East,
                 RouteManager.Orientation.West,
                 new List<Station_Track> { East_Station.inner_track, East_Station.outer_track },
-                new Door_Prop(left_door_top_left, 90f, 180f),
-                new Door_Prop(right_door_top_right, -90f, 0f)
-            ); ;
+                new int[] { 6, 12, 16 }
+            );
         west_bl.GetComponent<BuildingLot>().init_building_lot
             (
                 "Building Lot West",
-                new Vector2Int(0, 2),
-                6,
+                new Vector2Int(2, 2),
+                4,
                 RouteManager.Orientation.East,
                 RouteManager.Orientation.East,
                 new List<Station_Track> { West_Station.inner_track, West_Station.outer_track },
-                new Door_Prop(right_door_top_right, -90f, 0f),
-                new Door_Prop(left_door_top_left, 90f, 180f)
+                new int[] { 4, 0, 4 }
             );
-        south_inner_bl.GetComponent<BuildingLot>().init_building_lot
+        south_bl.GetComponent<BuildingLot>().init_building_lot
             (
-                "Building Lot South Inner",
-                new Vector2Int(10, 1),
+                "Building Lot South",
+                new Vector2Int(11, 2),
                 4,
                 RouteManager.Orientation.East,
                 RouteManager.Orientation.North,
-                new List<Station_Track> { South_Station.inner_track },
-                new Door_Prop(left_door_top_left, 90f, 180f),
-                null
+                new List<Station_Track> { South_Station.inner_track, South_Station.outer_track },
+                new int[] { 4, 11, 16 }
             );
-        south_outer_bl.GetComponent<BuildingLot>().init_building_lot
-            (
-                "Building Lot South Outer",
-                new Vector2Int(16, 1),
-                3,
-                RouteManager.Orientation.North,
-                RouteManager.Orientation.North,
-                new List<Station_Track> { South_Station.outer_track },
-                null,
-                new Door_Prop(right_door_top_right, -90f, 270f)
-            );
+
         building_map = new Dictionary<string, GameObject>()
         {
-            {"Building Lot North Outer", north_outer_bl },
-            {"Building Lot North Inner", north_inner_bl },
+            {"Building Lot North", north_bl },
             {"Building Lot East", east_bl },
             {"Building Lot West", west_bl },
-            {"Building Lot South Inner", south_inner_bl },
-            {"Building Lot South Outer", south_outer_bl }
+            {"Building Lot South", south_bl },
         };
     }
 
@@ -251,7 +232,7 @@ public class City : Structure
         int total_vacancy_count = get_total_occupant_count();
         if (total_vacancy_count < people_to_add) people_to_add = total_vacancy_count;
         start_reputation = PersonManager.reputation;
-        print("POPUPLATE ENTRANCE people to add " + people_to_add);
+        //print("POPUPLATE ENTRANCE people to add " + people_to_add);
         List<Building> available_building_list = get_available_building_list();
 
         for (int i = 0; i < people_to_add; i++)
@@ -266,7 +247,6 @@ public class City : Structure
                     if (!room.has_person)
                     {
                         Person person = room.spawn_person(true);
-                        CityManager.increment_total_people();
                         total_people += 1;
                         if (CityManager.Activated_City_Component == this) person.initialize_egghead(true, true); // if entrance is activated
                         else { person.initialize_egghead(false, false); }
@@ -648,12 +628,40 @@ public class City : Structure
         return new Vector2Int(-1, -1); // no parking spot available
     }
 
+
+
+    public List<int[]> get_parking_spot_with_room()
+    {
+        List<int[]> room_availability_list = new List<int[]>();
+        List<int[]> room_availability_and_train_list = new List<int[]>(); //takes priority because it has train
+        foreach (KeyValuePair<string, GameObject> entry in building_map)
+        {
+            // do something with entry.Value or entry.Key
+            BuildingLot bldg_lot = entry.Value.GetComponent<BuildingLot>();
+            if (bldg_lot.building.current_capacity > 0)
+            {
+                if (bldg_lot.does_station_have_train())
+                {
+                    room_availability_and_train_list.Add(bldg_lot.parking_coord);
+                }
+                else
+                {
+                    room_availability_list.Add(bldg_lot.parking_coord);
+                }                
+            }
+        }
+        room_availability_and_train_list.AddRange(room_availability_list);
+        return room_availability_and_train_list;
+    }
+
     public Vector2Int get_parking_spot()
     {
         Vector2Int parking_spot = BoardManager.invalid_tile;
-        for (int i = 0; i < TrackManager.parking_coord.GetLength(0); i++)
+        List<int[]> parking_spot_list = get_parking_spot_with_room();
+        for (int i = 0; i < parking_spot_list.Count; i++)
         {
-            parking_spot = find_parking_spot(TrackManager.parking_coord[i, 0], TrackManager.parking_coord[i, 1], TrackManager.parking_coord[i, 2]);
+            int[] park_spot = parking_spot_list[i];
+            parking_spot = find_parking_spot(park_spot[0], park_spot[1], park_spot[2]);
             if (!parking_spot.Equals(BoardManager.invalid_tile)) break;
         }
         return parking_spot;
@@ -751,8 +759,8 @@ public class City : Structure
             }
             else
             {
-                if (get_outer) station_track = East_Station.inner_track;
-                else { station_track = East_Station.outer_track; }
+                if (get_outer) station_track = East_Station.outer_track;
+                else { station_track = East_Station.inner_track; }
             }
         }
         if (station_track.train != null && station_track.train.GetComponent<Train>().is_boxcar_within_max_limit()) return true;
