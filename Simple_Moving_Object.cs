@@ -13,7 +13,6 @@ public class Simple_Moving_Object : EventDetector
     public float speed_multiplier = 1f;
     protected Vector2 next_position;
     public bool in_tile = false; // if an object is in a tile, it is already has a destination
-    public bool is_tight_curve = true;
 
     public RouteManager.Orientation orientation; // orientation before moving to a new tile
     public RouteManager.Orientation final_orientation; // orientation after moving to a new tile 
@@ -129,7 +128,7 @@ public class Simple_Moving_Object : EventDetector
 
     public bool is_destination_reached(float min_dist)
     {
-        //print("tile pos is " + tile_position + " final dest pos is " + final_dest_tile_pos);
+        print("tile pos is " + tile_position + " final dest pos is " + final_dest_tile_pos + " and final dest vector3 is " + final_dest_pos);
         float dist = Vector2.Distance(final_dest_pos, transform.position);
         if (dist < min_dist) return true;
         else { return false; }
@@ -191,14 +190,7 @@ public class Simple_Moving_Object : EventDetector
                 t_param = 0;
                 final_step = true;
             }
-            if (is_tight_curve) // normal right angle curve
-            {
-                next_position = bezier_equation(t_param, TrackManager.offset_right_angle_inner_curve);
-            }
-            else
-            {
-                next_position = bezier_equation(t_param, TrackManager.offset_right_angle_outer_curve);
-            }
+            next_position = bezier_equation(t_param, TrackManager.offset_right_angle_inner_curve);
             next_position = transform_curve(next_position, orientation, final_orientation) + position; //offset with current position
             transform.position = next_position;
             yield return new WaitForEndOfFrame();

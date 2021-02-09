@@ -133,7 +133,8 @@ public class City : Structure
                 "Building Lot North",
                 new Vector2Int(2, 8),
                 4,
-                RouteManager.Orientation.East,
+                //RouteManager.Orientation.East,\
+                RouteManager.Orientation.North,
                 RouteManager.Orientation.South,
                 new List<Station_Track> { North_Station.inner_track, North_Station.outer_track },
                 new int[] { 6, 0, 5 }
@@ -153,7 +154,8 @@ public class City : Structure
                 "Building Lot West",
                 new Vector2Int(2, 2),
                 4,
-                RouteManager.Orientation.East,
+                //RouteManager.Orientation.East,
+                RouteManager.Orientation.West,
                 RouteManager.Orientation.East,
                 new List<Station_Track> { West_Station.inner_track, West_Station.outer_track },
                 new int[] { 4, 0, 4 }
@@ -163,7 +165,8 @@ public class City : Structure
                 "Building Lot South",
                 new Vector2Int(11, 2),
                 4,
-                RouteManager.Orientation.East,
+                //RouteManager.Orientation.East,
+                RouteManager.Orientation.South,
                 RouteManager.Orientation.North,
                 new List<Station_Track> { South_Station.inner_track, South_Station.outer_track },
                 new int[] { 4, 11, 16 }
@@ -628,7 +631,27 @@ public class City : Structure
         return new Vector2Int(-1, -1); // no parking spot available
     }
 
-
+    public RouteManager.Orientation get_station_orientation_with_room()
+    {
+        RouteManager.Orientation orientation = RouteManager.Orientation.East;
+        foreach (KeyValuePair<string, GameObject> entry in building_map)
+        {
+            // do something with entry.Value or entry.Key
+            BuildingLot bldg_lot = entry.Value.GetComponent<BuildingLot>();
+            if (!bldg_lot.is_station_full())
+            {
+                if (bldg_lot.building.current_capacity > 0)
+                {
+                    return bldg_lot.orientation;
+                }
+                else
+                {
+                    orientation = bldg_lot.orientation;
+                }
+            }
+        }
+        return orientation;
+    }
 
     public List<int[]> get_parking_spot_with_room()
     {

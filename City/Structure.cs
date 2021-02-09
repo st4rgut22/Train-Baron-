@@ -13,11 +13,16 @@ public class Structure : BoardManager
         public Sprite pivot_door;
         public float door_rotation;
         public float rotation;
+        public bool is_outer;
         public Door_Prop(Sprite pivot_door, float door_rotation, float rotation)
         {
-            this.pivot_door = pivot_door;
             this.door_rotation = door_rotation;
             this.rotation = rotation;
+            this.pivot_door = pivot_door;
+        }
+        public void set_door_sprite(Sprite door_sprite)
+        {
+            pivot_door = door_sprite;
         }
     }
 

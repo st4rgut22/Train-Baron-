@@ -103,7 +103,12 @@ public class CityDetector : EventDetector
     public static Tilemap boxcar_orientation_to_offset_tilemap(RouteManager.Orientation orientation)
     {
         //convert boxcar orientation to tilemaps to be used for marking the boxcar tiles, which are offset from the original tilemap by half a cell
-        if (orientation == RouteManager.Orientation.West || orientation == RouteManager.Orientation.East) return offset_hint_tilemap_west;
+        if (orientation == RouteManager.Orientation.West)
+            return offset_hint_tilemap_east;
+        if (orientation == RouteManager.Orientation.East)
+            return offset_hint_tilemap_west;
+        else if (orientation == RouteManager.Orientation.South)
+            return offset_hint_tilemap_north;
         else { return offset_hint_tilemap_south;  }
         //switch (orientation)
         //{

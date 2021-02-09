@@ -24,7 +24,7 @@ public class Building : Structure
     private void Awake()
     {
         last_room_position_stack = new Stack();
-        initial_building_lot_name = "Building Lot South"; //TODOED temporary West
+        initial_building_lot_name = "Building Lot East"; //TODOED temporary West
         occupant_id = 0;
         total_occupant = 0;
         room_id = 0;
@@ -34,8 +34,8 @@ public class Building : Structure
     {
         roomba = new GameObject[max_capacity];
         city.city_tilemap_go.SetActive(false); // after setting tile deactivate gameobject
-        //if (building_lot.id == initial_building_lot_name) //TODOED temporary
-        //{
+        if (building_lot.id == initial_building_lot_name) //TODOED temporary
+        {
             Room room = spawn_room();
             print("bldg name is " + gameObject.name);
             if (gameObject.name.Contains("Station"))
@@ -43,7 +43,7 @@ public class Building : Structure
                 Person person = room.spawn_person(true);
                 person.initialize_egghead(false, false);
             }
-        //}
+        }
     }
 
     private void Update()
@@ -93,7 +93,7 @@ public class Building : Structure
                 //todo: activate room, which also activates the door and everything inside it
                 //room_go.SetActive(is_display);
                 display_structure(room.outer_door, is_display);
-                display_structure(room.primary_door, is_display);
+                display_structure(room.inner_door, is_display);
             }
         }
     }
@@ -115,7 +115,7 @@ public class Building : Structure
             person.update_review_page(review_summary, (int)Person.Review.One_Star);
             DestroyImmediate(person_go); // otherwise get error from coroutine
         }
-        DestroyImmediate(boarded_room.primary_door_container);
+        DestroyImmediate(boarded_room.inner_door_container);
         DestroyImmediate(boarded_room.outer_door_container);
         roomba[boarded_room.id] = null;
         city.city_tilemap.SetTile((Vector3Int)room_pos, null);
@@ -140,8 +140,10 @@ public class Building : Structure
         Vector2Int room_tile_pos = RouteManager.get_straight_next_tile_pos_multiple(building_orientation, offset_position, room.id);
         city.city_room_matrix[room_tile_pos.x, room_tile_pos.y] = room;
         room.tile_position = room_tile_pos;
-        room.outer_door_prop = building_lot.outer_door;
-        room.primary_door_prop = building_lot.primary_door;
+        room.outer_door_prop = BuildingLot.station_door_map[building_lot.orientation][1];
+        room.outer_door_prop.is_outer = true;
+        room.inner_door_prop = BuildingLot.station_door_map[building_lot.orientation][0];
+        room.inner_door_prop.is_outer = false;
         room.spawn_door_container();
         room.building = this;
         roomba[room.id] = room_object;

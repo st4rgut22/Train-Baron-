@@ -102,26 +102,26 @@ public class PersonManager : MonoBehaviour
         }
     }
 
-    public Vector2 building_lot_to_thought_offset(BuildingLot bldg_lot)
-    {
-        Vector2 thought_bubble_offset = new Vector2(0, 0);
-        switch (bldg_lot.orientation)
-        {
-            case RouteManager.Orientation.North:
-                thought_bubble_offset = new Vector2(3.6f, 0);
-                break;
-            case RouteManager.Orientation.East:
-                thought_bubble_offset = new Vector2(2.6f, 2.6f);
-                break;
-            case RouteManager.Orientation.South:
-                thought_bubble_offset = new Vector2(-3.6f, 2.6f);
-                break;
-            case RouteManager.Orientation.West:
-                thought_bubble_offset = new Vector2(2.6f, 2.6f);
-                break;
-        }
-        return thought_bubble_offset;
-    }
+    //public Vector2 building_lot_to_thought_offset(BuildingLot bldg_lot)
+    //{
+    //    Vector2 thought_bubble_offset = new Vector2(0, 0);
+    //    switch (bldg_lot.orientation)
+    //    {
+    //        case RouteManager.Orientation.North:
+    //            thought_bubble_offset = new Vector2(3.6f, 0);
+    //            break;
+    //        case RouteManager.Orientation.East:
+    //            thought_bubble_offset = new Vector2(2.6f, 2.6f);
+    //            break;
+    //        case RouteManager.Orientation.South:
+    //            thought_bubble_offset = new Vector2(-3.6f, 2.6f);
+    //            break;
+    //        case RouteManager.Orientation.West:
+    //            thought_bubble_offset = new Vector2(2.6f, 2.6f);
+    //            break;
+    //    }
+    //    return thought_bubble_offset;
+    //}
 
     public Sprite desired_activity_to_throught_sprite(string desired_activity, BuildingLot bldg_lot)
     {

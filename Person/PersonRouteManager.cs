@@ -7,21 +7,6 @@ public class PersonRouteManager : RouteManager
 {
     static string rest_animation_name = "player_idle_front";
 
-    public bool is_curve_inner(Boxcar boxcar)
-    {
-        // the bezier curve multiplier is decided by whether the person travels along inside or outside of the track
-        int is_inner = boxcar.station_track.inner;
-        Orientation station_orientation = boxcar.station_track.station.orientation;
-        if (is_inner == 0 && (station_orientation == Orientation.South || station_orientation == Orientation.North))
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-
     public static Vector2 get_doorstep_offset(Orientation exit_home_orientation, Vector2 door_position, Vector2 dest_tile_center)
     {
         Vector2 offset = new Vector2(0, 0);
@@ -64,18 +49,27 @@ public class PersonRouteManager : RouteManager
     public static GameObject get_exit_door(Boxcar boxcar, Room room)
     {
         // get door that exits to the boxcar
+        // RIGHT DOOR TOP RIGHT ALWAYS FACES THE OUTER TRACK (RIGHT DOOR TOP RIGHT IS ON BOTTOM OF ROOM. OUTER TRACK IS RIGHT IN FRONT OF IT
         GameObject door_parent;
         int is_inner = boxcar.station_track.inner;
-        if (room.outer_door != null && room.primary_door != null) // 2 doors to choose from
-        { // choose the door that is on the right side of the track
-            if (is_inner == 0) door_parent = room.outer_door_container;
-            else { door_parent = room.primary_door_container; }
+        print("is station track with boxcar inner? " + is_inner);
+        //if (room.outer_door != null && room.inner_door != null) // 2 doors to choose from
+        //{ // choose the door that is on the right side of the track
+        if (is_inner == 0)
+        {
+            door_parent = room.outer_door_container;
+            bool is_outer = room.outer_door_container.GetComponent<Door>().is_outer;
+            Sprite door_sprite = room.outer_door_container.GetComponent<Door>().door_sprite;
         }
         else
         {
-            if (room.outer_door != null) door_parent = room.outer_door_container;
-            else { door_parent = room.primary_door_container; }
+            door_parent = room.inner_door_container;
         }
+        //}
+        //else {
+        //    if (room.outer_door != null) door_parent = room.outer_door_container;
+        //    else { door_parent = room.inner_door_container; }
+        //}
         return door_parent;
     }
 
@@ -129,19 +123,20 @@ public class PersonRouteManager : RouteManager
         string track_name = shipyard_track_tilemap.GetTile((Vector3Int)doorstep_position).name;
         occupant.final_dest_tile_pos = boxcar.tile_position;
         occupant.final_dest_pos = boxcar.transform.position;
-        Orientation start_orientation;
-        Orientation end_orientation;
-        if (boxcar.station_track.inner == 0)
-        {
-            start_orientation = CityManager.outer_orientation_pair_map[0];
-            end_orientation = CityManager.outer_orientation_pair_map[1];
-        }
-        else
-        {
-            start_orientation = CityManager.inner_orientation_pair_map[0];
-            end_orientation = CityManager.inner_orientation_pair_map[1];
-        }
-        occupant.is_tight_curve = true; // wide curve
+        //start_orientation = CityManager.board_train_orientation_dict[boxcar.station_track.inner, 0];
+        Station boxcar_station = boxcar.station_track.station;
+        Orientation start_orientation = CityManager.board_train_orientation_dict[boxcar_station.orientation][boxcar.station_track.inner, 0];
+        Orientation end_orientation = CityManager.board_train_orientation_dict[boxcar_station.orientation][boxcar.station_track.inner, 1];
+        //if (boxcar.station_track.inner == 0)
+        //{
+        //    start_orientation = CityManager.outer_orientation_pair_map[0];
+        //    end_orientation = CityManager.outer_orientation_pair_map[1];
+        //}
+        //else
+        //{
+        //    start_orientation = CityManager.inner_orientation_pair_map[0];
+        //    end_orientation = CityManager.inner_orientation_pair_map[1];
+        //}
         occupant.arrived_at_room = false; 
         yield return StartCoroutine(unlocked_door.rotate());
         string go_to_door_animation_name = get_animation_from_orientation(end_orientation,"walk");
@@ -161,7 +156,6 @@ public class PersonRouteManager : RouteManager
         Checkpoint align_track_cp = new Checkpoint(offset_pos, doorstep_position, end_orientation, align_track_orientation, "walk"); // dont move just rotate
             board_train_checkpoints.Add(align_track_cp); // no need to align with track if destination is same tile as exit
         // if destination is reached immediately move to boxcar
-        occupant.is_tight_curve = is_curve_inner(boxcar);
         yield return StartCoroutine(occupant.move_checkpoints(board_train_checkpoints)); // wait for all preboarding movements to end before going to boxcar
         room.has_person = false; // egghead is outside the room
         occupant.in_tile = false; // allow person to follow the track to the destination boxcar
@@ -217,7 +211,6 @@ public class PersonRouteManager : RouteManager
         boxcar.is_occupied = false;
         person_go_instance.transform.parent = null;
         Person person = person_go_instance.GetComponent<Person>();
-        person.is_tight_curve = is_curve_inner(boxcar);
         room.unlocked_door = get_exit_door(boxcar, room);
         // the final dest tile is offset from the person's route, so find the offset using city map
         Orientation home_orientation = CityManager.station_track_boarding_map[boxcar.station_track.start_location];

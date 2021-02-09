@@ -103,7 +103,7 @@ public class Person : Simple_Moving_Object
         desired_activity = thought_bubble.GetComponent<SpriteRenderer>().sprite.name;
         print("desired activity is " + desired_activity);
         thought_bubble.transform.parent = gameObject.transform;
-        thought_bubble.transform.localPosition = GameManager.person_manager.GetComponent<PersonManager>().building_lot_to_thought_offset(room.building.building_lot);
+        thought_bubble.transform.localPosition = thought_bubble_offset; //GameManager.person_manager.GetComponent<PersonManager>().building_lot_to_thought_offset(room.building.building_lot);
         thought_bubble.GetComponent<SpriteRenderer>().enabled = is_bubble_on;
         PersonManager.add_notification_for_city(room.building.city.tilemap_position, true);
     }

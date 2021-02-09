@@ -126,9 +126,9 @@ public class TrackManager : BoardManager
         List<int[]> east_outer_track = new List<int[]> { new int[] { 17, 9 }, new int[] { 16, 9 }, new int[] { 15, 9 }, new int[] { 14, 9 }, new int[] { 13, 9 }, new int[] { 12, 9 }, new int[] { 11, 9 }, new int[] { 10, 9 }, new int[] { 10, 8 } };
         List<int[]> east_inner_track = new List<int[]> { new int[] { 17, 7 }, new int[] { 16, 7 }, new int[] { 15, 7 }, new int[] { 14, 7 }, new int[] { 13, 7 }, new int[] { 12, 7 }, new int[] { 11, 7 }, new int[] { 10, 7 } };
         List<int[]> north_outer_track = new List<int[]> { new int[] { 1, 9 }, new int[] { 1, 8 }, new int[] { 1, 7 }, new int[] { 2, 7 }, new int[] { 3, 7 }, new int[] { 4, 7 }, new int[] { 5, 7 }, new int[] { 6, 7 } };
-        List<int[]> north_inner_track = new List<int[]> { new int[] { 2, 9 }, new int[] { 2, 8 }, new int[] { 3, 8 }, new int[] { 4, 8 }, new int[] { 5, 8 }, new int[] { 6, 8 } };
+        List<int[]> north_inner_track = new List<int[]> { new int[] { 2, 9 }, new int[] { 3, 9 }, new int[] { 4, 9 }, new int[] { 5, 9 }, new int[] { 6, 9 }, new int[] { 6, 8 } };
         List<int[]> south_outer_track = new List<int[]> { new int[] { 10, 3 }, new int[] { 11, 3 }, new int[] { 12, 3 }, new int[] { 13, 3 }, new int[] { 14, 3 }, new int[] { 15, 3 }, new int[] { 15, 2 }, new int[] { 15, 1 }, new int[] { 15, 0 } };
-        List<int[]> south_inner_track = new List<int[]> { new int[] { 10, 2 }, new int[] { 11, 2 }, new int[] { 12, 2 }, new int[] { 13, 2 }, new int[] { 14, 2 }, new int[] { 14, 1 }, new int[] { 14, 0 } };
+        List<int[]> south_inner_track = new List<int[]> { new int[] { 10, 2 }, new int[] { 10, 1 }, new int[] { 11, 1 }, new int[] { 12, 1 }, new int[] { 13, 1 }, new int[] { 14, 1 }, new int[] { 14, 0 } };
         add_to_train_coord_map = new Dictionary<RouteManager.Orientation, List<List<int[]>>>();
         add_to_train_coord_map[RouteManager.Orientation.West] = new List<List<int[]>>() { west_outer_track, west_inner_track };
         add_to_train_coord_map[RouteManager.Orientation.North] = new List<List<int[]>>() { north_outer_track, north_inner_track };
@@ -477,7 +477,7 @@ public class TrackManager : BoardManager
         }
         else if (track_tile_name == "ES")
         {
-            return get_y_axis_orientation(track_location, destination);
+            return get_x_axis_orientation(track_location, destination);
         }
         else if (track_tile_name == "WS")
         {

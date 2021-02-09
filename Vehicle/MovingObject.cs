@@ -33,13 +33,13 @@ public class MovingObject : Simple_Moving_Object
     {
         is_instantiated = true;
         is_fill_void = false;
-        is_boxcar_stopped = false;
+        is_boxcar_stopped = true;
         is_wait_for_turntable = false;
         Vector2Int home_base = CityManager.home_base_location;
         tile_position = new Vector3Int(home_base.x, home_base.y, 0);
         next_tilemap_position = home_base;
         prev_city = null;
-        orientation = VehicleManager.round_robin_orientation();//RouteManager.Orientation.North; // TODOED temporary
+        orientation = TrackManager.flip_straight_orientation(CityManager.home_base.get_station_orientation_with_room()); //VehicleManager.round_robin_orientation();//RouteManager.Orientation.North; // TODOED temporary
         final_orientation = orientation;
         sprite_renderer_delay = .3f;
     }
@@ -343,6 +343,7 @@ public class MovingObject : Simple_Moving_Object
             {
                 print("INNER WAIT TILE ENCOUNTERED AT " + tile_position + " STOP ALLL BOXCAR");
                 GetComponent<Boxcar>().train.stop_single_boxcar_at_turntable(gameObject);
+                GetComponent<Boxcar>().is_boxcar_stopped = true;
             }
         }
         else
@@ -351,21 +352,18 @@ public class MovingObject : Simple_Moving_Object
             {
                 print("OUTER WAIT TILE ENCOUNTERED AT " + tile_position + " STOP ALLL BOXCAR");
                 GetComponent<Boxcar>().train.stop_single_boxcar_at_turntable(gameObject);
+                GetComponent<Boxcar>().is_boxcar_stopped = true;
             }
         }
     }
 
     public void stop_car_if_wait_tile()
     {
-        if (random_algos.list_contains_arr(CityManager.boxcar_city_wait_tile, tile_position) && gameObject.tag == "boxcar" && in_city && !is_instantiated) // STOP CONDITION
+        if (random_algos.list_contains_arr(CityManager.boxcar_city_wait_tile, tile_position) && in_city && !is_instantiated) // STOP CONDITION
             if (gameObject == gameObject.GetComponent<Boxcar>().train.boxcar_squad[0]) // is lead boxcar
             {
-                //print("STOP ALL BOXCARS at turntable");
-                if (!is_boxcar_stopped)
-                {
-                    GetComponent<Boxcar>().train.stop_all_boxcar_at_turntable();
-                    is_boxcar_stopped = true;
-                }
+                GetComponent<Boxcar>().train.stop_all_boxcar_at_turntable();
+                is_boxcar_stopped = true;
             }
     }
 
@@ -402,9 +400,15 @@ public class MovingObject : Simple_Moving_Object
                 yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling
                 continue; // don't execute the code below
             }
-            stop_car_if_wait_tile();
             if (gameObject.tag == "boxcar")
-                gameObject.GetComponent<Boxcar>().stop_single_boxcar();
+            {
+                bool is_boxcar_stopped = gameObject.GetComponent<Boxcar>().is_boxcar_stopped;
+                if (!is_boxcar_stopped)
+                {
+                    stop_car_if_wait_tile(); // stop all boxcars if wait tile
+                    gameObject.GetComponent<Boxcar>().stop_single_boxcar();
+                }
+            }
             float interp = 1.0f - t_param;
             t_param -= Time.deltaTime * speed; // use the speed multiplier when boxcar is first instantiated due to gap between train and lead boxcar
             if (t_param < 0) // set t_param to 0 to get bezier coordinates closer to the destination (and be within tolerance)

@@ -46,12 +46,13 @@ public class CityManager : BoardManager
     public static Vector3Int east_start_inner = new Vector3Int(17, 7, 0);
     public static Vector3Int east_start_outer = new Vector3Int(17, 9, 0);
 
-    public static Vector2Int south_end_outer = new Vector2Int(10, 2);
-    public static Vector2Int south_end_inner = new Vector2Int(10, 1);
-    public static Vector3Int south_start_outer = new Vector3Int(15, -1, 0);
-    public static Vector3Int south_start_inner = new Vector3Int(14, -1, 0);
+    public static Vector2Int south_end_outer = new Vector2Int(11, 3);
+    public static Vector2Int south_end_inner = new Vector2Int(10, 2);
+    public static Vector3Int south_start_outer = new Vector3Int(15, 0, 0);
+    public static Vector3Int south_start_inner = new Vector3Int(14, 0, 0);
 
     public static Dictionary<Vector3Int, RouteManager.Orientation> station_track_boarding_map;
+
     public static Dictionary<Vector3Int, Dictionary<string, RouteManager.Orientation>> station_track_unloading_map;
 
     public static Dictionary<string, int> building_count_dict = new Dictionary<string, int>(); // <building name, building count>
@@ -65,8 +66,10 @@ public class CityManager : BoardManager
     public static List<int[]>  boxcar_city_wait_tile = new List<int[]> { new int[] { 6, 1 }, new int[] { 11, 2 } , new int[] { 12, 3 } , new int[] { 4, 3 }, new int[] { 5, 8 }, new int[] { 4, 7 }, new int[] { 12, 7 }, new int[] { 10, 9 } }; // ADD MORE 
     public int entrance_update_interval;
 
-    public static RouteManager.Orientation[] outer_orientation_pair_map = new RouteManager.Orientation[] { RouteManager.Orientation.East, RouteManager.Orientation.South };
-    public static RouteManager.Orientation[] inner_orientation_pair_map = new RouteManager.Orientation[] { RouteManager.Orientation.East, RouteManager.Orientation.North };
+    public static Dictionary<RouteManager.Orientation, RouteManager.Orientation[,]> board_train_orientation_dict;
+
+    public static RouteManager.Orientation[] outer_orientation_pair_map = new RouteManager.Orientation[] { RouteManager.Orientation.East, RouteManager.Orientation.North };
+    public static RouteManager.Orientation[] inner_orientation_pair_map = new RouteManager.Orientation[] { RouteManager.Orientation.East, RouteManager.Orientation.South };
 
 
     public const int restaurant_cost = 100;
@@ -80,6 +83,15 @@ public class CityManager : BoardManager
         entrance_update_interval = 15;
         create_city((Vector3Int)home_base_location); // initialize train entrance
         home_base = get_city(home_base_location).GetComponent<City>();
+
+        board_train_orientation_dict = new Dictionary<RouteManager.Orientation, RouteManager.Orientation[,]>() // <building lot orientation, [outer orientation pair, inner orientation pair]>
+        {
+            { RouteManager.Orientation.West, new RouteManager.Orientation[,]{ { RouteManager.Orientation.East, RouteManager.Orientation.South }, { RouteManager.Orientation.East, RouteManager.Orientation.North } } },
+            { RouteManager.Orientation.North, new RouteManager.Orientation[,]{ { RouteManager.Orientation.East, RouteManager.Orientation.South }, { RouteManager.Orientation.East, RouteManager.Orientation.North } } },
+            { RouteManager.Orientation.South, new RouteManager.Orientation[,]{ { RouteManager.Orientation.East, RouteManager.Orientation.North }, { RouteManager.Orientation.East, RouteManager.Orientation.South } } },
+            { RouteManager.Orientation.East, new RouteManager.Orientation[,]{ { RouteManager.Orientation.East, RouteManager.Orientation.North }, { RouteManager.Orientation.East, RouteManager.Orientation.South } } }
+        };
+
         orientation_to_rotation_map = new Dictionary<RouteManager.Orientation, float>()
         {
             {RouteManager.Orientation.North, 90 },
@@ -95,8 +107,8 @@ public class CityManager : BoardManager
             {east_start_inner, RouteManager.Orientation.South },
             {west_start_outer, RouteManager.Orientation.South },
             {west_start_inner, RouteManager.Orientation.North },
-            {south_start_outer, RouteManager.Orientation.South },
-            {south_start_inner, RouteManager.Orientation.North }
+            {south_start_outer, RouteManager.Orientation.North },
+            {south_start_inner, RouteManager.Orientation.South }
         };
 
         station_track_unloading_map = new Dictionary<Vector3Int, Dictionary<string, RouteManager.Orientation>>()
@@ -112,7 +124,7 @@ public class CityManager : BoardManager
                             "vert", RouteManager.Orientation.East
                         },
                         {
-                            "NE", RouteManager.Orientation.North // west
+                            "NE", RouteManager.Orientation.East
                         }
                     }
             },
@@ -139,7 +151,7 @@ public class CityManager : BoardManager
                             "hor", RouteManager.Orientation.South
                         },
                         {
-                            "ES", RouteManager.Orientation.East
+                            "ES", RouteManager.Orientation.South
                         },
                         {
                             "vert", RouteManager.Orientation.East
@@ -190,7 +202,7 @@ public class CityManager : BoardManager
                             "hor", RouteManager.Orientation.South
                         },
                         {
-                            "WS", RouteManager.Orientation.South // CHECK!
+                            "WS", RouteManager.Orientation.West // BUG! CHANGED TO WEST BUT BROKE THE EGGHEAD // REPLICATE MOVE EGGHEAD TO 4TH BOXCAR ON SOUTH OUTER TRACK THEN RETURN TO ROOM. 
                         }
                     }
             },

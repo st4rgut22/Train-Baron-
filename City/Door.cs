@@ -10,9 +10,11 @@ public class Door : MonoBehaviour
     public bool is_board;
     public bool is_open;
     public Sprite door_sprite;
+    public bool is_outer;
 
     private void Awake()
     {
+        is_outer = false;
         is_board = true;
         is_open = false;
         door_sprite_go = transform.GetChild(0).gameObject;
