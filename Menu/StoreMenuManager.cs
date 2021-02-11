@@ -89,11 +89,13 @@ public class StoreMenuManager : MonoBehaviour
 
     void buy_item()
     {
+
         GameMenuManager game_menu_manager = MenuManager.game_menu.GetComponent<GameMenuManager>();
         bool is_money_sufficient = change_item_count();
         if (is_money_sufficient)
         {
-            game_menu_manager.update_inventory(); // change game mneu item count
+            game_menu_manager.update_inventory(); // change game mneu item count\
+            MenuManager.city_menu_manager.update_inventory();
         }
         update_money_text();
         close_menu();
@@ -116,21 +118,24 @@ public class StoreMenuManager : MonoBehaviour
             for (int i = 0; i < item_count; i++)
             {
                 if (item_name == "train_desc" || item_name == "fast_train_desc")
-                    GameManager.vehicle_manager.create_vehicle_at_home_base();
+                {
+                    VehicleManager.update_vehicle_count("train", 1);
+                    //GameManager.vehicle_manager.create_vehicle_at_home_base();
+                }
                 else if (item_name == "home_desc")
                 {
-                    GameManager.vehicle_manager.add_boxcar("home boxcar");
+                    VehicleManager.update_vehicle_count("home", 1);
                 }
                 else if (item_name == "food_desc")
                 {
-                    GameManager.vehicle_manager.add_boxcar("food boxcar");
+                    VehicleManager.update_vehicle_count("food", 1);
                 }
                 else if (item_name == "work_desc")
                 {
-                    GameManager.vehicle_manager.add_boxcar("work boxcar");
+                    VehicleManager.update_vehicle_count("work", 1);
                 }
                 else if (item_name == "vacation_desc")
-                    GameManager.vehicle_manager.add_boxcar("vacation boxcar");
+                    VehicleManager.update_vehicle_count("vacation", 1);
                 else if (item_name == "hor" || item_name == "WN" || item_name == "NE" || item_name == "WS" || item_name == "ES" || item_name == "vert")
                 {
                     TrackManager.update_track_count(item_name, 1);

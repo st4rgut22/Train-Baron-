@@ -163,6 +163,37 @@ public class TrackManager : BoardManager
         
     }
 
+    public static bool is_location_in_list(List<int[]> loc_list, Vector2Int loc)
+    {
+        for (int i = 0; i < loc_list.Count; i++)
+        {
+            int[] loc_pair = loc_list[i];
+            if (loc.x == loc_pair[0] && loc.y == loc_pair[1]) return true;
+        }
+        return false;
+    }
+
+    public static Station_Track get_station_from_location(Vector2Int location, City city)
+    {
+        foreach (KeyValuePair<RouteManager.Orientation, List<List<int[]>>> entry in add_to_train_coord_map)
+        {
+            List<int[]> outer_location_list = entry.Value[0];
+            List<int[]> inner_location_list = entry.Value[1];
+            if (is_location_in_list(outer_location_list, location))
+            {
+                bool is_outer = true;
+                return city.get_station_track(is_outer, entry.Key);
+            }
+            if (is_location_in_list(inner_location_list, location))
+            {
+                bool is_outer = false;
+                return city.get_station_track(is_outer, entry.Key);
+            }
+        }
+        return null; // not a valid station location. do nothing
+    }
+
+
     public void initialize_track_layer()
     {
         // add tracks that pre-exist to the grid

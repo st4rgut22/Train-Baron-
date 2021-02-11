@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using System;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
-public class GameMenuManager : EventDetector
+public class GameMenuManager : MenuManager
 {
     public GameObject ne_curve;
     public GameObject es_curve;
@@ -45,13 +45,14 @@ public class GameMenuManager : EventDetector
 
     GameObject clicked_item;
 
+    GameObject clicked_go;
+
     public Texture empty_inventory_bubble;
     public Texture food_inventory_bubble;
     public Texture home_inventory_bubble;
     public Texture work_inventory_bubble;
     public Texture track_inventory_bubble;
 
-    GameObject clicked_go;
 
     protected GameObject train_object; // the train is referenced in TrainDisplay which has MenuManager as a base class
     Building building_component;
@@ -66,62 +67,6 @@ public class GameMenuManager : EventDetector
     // Update is called once per frame
     void Update()
     {
-    }
-
-    public void update_inventory()
-    {
-        List<GameObject> Track_Gameobject_List = new List<GameObject>();
-        random_algos.dfs_find_child_objects(transform, Track_Gameobject_List, new string[] { "Text" });
-        foreach (GameObject inventory_item in Track_Gameobject_List)
-        {
-            Text item_count = inventory_item.GetComponent<Text>();
-            string item_name = inventory_item.transform.parent.name;
-            //print(item_name + " ite d");
-            switch (item_name)
-            {
-                case "vert":
-                    item_count.text = "x" + TrackManager.get_track_count(item_name).ToString();
-                    break;
-                case "hor":
-                    item_count.text = "x" + TrackManager.get_track_count(item_name).ToString();
-                    break;
-                case "NE":
-                    item_count.text = "x" + TrackManager.get_track_count(item_name).ToString();
-                    break;
-                case "WS":
-                    item_count.text = "x" + TrackManager.get_track_count(item_name).ToString();
-                    break;
-                case "WN":
-                    item_count.text = "x" + TrackManager.get_track_count(item_name).ToString();
-                    break;
-                case "ES":
-                    item_count.text = "x" + TrackManager.get_track_count(item_name).ToString();
-                    break;
-                case "Restaurant":
-                    item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
-                    break;
-                case "Factory":
-                    item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
-                    break;
-                case "Apartment":
-                    item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
-                    break;
-                case "Business":
-                    item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
-                    break;
-                case "Mansion":
-                    item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
-                    break;
-                case "Diner":
-                    item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
-                    break;
-                case "Scenery":
-                    item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 
     public override void OnPointerClick(PointerEventData eventData)
@@ -177,6 +122,25 @@ public class GameMenuManager : EventDetector
         if (item_name == "hor" || item_name == "WN" || item_name == "NE" || item_name == "WS" || item_name == "ES" || item_name == "vert")
         {
             menu_go.GetComponent<RawImage>().texture = track_inventory_bubble; 
+        }
+        else if (item_name.Contains("boxcar"))
+        {
+            if (item_name.Contains("home"))
+            {
+                menu_go.GetComponent<RawImage>().texture = home_inventory_bubble;
+            }
+            else if (item_name.Contains("vacation"))
+            {
+                //menu_go.GetComponent<RawImage>().texture =  //todoed
+            }
+            else if (item_name.Contains("work"))
+            {
+                menu_go.GetComponent<RawImage>().texture = work_inventory_bubble;
+            }
+            else if (item_name.Contains("food"))
+            {
+                menu_go.GetComponent<RawImage>().texture = food_inventory_bubble;
+            }
         }
         else // structure
         {

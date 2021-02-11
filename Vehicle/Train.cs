@@ -254,12 +254,11 @@ public class Train : MovingObject
 
     public void exit_city(string exit_track_tile_type)
     {
+        station_track.train = null;
         exit_track_orientation = TrainRouteManager.get_destination_track_orientation(exit_track_tile_type);
         city.turn_table.GetComponent<Turntable>().add_train_to_queue(gameObject);
         set_boxcar_exit_track_orientation(exit_track_orientation);
-        //if (city == CityManager.Activated_City_Component) GameManager.train_menu_manager.update_train_menu(city);
     }
-
 
     public void set_boxcar_exit_track_orientation(RouteManager.Orientation orientation)
     {
@@ -267,6 +266,17 @@ public class Train : MovingObject
         {
             boxcar_object.GetComponent<Boxcar>().exit_track_orientation = orientation;
         }
+    }
+
+    public void init_arrive_at_city(Station_Track station_track)
+    {
+        base.arrive_at_city();
+        //city.add_train_to_list(gameObject);
+        is_train_departed_for_turntable = false; //reset
+        station_track.train = gameObject;
+        Vector3Int station_tile_position = station_track.start_location; 
+        GameManager.vehicle_manager.depart(gameObject, station_tile_position, city.city_board);
+        city.add_train_to_list(gameObject);
     }
 
     public override void arrive_at_city()

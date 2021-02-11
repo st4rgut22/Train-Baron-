@@ -164,7 +164,6 @@ public class CityDetector : EventDetector
 
     public List<List<int[]>> city_coord_to_box_coord(List<List<int[]>> city_coord)
     {
-        //TODOED
         List<List<int[]>> box_coord = new List<List<int[]>>();
         List<int[]> city_locations = city_coord[0];
         box_coord.Add(new List<int[]>());

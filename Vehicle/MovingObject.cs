@@ -39,8 +39,7 @@ public class MovingObject : Simple_Moving_Object
         tile_position = new Vector3Int(home_base.x, home_base.y, 0);
         next_tilemap_position = home_base;
         prev_city = null;
-        orientation = TrackManager.flip_straight_orientation(CityManager.home_base.get_station_orientation_with_room()); //VehicleManager.round_robin_orientation();//RouteManager.Orientation.North; // TODOED temporary
-        final_orientation = orientation;
+        //orientation = TrackManager.flip_straight_orientation(CityManager.home_base.get_station_orientation_with_room()); //VehicleManager.round_robin_orientation();//RouteManager.Orientation.North; // TODOED temporary
         sprite_renderer_delay = .3f;
     }
 
@@ -50,7 +49,13 @@ public class MovingObject : Simple_Moving_Object
         target_position = transform.position;
     }
 
-    public void set_destination()
+    public void initialize_orientation(RouteManager.Orientation orientation)
+    {
+        this.orientation = orientation;
+        final_orientation = orientation;
+    }
+
+public void set_destination()
     {
         orientation = final_orientation; // updating the orientation at every new tile
         prev_tile_position = tile_position;
@@ -246,12 +251,6 @@ public class MovingObject : Simple_Moving_Object
         departure_track_chosen = false;
         is_boxcar_stopped = false;
         is_instantiated = false;
-    }
-
-    public void initialize_orientation(RouteManager.Orientation orientation)
-    {
-        // when leaving a city, vehicle orientation be initialized to final orientation (which the user chooses)
-        final_orientation = orientation;
     }
 
     public virtual void arrive_at_city()
@@ -453,12 +452,14 @@ public class MovingObject : Simple_Moving_Object
         {
             if (is_pause)
             {
-                yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling //TODOED
+                yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling is_inventory
                 continue; // don't execute the code below
             }
-            stop_car_if_wait_tile();
             if (gameObject.tag == "boxcar")
+            {
+                stop_car_if_wait_tile();
                 gameObject.GetComponent<Boxcar>().stop_single_boxcar();
+            }
             float step = speed * Time.deltaTime; // calculate distance to move
             next_position = Vector2.MoveTowards(next_position, destination, step);
             transform.position = next_position;

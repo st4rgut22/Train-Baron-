@@ -4,13 +4,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Tilemaps;
 
-public class MenuManager : MonoBehaviour
+public class MenuManager : EventDetector
 {
     public Button store_btn;
     public Button shipyard_exit_btn;
 
     protected StoreMenuManager store_menu_manager;
-    protected GameMenuManager game_menu_manager;
+    public GameMenuManager game_menu_manager;
+    public static CityMenuManager city_menu_manager;
     public static GameObject store_menu;
     public static GameObject game_menu;
     public static GameObject review_menu;
@@ -31,6 +32,7 @@ public class MenuManager : MonoBehaviour
 
     private void Awake()
     {
+        city_menu_manager = GameObject.Find("Exit Bar").GetComponent<CityMenuManager>();
         exit_bck = GameObject.Find("Exit Bck");
     }
 
@@ -59,26 +61,23 @@ public class MenuManager : MonoBehaviour
         //test_pay.onClick.AddListener(pay_all);
     }
 
-    //public void pay_all()
-    //{
-    //    foreach (City city in CityManager.city_list)
-    //    {
-    //        foreach (Building bldg in city.city_building_list)
-    //        {
-    //            foreach (GameObject room in bldg.roomba)
-    //            {
-    //                if (room != null)
-    //                {
-    //                    Room r = room.GetComponent<Room>();
-    //                    if (r.has_person)
-    //                    {                            
-    //                        GameManager.person_manager.GetComponent<PersonManager>().get_paid(r.person_go_instance);
-    //                    }                            
-    //                }
-    //            }
-    //        }
-    //    }
-    //}
+    public void update_inventory()
+    {
+        List<GameObject> Track_Gameobject_List = new List<GameObject>();
+        random_algos.dfs_find_child_objects(transform, Track_Gameobject_List, new string[] { "Text" });
+        foreach (GameObject inventory_item in Track_Gameobject_List)
+        {
+            Text item_count = inventory_item.GetComponent<Text>();
+            string item_name = inventory_item.transform.parent.name;
+            print(item_name + " ite d");
+            if (item_name == "work" || item_name == "train" || item_name == "vacation" || item_name == "home")
+                item_count.text = "x" + VehicleManager.get_vehicle_count(item_name).ToString();
+            else if (item_name == "vert" || item_name == "hor" || item_name == "NE" || item_name == "WS" || item_name == "WN" || item_name == "ES")
+                item_count.text = "x" + TrackManager.get_track_count(item_name).ToString();
+            else if (item_name == "Restaurant" || item_name == "Factory" || item_name == "Apartment" || item_name == "Business" || item_name == "Mansion" || item_name == "Diner")
+                item_count.text = "x" + CityManager.get_building_count(item_name).ToString();
+        }
+    }
 
     // Update is called once per frame
     void Update()

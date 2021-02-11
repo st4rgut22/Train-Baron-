@@ -139,7 +139,6 @@ public class GameManager : EventDetector
         exit_west = GameObject.Find("Shipyard Track Exit West");
         exit_east = GameObject.Find("Shipyard Track Exit East");
         building_expansion = null;
-        test_btn.onClick.AddListener(activate_train);
         city_tilemap_go = GameObject.Find("City Tilemap");
         undeveloped_land = GameObject.Find("Undeveloped Land");
         building_lot_north = GameObject.Find("Building Lot North");
@@ -183,14 +182,6 @@ public class GameManager : EventDetector
         else
         {
             return false;
-        }
-    }
-
-    public void activate_train()
-    {
-        for (int i = 0; i < 8; i++) // TEMPORARY testing train display UI
-        {
-            vehicle_manager.create_vehicle_at_home_base();
         }
     }
 

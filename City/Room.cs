@@ -160,13 +160,6 @@ public class Room : Structure
         booked = true;
     }
 
-    public void display_contents(bool display)
-    {
-        person_go_instance.GetComponent<SpriteRenderer>().enabled = display;
-        display_structure(inner_door, display);
-        display_structure(outer_door, display);
-    }
-
     public void display_occupant(bool display)
     {
         person_go_instance.GetComponent<SpriteRenderer>().enabled = display;

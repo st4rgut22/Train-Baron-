@@ -24,7 +24,7 @@ public class Building : Structure
     private void Awake()
     {
         last_room_position_stack = new Stack();
-        initial_building_lot_name = "Building Lot East"; //TODOED temporary West
+        initial_building_lot_name = "Building Lot East"; 
         occupant_id = 0;
         total_occupant = 0;
         room_id = 0;
@@ -34,7 +34,7 @@ public class Building : Structure
     {
         roomba = new GameObject[max_capacity];
         city.city_tilemap_go.SetActive(false); // after setting tile deactivate gameobject
-        if (building_lot.id == initial_building_lot_name) //TODOED temporary
+        if (building_lot.id == initial_building_lot_name) 
         {
             Room room = spawn_room();
             print("bldg name is " + gameObject.name);
@@ -48,6 +48,32 @@ public class Building : Structure
 
     private void Update()
     {
+    }
+
+    public bool is_building_empty()
+    {
+        for (int i = 0; i < roomba.Length; i++)
+        {
+            if (roomba[i] != null)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public int get_occupancy_count()
+    {
+        int occupancy_count = 0;
+        for (int i = 0; i < roomba.Length; i++)
+        {
+            if (roomba[i] != null)
+            {
+                Room room = roomba[i].GetComponent<Room>();
+                if (room.booked) occupancy_count += 1;
+            }
+        }
+        return occupancy_count;
     }
 
     public int get_vacancy_count()
@@ -118,7 +144,7 @@ public class Building : Structure
         DestroyImmediate(boarded_room.inner_door_container);
         DestroyImmediate(boarded_room.outer_door_container);
         roomba[boarded_room.id] = null;
-        city.city_tilemap.SetTile((Vector3Int)room_pos, null);
+        city.city_tilemap.SetTile((Vector3Int)room_pos, city.boarded_up_tile);
         current_capacity -= 1;
     }
 
@@ -137,7 +163,11 @@ public class Building : Structure
         GameObject room_object = Instantiate(this.room);
         Room room = room_object.GetComponent<Room>();
         room.id = get_new_room_id();
-        Vector2Int room_tile_pos = RouteManager.get_straight_next_tile_pos_multiple(building_orientation, offset_position, room.id);
+        Vector2Int room_tile_pos = new Vector2Int(offset_position.x, offset_position.y);
+        for (int i=0;i<room.id; i++)
+        {
+            room_tile_pos.x += 1;
+        }
         city.city_room_matrix[room_tile_pos.x, room_tile_pos.y] = room;
         room.tile_position = room_tile_pos;
         room.outer_door_prop = BuildingLot.station_door_map[building_lot.orientation][1];

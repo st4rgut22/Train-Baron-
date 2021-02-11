@@ -87,7 +87,7 @@ public class City : Structure
     public GameObject east_bl;
     public GameObject west_bl;
     public GameObject south_bl;
-    
+
 
     //public List<GameObject> person_in_transit; //people unloading from trains
 
@@ -110,10 +110,10 @@ public class City : Structure
         total_review_count = 0;
         last_checked_reputation = reputation;
         initial_building_lot_list = new List<string>() { "Building Lot West", "Building Lot North", "Building Lot South", "Building Lot East" };
-        West_Station = new Station(CityManager.west_start_outer, CityManager.west_start_inner, RouteManager.Orientation.West, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
-        North_Station = new Station(CityManager.north_start_outer, CityManager.north_start_inner, RouteManager.Orientation.North, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
-        East_Station = new Station(CityManager.east_start_outer, CityManager.east_start_inner, RouteManager.Orientation.East, RouteManager.Orientation.South, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
-        South_Station = new Station(CityManager.south_start_outer, CityManager.south_start_inner, RouteManager.Orientation.South, RouteManager.Orientation.West, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
+        West_Station = new Station(CityManager.west_start_outer, CityManager.west_start_inner, RouteManager.Orientation.West, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
+        North_Station = new Station(CityManager.north_start_outer, CityManager.north_start_inner, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
+        East_Station = new Station(CityManager.east_start_outer, CityManager.east_start_inner, RouteManager.Orientation.East, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
+        South_Station = new Station(CityManager.south_start_outer, CityManager.south_start_inner, RouteManager.Orientation.South,RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
         city_tilemap_go = GameManager.city_tilemap_go;
         city_tilemap = city_tilemap_go.GetComponent<Tilemap>();
         city_room_matrix = new Room[board_width, board_height];
@@ -125,7 +125,6 @@ public class City : Structure
         south_bl = Instantiate(BuildingLot);
         start_reputation = PersonManager.reputation; // 0
 
-        //    public static int[,] parking_coord = { { 4, 0, 4 }, { 4, 11, 16 }, { 6, 12, 16 }, { 6, 0, 5 } }; // y, x start, x end  used by inventory pusher
 
 
         north_bl.GetComponent<BuildingLot>().init_building_lot
@@ -133,7 +132,6 @@ public class City : Structure
                 "Building Lot North",
                 new Vector2Int(2, 8),
                 4,
-                //RouteManager.Orientation.East,\
                 RouteManager.Orientation.North,
                 RouteManager.Orientation.South,
                 new List<Station_Track> { North_Station.inner_track, North_Station.outer_track },
@@ -227,6 +225,8 @@ public class City : Structure
         }
         return available_building_list;
     }
+
+    // TODOED
 
     public void populate_entrance()
     {
@@ -448,8 +448,6 @@ public class City : Structure
         person.offset_map = RouteManager.offset_route_map[boxcar.station_track.start_location];
         person.is_enter_home = true;
         Room room = city_room_matrix[room_position.x, room_position.y];
-        room.booked = true; // set true even tho person hasnt arrived to lock in this room and lock out others
-        room.person_go_instance = boxcar.passenger_go;
         string track_name = RouteManager.shipyard_track_tilemap.GetTile(boxcar.tile_position).name;
         RouteManager.Orientation exit_orientation = CityManager.station_track_unloading_map[boxcar.station_track.start_location][track_name];
         StartCoroutine(GameObject.Find("PersonRouteManager").GetComponent<PersonRouteManager>().unload_train(boxcar, room, exit_orientation));
@@ -462,10 +460,8 @@ public class City : Structure
         GameObject occupant_go = room.person_go_instance; //todo: laster move the occupant to the room (first checkpoint). 
         Person occupant = occupant_go.GetComponent<Person>();
         occupant.is_selected = false;
-        boxcar.is_occupied = true; // prevent another pserson from boarding the same boxcar
-        boxcar.passenger_go = occupant_go;
-        occupant.is_board_boxcar = true;
-        occupant.boxcar_go = boxcar_go;
+        print("board train boxcar " + boxcar.boxcar_id + " is occupied");
+        //occupant.boxcar_go = boxcar_go;
         occupant.station_track = boxcar.station_track;
         occupant.offset_map = RouteManager.offset_route_map[boxcar.station_track.start_location];
         StartCoroutine(GameObject.Find("PersonRouteManager").GetComponent<PersonRouteManager>().board_train(boxcar, room, occupant_go, boxcar.tile_position));
@@ -487,11 +483,6 @@ public class City : Structure
                 }
             }
         }
-    }
-
-    public void set_city_tile(Vector3Int tile_position)
-    {
-        city_tilemap.SetTile(tile_position, city_tile);
     }
 
     public void initialize_city_tilemap()
@@ -549,7 +540,7 @@ public class City : Structure
 
     public int remove_lot(int affected_lot)
     {
-        print("removed a lot");
+        print("removed " + affected_lot + " lots");
         int remove_lot_count = 0;
         foreach (Building bldg in city_building_list)
         {
@@ -638,16 +629,15 @@ public class City : Structure
         {
             // do something with entry.Value or entry.Key
             BuildingLot bldg_lot = entry.Value.GetComponent<BuildingLot>();
-            if (!bldg_lot.is_station_full())
+            int train_count = bldg_lot.get_train_count();
+            if (train_count < 2) // stations are not full
             {
-                if (bldg_lot.building.current_capacity > 0)
+                if (train_count < bldg_lot.building.get_occupancy_count())
                 {
-                    return bldg_lot.orientation;
+                    if (!bldg_lot.building.is_building_empty()) { return bldg_lot.orientation; }
+                    else { orientation = bldg_lot.orientation; }
                 }
-                else
-                {
-                    orientation = bldg_lot.orientation;
-                }
+                else { orientation = bldg_lot.orientation; }
             }
         }
         return orientation;
@@ -706,6 +696,28 @@ public class City : Structure
         }
     }
 
+    public Station_Track get_station_track(bool is_outer, RouteManager.Orientation station_orientation)
+    {
+        Station station = North_Station;
+        switch (station_orientation)
+        {
+            case RouteManager.Orientation.North:
+                station = North_Station;
+                break;
+            case RouteManager.Orientation.East:
+                station = East_Station;
+                break;
+            case RouteManager.Orientation.West:
+                station = West_Station;
+                break;
+            case RouteManager.Orientation.South:
+                station = South_Station;
+                break;
+        }
+        if (is_outer) return station.outer_track;
+        else { return station.inner_track; }
+    }       
+
     public void add_boxcar_to_tilemap(string boxcar_type)
     {
         // called when displaying a city
@@ -731,10 +743,10 @@ public class City : Structure
     public void place_boxcar_tile(string boxcar_name, Vector3Int tile_pos)
     {
         Tilemap shipyard_inventory = GameManager.Shipyard_Inventory.GetComponent<Tilemap>();
-        if (boxcar_name == "food boxcar") shipyard_inventory.SetTile(tile_pos, food_boxcar_tile); 
-        else if (boxcar_name == "work boxcar") shipyard_inventory.SetTile(tile_pos, work_boxcar_tile); 
-        else if (boxcar_name == "vacation boxcar") shipyard_inventory.SetTile(tile_pos, vacation_boxcar_tile); 
-        else if (boxcar_name == "home boxcar") shipyard_inventory.SetTile(tile_pos, home_boxcar_tile);
+        if (boxcar_name == "food") shipyard_inventory.SetTile(tile_pos, food_boxcar_tile); 
+        else if (boxcar_name == "work") shipyard_inventory.SetTile(tile_pos, work_boxcar_tile); 
+        else if (boxcar_name == "vacation") shipyard_inventory.SetTile(tile_pos, vacation_boxcar_tile); 
+        else if (boxcar_name == "home") shipyard_inventory.SetTile(tile_pos, home_boxcar_tile);
         else
         {
             throw new Exception("not a valid boxcar to store: " + boxcar_name);
@@ -814,6 +826,23 @@ public class City : Structure
     {
         Turntable t = turn_table.GetComponent<Turntable>();
         StartCoroutine(t.turn_turntable(train_object, orientation, depart_for_turntable));
+    }
+
+    public Station_Track add_train_to_station_track(GameObject train_object, RouteManager.Orientation orientation)
+    {
+        switch (orientation)
+        {
+            case RouteManager.Orientation.North:
+                return South_Station.set_station_track(train_object);
+            case RouteManager.Orientation.East:
+                return West_Station.set_station_track(train_object);
+            case RouteManager.Orientation.West:
+                return East_Station.set_station_track(train_object);
+            case RouteManager.Orientation.South:
+                return North_Station.set_station_track(train_object);
+            default:
+                return null;
+        }
     }
 
     public Station_Track add_train_to_station(GameObject train_object, RouteManager.Orientation orientation)

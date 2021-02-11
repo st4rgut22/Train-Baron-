@@ -110,7 +110,15 @@ public class PersonRouteManager : RouteManager
         GameManager.update_game_money_text(occupant.ticket_cost_map[occupant.desired_activity]);
         occupant.pop_thought_bubble();
         occupant.board_train();
+        occupant.is_board_boxcar = true;
+        boxcar.passenger_go = occupant_go;
+        boxcar.is_occupied = true; // prevent another pserson from boarding the same boxcar
+        occupant.boxcar_go = boxcar.gameObject;
         boxcar.is_being_boarded = true;
+        room.booked = false;
+        print("set room instance to NULL");
+        room.person_go_instance = null;
+        boxcar.passenger_go = occupant_go;
         GameObject door = get_exit_door(boxcar, room);
         room.unlocked_door = door;
         room.booked = false; // new stuff
@@ -209,8 +217,15 @@ public class PersonRouteManager : RouteManager
         List<Checkpoint> go_home_checkpoints = new List<Checkpoint>();
         GameObject person_go_instance = boxcar.passenger_go;
         boxcar.is_occupied = false;
+        print("unload train boxcar " + boxcar.boxcar_id +  " is NOT occupied");
         person_go_instance.transform.parent = null;
         Person person = person_go_instance.GetComponent<Person>();
+        boxcar.passenger_go = null;
+        person.boxcar_go = null;
+        person.room = null;
+        room.booked = true;
+        room.person_go_instance = person_go_instance;
+        print("set room instance to PERSON " + person_go_instance.GetComponent<Person>().name);
         room.unlocked_door = get_exit_door(boxcar, room);
         // the final dest tile is offset from the person's route, so find the offset using city map
         Orientation home_orientation = CityManager.station_track_boarding_map[boxcar.station_track.start_location];
@@ -233,8 +248,8 @@ public class PersonRouteManager : RouteManager
         Checkpoint align_track_cp = new Checkpoint(exit_boxcar_checkpoint.dest_pos, exit_boxcar_checkpoint.tile_position, exit_boxcar_checkpoint.end_orientation, align_track_orientation, "walk");
         go_home_checkpoints.Add(align_track_cp);
         yield return StartCoroutine(person.move_checkpoints(go_home_checkpoints));
-        boxcar.passenger_go = null;
-        person.boxcar_go = null;
+        //boxcar.passenger_go = null; // TODOED TEST MOVE TO BEGIN OF FUNCTION
+        //person.boxcar_go = null;
         person.is_exit_boxcar = true; // set off follow track back home sequence
     }
 }

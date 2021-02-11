@@ -17,6 +17,9 @@ public class VehicleManager : BoardManager
     public GameObject Work_Boxcar;
     public GameObject Food_Boxcar;
     public GameObject Home_Boxcar;
+
+    public static Dictionary<string, int> vehicle_count_dict = new Dictionary<string, int>(); // <vehicle name, building count>
+
     public static GameObject[,] vehicle_board; //contains moving objects eg trains, boxcars
     City start_city;
     public static int train_counter;
@@ -56,39 +59,40 @@ public class VehicleManager : BoardManager
         return orientation;
     }
 
-    public void create_vehicle_at_home_base()
+    public void create_vehicle_at_home_base(RouteManager.Orientation orientation, Station_Track st)
     {
         // buying a new train in MenuManager
         train_counter++;
         GameObject new_train = Instantiate(Train);
         Train_List.Add(new_train);
         Train train_component = new_train.GetComponent<Train>();
+        train_component.initialize_orientation(orientation);
         train_component.in_city = true;
         train_component.set_id(train_counter);
         train_component.set_city(CityManager.home_base); // new vehicles always created at home base
         place_vehicle(new_train); // place the vehicle, which proceeds to depart
-        train_component.arrive_at_city(); // call immediately on instantiation. Otherwise, in_city = false and the wrong board is updated        
-        // TESTING        //add_all_boxcar_to_train(train_component);
-
+        train_component.station_track = st;
+        train_component.init_arrive_at_city(st); // call immediately on instantiation. Otherwise, in_city = false and the wrong board is updated        
+        st.train = new_train;
     }
 
     public void add_boxcar_to_train(Train train, string boxcar_type) //Temporary
     {
         // add all boxcars in inventory to a train. Revise to select boxcars to add to a train
         GameObject boxcar_object;
-        if (boxcar_type=="work_boxcar")
+        if (boxcar_type=="work")
         {
             boxcar_object = Instantiate(Work_Boxcar);
         }
-        else if (boxcar_type=="food_boxcar")
+        else if (boxcar_type=="food")
         {
             boxcar_object = Instantiate(Food_Boxcar);
         }
-        else if (boxcar_type=="vacation_boxcar")
+        else if (boxcar_type=="vacation")
         {
             boxcar_object = Instantiate(Vacation_Boxcar);
         }
-        else if (boxcar_type == "home_boxcar")
+        else if (boxcar_type == "home")
         {
             boxcar_object = Instantiate(Home_Boxcar);
         }
@@ -106,6 +110,7 @@ public class VehicleManager : BoardManager
         int removed_boxcar_id = boxcar.boxcar_id;
         List<GameObject> boxcar_squad = train.boxcar_squad;
         int remove_boxcar_idx = train.get_boxcar_by_id(removed_boxcar_id);
+        print("remove boxcar id is " + removed_boxcar_id);
         if (removed_boxcar_id > 0)
         {
             Boxcar prev_boxcar = boxcar_squad[remove_boxcar_idx].GetComponent<Boxcar>(); // spot of the previous boxcar
@@ -115,9 +120,11 @@ public class VehicleManager : BoardManager
                 boxcar.is_fill_void = true;
                 if (boxcar.orientation != prev_boxcar.orientation)
                 {
+                    print("BEZIER move boxcar " + boxcar.boxcar_id + " to previous boxcar id " + prev_boxcar.boxcar_id);
                     StartCoroutine(boxcar.one_time_bezier_move(prev_boxcar));
                 } else
                 {
+                    print("STRAIGHT move boxcar " + boxcar.boxcar_id + " to previous boxcar id " + prev_boxcar.boxcar_id + " spot @ " + prev_boxcar.transform.position);
                     StartCoroutine(boxcar.one_time_straight_move(prev_boxcar));
                 }
                 boxcar.city.city_board[boxcar.tile_position.x + 1, boxcar.tile_position.y + 1] = null;
@@ -188,7 +195,7 @@ public class VehicleManager : BoardManager
 
     public void add_boxcar(string boxcar_type)
     {
-        CityManager.home_base.add_boxcar_to_tilemap(boxcar_type);
+        CityManager.home_base.add_boxcar_to_tilemap(boxcar_type); // TODOED
     }
 
     public static void initialize_position(MovingObject moving_object, PositionPair pos_pair)
@@ -226,6 +233,28 @@ public class VehicleManager : BoardManager
             //Vector2Int boxcar_board_position = RouteManager.get_straight_next_tile_pos(TrackManager.flip_straight_orientation(boxcar_component.orientation), (Vector2Int)boxcar_component.tile_position);
             boxcar_component.city.city_board[pos_pair.tile_dest_pos.x+1, pos_pair.tile_dest_pos.y+1] = boxcar; // offset boxcar to be consistent
             print("new boxcar created at tile position " + boxcar_component.tile_position);
+        }
+    }
+
+    public static void update_vehicle_count(string vehicle_name, int update_num)
+    {
+        if (vehicle_count_dict.ContainsKey(vehicle_name))
+        {
+            vehicle_count_dict[vehicle_name] += update_num;
+        }
+        else
+        {
+            vehicle_count_dict[vehicle_name] = 1;
+        }
+    }
+
+    public static int get_vehicle_count(string vehicle_name)
+    {
+        if (vehicle_count_dict.ContainsKey(vehicle_name))
+            return vehicle_count_dict[vehicle_name];
+        else
+        {
+            return 0;
         }
     }
 
