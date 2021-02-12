@@ -21,6 +21,7 @@ public class MovingObject : Simple_Moving_Object
     public bool is_boxcar_stopped;
     public bool is_fill_void;
     public bool is_instantiated;
+    public bool go_to_turntable = false;
 
     public string train_name = "train(Clone)";
     VehicleManager vehicle_manager;
@@ -103,12 +104,15 @@ public void set_destination()
                     // train travels to the other end of the turntable
                     leave_turntable = false;
                     float distance_multiplier = 4.5f;
+                    go_to_turntable = true;
                     if (gameObject.tag == "boxcar")
                     {
                         Boxcar boxcar = gameObject.GetComponent<Boxcar>();
                         distance_multiplier -= boxcar.train.get_distance_from_train(boxcar.boxcar_id); // offset boxcar n units away from train
+                        print("distance multiplier of boxcar " + boxcar.boxcar_id + " is " + distance_multiplier);
                     }
                     train_destination = transform.up * distance_multiplier * RouteManager.cell_width + transform.position; // 5 units in the direction the train is facing
+                    print("destination is " + train_destination);
                     if (gameObject.tag == "train")
                         gameObject.transform.parent = gameObject.GetComponent<Train>().city.turn_table.transform; // make train child of turntable so it rotates with it
                     else { gameObject.transform.parent = gameObject.GetComponent<Boxcar>().city.turn_table.transform; }
@@ -251,6 +255,7 @@ public void set_destination()
         departure_track_chosen = false;
         is_boxcar_stopped = false;
         is_instantiated = false;
+        go_to_turntable = false;
     }
 
     public virtual void arrive_at_city()
@@ -358,7 +363,7 @@ public void set_destination()
 
     public void stop_car_if_wait_tile()
     {
-        if (random_algos.list_contains_arr(CityManager.boxcar_city_wait_tile, tile_position) && in_city && !is_instantiated) // STOP CONDITION
+        if (random_algos.list_contains_arr(CityManager.boxcar_city_wait_tile, tile_position) && in_city && !is_instantiated && !go_to_turntable) // STOP CONDITION
             if (gameObject == gameObject.GetComponent<Boxcar>().train.boxcar_squad[0]) // is lead boxcar
             {
                 GetComponent<Boxcar>().train.stop_all_boxcar_at_turntable();

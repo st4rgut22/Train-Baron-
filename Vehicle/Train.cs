@@ -142,15 +142,6 @@ public class Train : MovingObject
         Destroy(gameObject);
     }
 
-    public void set_boxcar_turntable_flag()
-    {
-        foreach (GameObject boxcar in boxcar_squad)
-        {
-            boxcar.GetComponent<Boxcar>().depart_for_turntable = false;
-            boxcar.GetComponent<Boxcar>().leave_turntable = true;
-        }
-    }
-
     public int get_boxcar_position(GameObject boxcar_go)
     {
         int position = 0;

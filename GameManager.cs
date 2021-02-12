@@ -66,6 +66,7 @@ public class GameManager : EventDetector
 
     public static int money;
     public static Text game_money_text;
+    public static Text egghead_total_text;
 
     public Building building_expansion;
 
@@ -75,6 +76,8 @@ public class GameManager : EventDetector
 
     public static float tolerance = .004f;
     public static float speed = 1;
+
+    public static int egghead_goal;
 
     public static GameObject star_review_image_go;
 
@@ -101,7 +104,9 @@ public class GameManager : EventDetector
         south_bound = 1;
         north_bound = 9;
         west_bound = 0;
+        egghead_goal = 10;
         game_money_text = GameObject.Find("Game Money Text").GetComponent<Text>();
+        egghead_total_text = GameObject.Find("Egghead Goal").GetComponent<Text>();
         traffic_tilemap_go = GameObject.Find("Traffic Light");
         traffic_tilemap_offset_north_go = GameObject.Find("Traffic Light Offset North");
         traffic_tilemap_offset_east_go = GameObject.Find("Traffic Light Offset East");
@@ -161,6 +166,20 @@ public class GameManager : EventDetector
         macro_health = 50;
         day = 1;
         goal = 10;
+    }
+
+    public static void update_egghead_total(int total_people)
+    {
+        string goal = total_people.ToString() + "/" + egghead_goal.ToString();
+        egghead_total_text.text = goal;
+        if (total_people == egghead_goal)
+        {
+            end_level(true);
+        }
+        else if (total_people == 0)
+        {
+            end_level(false);
+        }
     }
 
     public static void update_game_money_text(int delta_money)

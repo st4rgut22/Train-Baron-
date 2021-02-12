@@ -89,9 +89,9 @@ public class CityMenuManager : MenuManager
         string vehicle_type = clicked_item.tag;
         if (vehicle_type == "home" || vehicle_type == "work" || vehicle_type == "vacation" || vehicle_type == "food")
         {
-            if (st.train == null)
+            if (st.train == null || !st.train.GetComponent<Train>().is_wait_for_turntable || !st.train.GetComponent<Train>().is_boxcar_within_max_limit())
                 return; // no train at this station
-            GameManager.vehicle_manager.add_boxcar_to_train(st.train.GetComponent<Train>(), vehicle_type);        
+            GameManager.vehicle_manager.add_boxcar_to_train(st.train.GetComponent<Train>(), vehicle_type);
         }
         else if (vehicle_type.Contains("train"))
         {

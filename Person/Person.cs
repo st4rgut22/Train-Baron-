@@ -392,11 +392,11 @@ public class Person : Simple_Moving_Object
             print("next activity is " + desired_activity);
             bool is_city_same_as_activity = CityManager.does_activity_match_city(desired_activity, room.building.gameObject.name);
             print("is activity " + desired_activity + " same as " + room.building.gameObject.name + " " + is_city_same_as_activity);
-            //if (is_city_same_as_activity) is_inventory POOPIES
-            //{
-            //    StartCoroutine(schedule_activity()); // if next activity is the same, dont need to board a train
-            //    yield break; // dont render thought bubble if same action
-            //}
+            if (is_city_same_as_activity) 
+            {
+                StartCoroutine(schedule_activity()); // if next activity is the same, dont need to board a train
+                yield break; // dont render thought bubble if same action
+            }
         }
         PersonManager.add_notification_for_city(room.building.city.tilemap_position, true);
         render_thought_bubble();

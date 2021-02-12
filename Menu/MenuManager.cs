@@ -88,7 +88,7 @@ public class MenuManager : EventDetector
         }
         else if (item_name.Contains("vacation"))
         {
-            //menu_go.GetComponent<RawImage>().texture =  //todoed
+            menu_go.GetComponent<RawImage>().texture = vacation_inventory_bubble;
         }
         else if (item_name.Contains("work"))
         {
@@ -133,7 +133,7 @@ public class MenuManager : EventDetector
             Text item_count = inventory_item.GetComponent<Text>();
             string item_name = inventory_item.transform.parent.name;
             print(item_name + " ite d");
-            if (item_name == "work" || item_name == "train" || item_name == "vacation" || item_name == "home")
+            if (item_name == "work" || item_name == "train" || item_name == "vacation" || item_name == "home" || item_name == "food")
                 item_count.text = "x" + VehicleManager.get_vehicle_count(item_name).ToString();
             else if (item_name == "vert" || item_name == "hor" || item_name == "NE" || item_name == "WS" || item_name == "WN" || item_name == "ES")
                 item_count.text = "x" + TrackManager.get_track_count(item_name).ToString();

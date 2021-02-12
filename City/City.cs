@@ -69,7 +69,7 @@ public class City : Structure
     public int max_reputation = 100;
     public int min_reputation = 0;
     public int last_checked_reputation;
-    public const int reputation_per_lot = 5;
+    public const int reputation_per_lot = 3;
     public int unapplied_reputation_count;
 
     public int total_review_count;
@@ -88,6 +88,7 @@ public class City : Structure
     public GameObject west_bl;
     public GameObject south_bl;
 
+    public int total_room;
 
     //public List<GameObject> person_in_transit; //people unloading from trains
 
@@ -106,6 +107,7 @@ public class City : Structure
         Traffic_Light_Manager_Instance = Instantiate(TrafficLightManager);
         traffic_manager = Traffic_Light_Manager_Instance.GetComponent<TrafficLightManager>();
         Traffic_Light_Manager_Instance.transform.parent = gameObject.transform; // only activate when this city is activated
+        total_room = 0;
         unapplied_reputation_count = 0;
         total_review_count = 0;
         last_checked_reputation = reputation;
@@ -226,22 +228,21 @@ public class City : Structure
         return available_building_list;
     }
 
-    // TODOED
-
     public void populate_entrance()
     {
         //use delta reputation to populate as many rooms as possible
-        int people_to_add = (PersonManager.reputation - start_reputation) / 2;
+        int people_to_add = Math.Max(0, CityManager.total_room - CityManager.total_people); 
         int total_vacancy_count = get_total_occupant_count();
         if (total_vacancy_count < people_to_add) people_to_add = total_vacancy_count;
         start_reputation = PersonManager.reputation;
-        //print("POPUPLATE ENTRANCE people to add " + people_to_add);
+        print("POPUPLATE ENTRANCE people to add " + people_to_add + " equals total room " + CityManager.total_room + "  minus total people " + CityManager.total_people);
         List<Building> available_building_list = get_available_building_list();
-
         for (int i = 0; i < people_to_add; i++)
         {
+            if (available_building_list.Count == 0)
+                return;
             bool found_room = false;
-            Building bldg = available_building_list[total_people % available_building_list.Count];
+            Building bldg = available_building_list[i % available_building_list.Count];
             foreach (GameObject room_go in bldg.roomba)
             {
                 if (room_go != null )
@@ -251,8 +252,8 @@ public class City : Structure
                     {
                         Person person = room.spawn_person(true);
                         total_people += 1;
-                        if (CityManager.Activated_City_Component == this) person.initialize_egghead(true, true); // if entrance is activated
-                        else { person.initialize_egghead(false, false); }
+                        CityManager.update_total_people(1);
+                        person.initialize_egghead(false, false);
                         found_room = true;
                     }
                 }
@@ -546,10 +547,13 @@ public class City : Structure
         {
             while (bldg.current_capacity > 0 && remove_lot_count < affected_lot)
             {
-                bldg.remove_last_room();
-                remove_lot_count += 1;
+                bool is_room_removed = bldg.remove_last_room();
+                if (is_room_removed)
+                    remove_lot_count += 1;
             }
         }
+        total_room -= 1;
+        CityManager.total_room -= remove_lot_count;
         return affected_lot - remove_lot_count;
     }
 
@@ -588,9 +592,10 @@ public class City : Structure
             print("underwater lots is " + underwater_rollover_lot);
         }
         else if (delta_reputation > 0){
-            int excess_rollover_lot = add_lot(lot_affected);
-            rollover_reputation = excess_rollover_lot * reputation_per_lot;
+            int excess_rollover_lot = add_lot(lot_affected / reputation_per_lot);
+            rollover_reputation = excess_rollover_lot * reputation_per_lot + delta_reputation % reputation_per_lot;
             print("excess lots is " + excess_rollover_lot);
+            print("rollover reputation is " + rollover_reputation);
         }
         if (this == CityManager.Activated_City_Component)
         {

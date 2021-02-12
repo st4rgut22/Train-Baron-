@@ -188,6 +188,7 @@ public class VehicleManager : BoardManager
                 moving_boxcar.set_depart_status(false);
                 boxcar_depart_id++;
                 game_manager.enable_vehicle_for_screen(boxcar); // switch on when boxcar is departing from the city. Dont show entire train cargo.
+                //board[last_location.x, last_location.y] = boxcar.gameObject;
             }
             yield return new WaitForEndOfFrame();
         }

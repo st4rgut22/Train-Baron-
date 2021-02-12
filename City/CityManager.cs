@@ -26,6 +26,7 @@ public class CityManager : BoardManager
 
     public GameObject city_tilemap_go;
     public static int total_people;
+    public static int total_room;
 
     // distances for train to travel before exiting the city (not before stopping)
     public static float exit_dest_west_east = 6;
@@ -80,10 +81,11 @@ public class CityManager : BoardManager
         base.Awake();
         city_list = new List<City>();
         total_people = 0;
+        total_room = 0;
         entrance_update_interval = 15;
         create_city((Vector3Int)home_base_location); // initialize train entrance
         home_base = get_city(home_base_location).GetComponent<City>();
-
+        //Activated_City_Component = home_base;
         board_train_orientation_dict = new Dictionary<RouteManager.Orientation, RouteManager.Orientation[,]>() // <building lot orientation, [outer orientation pair, inner orientation pair]>
         {
             { RouteManager.Orientation.West, new RouteManager.Orientation[,]{ { RouteManager.Orientation.East, RouteManager.Orientation.South }, { RouteManager.Orientation.East, RouteManager.Orientation.North } } },
@@ -233,6 +235,12 @@ public class CityManager : BoardManager
     // Update is called once per frame
     void Update()
     {
+    }
+
+    public static void update_total_people(int delta)
+    {
+        total_people += delta;
+        GameManager.update_egghead_total(total_people);
     }
 
     public static GameObject get_vehicle_in_activated_city(List<Collider2D> colliders, string tag)

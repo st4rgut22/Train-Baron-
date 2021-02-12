@@ -37,6 +37,7 @@ public class Building : Structure
         if (building_lot.id == initial_building_lot_name) 
         {
             Room room = spawn_room();
+            CityManager.total_room += 1;
             print("bldg name is " + gameObject.name);
             if (gameObject.name.Contains("Station"))
             {
@@ -124,7 +125,7 @@ public class Building : Structure
         }
     }
 
-    public void remove_last_room()
+    public bool remove_last_room()
     {
         Vector2Int room_pos = (Vector2Int) last_room_position_stack.Pop();
         Room boarded_room = city.city_room_matrix[room_pos.x, room_pos.y];
@@ -140,12 +141,18 @@ public class Building : Structure
             person.leave_review(person.city, Person.Review.One_Star);
             person.update_review_page(review_summary, (int)Person.Review.One_Star);
             DestroyImmediate(person_go); // otherwise get error from coroutine
+            CityManager.update_total_people(-1);
+        }
+        else if (boarded_room.booked)// person has not arrived yet, but the room is booked. Don't remove this room. 
+        {
+            return false;
         }
         DestroyImmediate(boarded_room.inner_door_container);
         DestroyImmediate(boarded_room.outer_door_container);
         roomba[boarded_room.id] = null;
         city.city_tilemap.SetTile((Vector3Int)room_pos, city.boarded_up_tile);
         current_capacity -= 1;
+        return true;
     }
 
     public int get_new_room_id()
@@ -160,6 +167,7 @@ public class Building : Structure
 
     public virtual Room spawn_room()
     {
+        city.total_room += 1;
         GameObject room_object = Instantiate(this.room);
         Room room = room_object.GetComponent<Room>();
         room.id = get_new_room_id();
