@@ -14,7 +14,6 @@ public class CityMenuManager : MenuManager
     public GameObject vacation_boxcar;
     public GameObject food_boxcar;
     public GameObject work_boxcar;
-    public Texture work_inventory_bubble;
     string item_name;
 
     GameObject clicked_item;
@@ -111,5 +110,37 @@ public class CityMenuManager : MenuManager
             RawImage raw_image = clicked_go.GetComponent<RawImage>();
             raw_image.texture = empty_inventory_bubble;
         }
+    }
+
+    public void change_bck_color(string structure_name)
+    {
+        Color32 color;
+        if (structure_name=="Apartment" || structure_name=="Mansion")
+        {
+            color = home_color;
+        }
+        else if (structure_name == "Factory" ||  structure_name=="business")
+        {
+            color = work_color;
+        }
+        else if (structure_name=="Diner" || structure_name=="Restaurant")
+        {
+            color = food_color;
+        }
+        else if (structure_name == "Entrance")
+        {
+            color = entrance_color;
+        }
+        else { throw new Exception("cant find color for structure " + structure_name); }
+        transform.parent.Find("color bck").GetComponent<Image>().color = color;
+    }
+
+    public void turn_of_vehicle_in_exit_bar(bool is_on)
+    {
+        gameObject.transform.Find("work").gameObject.SetActive(is_on);
+        gameObject.transform.Find("train").gameObject.SetActive(is_on);
+        gameObject.transform.Find("vacation").gameObject.SetActive(is_on);
+        gameObject.transform.Find("home").gameObject.SetActive(is_on);
+        gameObject.transform.Find("food").gameObject.SetActive(is_on);
     }
 }

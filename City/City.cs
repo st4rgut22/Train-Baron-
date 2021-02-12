@@ -602,7 +602,6 @@ public class City : Structure
         print("reputation is now " + reputation);
         unapplied_reputation_count = leftover_reputation + rollover_reputation;
 
-        GameManager.reputation_text_go.GetComponent<Text>().text = "Reputation: " + reputation;
         print("apply reputation");
         last_checked_reputation = reputation;
         GameManager.star_review_image_go.GetComponent<RawImage>().texture = get_star_image_from_reputation();

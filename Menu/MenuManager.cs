@@ -32,6 +32,11 @@ public class MenuManager : EventDetector
     public Button test_pay;
     public Button test_unpay;
 
+    public Color32 home_color = new Color32(254, 205, 173, 100);
+    public Color32 work_color = new Color32(82, 213, 253, 100);
+    public Color32 vacation_color = new Color32(176, 234, 133, 100);
+    public Color32 food_color = new Color32(255, 141, 180, 100);
+    public Color32 entrance_color = new Color32(117, 123, 209, 100);
 
     static List<GameObject> event_handler_list; // names of gameobjects that listen for events
     City city;

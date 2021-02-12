@@ -76,7 +76,6 @@ public class GameManager : EventDetector
     public static float tolerance = .004f;
     public static float speed = 1;
 
-    public static GameObject reputation_text_go;
     public static GameObject star_review_image_go;
 
     public Tilemap offset_boxcar_tilemap; // saved offset tilemap
@@ -121,7 +120,6 @@ public class GameManager : EventDetector
         //traffic_tilemap = traffic_tilemap_go.GetComponent<Tilemap>();
         //traffic_tilemap_go.SetActive(false);
         star_review_image_go = GameObject.Find("star_review");
-        reputation_text_go = GameObject.Find("reputation_text");
         money = 5000;
         train_list = new List<GameObject>();
         hint_context_list = new List<string>();
@@ -517,6 +515,16 @@ public class GameManager : EventDetector
                             switch_on_shipyard(true);
                             city_manager.set_activated_city(city_object);
                             MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
+                            if (city_object != CityManager.home_base.gameObject) // not home base, dont show vehicle creation options
+                            {
+
+                                MenuManager.city_menu_manager.turn_of_vehicle_in_exit_bar(false);
+                            }
+                            else
+                            {
+                                MenuManager.city_menu_manager.turn_of_vehicle_in_exit_bar(true);
+                            }
+                            MenuManager.city_menu_manager.change_bck_color(city_object.GetComponent<City>().city_type);
                         }
                     }
                 }
