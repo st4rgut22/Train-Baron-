@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Tilemaps;
+using System;
 
 public class MenuManager : EventDetector
 {
@@ -20,6 +21,13 @@ public class MenuManager : EventDetector
     public static GameObject previous_menu;
     public static GameObject exit_bck;// = GameObject.Find("Exit Bck"); // just a blue background
 
+    public Texture empty_inventory_bubble;
+    public Texture food_inventory_bubble;
+    public Texture home_inventory_bubble;
+    public Texture work_inventory_bubble;
+    public Texture track_inventory_bubble;
+    public Texture train_inventory_bubble;
+    public Texture vacation_inventory_bubble;
 
     public Button test_pay;
     public Button test_unpay;
@@ -32,7 +40,7 @@ public class MenuManager : EventDetector
 
     private void Awake()
     {
-        city_menu_manager = GameObject.Find("Exit Bar").GetComponent<CityMenuManager>();
+        city_menu_manager = GameObject.Find("Exit Bck").GetComponent<CityMenuManager>();
         exit_bck = GameObject.Find("Exit Bck");
     }
 
@@ -59,6 +67,56 @@ public class MenuManager : EventDetector
         shipyard_exit_btn.onClick.AddListener(turn_off_shipyard);
 
         //test_pay.onClick.AddListener(pay_all);
+    }
+
+    public void add_inventory_texture(string item_name)
+    {
+        GameObject menu_go = gameObject.transform.Find(item_name).gameObject;
+        RawImage raw = menu_go.GetComponent<RawImage>();
+        if (item_name == "hor" || item_name == "WN" || item_name == "NE" || item_name == "WS" || item_name == "ES" || item_name == "vert")
+        {
+            menu_go.GetComponent<RawImage>().texture = track_inventory_bubble;
+        }
+        else if (item_name.Contains("home"))
+        {
+            menu_go.GetComponent<RawImage>().texture = home_inventory_bubble;
+        }
+        else if (item_name.Contains("vacation"))
+        {
+            //menu_go.GetComponent<RawImage>().texture =  //todoed
+        }
+        else if (item_name.Contains("work"))
+        {
+            menu_go.GetComponent<RawImage>().texture = work_inventory_bubble;
+        }
+        else if (item_name.Contains("food"))
+        {
+            menu_go.GetComponent<RawImage>().texture = food_inventory_bubble;
+        }
+        else if (item_name.Contains("train"))
+        {
+            menu_go.GetComponent<RawImage>().texture = train_inventory_bubble;
+        }
+        else // structure
+        {
+            if (item_name == "Apartment" || item_name == "Mansion")
+            {
+                menu_go.GetComponent<RawImage>().texture = home_inventory_bubble;
+            }
+            else if (item_name == "Factory" || item_name == "Business")
+            {
+
+                menu_go.GetComponent<RawImage>().texture = work_inventory_bubble;
+            }
+            else if (item_name == "Diner" || item_name == "Restaurant")
+            {
+                menu_go.GetComponent<RawImage>().texture = food_inventory_bubble;
+            }
+            else
+            {
+                throw new Exception("cannot find a structure with name " + item_name);
+            }
+        }
     }
 
     public void update_inventory()

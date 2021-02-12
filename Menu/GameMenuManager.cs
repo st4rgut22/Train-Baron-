@@ -47,13 +47,6 @@ public class GameMenuManager : MenuManager
 
     GameObject clicked_go;
 
-    public Texture empty_inventory_bubble;
-    public Texture food_inventory_bubble;
-    public Texture home_inventory_bubble;
-    public Texture work_inventory_bubble;
-    public Texture track_inventory_bubble;
-
-
     protected GameObject train_object; // the train is referenced in TrainDisplay which has MenuManager as a base class
     Building building_component;
 
@@ -114,54 +107,6 @@ public class GameMenuManager : MenuManager
         }
         track_action_coord.Add(track_action_list);
         GameObject.Find("GameManager").GetComponent<GameManager>().mark_tile_as_eligible(track_action_coord, track_hint_list, gameObject);
-    }
-
-    public void add_inventory_texture(string item_name)
-    {
-        GameObject menu_go = gameObject.transform.Find(item_name).gameObject;
-        if (item_name == "hor" || item_name == "WN" || item_name == "NE" || item_name == "WS" || item_name == "ES" || item_name == "vert")
-        {
-            menu_go.GetComponent<RawImage>().texture = track_inventory_bubble; 
-        }
-        else if (item_name.Contains("boxcar"))
-        {
-            if (item_name.Contains("home"))
-            {
-                menu_go.GetComponent<RawImage>().texture = home_inventory_bubble;
-            }
-            else if (item_name.Contains("vacation"))
-            {
-                //menu_go.GetComponent<RawImage>().texture =  //todoed
-            }
-            else if (item_name.Contains("work"))
-            {
-                menu_go.GetComponent<RawImage>().texture = work_inventory_bubble;
-            }
-            else if (item_name.Contains("food"))
-            {
-                menu_go.GetComponent<RawImage>().texture = food_inventory_bubble;
-            }
-        }
-        else // structure
-        {
-            if (item_name == "Apartment" || item_name == "Mansion")
-            {
-                menu_go.GetComponent<RawImage>().texture = home_inventory_bubble;
-            }
-            else if (item_name == "Factory" || item_name == "Business")
-            {
-
-                menu_go.GetComponent<RawImage>().texture = work_inventory_bubble;
-            }
-            else if (item_name == "Diner" || item_name == "Restaurant")
-            {
-                menu_go.GetComponent<RawImage>().texture = food_inventory_bubble;
-            }
-            else
-            {
-                throw new Exception("cannot find a structure with name " + item_name);
-            }
-        }
     }
 
     public override void OnBeginDrag(PointerEventData eventData)

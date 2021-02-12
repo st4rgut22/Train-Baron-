@@ -115,27 +115,15 @@ public class StoreMenuManager : MonoBehaviour
             string count = go.GetComponent<Text>().text;
             string item_name = go.transform.parent.parent.gameObject.name;
             int item_count = Int16.Parse(count);
+            if (item_name.Contains("_desc"))
+                item_name = item_name.Replace("_desc", "");
             for (int i = 0; i < item_count; i++)
             {
-                if (item_name == "train_desc" || item_name == "fast_train_desc")
+                if (item_name == "train" || item_name == "fast_train" || item_name == "home" || item_name == "food" || item_name == "work" || item_name == "vacation")
                 {
-                    VehicleManager.update_vehicle_count("train", 1);
-                    //GameManager.vehicle_manager.create_vehicle_at_home_base();
+                    VehicleManager.update_vehicle_count(item_name, 1);
+                    MenuManager.city_menu_manager.add_inventory_texture(item_name);
                 }
-                else if (item_name == "home_desc")
-                {
-                    VehicleManager.update_vehicle_count("home", 1);
-                }
-                else if (item_name == "food_desc")
-                {
-                    VehicleManager.update_vehicle_count("food", 1);
-                }
-                else if (item_name == "work_desc")
-                {
-                    VehicleManager.update_vehicle_count("work", 1);
-                }
-                else if (item_name == "vacation_desc")
-                    VehicleManager.update_vehicle_count("vacation", 1);
                 else if (item_name == "hor" || item_name == "WN" || item_name == "NE" || item_name == "WS" || item_name == "ES" || item_name == "vert")
                 {
                     TrackManager.update_track_count(item_name, 1);

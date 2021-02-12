@@ -3,24 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System;
+using UnityEngine.UI;
 
 public class CityMenuManager : MenuManager
 {
     // Detect clicks on boxcar and train inventory
-
-    public Texture empty_inventory_bubble;
-    public Texture train_inventory_bubble;
-    public Texture food_inventory_bubble;
-    public Texture home_inventory_bubble;
-    public Texture work_inventory_bubble;
-    public Texture vacation_inventory_bubble;
 
     public GameObject train;
     public GameObject home_boxcar;
     public GameObject vacation_boxcar;
     public GameObject food_boxcar;
     public GameObject work_boxcar;
-
+    public Texture work_inventory_bubble;
     string item_name;
 
     GameObject clicked_item;
@@ -112,5 +106,10 @@ public class CityMenuManager : MenuManager
         }
         VehicleManager.update_vehicle_count(vehicle_type, -1); // "home", "food", "work", "vacation"
         update_inventory();
+        if (VehicleManager.get_vehicle_count(vehicle_type) == 0)
+        {
+            RawImage raw_image = clicked_go.GetComponent<RawImage>();
+            raw_image.texture = empty_inventory_bubble;
+        }
     }
 }
