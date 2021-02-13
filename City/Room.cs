@@ -126,6 +126,7 @@ public class Room : Structure
 
     public Person spawn_person(bool is_person_poor)
     {
+        CityManager.update_total_people(1);
         person_go_instance = GameManager.person_manager.GetComponent<PersonManager>().create_person(is_person_poor);
         has_person = true;
         Person person = person_go_instance.GetComponent<Person>();

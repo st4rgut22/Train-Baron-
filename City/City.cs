@@ -62,6 +62,7 @@ public class City : Structure
     public GameObject city_tilemap_go;
     public Tilemap city_tilemap;
 
+    int bldg_add_index;
 
     public int prev_train_list_length = 0;
 
@@ -108,10 +109,11 @@ public class City : Structure
         traffic_manager = Traffic_Light_Manager_Instance.GetComponent<TrafficLightManager>();
         Traffic_Light_Manager_Instance.transform.parent = gameObject.transform; // only activate when this city is activated
         total_room = 0;
+        bldg_add_index = 0;
         unapplied_reputation_count = 0;
         total_review_count = 0;
         last_checked_reputation = reputation;
-        initial_building_lot_list = new List<string>() { "Building Lot West", "Building Lot North", "Building Lot South", "Building Lot East" };
+        initial_building_lot_list = new List<string>() { "Building Lot South", "Building Lot West", "Building Lot North", "Building Lot East" }; // order determines sequence in wh/ich buildings are created
         West_Station = new Station(CityManager.west_start_outer, CityManager.west_start_inner, RouteManager.Orientation.West, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
         North_Station = new Station(CityManager.north_start_outer, CityManager.north_start_inner, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
         East_Station = new Station(CityManager.east_start_outer, CityManager.east_start_inner, RouteManager.Orientation.East, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
@@ -236,6 +238,7 @@ public class City : Structure
         start_reputation = PersonManager.reputation;
         print("POPULATE ENTRANCE people to add " + people_to_add + " equals total room " + CityManager.total_room + "  minus total people " + CityManager.total_people);
         List<Building> available_building_list = get_available_building_list();
+        if (CityManager.total_people == 1) people_to_add = 1; //in the beginning add another person to speed things up
         for (int i = 0; i < people_to_add; i++)
         {
             if (available_building_list.Count == 0)
@@ -251,7 +254,6 @@ public class City : Structure
                     {
                         Person person = room.spawn_person(true);
                         total_people += 1;
-                        CityManager.update_total_people(1);
                         person.initialize_egghead(false, false);
                         found_room = true;
                     }
@@ -559,14 +561,13 @@ public class City : Structure
     public int add_lot(int affected_lot)
     {
         int added_lot_count = 0;
-        foreach (Building bldg in city_building_list)
+        Building bldg = city_building_list[bldg_add_index % city_building_list.Count];
+        while (bldg.current_capacity < bldg.max_capacity && added_lot_count < affected_lot)
         {
-            while(bldg.current_capacity < bldg.max_capacity && added_lot_count < affected_lot)
-            {
-                bldg.spawn_room();
-                added_lot_count += 1;
-            }
+            bldg.spawn_room();
+            added_lot_count += 1;
         }
+        bldg_add_index += 1;
         return affected_lot - added_lot_count; // rollover lots to be applied to reputation since bldg capacity is filled
     }
 
@@ -692,7 +693,7 @@ public class City : Structure
                 if (room_go != null) // room exists
                 {
                     Room room = room_go.GetComponent<Room>();
-                    if (is_hide) GameManager.undeveloped_land.GetComponent<Tilemap>().SetTile((Vector3Int)room.tile_position, undeveloped_tile);
+                    if (is_hide) GameManager.undeveloped_land.GetComponent<Tilemap>().SetTile((Vector3Int)room.tile_position, boarded_up_tile);
                     else { GameManager.undeveloped_land.GetComponent<Tilemap>().SetTile((Vector3Int)room.tile_position, null); }
                 }
             }

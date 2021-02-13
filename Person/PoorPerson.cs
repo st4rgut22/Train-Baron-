@@ -24,10 +24,10 @@ public class PoorPerson : Person
         };
 
         activity_duration_map = new Dictionary<string, int>(){
-            { "home_thought_bubble", 5}, 
+            { "home_thought_bubble", 15}, 
             {"restaurant_thought_bubble", 10 },
             {"vacation_thought_bubble", 60 },
-            {"work_thought_bubble", 30 }
+            {"work_thought_bubble", 15 }
         }; // the time it takes to complete an action (if destinatikon4 matches thought bubble)
     }
 

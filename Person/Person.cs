@@ -348,9 +348,12 @@ public class Person : Simple_Moving_Object
 
     public void render_thought_bubble()
     {
-        thought_bubble.SetActive(true);
-        // get thought bubble from PersonManager
-        thought_bubble_renderer.sprite = GameManager.person_manager.GetComponent<PersonManager>().desired_activity_to_throught_sprite(desired_activity, room.building.building_lot);
+        if (thought_bubble != null)
+        {
+            thought_bubble.SetActive(true);
+            // get thought bubble from PersonManager
+            thought_bubble_renderer.sprite = GameManager.person_manager.GetComponent<PersonManager>().desired_activity_to_throught_sprite(desired_activity, room.building.building_lot);
+        }
     }
 
     public IEnumerator schedule_activity()

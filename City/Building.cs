@@ -37,7 +37,7 @@ public class Building : Structure
         if (building_lot.id == initial_building_lot_name) 
         {
             Room room = spawn_room();
-            CityManager.total_room += 1;
+            print(city.city_type + " increment total room by 1. Total room is NOW " + CityManager.total_room);
             print("bldg name is " + gameObject.name);
             if (gameObject.name.Contains("Station"))
             {
@@ -167,6 +167,7 @@ public class Building : Structure
 
     public virtual Room spawn_room()
     {
+        CityManager.total_room += 1;
         city.total_room += 1;
         GameObject room_object = Instantiate(this.room);
         Room room = room_object.GetComponent<Room>();

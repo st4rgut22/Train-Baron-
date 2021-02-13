@@ -46,7 +46,8 @@ public class Turntable : MonoBehaviour
 
     public void add_train_to_queue(GameObject train)
     {
-        train_queue.Enqueue(train);
+        if (train_queue.Count == 0 || (train_queue.Peek() != train && train.GetComponent<Train>().in_city)) // avoid double adding a train to turntablel queue
+            train_queue.Enqueue(train);
     }
 
     public IEnumerator turn_turntable(GameObject train_object, RouteManager.Orientation end_orientation, bool depart_for_turntable)
