@@ -417,12 +417,16 @@ public class GameManager : EventDetector
                 GameObject boxcar_go = CityManager.get_vehicle_in_activated_city(collider_list, "boxcar"); // get the right boxcar (if exists) if they are on top of each other
                 if (boxcar_go != null)
                 {
-                    Vector2Int unoffset_boxcar_city_location = (Vector2Int)boxcar_go.GetComponent<Boxcar>().tile_position;
-                    print("board boxcar with tile position " + unoffset_boxcar_city_location);
-                    int hint_index = is_selected_tile_in_context(unoffset_boxcar_city_location);
-                    if (hint_index != -1)
+                    Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
+                    if (boxcar.is_wait_for_turntable) // if user clicks on a leaving boxcar ignore
                     {
-                        CityManager.Activated_City_Component.board_train(boxcar_go, hint_tile_pos);
+                        Vector2Int unoffset_boxcar_city_location = (Vector2Int)boxcar_go.GetComponent<Boxcar>().tile_position;
+                        print("board boxcar with tile position " + unoffset_boxcar_city_location);
+                        int hint_index = is_selected_tile_in_context(unoffset_boxcar_city_location);
+                        if (hint_index != -1)
+                        {
+                            CityManager.Activated_City_Component.board_train(boxcar_go, hint_tile_pos);
+                        }
                     }
                 }
             }
@@ -443,7 +447,8 @@ public class GameManager : EventDetector
                 else if (hint_context == "unload")
                 {
                     print("unload from boxcar to city");
-                    CityManager.Activated_City_Component.unload_train(hint_tile_go, selected_tile); // hint tile position is boxcar position
+                    if (hint_tile_go.GetComponent<Boxcar>().is_wait_for_turntable)
+                        CityManager.Activated_City_Component.unload_train(hint_tile_go, selected_tile); // hint tile position is boxcar position
                 }
                 else if (hint_context == "park")
                 {

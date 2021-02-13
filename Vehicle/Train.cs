@@ -11,7 +11,7 @@ public class Train : MovingObject
     GameObject clone_train; // used for dragging onto destination track
     public string exit_track_tile_type;
     string destination_type = ""; // get destination type. If city, then disable after reaching destination.
-    int id;
+    public int id;
     int boxcar_counter;
     public GameObject explosion;
     public List<GameObject> explosion_list;
@@ -485,6 +485,7 @@ public class Train : MovingObject
         //print("boxcar " + boxcar_go.name + " tile position " + boxcar.tile_position + " prev tile position " + boxcar.prev_tile_position);
         boxcar.prev_tile_position = boxcar.tile_position; // move up  one
         boxcar.tile_position = boxcar_cell_pos;
+        //boxcar.next_tilemap_position = (Vector2Int)boxcar.tile_position;
         GameManager.vehicle_manager.update_vehicle_board(city.city_board, boxcar_go, boxcar_cell_pos, boxcar.prev_tile_position); // nullify prev tile
         boxcar.speed = stopping_speed;
         boxcar.is_halt = true; // only call ONCE when first called

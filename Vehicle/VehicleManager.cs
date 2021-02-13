@@ -122,7 +122,8 @@ public class VehicleManager : BoardManager
                 {
                     print("BEZIER move boxcar " + boxcar.boxcar_id + " to previous boxcar id " + prev_boxcar.boxcar_id);
                     StartCoroutine(boxcar.one_time_bezier_move(prev_boxcar));
-                } else
+                }
+                else
                 {
                     print("STRAIGHT move boxcar " + boxcar.boxcar_id + " to previous boxcar id " + prev_boxcar.boxcar_id + " spot @ " + prev_boxcar.transform.position);
                     StartCoroutine(boxcar.one_time_straight_move(prev_boxcar));

@@ -22,6 +22,7 @@ public class MovingObject : Simple_Moving_Object
     public bool is_fill_void;
     public bool is_instantiated;
     public bool go_to_turntable = false;
+    public bool one_time_move_pass = false;
 
     public string train_name = "train(Clone)";
     VehicleManager vehicle_manager;
@@ -295,11 +296,15 @@ public void set_destination()
     public IEnumerator one_time_straight_move(Boxcar prev_boxcar)
     {
         Vector3Int prev_boxcar_position = prev_boxcar.tile_position;
-        Vector2Int prevboxcar_next_tilemap_position = prev_boxcar.next_tilemap_position;
+        //Vector3Int prev_boxcar_prev_tile_position = prev_boxcar.prev_tile_position;
+        //Vector2Int prevboxcar_next_tilemap_position = prev_boxcar.next_tilemap_position;
         RouteManager.Orientation prev_orientation = prev_boxcar.orientation;
+        one_time_move_pass = true; // lets boxcar move  even though train hasnt departed yet. 
         yield return StartCoroutine(straight_move(transform.position, prev_boxcar.transform.position)); // dont set new positions until movement is completed
+        one_time_move_pass = false;
         tile_position = prev_boxcar_position;
-        next_tilemap_position = prevboxcar_next_tilemap_position;
+        next_tilemap_position = (Vector2Int) prev_boxcar_position;
+        prev_tile_position = prev_boxcar_position;
         orientation = prev_orientation;
     }
 
@@ -315,7 +320,7 @@ public void set_destination()
     {
         if (depart_for_turntable && !leave_turntable)
         {
-            if (gameObject.name == "train(Clone)")
+            if (gameObject.name == "train(Clone)" && !gameObject.GetComponent<Train>().is_train_departed_for_turntable)
             {
                 // gameObject.GetComponent<Train>().halt_train(false, true); // TODOED1 will pause the train until the turntable has arrived
                                                                          // wait for train's turn
@@ -363,11 +368,14 @@ public void set_destination()
 
     public void stop_car_if_wait_tile()
     {
-        if (random_algos.list_contains_arr(CityManager.boxcar_city_wait_tile, tile_position) && in_city && !is_instantiated && !go_to_turntable) // STOP CONDITION
+        if (random_algos.list_contains_arr(CityManager.boxcar_city_wait_tile, tile_position) && in_city && !is_instantiated) // STOP CONDITION
             if (gameObject == gameObject.GetComponent<Boxcar>().train.boxcar_squad[0]) // is lead boxcar
             {
-                GetComponent<Boxcar>().train.stop_all_boxcar_at_turntable();
-                is_boxcar_stopped = true;
+                if (!gameObject.GetComponent<Boxcar>().train.is_train_departed_for_turntable)
+                {
+                    GetComponent<Boxcar>().train.stop_all_boxcar_at_turntable();
+                    is_boxcar_stopped = true;
+                }
             }
     }
 
@@ -407,7 +415,7 @@ public void set_destination()
             if (gameObject.tag == "boxcar")
             {
                 bool is_boxcar_stopped = gameObject.GetComponent<Boxcar>().is_boxcar_stopped;
-                if (!is_boxcar_stopped)
+                if (!is_boxcar_stopped) // one time boolean flag only execute once
                 {
                     stop_car_if_wait_tile(); // stop all boxcars if wait tile
                     gameObject.GetComponent<Boxcar>().stop_single_boxcar();
@@ -460,10 +468,13 @@ public void set_destination()
                 yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling is_inventory
                 continue; // don't execute the code below
             }
-            if (gameObject.tag == "boxcar")
+            if (gameObject.tag == "boxcar" && !one_time_move_pass)
             {
-                stop_car_if_wait_tile();
-                gameObject.GetComponent<Boxcar>().stop_single_boxcar();
+                Boxcar boxcar = gameObject.GetComponent<Boxcar>();
+                if (!boxcar.train.is_train_departed_for_turntable) // only stop boxcar if train is stationary. 
+                {
+                    stop_car_if_wait_tile();
+                }                
             }
             float step = speed * Time.deltaTime; // calculate distance to move
             next_position = Vector2.MoveTowards(next_position, destination, step);

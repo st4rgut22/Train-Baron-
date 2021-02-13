@@ -231,11 +231,10 @@ public class City : Structure
     public void populate_entrance()
     {
         //use delta reputation to populate as many rooms as possible
-        int people_to_add = Math.Max(0, CityManager.total_room - CityManager.total_people); 
-        int total_vacancy_count = get_total_occupant_count();
-        if (total_vacancy_count < people_to_add) people_to_add = total_vacancy_count;
+        int total_vacancy_count = get_total_vacancy_count();
+        int people_to_add = Math.Max(total_vacancy_count - 2, 0); // should be fewer people than vacant rooms. Adjustable. 
         start_reputation = PersonManager.reputation;
-        print("POPUPLATE ENTRANCE people to add " + people_to_add + " equals total room " + CityManager.total_room + "  minus total people " + CityManager.total_people);
+        print("POPULATE ENTRANCE people to add " + people_to_add + " equals total room " + CityManager.total_room + "  minus total people " + CityManager.total_people);
         List<Building> available_building_list = get_available_building_list();
         for (int i = 0; i < people_to_add; i++)
         {
@@ -267,7 +266,7 @@ public class City : Structure
         }
     }
 
-    public int get_total_occupant_count()
+    public int get_total_vacancy_count()
     {
         int city_occupant_count = 0;
         foreach (Building bldg in city_building_list)

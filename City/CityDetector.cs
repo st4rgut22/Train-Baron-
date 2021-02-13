@@ -198,7 +198,7 @@ public class CityDetector : EventDetector
         //get person
         Room room = CityManager.Activated_City_Component.get_selected_room(selected_tile);
         bool is_room_occupied = CityManager.Activated_City_Component.is_selected_room_occupied(room);
-        string building_type = CityManager.Activated_City_Component.city_type;
+        string building_type = CityManager.Activated_City_Component.city_type;       
         if (is_room_occupied)
         {
             Person person = room.person_go_instance.GetComponent<Person>();

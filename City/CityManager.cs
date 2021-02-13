@@ -14,7 +14,7 @@ public class CityManager : BoardManager
     public static List<City> city_list;
     public static City home_base;
     //public static Vector2Int home_base_location = new Vector2Int(3, 6); // location of city
-    public static Vector2Int home_base_location = new Vector2Int(5, 6); // TODO: temporary to test structure
+    public static Vector2Int home_base_location = new Vector2Int(10, 5); // TODO: temporary to test structure
     public int city_id;
     public GameObject City;
     public static GameObject Activated_City;

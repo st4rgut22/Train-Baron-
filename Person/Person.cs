@@ -331,10 +331,10 @@ public class Person : Simple_Moving_Object
 
     public bool is_boxcar_match_desired_activity(string boxcar_type)
     {
-        if (boxcar_type == "food boxcar" && desired_activity == "restaurant_thought_bubble"
-            || boxcar_type == "home boxcar" && desired_activity == "home_thought_bubble"
-            || boxcar_type == "work boxcar" && desired_activity == "work_thought_bubble"
-            || boxcar_type == "vacation boxcar" && desired_activity == "vacation_thought_bubble")
+        if (boxcar_type == "food" && desired_activity == "restaurant_thought_bubble"
+            || boxcar_type == "home" && desired_activity == "home_thought_bubble"
+            || boxcar_type == "work" && desired_activity == "work_thought_bubble"
+            || boxcar_type == "vacation " && desired_activity == "vacation_thought_bubble")
         {
             print("boxcar type " + boxcar_type + " matches desired activity " + desired_activity);
             return true;
