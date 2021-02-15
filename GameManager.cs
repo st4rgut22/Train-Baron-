@@ -5,6 +5,7 @@ using UnityEngine.Tilemaps;
 using System;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 public class GameManager : EventDetector
 {
@@ -98,6 +99,10 @@ public class GameManager : EventDetector
     public static GameObject game_menu_manager;
     public static GameObject scroll_handler;
 
+    public static TutorialManager tutorial_manager;
+
+    public static bool is_tutorial_mode;
+
     private void Awake()
     {
         east_bound = 16;
@@ -134,6 +139,7 @@ public class GameManager : EventDetector
         Base = GameObject.Find("Base");
         camera = GameObject.Find("Camera").GetComponent<Camera>();
         Shipyard_Base = GameObject.Find("Shipyard Base");
+        tutorial_manager = GameObject.Find("Tutorial Canvas").GetComponent<TutorialManager>();
         Shipyard_Track = GameObject.Find("Shipyard Track");
         Shipyard_Track2 = GameObject.Find("Shipyard Track 2");
         Shipyard_Inventory = GameObject.Find("Shipyard Inventory");
@@ -151,6 +157,7 @@ public class GameManager : EventDetector
         game_menu_manager = GameObject.Find("Game Menu");
         person_manager = GameObject.Find("People Manager");
         scroll_handler = GameObject.Find("scrollHandler");
+        is_tutorial_mode = false;
     }
 
     // Start is called before the first frame update
@@ -180,6 +187,11 @@ public class GameManager : EventDetector
         {
             end_level(false);
         }
+    }
+
+    public static void exit_game()
+    {
+        SceneManager.LoadScene("Train Game");
     }
 
     public static void update_game_money_text(int delta_money)
@@ -479,6 +491,7 @@ public class GameManager : EventDetector
             {
                 // call pointer events for boxcar and city from GameManager using Raycast data on the UI event detector
                 hint_tile_pos = selected_tile;
+
                 if (collider_tag_list.Contains("city_building")) // ADD A PERSON TO THE BOXCAR BOARD TRAIN HINT
                 {
                     Collider2D collider = get_from_collider_list("city_building", collider_list);
@@ -515,10 +528,22 @@ public class GameManager : EventDetector
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetMouseButtonDown(0))
+        {
+            print("mouse pos is " + Input.mousePosition);
+        }
+
         if (hint_context_list != null)
         {
             if (Input.GetMouseButtonDown(0) && hint_context_list.Count == 0)
             {
+                if (!tutorial_manager.is_follow_tutorial())
+                    return;
+                else
+                {
+                    if (TutorialManager.get_current_step().action_type == ActionType.Action.CLICK)
+                        tutorial_manager.activate_next_tutorial_step(); // move to next step
+                }
                 Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
                 RaycastHit2D selected_object = get_object_at_cursor(Input.mousePosition);
                 if (selected_object != null)
@@ -581,8 +606,7 @@ public class GameManager : EventDetector
                 StartCoroutine(moving_object.switch_on_vehicle(false));
             }
         if (city_menu_state)
-        {
-            
+        {            
             if (moving_object.in_city && moving_object.city == CityManager.Activated_City_Component)
             {
                 print("CITY MENU ON object IN ACTIVATED city turn ON vehicle");

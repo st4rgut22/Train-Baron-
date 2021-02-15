@@ -64,7 +64,7 @@ public class CityManager : BoardManager
 
     public static List<int[]> boxcar_city_outer_wait_tile = new List<int[]> { new int[] { 15, 3 } , new int[] { 1, 7 } };
     public static List<int[]> boxcar_city_inner_wait_tile = new List<int[]> { new int[] { 14, 2 } , new int[] { 2, 8 } };
-    public static List<int[]>  boxcar_city_wait_tile = new List<int[]> { new int[] { 6, 1 }, new int[] { 11, 2 } , new int[] { 12, 3 } , new int[] { 4, 3 }, new int[] { 5, 8 }, new int[] { 4, 7 }, new int[] { 12, 7 }, new int[] { 10, 9 } }; // ADD MORE 
+    public static List<int[]>  boxcar_city_wait_tile = new List<int[]> { new int[] { 6, 1 }, new int[] { 10, 1 } , new int[] { 12, 3 } , new int[] { 4, 3 }, new int[] { 5, 8 }, new int[] { 4, 7 }, new int[] { 12, 7 }, new int[] { 10, 9 }, new int[] { 6, 9 } }; // ADD MORE 
     public int entrance_update_interval;
 
     public static Dictionary<RouteManager.Orientation, RouteManager.Orientation[,]> board_train_orientation_dict;

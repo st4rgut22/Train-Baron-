@@ -248,6 +248,7 @@ public class Train : MovingObject
         station_track.train = null;
         exit_track_orientation = TrainRouteManager.get_destination_track_orientation(exit_track_tile_type);
         city.turn_table.GetComponent<Turntable>().add_train_to_queue(gameObject);
+        city.total_people -= 1;
         set_boxcar_exit_track_orientation(exit_track_orientation);
     }
 

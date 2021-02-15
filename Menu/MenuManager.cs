@@ -9,11 +9,16 @@ public class MenuManager : EventDetector
 {
     public Button store_btn;
     public Button shipyard_exit_btn;
-
+    public Button exit_game_btn;
+    public Button confirm_exit_btn;
+    public Button deny_exit_btn;
+    public static GameObject blocking_canvas;
     protected StoreMenuManager store_menu_manager;
     public GameMenuManager game_menu_manager;
     public static CityMenuManager city_menu_manager;
+    public static GameObject exit_confirm;
     public static GameObject store_menu;
+    public static GameObject start_menu;
     public static GameObject game_menu;
     public static GameObject review_menu;
     public static GameObject shipyard_exit_menu;
@@ -38,6 +43,9 @@ public class MenuManager : EventDetector
     public Color32 food_color = new Color32(255, 141, 180, 100);
     public Color32 entrance_color = new Color32(117, 123, 209, 100);
 
+    public Button play_btn;
+    public Button tutorial_btn;
+
     static List<GameObject> event_handler_list; // names of gameobjects that listen for events
     City city;
 
@@ -52,6 +60,9 @@ public class MenuManager : EventDetector
     // Start is called before the first frame update
     void Start()
     {
+        blocking_canvas = GameObject.Find("Tutorial Canvas");
+        exit_confirm = GameObject.Find("Exit Confirmation");
+        start_menu = GameObject.Find("Start");
         store_menu = GameObject.Find("Store Menu");
         game_menu = GameObject.Find("Game Menu");
         previous_menu = game_menu;
@@ -62,15 +73,23 @@ public class MenuManager : EventDetector
         game_menu_manager = game_menu.GetComponent<GameMenuManager>();
         camera = GameObject.Find("Camera").GetComponent<Camera>();
         event_handler_list = new List<GameObject>();
+        event_handler_list.Add(exit_confirm);
         event_handler_list.Add(store_menu);
+        event_handler_list.Add(start_menu);
         event_handler_list.Add(game_menu);
         event_handler_list.Add(shipyard_exit_menu);
         event_handler_list.Add(game_icon_canvas);
         event_handler_list.Add(review_menu);
-        activate_default_handler();
+        activate_start_menu_handler(); // activate the start menu
+        play_btn.onClick.AddListener(activate_begin_game_handler );
+        tutorial_btn.onClick.AddListener(activate_tutorial);
         store_btn.onClick.AddListener(delegate { activate_handler(new List<GameObject> { store_menu }); });
         shipyard_exit_btn.onClick.AddListener(turn_off_shipyard);
-
+        exit_game_btn.onClick.AddListener(exit_game);
+        confirm_exit_btn.onClick.AddListener(exit_final);
+        deny_exit_btn.onClick.AddListener(return_to_game);
+        PauseManager.pause_game(true);
+        blocking_canvas.SetActive(false);
         //test_pay.onClick.AddListener(pay_all);
     }
 
@@ -148,6 +167,23 @@ public class MenuManager : EventDetector
 
     }
 
+    public static void exit_final()
+    {
+        GameManager.exit_game();
+    }
+
+    public static void return_to_game()
+    {
+        PauseManager.pause_game(false);
+        activate_default_handler();
+    }
+
+    public static void exit_game()
+    {
+        PauseManager.pause_game(true);
+        activate_handler(new List<GameObject>() { exit_confirm }); 
+    }
+
     public static void turn_off_shipyard()
     {
         exit_bck.SetActive(false);
@@ -156,6 +192,26 @@ public class MenuManager : EventDetector
         GameManager.city_manager.set_activated_city(); // hide all the trains in the city
         GameObject.Find("GameManager").GetComponent<GameManager>().switch_on_shipyard(false);
         activate_default_handler();
+    }
+
+    public static void activate_tutorial()
+    {
+        activate_begin_game_handler();
+        GameManager.is_tutorial_mode = true;
+        blocking_canvas.SetActive(true); // only makes a certain part of screen selectable
+    }
+
+    public static void activate_begin_game_handler()
+    {
+        //activates handlers for game screen
+        PauseManager.pause_game(false);
+        activate_handler(new List<GameObject> { game_menu, game_icon_canvas });
+    }
+
+    public static void activate_start_menu_handler()
+    {
+        //activates handlers for game screen
+        activate_handler(new List<GameObject> { start_menu });
     }
 
     public static void activate_default_handler()

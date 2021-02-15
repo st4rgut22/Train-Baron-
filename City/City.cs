@@ -234,9 +234,11 @@ public class City : Structure
     {
         //use delta reputation to populate as many rooms as possible
         int total_vacancy_count = get_total_vacancy_count();
-        int people_to_add = Math.Max(total_vacancy_count - 2, 0); // should be fewer people than vacant rooms. Adjustable. 
+        int people_to_add = Math.Max(total_vacancy_count - 2, 0); // should be fewer people than vacant rooms. Adjustable.
+        int max_to_add = 4 - total_people; // can have most 3 pepole in the city at one time.
+        people_to_add = Math.Min(people_to_add, max_to_add);
+        print("People to add is " + people_to_add + " total vacancy count is " + total_vacancy_count + " max to add is " + max_to_add);
         start_reputation = PersonManager.reputation;
-        print("POPULATE ENTRANCE people to add " + people_to_add + " equals total room " + CityManager.total_room + "  minus total people " + CityManager.total_people);
         List<Building> available_building_list = get_available_building_list();
         if (CityManager.total_people == 1) people_to_add = 1; //in the beginning add another person to speed things up
         for (int i = 0; i < people_to_add; i++)

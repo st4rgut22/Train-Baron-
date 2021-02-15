@@ -34,6 +34,8 @@ public class CityMenuManager : MenuManager
 
     public override void OnBeginDrag(PointerEventData eventData)
     {
+        if (!GameManager.tutorial_manager.is_follow_drag_tutorial(true))
+            return;
         try
         {
             clicked_go = eventData.pointerCurrentRaycast.gameObject;
@@ -81,6 +83,8 @@ public class CityMenuManager : MenuManager
 
     public override void OnEndDrag(PointerEventData eventData)
     {
+        if (!GameManager.tutorial_manager.is_follow_drag_tutorial(false))
+            return;
         Vector2Int final_tilemap_position = GameManager.get_selected_tile(eventData.position);
         Station_Track st = TrackManager.get_station_from_location(final_tilemap_position, CityManager.Activated_City_Component);
         Destroy(clicked_item);

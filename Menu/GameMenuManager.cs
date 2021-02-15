@@ -111,6 +111,8 @@ public class GameMenuManager : MenuManager
 
     public override void OnBeginDrag(PointerEventData eventData)
     {
+        if (!GameManager.tutorial_manager.is_follow_drag_tutorial(true))
+            return;
         try
         {
             clicked_go = eventData.pointerCurrentRaycast.gameObject;
@@ -206,6 +208,8 @@ public class GameMenuManager : MenuManager
 
     public override void OnEndDrag(PointerEventData eventData)
     {
+        if (!GameManager.tutorial_manager.is_follow_drag_tutorial(false))
+            return;
         if (clicked_item == null) return;
         if (clicked_go.tag == "structure")
             building_component.enabled = true;
