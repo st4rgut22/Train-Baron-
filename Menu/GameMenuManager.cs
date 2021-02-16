@@ -42,6 +42,7 @@ public class GameMenuManager : MenuManager
     public Tile business_tile;
 
     string item_name;
+    public string tutorial_clicked_item;
 
     GameObject clicked_item;
 
@@ -49,7 +50,6 @@ public class GameMenuManager : MenuManager
 
     protected GameObject train_object; // the train is referenced in TrainDisplay which has MenuManager as a base class
     Building building_component;
-
 
     City city;
     void Start()
@@ -64,6 +64,8 @@ public class GameMenuManager : MenuManager
 
     public override void OnPointerClick(PointerEventData eventData)
     {
+        base.OnPointerClick(eventData);
+        if (!GameManager.is_following_tutorial) return;
         List<List<int[]>> track_action_coord = new List<List<int[]>>();
         List<string> track_hint_list = new List<string>();
         item_name = eventData.pointerCurrentRaycast.gameObject.name;
@@ -111,14 +113,21 @@ public class GameMenuManager : MenuManager
 
     public override void OnBeginDrag(PointerEventData eventData)
     {
-        if (!GameManager.tutorial_manager.is_follow_drag_tutorial(true))
-            return;
         try
         {
             clicked_go = eventData.pointerCurrentRaycast.gameObject;
+            if (GameManager.is_following_tutorial)
+            {
+                GameObject toot_go = TutorialManager.get_current_gameobject();
+                if (clicked_go.name != toot_go.tag)
+                {
+                    print("an invalid begin drag not equal to " + toot_go.name);
+                    return;
+                }
+                GameManager.tutorial_manager.activate_next_tutorial_step();
+            }
             item_name = clicked_go.name;
             string tag = eventData.pointerCurrentRaycast.gameObject.tag;
-            Vector3 position = MenuManager.convert_screen_to_world_coord(eventData.position);
             clicked_tile = null; // reset this variable
             if ((tag == "track" && TrackManager.get_track_count(item_name) <= 0) || // cancel the drag if none available
                 (tag == "structure" && CityManager.get_building_count(item_name) <= 0))
@@ -126,6 +135,7 @@ public class GameMenuManager : MenuManager
                 eventData.pointerDrag = null;
                 return;
             }
+            Vector3 position = MenuManager.convert_screen_to_world_coord(eventData.position);
             switch (item_name)
             {
                 case "ES":
@@ -133,7 +143,7 @@ public class GameMenuManager : MenuManager
                     clicked_tile = ES_tile;
                     break;
                 case "NE":
-                    clicked_item = Instantiate(ne_curve, position, Quaternion.identity);
+                    clicked_item = Instantiate(ne_curve, position, Quaternion.identity);    
                     clicked_tile = NE_tile;
                     break;
                 case "WN":
@@ -155,12 +165,12 @@ public class GameMenuManager : MenuManager
                 case "boxcar":
                     clicked_item = Instantiate(boxcar, position, Quaternion.identity);
                     break;
-                case "Restaurant": 
+                case "Restaurant":
                     clicked_item = Instantiate(restaurant, position, Quaternion.identity);
                     clicked_tile = restaurant_tile;
                     building_component = clicked_item.GetComponent<Restaurant>();
                     break;
-                case "Mansion": 
+                case "Mansion":
                     clicked_item = Instantiate(mansion, position, Quaternion.identity);
                     clicked_tile = wealthy_tile;
                     building_component = clicked_item.GetComponent<Mansion>();
@@ -170,7 +180,7 @@ public class GameMenuManager : MenuManager
                     clicked_tile = diner_tile;
                     building_component = clicked_item.GetComponent<Diner>();
                     break;
-                case "Factory": 
+                case "Factory":
                     clicked_item = Instantiate(factory, position, Quaternion.identity);
                     clicked_tile = factory_tile;
                     building_component = clicked_item.GetComponent<Factory>();
@@ -208,11 +218,15 @@ public class GameMenuManager : MenuManager
 
     public override void OnEndDrag(PointerEventData eventData)
     {
-        if (!GameManager.tutorial_manager.is_follow_drag_tutorial(false))
-            return;
         if (clicked_item == null) return;
         if (clicked_go.tag == "structure")
             building_component.enabled = true;
+        if (GameManager.is_tutorial_mode)
+        {
+            bool is_it_hit = GameManager.tutorial_manager.did_raycast_hit_blocking_mask();
+            print("is it hit " + is_it_hit);
+        }
+        
         TrackManager track_manager = GameObject.Find("TrackManager").GetComponent<TrackManager>();
         Vector2Int final_tilemap_position = GameManager.get_selected_tile(eventData.position);
         try

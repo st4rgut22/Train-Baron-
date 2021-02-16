@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Tilemaps;
 using System;
+using UnityEngine.EventSystems;
 
 public class MenuManager : EventDetector
 {
@@ -45,6 +46,8 @@ public class MenuManager : EventDetector
 
     public Button play_btn;
     public Button tutorial_btn;
+
+    public static bool is_btn_active = true; // toggle false if tutorial is ON  and incorrect btn is pressed
 
     static List<GameObject> event_handler_list; // names of gameobjects that listen for events
     City city;
@@ -151,7 +154,6 @@ public class MenuManager : EventDetector
         {
             Text item_count = inventory_item.GetComponent<Text>();
             string item_name = inventory_item.transform.parent.name;
-            print(item_name + " ite d");
             if (item_name == "work" || item_name == "train" || item_name == "vacation" || item_name == "home" || item_name == "food")
                 item_count.text = "x" + VehicleManager.get_vehicle_count(item_name).ToString();
             else if (item_name == "vert" || item_name == "hor" || item_name == "NE" || item_name == "WS" || item_name == "WN" || item_name == "ES")
@@ -224,6 +226,12 @@ public class MenuManager : EventDetector
     {
         //open one menu, set listeners from all other screens off
         //is_open stands for activating a screen versus closing the active one
+        if (GameManager.is_tutorial_mode) // listen only to btn clicks authorized by tutorial 
+        {
+            if (!is_btn_active) return;
+            is_btn_active = false;
+        }
+        // check if following tutorial
         if (menu[0] == game_menu && (previous_menu == store_menu || previous_menu == review_menu)) // transition from a pause menu. otherwise no need to unpause the game
         {
             PauseManager.pause_game(false);

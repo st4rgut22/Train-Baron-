@@ -21,6 +21,7 @@ public class ButtonClick : EventDetector
 
     public override void OnPointerClick(PointerEventData eventData)
     {
+        base.OnPointerClick(eventData);
         print("activate next tutorial");
         tutorial_manager.activate_next_tutorial_step();
     }

@@ -1,5 +1,6 @@
 ﻿using UnityEngine.EventSystems;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class EventDetector : MonoBehaviour, IPointerDownHandler, IPointerClickHandler,
     IPointerUpHandler, IPointerExitHandler, IPointerEnterHandler,
@@ -7,22 +8,22 @@ public class EventDetector : MonoBehaviour, IPointerDownHandler, IPointerClickHa
 {
     public virtual void OnBeginDrag(PointerEventData eventData)
     {
-        //Debug.Log("Drag Begin");
+
     }
 
     public virtual void OnDrag(PointerEventData eventData)
     {
-        //Debug.Log("Dragging");
+
     }
 
     public virtual void OnEndDrag(PointerEventData eventData)
     {
-        //Debug.Log("Drag Ended");
+
     }
 
     public virtual void OnPointerClick(PointerEventData eventData)
     {
-        pointer_clicked(eventData);
+
     }
 
     protected void pointer_clicked(PointerEventData eventData)

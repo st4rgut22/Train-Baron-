@@ -15,6 +15,7 @@ public class CityMenuManager : MenuManager
     public GameObject food_boxcar;
     public GameObject work_boxcar;
     string item_name;
+    public string tutorial_clicked_item;
 
     GameObject clicked_item;
 
@@ -34,13 +35,18 @@ public class CityMenuManager : MenuManager
 
     public override void OnBeginDrag(PointerEventData eventData)
     {
-        if (!GameManager.tutorial_manager.is_follow_drag_tutorial(true))
-            return;
         try
         {
-            clicked_go = eventData.pointerCurrentRaycast.gameObject;
-            item_name = clicked_go.name;
-            string tag = eventData.pointerCurrentRaycast.gameObject.tag;
+            if (GameManager.is_following_tutorial)
+            {
+                item_name = tutorial_clicked_item;
+            }
+            else
+            {
+                clicked_go = eventData.pointerCurrentRaycast.gameObject;
+                item_name = clicked_go.name;
+                string tag = eventData.pointerCurrentRaycast.gameObject.tag;
+            }
             Vector3 position = MenuManager.convert_screen_to_world_coord(eventData.position);
             if ((VehicleManager.get_vehicle_count(item_name) <= 0))
             {
@@ -83,8 +89,6 @@ public class CityMenuManager : MenuManager
 
     public override void OnEndDrag(PointerEventData eventData)
     {
-        if (!GameManager.tutorial_manager.is_follow_drag_tutorial(false))
-            return;
         Vector2Int final_tilemap_position = GameManager.get_selected_tile(eventData.position);
         Station_Track st = TrackManager.get_station_from_location(final_tilemap_position, CityManager.Activated_City_Component);
         Destroy(clicked_item);

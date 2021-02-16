@@ -100,11 +100,13 @@ public class GameManager : EventDetector
     public static GameObject scroll_handler;
 
     public static TutorialManager tutorial_manager;
+    public static bool is_following_tutorial; // value set by PointerClickHandler
 
     public static bool is_tutorial_mode;
 
     private void Awake()
     {
+        is_following_tutorial = true;
         east_bound = 16;
         south_bound = 1;
         north_bound = 9;
@@ -418,6 +420,8 @@ public class GameManager : EventDetector
 
     public override void OnPointerClick(PointerEventData eventData)
     {
+        base.OnPointerClick(eventData);
+        if (!GameManager.is_following_tutorial) return;
         // use the previous hint context to do something, called on click anywhere in board 
         RaycastHit2D[] selected_object = get_all_object_at_cursor(Input.mousePosition);
         List<Collider2D> collider_list = get_all_collider(selected_object);
@@ -448,7 +452,7 @@ public class GameManager : EventDetector
         {
             Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
             int hint_index = is_selected_tile_in_context(selected_tile); // get from offset grid for "board"
-            if (hint_index != -1)
+            if (hint_index != -1) // there is a hint. check if selection is valid
             {
                 string hint_context = hint_context_list[hint_index];
                 if (hint_context == "add") // ADD BOXCAR
@@ -512,6 +516,28 @@ public class GameManager : EventDetector
                     Collider2D collider = get_from_collider_list("inventory", collider_list);
                     collider.gameObject.GetComponent<InventoryPusher>().click_inventory(eventData);
                 }
+                else if (collider_tag_list.Contains("track_layer"))
+                {
+                    track_manager.toggle_on_train_track(selected_tile);
+                }
+                else if (collider_tag_list.Contains("structure"))
+                {
+                    GameObject city_object = city_manager.get_city(selected_tile);
+                    // display boxcars
+                    switch_on_shipyard(true);
+                    city_manager.set_activated_city(city_object);
+                    MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
+                    if (city_object != CityManager.home_base.gameObject) // not home base, dont show vehicle creation options
+                    {
+
+                        MenuManager.city_menu_manager.turn_of_vehicle_in_exit_bar(false);
+                    }
+                    else
+                    {
+                        MenuManager.city_menu_manager.turn_of_vehicle_in_exit_bar(true);
+                    }
+                    MenuManager.city_menu_manager.change_bck_color(city_object.GetComponent<City>().city_type);
+                }
                 else
                 {
                     //invalid hint, clear hint list
@@ -528,57 +554,52 @@ public class GameManager : EventDetector
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            print("mouse pos is " + Input.mousePosition);
-        }
+        //if (hint_context_list != null)
+        //{
+        //    if (Input.GetMouseButtonDown(0) && hint_context_list.Count == 0)
+        //    {
+        //        //if (!tutorial_manager.is_follow_tutorial())
+        //        //    return;
+        //        //else
+        //        //{
+        //        //    if (TutorialManager.get_current_step().action_type == ActionType.Action.CLICK)
+        //        //        tutorial_manager.activate_next_tutorial_step(); // move to next step
+        //        //}
+        //        Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
+        //        RaycastHit2D selected_object = get_object_at_cursor(Input.mousePosition);
+        //        if (selected_object != null)
+        //        {
+        //            Collider2D collided_object = selected_object.collider;
+        //            if (collided_object != null) // the first collided object will be in the clickDetector Layer, which sould be ignored for non-hint clicks
+        //            {
+        //                GameObject clicked_gameobject = collided_object.gameObject;
+        //                string object_tag = clicked_gameobject.tag;
+        //                if (object_tag == "track_layer")
+        //                {
+        //                    track_manager.toggle_on_train_track(selected_tile);
+        //                }
+        //                else if (object_tag == "structure")
+        //                {
+        //                    GameObject city_object = city_manager.get_city(selected_tile);
+        //                    // display boxcars
+        //                    switch_on_shipyard(true);
+        //                    city_manager.set_activated_city(city_object);
+        //                    MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
+        //                    if (city_object != CityManager.home_base.gameObject) // not home base, dont show vehicle creation options
+        //                    {
 
-        if (hint_context_list != null)
-        {
-            if (Input.GetMouseButtonDown(0) && hint_context_list.Count == 0)
-            {
-                if (!tutorial_manager.is_follow_tutorial())
-                    return;
-                else
-                {
-                    if (TutorialManager.get_current_step().action_type == ActionType.Action.CLICK)
-                        tutorial_manager.activate_next_tutorial_step(); // move to next step
-                }
-                Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
-                RaycastHit2D selected_object = get_object_at_cursor(Input.mousePosition);
-                if (selected_object != null)
-                {
-                    Collider2D collided_object = selected_object.collider;
-                    if (collided_object != null) // the first collided object will be in the clickDetector Layer, which sould be ignored for non-hint clicks
-                    {
-                        GameObject clicked_gameobject = collided_object.gameObject;
-                        string object_tag = clicked_gameobject.tag;
-                        if (object_tag == "track_layer")
-                        {
-                            track_manager.toggle_on_train_track(selected_tile);
-                        }
-                        else if (object_tag == "structure")
-                        {
-                            GameObject city_object = city_manager.get_city(selected_tile);
-                            // display boxcars
-                            switch_on_shipyard(true);
-                            city_manager.set_activated_city(city_object);
-                            MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
-                            if (city_object != CityManager.home_base.gameObject) // not home base, dont show vehicle creation options
-                            {
-
-                                MenuManager.city_menu_manager.turn_of_vehicle_in_exit_bar(false);
-                            }
-                            else
-                            {
-                                MenuManager.city_menu_manager.turn_of_vehicle_in_exit_bar(true);
-                            }
-                            MenuManager.city_menu_manager.change_bck_color(city_object.GetComponent<City>().city_type);
-                        }
-                    }
-                }
-            }
-        }
+        //                        MenuManager.city_menu_manager.turn_of_vehicle_in_exit_bar(false);
+        //                    }
+        //                    else
+        //                    {
+        //                        MenuManager.city_menu_manager.turn_of_vehicle_in_exit_bar(true);
+        //                    }
+        //                    MenuManager.city_menu_manager.change_bck_color(city_object.GetComponent<City>().city_type);
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
     }
 
     public static IEnumerator clear_hint_list()

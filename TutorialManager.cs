@@ -57,10 +57,8 @@ public class TutorialManager : EventDetector
     public GameObject click_entrance;
     public GameObject start_drag_train;
     public GameObject end_drag_train;
-    public GameObject end_drag_train_2;
     public GameObject start_drag_boxcar;
     public GameObject end_drag_boxcar;
-    public GameObject end_drag_boxcar_2;
     public GameObject click_person;
     public GameObject board_boxcar;
     public GameObject click_train;
@@ -70,9 +68,9 @@ public class TutorialManager : EventDetector
     public GameObject click_boxcar_to_unload;
     public GameObject click_room_to_unload;
 
+    public GraphicRaycaster graphic_raycaster;
 
     public static int active_tutorial_step_idx;
-
     public Text instruction_text;
 
     public static Step[] tutorial_step_list;
@@ -81,20 +79,18 @@ public class TutorialManager : EventDetector
     {
         public GameObject step_mask;
         public GameObject end_step_mask; // only needed for endDrag
-        public GameObject end_step_mask_2;
         public string instruction_text;
         Vector3 action_position;
 
         public ActionType.Action action_type; // click, button_press, drag
 
-        public Step(GameObject step_mask, string instruction, Vector3 pos, ActionType.Action action_type, GameObject end_step_mask=null, GameObject end_step_mask2=null)
+        public Step(GameObject step_mask, string instruction, Vector3 pos, ActionType.Action action_type, GameObject end_step_mask=null)
         {
             this.step_mask = step_mask;
             this.instruction_text = instruction;
             action_position = pos;
             this.action_type = action_type;
             this.end_step_mask = end_step_mask;
-            this.end_step_mask_2 = end_step_mask2;
         }
     }
 
@@ -103,70 +99,67 @@ public class TutorialManager : EventDetector
         return tutorial_step_list[active_tutorial_step_idx];
     }
 
+    public static GameObject get_current_gameobject()
+    {
+        return get_current_step().step_mask;
+    }
+
+    public Button block_ui_to_real_btn(GameObject action_go)
+    {
+        if (action_go == click_store_btn) return real_store_btn;
+        else if (action_go == purchase_train_btn) return real_purchase_train_btn;
+        else if (action_go == purchase_boxcar_btn) return real_purchase_boxcar_btn;
+        else if (action_go == purchase_track_btn) return real_purchase_track_btn;
+        else if (action_go == buy_btn) return real_buy_btn;
+        else if (action_go == exit_city_btn) return real_exit_city_btn;
+        else if (action_go == purchase_apartment_btn) return real_purchase_apartment_btn;
+        else { return null; }
+    }
+
+    public bool is_button_active(GameObject clicked_btn)
+    {
+        // check if button matches currently active one
+        if (!GameManager.is_tutorial_mode) return true;
+        GameObject step_go = get_current_step().step_mask;
+        Button real_btn = block_ui_to_real_btn(step_go);
+        if (real_btn != null && real_btn.gameObject == clicked_btn)
+            return true;
+        else { return false; }
+    }
+
     public void check_if_button_click(GameObject action_go)
     {
-        // click button if is button
-        if (action_go == click_store_btn) real_store_btn.onClick.Invoke();
-        else if (action_go == purchase_train_btn) real_purchase_train_btn.onClick.Invoke();
-        else if (action_go == purchase_boxcar_btn) real_purchase_boxcar_btn.onClick.Invoke();
-        else if (action_go == purchase_track_btn) real_purchase_track_btn.onClick.Invoke();
-        else if (action_go == buy_btn) real_buy_btn.onClick.Invoke();
-        else if (action_go == exit_city_btn) real_exit_city_btn.onClick.Invoke();
-        else if (action_go == purchase_apartment_btn) real_purchase_apartment_btn.onClick.Invoke();
-    }
-
-    public override void OnPointerClick(PointerEventData eventData)
-    {
-        // image is clicked
-        activate_next_tutorial_step();
-    }
-
-    public bool is_follow_drag_tutorial(bool is_start_drag)
-    {
-        if (!GameManager.is_tutorial_mode) return true;
-        GameObject block_ui = EventSystem.current.currentSelectedGameObject;
-        if (block_ui != null) // blocking ui exists
+        Button real_btn = block_ui_to_real_btn(action_go);
+        if (real_btn != null)
         {
-            if (block_ui.tag == "step") // if tag==step then allow normal gameplay
-            {
-                Step step = get_current_step();
-                print("following tutorial advance to next step");
-                if (is_start_drag)
-                {
-                    if (step.step_mask == block_ui) return true;
-                }
-                else
-                {
-                    if (step.end_step_mask == block_ui || step.end_step_mask_2 == block_ui) return true;
-                }
-                return false;
-            }
-
+            MenuManager.is_btn_active = true;
+            real_btn.onClick.Invoke();
         }
-        print("not following tutorial. repeat step");
-        return false; // click anywhere else other than tutorial step then it is invalid
     }
 
-    public bool is_follow_tutorial()
+    public bool did_raycast_hit_blocking_mask()
     {
-        if (!GameManager.is_tutorial_mode) return true;
-        GameObject block_ui = EventSystem.current.currentSelectedGameObject;
-        if (block_ui != null) // blocking ui exists
+        //Code to be place in a MonoBehaviour with a GraphicRaycaster component
+        GraphicRaycaster gr = this.GetComponent<GraphicRaycaster>();
+        //Create the PointerEventData with null for the EventSystem
+        PointerEventData ped = new PointerEventData(null);
+        //Set required parameters, in this case, mouse position
+        ped.position = Input.mousePosition;
+        //Create list to receive all results
+        List<RaycastResult> results = new List<RaycastResult>();
+        //Raycast it
+        gr.Raycast(ped, results);
+        print(results);
+        if (results.Count == 0) return false;
+        else
         {
-            if (block_ui.tag == "step") // if tag==step then allow normal gameplay
-            {
-                print("following tutorial advance to next step");
-
-                return true;
-            }
-
+            return true;
         }
-        print("not following tutorial. repeat step");
-        return false; // click anywhere else other than tutorial step then it is invalid
     }
 
     void Start()
     {
+        graphic_raycaster = GetComponent<GraphicRaycaster>();
         Step click_store_step = new Step(click_store_btn, "Click on the store to buy a train", new Vector3(1159, 675), ActionType.Action.BTN_PRESS);
         Step add_train_step = new Step(purchase_train_btn, "Click plus button to add a train", new Vector3(127, 447), ActionType.Action.BTN_PRESS);
         Step add_boxcar_step = new Step(purchase_boxcar_btn, "Click plus button to add a boxcar", new Vector3(419, 499), ActionType.Action.BTN_PRESS);
@@ -176,8 +169,8 @@ public class TutorialManager : EventDetector
         Step start_drag_track_step = new Step(start_drag_track, "Click on the horizontal track and drag it to an adjacent structure", new Vector3(827, 66), ActionType.Action.DRAG, end_drag_track);
         Step start_drag_apartment_step = new Step(start_drag_apartment, "Drag the apartment next to the track to complete the route", new Vector3(401, 44), ActionType.Action.DRAG, end_drag_apartment);
         Step click_entrance_step = new Step(click_entrance, "Click the station", new Vector3(850, 362), ActionType.Action.CLICK);
-        Step start_drag_train_step = new Step(start_drag_train, "Drag the train to a station with a passenger", new Vector3(929, 45), ActionType.Action.DRAG, end_drag_train, end_drag_train_2);
-        Step start_drag_boxcar_step = new Step(start_drag_boxcar, "Drag the boxcar to the track with the train to attach it", new Vector3(216, 49), ActionType.Action.DRAG, end_drag_boxcar, end_drag_boxcar_2);
+        Step start_drag_train_step = new Step(start_drag_train, "Drag the train to a station with a passenger", new Vector3(929, 45), ActionType.Action.DRAG, end_drag_train);
+        Step start_drag_boxcar_step = new Step(start_drag_boxcar, "Drag the boxcar to the track with the train to attach it", new Vector3(216, 49), ActionType.Action.DRAG, end_drag_boxcar);
         Step click_person_step = new Step(click_person, "Click the waiting person to begin the boarding process", new Vector3(883, 629), ActionType.Action.CLICK);
         Step board_boxcar_step = new Step(board_boxcar, "After clicking the passenger, click a boxcar of the same color as shown in the thought bubble, in this case a home boxcar", new Vector3(847, 713), ActionType.Action.CLICK);
         Step click_train_step = new Step(click_train, "Click the train to begin the departure sequence", new Vector3(812, 671), ActionType.Action.CLICK);
@@ -196,16 +189,18 @@ public class TutorialManager : EventDetector
 
     // Update is called once per frame
     void Update()
-    { 
-
+    {
     }
 
-
+    public void backtrack_tutorial_step()
+    {
+        active_tutorial_step_idx--;
+    }
 
     public void activate_next_tutorial_step()
     {
         GameObject currently_active_step = tutorial_step_list[active_tutorial_step_idx].step_mask;
-        check_if_button_click(currently_active_step);  
+        check_if_button_click(currently_active_step); // invoke button press
         currently_active_step.SetActive(false);
         active_tutorial_step_idx++;
         tutorial_step_list[active_tutorial_step_idx].step_mask.SetActive(true);
