@@ -65,7 +65,6 @@ public class GameMenuManager : MenuManager
     public override void OnPointerClick(PointerEventData eventData)
     {
         base.OnPointerClick(eventData);
-        if (!GameManager.is_following_tutorial) return;
         List<List<int[]>> track_action_coord = new List<List<int[]>>();
         List<string> track_hint_list = new List<string>();
         item_name = eventData.pointerCurrentRaycast.gameObject.name;
@@ -115,17 +114,9 @@ public class GameMenuManager : MenuManager
     {
         try
         {
+            if (GameManager.is_tutorial_mode)
+                StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step());
             clicked_go = eventData.pointerCurrentRaycast.gameObject;
-            if (GameManager.is_following_tutorial)
-            {
-                GameObject toot_go = TutorialManager.get_current_gameobject();
-                if (clicked_go.name != toot_go.tag)
-                {
-                    print("an invalid begin drag not equal to " + toot_go.name);
-                    return;
-                }
-                GameManager.tutorial_manager.activate_next_tutorial_step();
-            }
             item_name = clicked_go.name;
             string tag = eventData.pointerCurrentRaycast.gameObject.tag;
             clicked_tile = null; // reset this variable
@@ -221,12 +212,11 @@ public class GameMenuManager : MenuManager
         if (clicked_item == null) return;
         if (clicked_go.tag == "structure")
             building_component.enabled = true;
-        if (GameManager.is_tutorial_mode)
+        Destroy(clicked_item);
+        if (GameManager.tutorial_manager.is_click_in_wrong_place())
         {
-            bool is_it_hit = GameManager.tutorial_manager.did_raycast_hit_blocking_mask();
-            print("is it hit " + is_it_hit);
+            return;
         }
-        
         TrackManager track_manager = GameObject.Find("TrackManager").GetComponent<TrackManager>();
         Vector2Int final_tilemap_position = GameManager.get_selected_tile(eventData.position);
         try

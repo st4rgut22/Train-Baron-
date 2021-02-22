@@ -23,6 +23,6 @@ public class ButtonClick : EventDetector
     {
         base.OnPointerClick(eventData);
         print("activate next tutorial");
-        tutorial_manager.activate_next_tutorial_step();
+        StartCoroutine(tutorial_manager.activate_next_tutorial_step());
     }
 }

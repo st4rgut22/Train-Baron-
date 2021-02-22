@@ -100,13 +100,13 @@ public class GameManager : EventDetector
     public static GameObject scroll_handler;
 
     public static TutorialManager tutorial_manager;
-    public static bool is_following_tutorial; // value set by PointerClickHandler
 
     public static bool is_tutorial_mode;
 
+    public GameObject tutorial_canvas;
+
     private void Awake()
     {
-        is_following_tutorial = true;
         east_bound = 16;
         south_bound = 1;
         north_bound = 9;
@@ -141,7 +141,7 @@ public class GameManager : EventDetector
         Base = GameObject.Find("Base");
         camera = GameObject.Find("Camera").GetComponent<Camera>();
         Shipyard_Base = GameObject.Find("Shipyard Base");
-        tutorial_manager = GameObject.Find("Tutorial Canvas").GetComponent<TutorialManager>();
+        tutorial_manager = tutorial_canvas.GetComponent<TutorialManager>();
         Shipyard_Track = GameObject.Find("Shipyard Track");
         Shipyard_Track2 = GameObject.Find("Shipyard Track 2");
         Shipyard_Inventory = GameObject.Find("Shipyard Inventory");
@@ -421,11 +421,11 @@ public class GameManager : EventDetector
     public override void OnPointerClick(PointerEventData eventData)
     {
         base.OnPointerClick(eventData);
-        if (!GameManager.is_following_tutorial) return;
         // use the previous hint context to do something, called on click anywhere in board 
         RaycastHit2D[] selected_object = get_all_object_at_cursor(Input.mousePosition);
         List<Collider2D> collider_list = get_all_collider(selected_object);
         List<string> collider_tag_list = get_collider_name_list(collider_list);
+
         if (hint_context_list.Contains("board")) // behaves different from other hint contexts because eligible tiles are offset from tilemap and must be found by cloesst distance
         {
             if (collider_tag_list.Contains("boxcar")) // second condition checks if it is an eligible tile
@@ -463,6 +463,8 @@ public class GameManager : EventDetector
                 else if (hint_context == "unload")
                 {
                     print("unload from boxcar to city");
+                    if (is_tutorial_mode)
+                        StartCoroutine(tutorial_manager.activate_next_tutorial_step(5));
                     if (hint_tile_go.GetComponent<Boxcar>().is_wait_for_turntable)
                         CityManager.Activated_City_Component.unload_train(hint_tile_go, selected_tile); // hint tile position is boxcar position
                 }
@@ -476,6 +478,8 @@ public class GameManager : EventDetector
                 }
                 else if (hint_context == "north exit" || hint_context == "east exit" || hint_context == "west exit" || hint_context == "south exit") // DEPART TRAIN
                 {
+                    if (is_tutorial_mode)
+                        StartCoroutine(tutorial_manager.activate_next_tutorial_step(10));
                     bool all_aboard = hint_gameobject.GetComponent<Train>().is_all_boxcar_boarded();
                     if (all_aboard)
                         hint_gameobject.GetComponent<Train>().exit_city(hint_context);
@@ -503,11 +507,15 @@ public class GameManager : EventDetector
                 }
                 else if (collider_tag_list.Contains("boxcar"))
                 {
+                    if (is_tutorial_mode)
+                        StartCoroutine(tutorial_manager.activate_next_tutorial_step(5));
                     hint_tile_go = CityManager.get_vehicle_in_activated_city(collider_list, "boxcar");
                     if (hint_tile_go != null) hint_tile_go.GetComponent<Boxcar>().click_boxcar(eventData);
                 }
                 else if (collider_tag_list.Contains("train"))
                 {
+                    if (is_tutorial_mode)
+                        StartCoroutine(tutorial_manager.activate_next_tutorial_step());
                     hint_tile_go = CityManager.get_vehicle_in_activated_city(collider_list, "train");
                     if (hint_tile_go != null) hint_tile_go.GetComponent<Train>().click_train(eventData);
                 }
@@ -526,7 +534,7 @@ public class GameManager : EventDetector
                     // display boxcars
                     switch_on_shipyard(true);
                     city_manager.set_activated_city(city_object);
-                    MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
+                    GameManager.menu_manager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
                     if (city_object != CityManager.home_base.gameObject) // not home base, dont show vehicle creation options
                     {
 

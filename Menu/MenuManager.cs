@@ -13,7 +13,7 @@ public class MenuManager : EventDetector
     public Button exit_game_btn;
     public Button confirm_exit_btn;
     public Button deny_exit_btn;
-    public static GameObject blocking_canvas;
+    public GameObject blocking_canvas;
     protected StoreMenuManager store_menu_manager;
     public GameMenuManager game_menu_manager;
     public static CityMenuManager city_menu_manager;
@@ -63,7 +63,6 @@ public class MenuManager : EventDetector
     // Start is called before the first frame update
     void Start()
     {
-        blocking_canvas = GameObject.Find("Tutorial Canvas");
         exit_confirm = GameObject.Find("Exit Confirmation");
         start_menu = GameObject.Find("Start");
         store_menu = GameObject.Find("Store Menu");
@@ -174,19 +173,19 @@ public class MenuManager : EventDetector
         GameManager.exit_game();
     }
 
-    public static void return_to_game()
+    public void return_to_game()
     {
         PauseManager.pause_game(false);
         activate_default_handler();
     }
 
-    public static void exit_game()
+    public void exit_game()
     {
         PauseManager.pause_game(true);
         activate_handler(new List<GameObject>() { exit_confirm }); 
     }
 
-    public static void turn_off_shipyard()
+    public void turn_off_shipyard()
     {
         exit_bck.SetActive(false);
         GameManager.game_menu_state = true;
@@ -196,42 +195,45 @@ public class MenuManager : EventDetector
         activate_default_handler();
     }
 
-    public static void activate_tutorial()
+    public void activate_tutorial()
     {
         activate_begin_game_handler();
         GameManager.is_tutorial_mode = true;
         blocking_canvas.SetActive(true); // only makes a certain part of screen selectable
     }
 
-    public static void activate_begin_game_handler()
+    public void activate_begin_game_handler()
     {
         //activates handlers for game screen
         PauseManager.pause_game(false);
         activate_handler(new List<GameObject> { game_menu, game_icon_canvas });
     }
 
-    public static void activate_start_menu_handler()
+    public void activate_start_menu_handler()
     {
         //activates handlers for game screen
         activate_handler(new List<GameObject> { start_menu });
     }
 
-    public static void activate_default_handler()
+    public void activate_default_handler()
     {
         //activates handlers for game screen
+        if (GameManager.is_tutorial_mode)
+        {
+            StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step());
+        }
         activate_handler(new List<GameObject> { game_menu, game_icon_canvas });
     }
 
-    public static void activate_handler(List<GameObject> menu)
+    public void activate_handler(List<GameObject> menu)
     {
         //open one menu, set listeners from all other screens off
         //is_open stands for activating a screen versus closing the active one
-        if (GameManager.is_tutorial_mode) // listen only to btn clicks authorized by tutorial 
-        {
-            if (!is_btn_active) return;
-            is_btn_active = false;
-        }
         // check if following tutorial
+        if (GameManager.is_tutorial_mode && menu.Contains(store_menu))
+        {
+            StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step());
+        }
         if (menu[0] == game_menu && (previous_menu == store_menu || previous_menu == review_menu)) // transition from a pause menu. otherwise no need to unpause the game
         {
             PauseManager.pause_game(false);

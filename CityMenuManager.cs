@@ -37,19 +37,19 @@ public class CityMenuManager : MenuManager
     {
         try
         {
-            if (GameManager.is_following_tutorial)
-            {
-                item_name = tutorial_clicked_item;
-            }
-            else
-            {
-                clicked_go = eventData.pointerCurrentRaycast.gameObject;
-                item_name = clicked_go.name;
-                string tag = eventData.pointerCurrentRaycast.gameObject.tag;
-            }
+            clicked_go = eventData.pointerCurrentRaycast.gameObject;
+            clicked_go = eventData.pointerCurrentRaycast.gameObject;
+            item_name = clicked_go.name;
+            if (GameManager.is_tutorial_mode)
+                if (item_name == "train")
+                    StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step(5));
+                else // boxcar
+                    StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step());
+            string tag = eventData.pointerCurrentRaycast.gameObject.tag;
             Vector3 position = MenuManager.convert_screen_to_world_coord(eventData.position);
             if ((VehicleManager.get_vehicle_count(item_name) <= 0))
             {
+                print("vehicle count 0");
                 eventData.pointerDrag = null;
                 return;
             }
@@ -92,6 +92,10 @@ public class CityMenuManager : MenuManager
         Vector2Int final_tilemap_position = GameManager.get_selected_tile(eventData.position);
         Station_Track st = TrackManager.get_station_from_location(final_tilemap_position, CityManager.Activated_City_Component);
         Destroy(clicked_item);
+        if (GameManager.tutorial_manager.is_click_in_wrong_place())
+        {
+            return;
+        }
         if (st == null)
             return; // not a valid station
         string vehicle_type = clicked_item.tag;

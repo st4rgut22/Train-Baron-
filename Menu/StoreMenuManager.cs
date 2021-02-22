@@ -87,21 +87,8 @@ public class StoreMenuManager : MonoBehaviour
 
     }
 
-    bool is_btn_active()
-    {
-        if (GameManager.is_tutorial_mode) // listen only to btn clicks authorized by tutorial 
-        {
-            if (!MenuManager.is_btn_active) return false;
-            MenuManager.is_btn_active = false;
-            return true;
-        }
-        return true;
-    }
-
     void buy_item()
     {
-        if (!is_btn_active())
-            return;
         MenuManager.is_btn_active = true; // keep true for follow up action (closing menu)
         GameMenuManager game_menu_manager = MenuManager.game_menu.GetComponent<GameMenuManager>();
         bool is_money_sufficient = change_item_count();
@@ -117,7 +104,8 @@ public class StoreMenuManager : MonoBehaviour
     void close_menu()
     {
         reset_count();
-        MenuManager.activate_default_handler(); // activates the game menu
+
+        GameManager.menu_manager.activate_default_handler(); // activates the game menu
     }
 
     void create_purchased_items(List<GameObject> text_game_objects)
@@ -183,8 +171,8 @@ public class StoreMenuManager : MonoBehaviour
 
     void update_text(GameObject btn_go, Text item_count)
     {
-        if (!is_btn_active())
-            return;
+        if (GameManager.is_tutorial_mode)
+            StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step());
         string btn_name = btn_go.name;
         string item_name = btn_go.transform.parent.parent.gameObject.name;
         int cur_count = Int16.Parse(item_count.text);
