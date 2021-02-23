@@ -430,6 +430,11 @@ public class GameManager : EventDetector
         {
             if (collider_tag_list.Contains("boxcar")) // second condition checks if it is an eligible tile
             {
+                if (is_tutorial_mode && !TutorialManager.board_flag)
+                {
+                    TutorialManager.board_flag = true;
+                    StartCoroutine(tutorial_manager.activate_next_tutorial_step(6));
+                }
                 GameObject boxcar_go = CityManager.get_vehicle_in_activated_city(collider_list, "boxcar"); // get the right boxcar (if exists) if they are on top of each other
                 if (boxcar_go != null)
                 {
@@ -463,8 +468,11 @@ public class GameManager : EventDetector
                 else if (hint_context == "unload")
                 {
                     print("unload from boxcar to city");
-                    if (is_tutorial_mode)
+                    if (is_tutorial_mode && !TutorialManager.unload_flag)
+                    {
+                        TutorialManager.unload_flag = true;
                         StartCoroutine(tutorial_manager.activate_next_tutorial_step(5));
+                    }                        
                     if (hint_tile_go.GetComponent<Boxcar>().is_wait_for_turntable)
                         CityManager.Activated_City_Component.unload_train(hint_tile_go, selected_tile); // hint tile position is boxcar position
                 }
@@ -478,8 +486,11 @@ public class GameManager : EventDetector
                 }
                 else if (hint_context == "north exit" || hint_context == "east exit" || hint_context == "west exit" || hint_context == "south exit") // DEPART TRAIN
                 {
-                    if (is_tutorial_mode)
+                    if (is_tutorial_mode && !TutorialManager.exit_flag)
+                    {
+                        TutorialManager.exit_flag = true;
                         StartCoroutine(tutorial_manager.activate_next_tutorial_step(10));
+                    }
                     bool all_aboard = hint_gameobject.GetComponent<Train>().is_all_boxcar_boarded();
                     if (all_aboard)
                         hint_gameobject.GetComponent<Train>().exit_city(hint_context);
@@ -502,20 +513,31 @@ public class GameManager : EventDetector
 
                 if (collider_tag_list.Contains("city_building")) // ADD A PERSON TO THE BOXCAR BOARD TRAIN HINT
                 {
+                    if (is_tutorial_mode && !TutorialManager.room_flag)
+                    {
+                        TutorialManager.room_flag = true;
+                        StartCoroutine(tutorial_manager.activate_next_tutorial_step());
+                    }                        
                     Collider2D collider = get_from_collider_list("city_building", collider_list);
                     collider.gameObject.GetComponent<CityDetector>().click_room(eventData);
                 }
                 else if (collider_tag_list.Contains("boxcar"))
                 {
-                    if (is_tutorial_mode)
-                        StartCoroutine(tutorial_manager.activate_next_tutorial_step(5));
+                    if (is_tutorial_mode && !TutorialManager.boxcar_flag)
+                    {
+                        StartCoroutine(tutorial_manager.activate_next_tutorial_step());
+                    }                        
                     hint_tile_go = CityManager.get_vehicle_in_activated_city(collider_list, "boxcar");
                     if (hint_tile_go != null) hint_tile_go.GetComponent<Boxcar>().click_boxcar(eventData);
                 }
                 else if (collider_tag_list.Contains("train"))
                 {
-                    if (is_tutorial_mode)
+                    if (is_tutorial_mode && !TutorialManager.train_flag)
+                    {
+                        TutorialManager.boxcar_flag = false;
+                        TutorialManager.train_flag = true;
                         StartCoroutine(tutorial_manager.activate_next_tutorial_step());
+                    }
                     hint_tile_go = CityManager.get_vehicle_in_activated_city(collider_list, "train");
                     if (hint_tile_go != null) hint_tile_go.GetComponent<Train>().click_train(eventData);
                 }
@@ -530,6 +552,15 @@ public class GameManager : EventDetector
                 }
                 else if (collider_tag_list.Contains("structure"))
                 {
+                    if (is_tutorial_mode)
+                    {
+                        if (!selected_tile.Equals(CityManager.home_base_location))
+                            StartCoroutine(tutorial_manager.activate_next_tutorial_step(3,true));
+                        else
+                        {
+                            StartCoroutine(tutorial_manager.activate_next_tutorial_step());
+                        }
+                    }                        
                     GameObject city_object = city_manager.get_city(selected_tile);
                     // display boxcars
                     switch_on_shipyard(true);

@@ -114,12 +114,22 @@ public class GameMenuManager : MenuManager
     {
         try
         {
-            if (GameManager.is_tutorial_mode)
-                StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step());
             clicked_go = eventData.pointerCurrentRaycast.gameObject;
             item_name = clicked_go.name;
             string tag = eventData.pointerCurrentRaycast.gameObject.tag;
             clicked_tile = null; // reset this variable
+            print("drag tile is " + item_name);
+            if (GameManager.is_tutorial_mode)
+            {
+                bool is_it_hit = GameManager.tutorial_manager.did_raycast_hit_blocking_mask();
+                if (is_it_hit)
+                {
+                    eventData.pointerDrag = null;
+                    return;
+                }
+            }
+            if (GameManager.is_tutorial_mode)
+                StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step());
             if ((tag == "track" && TrackManager.get_track_count(item_name) <= 0) || // cancel the drag if none available
                 (tag == "structure" && CityManager.get_building_count(item_name) <= 0))
             {
@@ -209,6 +219,7 @@ public class GameMenuManager : MenuManager
 
     public override void OnEndDrag(PointerEventData eventData)
     {
+        GameManager.tutorial_manager.toggle_raycast(true);
         if (clicked_item == null) return;
         if (clicked_go.tag == "structure")
             building_component.enabled = true;

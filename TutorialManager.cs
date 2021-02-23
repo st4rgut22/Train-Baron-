@@ -68,6 +68,11 @@ public class TutorialManager : EventDetector
     //public GameObject click_boxcar_to_unload;
     //public GameObject click_room_to_unload;
 
+    public GameObject m1;
+    public GameObject m2;
+    public GameObject m3;
+    public GameObject m4;
+
     public RectTransform rt1;
     public RectTransform rt2;
     public RectTransform rt3;
@@ -75,9 +80,24 @@ public class TutorialManager : EventDetector
     public RectTransform rt5;
     public RectTransform rt6;
 
+    public GraphicRaycaster gr1;
+    public GraphicRaycaster gr2;
+    public GraphicRaycaster gr3;
+    public GraphicRaycaster gr4;
+    public GraphicRaycaster gr5;
+    public GraphicRaycaster gr6;
+
+    public static bool board_flag = false;
+    public static bool unload_flag = false;
+    public static bool exit_flag = false;
+    public static bool room_flag = false;
+    public static bool boxcar_flag = true; // activate later
+    public static bool train_flag = false;
+
     public GameObject tutorial_go;
     public static List<Mask_Group> mask_group_list;
 
+    public GraphicRaycaster[] gr_list;
     public GraphicRaycaster graphic_raycaster;
 
     public static int active_tutorial_step_idx;
@@ -114,6 +134,7 @@ public class TutorialManager : EventDetector
         }
     }
 
+
     public class Mask_Group
     {
         public Anchor_Pair ap1;
@@ -138,33 +159,22 @@ public class TutorialManager : EventDetector
         return tutorial_step_list[active_tutorial_step_idx];
     }
 
-    //public Button block_ui_to_real_btn(GameObject action_go)
-    //{
-    //    if (action_go == click_store_btn) return real_store_btn; // min (.8587501, .871001) max (.91875, .984458)
-    //    else if (action_go == purchase_train_btn) return real_purchase_train_btn;
-    //    else if (action_go == purchase_boxcar_btn) return real_purchase_boxcar_btn;
-    //    else if (action_go == purchase_track_btn) return real_purchase_track_btn;
-    //    else if (action_go == buy_btn) return real_buy_btn;
-    //    else if (action_go == exit_city_btn) return real_exit_city_btn;
-    //    else if (action_go == purchase_apartment_btn) return real_purchase_apartment_btn;
-    //    else { return null; }
-    //}
 
-    //public bool is_button_active(GameObject clicked_btn)
-    //{
-    //    // check if button matches currently active one
-    //    if (!GameManager.is_tutorial_mode) return true;
-    //    GameObject step_go = get_current_step().step_mask;
-    //    Button real_btn = block_ui_to_real_btn(step_go);
-    //    if (real_btn != null && real_btn.gameObject == clicked_btn)
-    //        return true;
-    //    else { return false; }
-    //}
+    public void toggle_raycast(bool on)
+    {
+        //rt1.gameObject.GetComponent<Image>().raycastTarget = on;
+        //rt2.gameObject.GetComponent<Image>().raycastTarget = on;
+        //rt3.gameObject.GetComponent<Image>().raycastTarget = on;
+        //rt4.gameObject.GetComponent<Image>().raycastTarget = on;
+        ////rt5.gameObject.GetComponent<Image>().raycastTarget = on;
+        ////rt6.gameObject.GetComponent<Image>().raycastTarget = on;
+    }
 
     public bool did_raycast_hit_blocking_mask()
     {
         //Code to be place in a MonoBehaviour with a GraphicRaycaster component
-        GraphicRaycaster gr = this.GetComponent<GraphicRaycaster>();
+        print("turn off raycast target");
+        //GameManager.tutorial_manager.toggle_raycast(false);
         //Create the PointerEventData with null for the EventSystem
         PointerEventData ped = new PointerEventData(null);
         //Set required parameters, in this case, mouse position
@@ -172,17 +182,21 @@ public class TutorialManager : EventDetector
         //Create list to receive all results
         List<RaycastResult> results = new List<RaycastResult>();
         //Raycast it
-        gr.Raycast(ped, results);
-        print(results);
-        if (results.Count == 0) return false;
-        else
+        for (int i = 0; i < gr_list.Length; i++)
         {
-            return true;
+            GraphicRaycaster gr = gr_list[i];
+            gr.Raycast(ped, results);
+            if (results.Count > 0) { return true; }
         }
+        return false; // no mask hit by raycasters
     }
 
     void Start()
     {
+        gr_list = new GraphicRaycaster[] { gr1, gr2, gr3, gr4, gr5, gr6 };
+
+        authorize_click = true;
+
         Anchor_Pair store_btn_ap_1 = new Anchor_Pair(0, 0, .86649f, .96022f);
         Anchor_Pair store_btn_ap_2 = new Anchor_Pair(.91222f, 0, 1, .96022f);
         Anchor_Pair store_btn_ap_3 = new Anchor_Pair(.86649f, 0, .91222f, .90931f);
@@ -202,13 +216,13 @@ public class TutorialManager : EventDetector
         Mask_Group buy_boxcar_mg = new Mask_Group(buy_boxcar_ap_1, buy_boxcar_ap_2, buy_boxcar_ap_3, buy_boxcar_ap_4);
 
         Anchor_Pair buy_apartment_ap_1 = new Anchor_Pair(0, .10515f, 1, 1);
-        Anchor_Pair buy_apartment_ap_2 = new Anchor_Pair(0,.049f,.29275f,.10515f);
+        Anchor_Pair buy_apartment_ap_2 = new Anchor_Pair(0, .049f, .29275f, .10515f);
         Anchor_Pair buy_apartment_ap_3 = new Anchor_Pair(0, 0, 1, .049f);
         Anchor_Pair buy_apartment_ap_4 = new Anchor_Pair(.31771f, .049f, 1, .108f);
         Mask_Group buy_apartment_mg = new Mask_Group(buy_apartment_ap_1, buy_apartment_ap_2, buy_apartment_ap_3, buy_apartment_ap_4);
 
         Anchor_Pair buy_track_ap_1 = new Anchor_Pair(0, .38461f, .99829f, 1.0043f);
-        Anchor_Pair buy_track_ap_2 = new Anchor_Pair(0,.33146f,.182f,.38461f);
+        Anchor_Pair buy_track_ap_2 = new Anchor_Pair(0, .33146f, .182f, .38461f);
         Anchor_Pair buy_track_ap_3 = new Anchor_Pair(0, 0, 1, .33146f);
         Anchor_Pair buy_track_ap_4 = new Anchor_Pair(.20525f, .33146f, 1, .38461f);
         Mask_Group buy_track_mg = new Mask_Group(buy_track_ap_1, buy_track_ap_2, buy_track_ap_3, buy_track_ap_4);
@@ -216,12 +230,12 @@ public class TutorialManager : EventDetector
         Anchor_Pair buy_item_ap_1 = new Anchor_Pair(-.003f, .17686f, 1, 1.00043f);
         Anchor_Pair buy_item_ap_2 = new Anchor_Pair(0, 0, 1, .06145f);
         Anchor_Pair buy_item_ap_3 = new Anchor_Pair(.9575f, .06145f, 1, .17686f);
-        Anchor_Pair buy_item_ap_4 = new Anchor_Pair(0,.06145f,.78f,.17686f);
+        Anchor_Pair buy_item_ap_4 = new Anchor_Pair(0, .06145f, .78f, .17686f);
         Mask_Group buy_item_mg = new Mask_Group(buy_item_ap_1, buy_item_ap_2, buy_item_ap_3, buy_item_ap_4);
 
-        Anchor_Pair start_drag_track_ap_1 = new Anchor_Pair(0, .13751f, 1, 1);
-        Anchor_Pair start_drag_track_ap_2 = new Anchor_Pair(0, 0, .58737f, .13751f);
-        Anchor_Pair start_drag_track_ap_3 = new Anchor_Pair(.655f, 0, 1, .13751f);
+        Anchor_Pair start_drag_track_ap_1 = new Anchor_Pair(0, 0.1331073f, 1, 1);
+        Anchor_Pair start_drag_track_ap_2 = new Anchor_Pair(0, 0, 0.58237f, 0.1331073f);
+        Anchor_Pair start_drag_track_ap_3 = new Anchor_Pair(0.6625001f, 0, 1, 0.1331073f);
         Mask_Group start_drag_track_mg = new Mask_Group(start_drag_track_ap_1, start_drag_track_ap_2, start_drag_track_ap_3);
 
         Anchor_Pair end_drag_track_ap_1 = new Anchor_Pair(0, .60231f, 1, 1);
@@ -248,9 +262,9 @@ public class TutorialManager : EventDetector
         Mask_Group click_entrance_mg = new Mask_Group(click_entrance_ap_1, click_entrance_ap_2, click_entrance_ap_3, click_entrance_ap_4);
 
         Anchor_Pair start_drag_train_ap_1 = new Anchor_Pair(0, 0, .6825f, .96022f);
-        Anchor_Pair start_drag_train_ap_2 = new Anchor_Pair(.7484193f,0,1,.96022f);
-        Anchor_Pair start_drag_train_ap_3 = new Anchor_Pair(.6825f,.1177772f,.7484193f,.96022f);
-        Anchor_Pair start_drag_train_ap_4 = new Anchor_Pair(0,.96022f,1,1);
+        Anchor_Pair start_drag_train_ap_2 = new Anchor_Pair(.7484193f, 0, 1, .96022f);
+        Anchor_Pair start_drag_train_ap_3 = new Anchor_Pair(.6825f, .1177772f, .7484193f, .96022f);
+        Anchor_Pair start_drag_train_ap_4 = new Anchor_Pair(0, .96022f, 1, 1);
         Mask_Group start_drag_train_mg = new Mask_Group(start_drag_train_ap_1, start_drag_train_ap_2, start_drag_train_ap_3, start_drag_train_ap_4);
 
         Anchor_Pair end_drag_train_ap_1 = new Anchor_Pair(0, .8380001f, .59626f, 1);
@@ -260,7 +274,7 @@ public class TutorialManager : EventDetector
 
         Anchor_Pair start_drag_boxcar_1 = new Anchor_Pair(0, .117f, 1, 1);
         Anchor_Pair start_drag_boxcar_2 = new Anchor_Pair(.203f, .01192f, 1, .117f);
-        Anchor_Pair start_drag_boxcar_3 = new Anchor_Pair(0, .01192f, .145f, .117f);
+        Anchor_Pair start_drag_boxcar_3 = new Anchor_Pair(0, .01192f, 0.1375f, .117f);
         Anchor_Pair start_drag_boxcar_4 = new Anchor_Pair(0, 0, 1, .01192f);
         Mask_Group start_drag_boxcar_mg = new Mask_Group(start_drag_boxcar_1, start_drag_boxcar_2, start_drag_boxcar_3, start_drag_boxcar_4);
 
@@ -289,7 +303,7 @@ public class TutorialManager : EventDetector
 
         Anchor_Pair click_exit_west_ap_1 = new Anchor_Pair(0, .60349f, 1, 1);
         Anchor_Pair click_exit_west_ap_2 = new Anchor_Pair(0, 0, 1, .5f);
-        Anchor_Pair click_exit_west_ap_3 = new Anchor_Pair(.356486f, 0, 1, 1);
+        Anchor_Pair click_exit_west_ap_3 = new Anchor_Pair(0.354f, 0.5f, 1, 0.60349f);
         Mask_Group click_exit_west_mg = new Mask_Group(click_exit_west_ap_1, click_exit_west_ap_2, click_exit_west_ap_3);
 
         Anchor_Pair exit_city_btn_ap_1 = new Anchor_Pair(-.0003f, .97868f, 1, 1.00043f);
@@ -334,9 +348,9 @@ public class TutorialManager : EventDetector
         Step end_drag_train_step = new Step("End Drag the train to a station with a passenger", new Vector3(929, 45), ActionType.Action.DRAG, end_drag_train_mg);
         Step start_drag_boxcar_step = new Step("Drag the boxcar to the track with the train to attach it", new Vector3(216, 49), ActionType.Action.DRAG, start_drag_boxcar_mg);
         Step end_drag_boxcar_step = new Step("End Drag the boxcar to the track with the train to attach it", new Vector3(216, 49), ActionType.Action.DRAG, end_drag_boxcar_mg);
-        Step click_person_step = new Step( "Click the waiting person to begin the boarding process", new Vector3(883, 629), ActionType.Action.CLICK, click_person_mg);
+        Step click_person_step = new Step("Click the waiting person to begin the boarding process", new Vector3(883, 629), ActionType.Action.CLICK, click_person_mg);
         Step board_boxcar_step = new Step("After clicking the passenger, click a boxcar of the same color as shown in the thought bubble, in this case a home boxcar", new Vector3(847, 713), ActionType.Action.CLICK, click_boxcar_mg);
-        Step click_train_step = new Step( "Click the train to begin the departure sequence", new Vector3(812, 671), ActionType.Action.CLICK, click_train_mg);
+        Step click_train_step = new Step("Click the train to begin the departure sequence", new Vector3(812, 671), ActionType.Action.CLICK, click_train_mg);
         Step click_exit_track = new Step("Click on the track you would like to depart from, in this case the westbound track", new Vector3(338, 408), ActionType.Action.CLICK, click_exit_west_mg);
         Step close_city_step = new Step("Press the exit button to leave the city", new Vector3(1276, 663), ActionType.Action.BTN_PRESS, exit_city_mg);
         Step click_apartment_step = new Step("Click on the apartment", new Vector3(639, 394), ActionType.Action.CLICK, click_apartment_mg);
@@ -359,6 +373,7 @@ public class TutorialManager : EventDetector
 
     public void backtrack_tutorial_step()
     {
+        print("backtracking tutorial step");
         active_tutorial_step_idx--;
         Mask_Group mg = tutorial_step_list[active_tutorial_step_idx].mg;
         set_all_anchor_points(mg);
@@ -368,6 +383,10 @@ public class TutorialManager : EventDetector
     {
         rt.anchorMin = ap.amin;
         rt.anchorMax = ap.amax;
+        rt.SetLeft(0);
+        rt.SetRight(0);
+        rt.SetTop(0);
+        rt.SetBottom(0);
     }
 
     public void set_all_anchor_points(Mask_Group mg)
@@ -398,37 +417,54 @@ public class TutorialManager : EventDetector
         set_anchor_points(mg.ap3, rt3);
     }
 
-    public IEnumerator activate_next_tutorial_step(int delay = 0)
+    public void hide_mask(bool on)
     {
+        m1.SetActive(on);
+        m2.SetActive(on);
+        m3.SetActive(on);
+        m4.SetActive(on);
+    }
+
+    public IEnumerator activate_next_tutorial_step(int delay = 0, bool hide=false)
+    {
+        if (!authorize_click)
+            yield return null;
         print("wait for delay " + delay);
+        authorize_click = false;
+        if (hide)
+            hide_mask(false);
         yield return new WaitForSeconds(delay);
+        if (hide)   
+            hide_mask(true);
+        authorize_click = true;
         active_tutorial_step_idx++;
+        if (active_tutorial_step_idx == 6)
+        {
+            print("turn off raycast target");
+            GameManager.tutorial_manager.toggle_raycast(false);
+        }
         if (active_tutorial_step_idx < tutorial_step_list.Length)
         {
             Step step = tutorial_step_list[active_tutorial_step_idx];
             instruction_text.text = tutorial_step_list[active_tutorial_step_idx].instruction_text;
             Mask_Group mg = step.mg;
-            set_all_anchor_points(mg);            
+            set_all_anchor_points(mg);
         }
     }
 
-    public bool is_click_in_wrong_place()
+    public bool is_click_in_wrong_place(int delay = 0)
     {
-        if (GameManager.is_tutorial_mode)
+        bool is_it_hit = GameManager.tutorial_manager.did_raycast_hit_blocking_mask();
+        print("is it hit " + is_it_hit);
+        if (is_it_hit)
         {
-            bool is_it_hit = GameManager.tutorial_manager.did_raycast_hit_blocking_mask();
-            print("is it hit " + is_it_hit);
-            if (is_it_hit)
-            {
-                backtrack_tutorial_step();
-                return true; // if hit blocking mask stop
-            }
-            else
-            {
-                StartCoroutine(activate_next_tutorial_step());
-                return false;
-            }
+            backtrack_tutorial_step();
+            return true; // if hit blocking mask stop
         }
-        return false;
+        else
+        {
+            StartCoroutine(activate_next_tutorial_step(delay));
+            return false;
+        }
     }
 }

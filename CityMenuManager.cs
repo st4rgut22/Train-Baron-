@@ -41,10 +41,16 @@ public class CityMenuManager : MenuManager
             clicked_go = eventData.pointerCurrentRaycast.gameObject;
             item_name = clicked_go.name;
             if (GameManager.is_tutorial_mode)
-                if (item_name == "train")
-                    StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step(5));
-                else // boxcar
-                    StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step());
+            {
+                bool is_it_hit = GameManager.tutorial_manager.did_raycast_hit_blocking_mask();
+                if (is_it_hit)
+                {
+                    eventData.pointerDrag = null;
+                    return;
+                }
+            }
+            if (GameManager.is_tutorial_mode)
+                StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step());
             string tag = eventData.pointerCurrentRaycast.gameObject.tag;
             Vector3 position = MenuManager.convert_screen_to_world_coord(eventData.position);
             if ((VehicleManager.get_vehicle_count(item_name) <= 0))
@@ -91,14 +97,19 @@ public class CityMenuManager : MenuManager
     {
         Vector2Int final_tilemap_position = GameManager.get_selected_tile(eventData.position);
         Station_Track st = TrackManager.get_station_from_location(final_tilemap_position, CityManager.Activated_City_Component);
+        string vehicle_type = clicked_item.tag;
         Destroy(clicked_item);
-        if (GameManager.tutorial_manager.is_click_in_wrong_place())
+        if (GameManager.is_tutorial_mode)
         {
-            return;
+            bool is_wrong_place;
+            if (vehicle_type == "train")
+                is_wrong_place = GameManager.tutorial_manager.is_click_in_wrong_place(4);
+            else
+                is_wrong_place = GameManager.tutorial_manager.is_click_in_wrong_place();
+            if (is_wrong_place) return;
         }
         if (st == null)
             return; // not a valid station
-        string vehicle_type = clicked_item.tag;
         if (vehicle_type == "home" || vehicle_type == "work" || vehicle_type == "vacation" || vehicle_type == "food")
         {
             if (st.train == null || !st.train.GetComponent<Train>().is_wait_for_turntable || !st.train.GetComponent<Train>().is_boxcar_within_max_limit())
