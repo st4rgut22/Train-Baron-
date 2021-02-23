@@ -471,7 +471,7 @@ public class GameManager : EventDetector
                     if (is_tutorial_mode && !TutorialManager.unload_flag)
                     {
                         TutorialManager.unload_flag = true;
-                        StartCoroutine(tutorial_manager.activate_next_tutorial_step(5));
+                        StartCoroutine(tutorial_manager.activate_next_tutorial_step(4));
                     }                        
                     if (hint_tile_go.GetComponent<Boxcar>().is_wait_for_turntable)
                         CityManager.Activated_City_Component.unload_train(hint_tile_go, selected_tile); // hint tile position is boxcar position
@@ -555,7 +555,7 @@ public class GameManager : EventDetector
                     if (is_tutorial_mode)
                     {
                         if (!selected_tile.Equals(CityManager.home_base_location))
-                            StartCoroutine(tutorial_manager.activate_next_tutorial_step(3,true));
+                            StartCoroutine(tutorial_manager.activate_next_tutorial_step());
                         else
                         {
                             StartCoroutine(tutorial_manager.activate_next_tutorial_step());

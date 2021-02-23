@@ -104,7 +104,7 @@ public class StoreMenuManager : MonoBehaviour
     void close_menu()
     {
         reset_count();
-
+        //activates handlers for game screen
         GameManager.menu_manager.activate_default_handler(); // activates the game menu
     }
 

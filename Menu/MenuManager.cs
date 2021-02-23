@@ -46,6 +46,7 @@ public class MenuManager : EventDetector
 
     public Button play_btn;
     public Button tutorial_btn;
+    public int screen_idx = 0; // track close screen for appropriate delay
 
     public static bool is_btn_active = true; // toggle false if tutorial is ON  and incorrect btn is pressed
 
@@ -181,6 +182,11 @@ public class MenuManager : EventDetector
 
     public void exit_game()
     {
+        if (GameManager.is_tutorial_mode)
+        {
+            GameManager.exit_game();
+            return;
+        }
         PauseManager.pause_game(true);
         activate_handler(new List<GameObject>() { exit_confirm }); 
     }
@@ -217,11 +223,19 @@ public class MenuManager : EventDetector
 
     public void activate_default_handler()
     {
-        //activates handlers for game screen
         if (GameManager.is_tutorial_mode)
         {
-            StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step());
+            if (screen_idx == 0 || screen_idx == 2) // exit store / exit apartment
+            {
+                StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step());
+            }
+            else if (screen_idx == 1)
+            {
+                StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step(5)); // 5 seconds delayed from exiting shipyard to clicking on apartment to allow train time to arrives
+            }
+            screen_idx += 1;
         }
+
         activate_handler(new List<GameObject> { game_menu, game_icon_canvas });
     }
 

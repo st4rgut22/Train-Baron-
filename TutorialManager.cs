@@ -102,7 +102,7 @@ public class TutorialManager : EventDetector
 
     public static int active_tutorial_step_idx;
     public Text instruction_text;
-
+    public GameObject instruction;
     public static bool authorize_click;
 
     public static Step[] tutorial_step_list;
@@ -204,7 +204,7 @@ public class TutorialManager : EventDetector
         Mask_Group store_btn_mg = new Mask_Group(store_btn_ap_1, store_btn_ap_2, store_btn_ap_3, store_btn_ap_4);
 
         Anchor_Pair buy_train_ap_1 = new Anchor_Pair(0, .66775f, 1, 1);
-        Anchor_Pair buy_train_ap_2 = new Anchor_Pair(0, 0, .06984f, .66692f);
+        Anchor_Pair buy_train_ap_2 = new Anchor_Pair(0, 0, .07055f, .66775f);
         Anchor_Pair buy_train_ap_3 = new Anchor_Pair(.07055f, 0, 1, .61413f);
         Anchor_Pair buy_train_ap_4 = new Anchor_Pair(.0939f, .61413f, 1, .66775f);
         Mask_Group buy_train_mg = new Mask_Group(buy_train_ap_1, buy_train_ap_2, buy_train_ap_3, buy_train_ap_4);
@@ -215,8 +215,8 @@ public class TutorialManager : EventDetector
         Anchor_Pair buy_boxcar_ap_4 = new Anchor_Pair(.31778f, .61413f, 1, .66913f);
         Mask_Group buy_boxcar_mg = new Mask_Group(buy_boxcar_ap_1, buy_boxcar_ap_2, buy_boxcar_ap_3, buy_boxcar_ap_4);
 
-        Anchor_Pair buy_apartment_ap_1 = new Anchor_Pair(0, .10515f, 1, 1);
-        Anchor_Pair buy_apartment_ap_2 = new Anchor_Pair(0, .049f, .29275f, .10515f);
+        Anchor_Pair buy_apartment_ap_1 = new Anchor_Pair(0, .108f, 1, 1);
+        Anchor_Pair buy_apartment_ap_2 = new Anchor_Pair(0, .049f, .29275f, .108f);
         Anchor_Pair buy_apartment_ap_3 = new Anchor_Pair(0, 0, 1, .049f);
         Anchor_Pair buy_apartment_ap_4 = new Anchor_Pair(.31771f, .049f, 1, .108f);
         Mask_Group buy_apartment_mg = new Mask_Group(buy_apartment_ap_1, buy_apartment_ap_2, buy_apartment_ap_3, buy_apartment_ap_4);
@@ -330,38 +330,45 @@ public class TutorialManager : EventDetector
         Anchor_Pair click_room_to_unload_mask_4 = new Anchor_Pair(.64671f, .917f, .70482f, 1);
         Mask_Group click_room_to_unload_mg = new Mask_Group(click_room_to_unload_mask_1, click_room_to_unload_mask_2, click_room_to_unload_mask_3, click_room_to_unload_mask_4);
 
+        Anchor_Pair exit_tutorial_btn_ap_1 = new Anchor_Pair(-.0003f, .97868f, 1, 1.00043f);
+        Anchor_Pair exit_tutorial_btn_ap_2 = new Anchor_Pair(0, 0, .95532f, .97868f);
+        Anchor_Pair exit_tutorial_btn_ap_3 = new Anchor_Pair(.95532f, 0, 1, .91723f);
+        Anchor_Pair exit_tutorial_btn_ap_4 = new Anchor_Pair(.99033f, .91723f, 1, .97868f);
+        Mask_Group exit_tutorial_mg = new Mask_Group(exit_tutorial_btn_ap_1, exit_tutorial_btn_ap_2, exit_tutorial_btn_ap_3, exit_tutorial_btn_ap_4);
+
         authorize_click = false;
         graphic_raycaster = GetComponent<GraphicRaycaster>();
 
-        Step click_store_step = new Step("Click on the store to buy a train", new Vector3(1159, 675), ActionType.Action.BTN_PRESS, store_btn_mg);
-        Step add_train_step = new Step("Click plus button to add a train", new Vector3(127, 447), ActionType.Action.BTN_PRESS, buy_train_mg);
-        Step add_boxcar_step = new Step("Click plus button to add a boxcar", new Vector3(419, 499), ActionType.Action.BTN_PRESS, buy_boxcar_mg);
-        Step add_hor_track_step = new Step("Click plus button to add a track", new Vector3(274, 239), ActionType.Action.BTN_PRESS, buy_track_mg);
-        Step add_apartment_step = new Step("Click plus button to add a apartment", new Vector3(417, 29), ActionType.Action.BTN_PRESS, buy_apartment_mg);
-        Step close_store_step = new Step("Buy the items", new Vector3(1261, 33), ActionType.Action.BTN_PRESS, buy_item_mg);
-        Step start_drag_track_step = new Step("Drag the horizontal track next to the structure", new Vector3(827, 66), ActionType.Action.DRAG, start_drag_track_mg);
-        Step end_drag_track_step = new Step("Drag the horizontal track next to the structure", new Vector3(827, 66), ActionType.Action.DRAG, end_drag_track_mg);
-        Step start_drag_apartment_step = new Step("Drag the apartment next to the track to complete the route", new Vector3(401, 44), ActionType.Action.DRAG, start_drag_apartment_mg);
-        Step end_drag_apartment_step = new Step("End Drag the apartment next to the track to complete the route", new Vector3(401, 44), ActionType.Action.DRAG, end_drag_apartment_mg);
-        Step click_entrance_step = new Step("Click the station", new Vector3(850, 362), ActionType.Action.CLICK, click_entrance_mg);
+        Step click_store_step = new Step("Click on the store to stock up on infrastructure and vehicles", new Vector3(1159, 675), ActionType.Action.BTN_PRESS, store_btn_mg);
+        Step add_train_step = new Step("Add a train to your inventory. Each train can pull up to four boxcars.", new Vector3(127, 447), ActionType.Action.BTN_PRESS, buy_train_mg);
+        Step add_boxcar_step = new Step("Add a boxcar to your inventory. An orange boxcar will board passengers going to orange structures, in this case residential buildings.", new Vector3(419, 499), ActionType.Action.BTN_PRESS, buy_boxcar_mg);
+        Step add_hor_track_step = new Step("Add a track to your inventory. How else is your train going to travel?", new Vector3(274, 239), ActionType.Action.BTN_PRESS, buy_track_mg);
+        Step add_apartment_step = new Step("Add an apartment. When your passengers become wealthy, they'll prefer fancier dwellings like the mansion.", new Vector3(417, 29), ActionType.Action.BTN_PRESS, buy_apartment_mg);
+        Step close_store_step = new Step("Time to splash the cash. Don't worry you'll make our money back from ticket sales.", new Vector3(1261, 33), ActionType.Action.BTN_PRESS, buy_item_mg);
+        Step start_drag_track_step = new Step("Drag the track west of the station. Each structure can have up to four outbound tracks.", new Vector3(827, 66), ActionType.Action.DRAG, start_drag_track_mg);
+        Step end_drag_track_step = new Step("Tip: you can put tracks on top of each other and click on them to change direction.", new Vector3(827, 66), ActionType.Action.DRAG, end_drag_track_mg);
+        Step start_drag_apartment_step = new Step("Drag the apartment west of the track to finish the route.", new Vector3(401, 44), ActionType.Action.DRAG, start_drag_apartment_mg);
+        Step end_drag_apartment_step = new Step("Tip: Using fewer tracks for a route costs less and leads to shorter route times.", new Vector3(401, 44), ActionType.Action.DRAG, end_drag_apartment_mg);
+        Step click_entrance_step = new Step("Click the station to see the vehicles you bought and newly arrived passengers.", new Vector3(850, 362), ActionType.Action.CLICK, click_entrance_mg);
         Step start_drag_train_step = new Step("Drag the train to a station with a passenger", new Vector3(929, 45), ActionType.Action.DRAG, start_drag_train_mg);
-        Step end_drag_train_step = new Step("End Drag the train to a station with a passenger", new Vector3(929, 45), ActionType.Action.DRAG, end_drag_train_mg);
+        Step end_drag_train_step = new Step("Tip: Rooms are initially on the eastern side of the city, so plan your route accordingly. ", new Vector3(929, 45), ActionType.Action.DRAG, end_drag_train_mg);
         Step start_drag_boxcar_step = new Step("Drag the boxcar to the track with the train to attach it", new Vector3(216, 49), ActionType.Action.DRAG, start_drag_boxcar_mg);
-        Step end_drag_boxcar_step = new Step("End Drag the boxcar to the track with the train to attach it", new Vector3(216, 49), ActionType.Action.DRAG, end_drag_boxcar_mg);
-        Step click_person_step = new Step("Click the waiting person to begin the boarding process", new Vector3(883, 629), ActionType.Action.CLICK, click_person_mg);
-        Step board_boxcar_step = new Step("After clicking the passenger, click a boxcar of the same color as shown in the thought bubble, in this case a home boxcar", new Vector3(847, 713), ActionType.Action.CLICK, click_boxcar_mg);
-        Step click_train_step = new Step("Click the train to begin the departure sequence", new Vector3(812, 671), ActionType.Action.CLICK, click_train_mg);
-        Step click_exit_track = new Step("Click on the track you would like to depart from, in this case the westbound track", new Vector3(338, 408), ActionType.Action.CLICK, click_exit_west_mg);
+        Step end_drag_boxcar_step = new Step("Tip: You can park boxcars on the lots next to each building for future use.", new Vector3(216, 49), ActionType.Action.DRAG, end_drag_boxcar_mg);
+        Step click_person_step = new Step("It looks like your passenger wants to board an orange boxcar. Click on her to begin the boarding process.", new Vector3(883, 629), ActionType.Action.CLICK, click_person_mg);
+        Step board_boxcar_step = new Step("Click a boxcar of the same color.", new Vector3(847, 713), ActionType.Action.CLICK, click_boxcar_mg);
+        Step click_train_step = new Step("Click the train to depart the station. Notice there's a track because a westbound track is adjacent to the station.", new Vector3(812, 671), ActionType.Action.CLICK, click_train_mg);
+        Step click_exit_track = new Step("Click on the track you would like to depart from. The light is green which means there's a route with no obstacles.", new Vector3(338, 408), ActionType.Action.CLICK, click_exit_west_mg);
         Step close_city_step = new Step("Press the exit button to leave the city", new Vector3(1276, 663), ActionType.Action.BTN_PRESS, exit_city_mg);
-        Step click_apartment_step = new Step("Click on the apartment", new Vector3(639, 394), ActionType.Action.CLICK, click_apartment_mg);
-        Step click_train_unload_step = new Step("Once the train has arrived click it to begin the unloading sequence", new Vector3(847, 713), ActionType.Action.CLICK, click_boxcar_to_unload_mg);
-        Step click_room_unload_step = new Step("Finally click the room to unload the passenger", new Vector3(883, 629), ActionType.Action.CLICK, click_room_to_unload_mg);
-
-
+        Step click_apartment_step = new Step("Click on the apartment.", new Vector3(639, 394), ActionType.Action.CLICK, click_apartment_mg);
+        Step click_train_unload_step = new Step("The train has arrived. Click it to begin unload the passenger.", new Vector3(847, 713), ActionType.Action.CLICK, click_boxcar_to_unload_mg);
+        Step click_room_unload_step = new Step("Click an available room to unload the guest. ", new Vector3(883, 629), ActionType.Action.CLICK, click_room_to_unload_mg);
+        Step close_shipyard_step = new Step("Your passenger left a review! Good reviews open new rooms and attract more customers. You can exit the apartment, but check back soon!", new Vector3(0, 0), ActionType.Action.CLICK, exit_tutorial_mg);
+        Step close_tutorial_step = new Step("You got one step closer to meeting your quota. Exit the tutorial and begin playing", new Vector3(0, 0), ActionType.Action.CLICK, exit_tutorial_mg);
+        // new Step for quota
         active_tutorial_step_idx = -1;
         tutorial_step_list = new Step[] { click_store_step, add_train_step, add_boxcar_step, add_hor_track_step, add_apartment_step, close_store_step, start_drag_track_step, end_drag_track_step, start_drag_apartment_step, end_drag_apartment_step,
                                           click_entrance_step, start_drag_train_step, end_drag_train_step, start_drag_boxcar_step, end_drag_boxcar_step, click_person_step, board_boxcar_step, click_train_step, click_exit_track,
-                                          close_city_step, click_apartment_step, click_train_unload_step, click_room_unload_step
+                                          close_city_step, click_apartment_step, click_train_unload_step, click_room_unload_step, close_shipyard_step, close_tutorial_step
         };
         StartCoroutine(activate_next_tutorial_step());
     }
@@ -375,8 +382,9 @@ public class TutorialManager : EventDetector
     {
         print("backtracking tutorial step");
         active_tutorial_step_idx--;
-        Mask_Group mg = tutorial_step_list[active_tutorial_step_idx].mg;
+        Mask_Group mg = tutorial_step_list[active_tutorial_step_idx].mg;     
         set_all_anchor_points(mg);
+        instruction_text.text = tutorial_step_list[active_tutorial_step_idx].instruction_text;
     }
 
     public void set_anchor_points(Anchor_Pair ap, RectTransform rt)
@@ -425,24 +433,22 @@ public class TutorialManager : EventDetector
         m4.SetActive(on);
     }
 
-    public IEnumerator activate_next_tutorial_step(int delay = 0, bool hide=false)
+    public IEnumerator activate_next_tutorial_step(int delay = 0)
     {
         if (!authorize_click)
             yield return null;
         print("wait for delay " + delay);
         authorize_click = false;
-        if (hide)
-            hide_mask(false);
+        if (delay != 0)
+        {
+            //hide_mask(false); // hide the previous message, if waiting for new one
+            instruction.SetActive(false);
+        }
         yield return new WaitForSeconds(delay);
-        if (hide)   
-            hide_mask(true);
+        //hide_mask(true);
+        instruction.SetActive(true);
         authorize_click = true;
         active_tutorial_step_idx++;
-        if (active_tutorial_step_idx == 6)
-        {
-            print("turn off raycast target");
-            GameManager.tutorial_manager.toggle_raycast(false);
-        }
         if (active_tutorial_step_idx < tutorial_step_list.Length)
         {
             Step step = tutorial_step_list[active_tutorial_step_idx];
