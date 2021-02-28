@@ -319,6 +319,15 @@ public class Person : Simple_Moving_Object
             print("FINISHED TRIP. Board duration was " + accurate_boarding_duration + " trip duration was " + accurate_trip_duration + "review was " + review);
         }
         GameManager.convert_star_to_profit((int)review);
+        if (CityManager.Activated_City_Component == city)
+        {
+            if ((int)review < 3)
+                GameManager.sound_manager.play_angry_bird();
+            else
+            {
+                GameManager.sound_manager.play_nice_bird();
+            }
+        }
         leave_review(city, review);
         update_review_page(review_summary, (int)review);
     }

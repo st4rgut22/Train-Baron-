@@ -57,6 +57,7 @@ public class GameManager : EventDetector
     public static RouteManager route_manager;
     public static TrackManager track_manager;
     public static MenuManager menu_manager;
+    public static SoundManager sound_manager;
 
     public static bool city_menu_state = false;
     public static bool prev_city_menu_state = false;
@@ -87,8 +88,6 @@ public class GameManager : EventDetector
 
     public static float tolerance = .004f;
     public static float speed = 1;
-
-    public static int egghead_goal;
 
     public static GameObject star_review_image_go;
 
@@ -126,7 +125,6 @@ public class GameManager : EventDetector
         south_bound = 1;
         north_bound = 9;
         west_bound = 0;
-        egghead_goal = 10;
         game_money_text = GameObject.Find("Game Money Text").GetComponent<Text>();
         egghead_total_text = GameObject.Find("Egghead Goal").GetComponent<Text>();
         traffic_tilemap_go = GameObject.Find("Traffic Light");
@@ -203,6 +201,7 @@ public class GameManager : EventDetector
         city_manager = GameObject.Find("CityManager").GetComponent<CityManager>();
         track_manager = GameObject.Find("TrackManager").GetComponent<TrackManager>();
         menu_manager = GameObject.Find("MenuManager").GetComponent<MenuManager>();
+        sound_manager = GameObject.Find("SoundManager").GetComponent<SoundManager>();
         switch_on_shipyard(false);
         macro_morale = 50;
         macro_economy = 50;
@@ -214,15 +213,17 @@ public class GameManager : EventDetector
 
     public static void update_egghead_total(int total_people)
     {
-        string goal = total_people.ToString() + "/" + egghead_goal.ToString();
+        string goal = total_people.ToString() + "/" + GameState.egghead_goal.ToString();
         egghead_total_text.text = goal;
-        if (total_people == egghead_goal)
+        if (total_people == GameState.egghead_goal)
         {
             end_level(true);
+            GameState.next_level();
         }
         else if (total_people == 0)
         {
             end_level(false);
+            GameState.reset_game();
         }
     }
 
@@ -275,7 +276,9 @@ public class GameManager : EventDetector
     public static void end_level(bool is_level_beaten)
     {
         if (is_level_beaten)
+        {
             win_screen.SetActive(true);
+        }
         else
         {
             lose_screen.SetActive(true);

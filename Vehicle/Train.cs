@@ -74,6 +74,7 @@ public class Train : MovingObject
                 }
                 halt_train(false, true);
                 GameObject explosion_go = Instantiate(explosion);
+                GameManager.sound_manager.play_explosion();
                 explode explosion_anim = explosion_go.transform.GetChild(0).gameObject.GetComponent<explode>();
                 explosion_anim.exploded_train = this;
                 explosion_list = new List<GameObject> { explosion_go };
@@ -324,6 +325,8 @@ public class Train : MovingObject
     {
         if (depart_turntable)
         {
+            if (CityManager.Activated_City_Component == city)
+                GameManager.sound_manager.play_train_bell();
             start_all_boxcar_at_turntable();
             halt_train(true, false); //unhalt the boxcars
             halt_train(is_halt = false, is_pause = false); // unpause the train

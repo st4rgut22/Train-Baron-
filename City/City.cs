@@ -464,6 +464,8 @@ public class City : Structure
 
     public void board_train(GameObject boxcar_go, Vector2Int room_position)
     {
+        if (CityManager.Activated_City_Component == this)
+            GameManager.sound_manager.play_cash();
         Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
         Room room = city_room_matrix[room_position.x, room_position.y];
         GameObject occupant_go = room.person_go_instance; //todo: laster move the occupant to the room (first checkpoint). 
