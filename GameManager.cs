@@ -25,6 +25,9 @@ public class GameManager : EventDetector
     public static GameObject Structure;
     public static GameObject Base;
     public static GameObject Shipyard_Base;
+    public static GameObject top_nature;
+    public static GameObject medium_nature;
+    public static GameObject bottom_nature;
     public static GameObject Shipyard_Track;
     public static GameObject Shipyard_Track2;
     public static GameObject Shipyard_Inventory;
@@ -36,6 +39,13 @@ public class GameManager : EventDetector
     public static GameObject building_lot_south;
     public static GameObject building_lot_west;
     public static GameObject building_lot_east;
+
+    public static GameObject win_screen;
+    public static GameObject lose_screen;
+    public GameObject win_play_btn;
+    public GameObject lose_play_btn;
+    public GameObject win_quit_btn;
+    public GameObject lose_quit_btn;
 
     public static int west_bound;
     public static int east_bound;
@@ -99,6 +109,8 @@ public class GameManager : EventDetector
     public static GameObject game_menu_manager;
     public static GameObject scroll_handler;
 
+    public GameObject close_shipyard_btn;
+
     public static TutorialManager tutorial_manager;
 
     public static bool is_tutorial_mode;
@@ -107,6 +119,9 @@ public class GameManager : EventDetector
 
     private void Awake()
     {
+        win_screen = GameObject.Find("Win");
+        lose_screen = GameObject.Find("Lose");
+        close_shipyard_btn.SetActive(false);
         east_bound = 16;
         south_bound = 1;
         north_bound = 9;
@@ -141,6 +156,9 @@ public class GameManager : EventDetector
         Base = GameObject.Find("Base");
         camera = GameObject.Find("Camera").GetComponent<Camera>();
         Shipyard_Base = GameObject.Find("Shipyard Base");
+        top_nature = GameObject.Find("Top Nature");
+        medium_nature = GameObject.Find("Medium Nature");
+        bottom_nature = GameObject.Find("Bottom Nature");
         tutorial_manager = tutorial_canvas.GetComponent<TutorialManager>();
         Shipyard_Track = GameObject.Find("Shipyard Track");
         Shipyard_Track2 = GameObject.Find("Shipyard Track 2");
@@ -160,7 +178,23 @@ public class GameManager : EventDetector
         person_manager = GameObject.Find("People Manager");
         scroll_handler = GameObject.Find("scrollHandler");
         is_tutorial_mode = false;
+
+        win_play_btn.GetComponent<Button>().onClick.AddListener(play_again);
+        win_quit_btn.GetComponent<Button>().onClick.AddListener(quit);
+        lose_play_btn.GetComponent<Button>().onClick.AddListener(play_again);
+        lose_quit_btn.GetComponent<Button>().onClick.AddListener(quit);
+        win_screen.SetActive(false);
+        lose_screen.SetActive(false);
+        GameObject close_game = GameObject.Find("Close Game Btn");
+        close_game.GetComponent<Button>().onClick.AddListener(exit);
+
     }
+
+    public void exit()
+    {
+        Application.Quit();
+    }
+
 
     // Start is called before the first frame update
     void Start()
@@ -175,6 +209,7 @@ public class GameManager : EventDetector
         macro_health = 50;
         day = 1;
         goal = 10;
+
     }
 
     public static void update_egghead_total(int total_people)
@@ -189,6 +224,16 @@ public class GameManager : EventDetector
         {
             end_level(false);
         }
+    }
+
+    public void quit()
+    {
+        exit_game();
+    }
+
+    public void play_again()
+    {
+        menu_manager.activate_begin_game_handler();
     }
 
     public static void exit_game()
@@ -206,7 +251,9 @@ public class GameManager : EventDetector
     
     public static bool is_position_in_bounds(Vector2Int position)
     {
-        if (position.x >= west_bound && position.x <= east_bound && position.y >= south_bound && position.y <= north_bound)
+        if (position.x >= 9 && position.y == 9)
+            return false;
+        else if (position.x >= west_bound && position.x <= east_bound && position.y >= south_bound && position.y <= north_bound)
         {
             return true;
         }
@@ -228,10 +275,10 @@ public class GameManager : EventDetector
     public static void end_level(bool is_level_beaten)
     {
         if (is_level_beaten)
-            print("YOU WON");
+            win_screen.SetActive(true);
         else
         {
-            print("YOU LOST");
+            lose_screen.SetActive(true);
         }
     }
 
@@ -468,10 +515,10 @@ public class GameManager : EventDetector
                 else if (hint_context == "unload")
                 {
                     print("unload from boxcar to city");
-                    if (is_tutorial_mode && !TutorialManager.unload_flag)
+                    if (is_tutorial_mode && !TutorialManager.unload_flag && !TutorialManager.step_in_progress)
                     {
                         TutorialManager.unload_flag = true;
-                        StartCoroutine(tutorial_manager.activate_next_tutorial_step(4));
+                        StartCoroutine(tutorial_manager.activate_next_tutorial_step(5));
                     }                        
                     if (hint_tile_go.GetComponent<Boxcar>().is_wait_for_turntable)
                         CityManager.Activated_City_Component.unload_train(hint_tile_go, selected_tile); // hint tile position is boxcar position
@@ -486,7 +533,7 @@ public class GameManager : EventDetector
                 }
                 else if (hint_context == "north exit" || hint_context == "east exit" || hint_context == "west exit" || hint_context == "south exit") // DEPART TRAIN
                 {
-                    if (is_tutorial_mode && !TutorialManager.exit_flag)
+                    if (is_tutorial_mode && !TutorialManager.exit_flag && !TutorialManager.step_in_progress)
                     {
                         TutorialManager.exit_flag = true;
                         StartCoroutine(tutorial_manager.activate_next_tutorial_step(10));
@@ -513,7 +560,7 @@ public class GameManager : EventDetector
 
                 if (collider_tag_list.Contains("city_building")) // ADD A PERSON TO THE BOXCAR BOARD TRAIN HINT
                 {
-                    if (is_tutorial_mode && !TutorialManager.room_flag)
+                    if (is_tutorial_mode && !TutorialManager.room_flag && !TutorialManager.step_in_progress)
                     {
                         TutorialManager.room_flag = true;
                         StartCoroutine(tutorial_manager.activate_next_tutorial_step());
@@ -523,7 +570,7 @@ public class GameManager : EventDetector
                 }
                 else if (collider_tag_list.Contains("boxcar"))
                 {
-                    if (is_tutorial_mode && !TutorialManager.boxcar_flag)
+                    if (is_tutorial_mode && !TutorialManager.boxcar_flag && !TutorialManager.step_in_progress)
                     {
                         StartCoroutine(tutorial_manager.activate_next_tutorial_step());
                     }                        
@@ -532,7 +579,7 @@ public class GameManager : EventDetector
                 }
                 else if (collider_tag_list.Contains("train"))
                 {
-                    if (is_tutorial_mode && !TutorialManager.train_flag)
+                    if (is_tutorial_mode && !TutorialManager.train_flag && !TutorialManager.step_in_progress)
                     {
                         TutorialManager.boxcar_flag = false;
                         TutorialManager.train_flag = true;
@@ -552,7 +599,7 @@ public class GameManager : EventDetector
                 }
                 else if (collider_tag_list.Contains("structure"))
                 {
-                    if (is_tutorial_mode)
+                    if (is_tutorial_mode && !TutorialManager.step_in_progress)
                     {
                         if (!selected_tile.Equals(CityManager.home_base_location))
                             StartCoroutine(tutorial_manager.activate_next_tutorial_step());
@@ -739,6 +786,10 @@ public class GameManager : EventDetector
         traffic_tilemap_offset_north_go.SetActive(state);
         traffic_tilemap_offset_west_go.SetActive(state);
         traffic_tilemap_offset_south_go.SetActive(state);
+
+        top_nature.SetActive(!state);
+        medium_nature.SetActive(!state);
+        bottom_nature.SetActive(!state);
 
         track_manager.bottom_tilemap_go_1.SetActive(!state);
         track_manager.bottom_tilemap_go_2.SetActive(!state);

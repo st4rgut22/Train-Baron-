@@ -299,9 +299,9 @@ public void set_destination()
         //Vector3Int prev_boxcar_prev_tile_position = prev_boxcar.prev_tile_position;
         //Vector2Int prevboxcar_next_tilemap_position = prev_boxcar.next_tilemap_position;
         RouteManager.Orientation prev_orientation = prev_boxcar.orientation;
-        one_time_move_pass = true; // lets boxcar move  even though train hasnt departed yet. 
-        yield return StartCoroutine(straight_move(transform.position, prev_boxcar.transform.position)); // dont set new positions until movement is completed
-        one_time_move_pass = false;
+        //one_time_move_pass = true; // lets boxcar move  even though train hasnt departed yet. 
+        yield return StartCoroutine(simple_straight_move(transform.position, prev_boxcar.transform.position)); // dont set new positions until movement is completed
+        //one_time_move_pass = false;
         tile_position = prev_boxcar_position;
         next_tilemap_position = (Vector2Int) prev_boxcar_position;
         prev_tile_position = prev_boxcar_position;
@@ -373,6 +373,7 @@ public void set_destination()
             {
                 if (!gameObject.GetComponent<Boxcar>().train.is_train_departed_for_turntable)
                 {
+                    GetComponent<Boxcar>().train.GetComponent<CapsuleCollider2D>().size = new Vector2(.205f, .837f);
                     GetComponent<Boxcar>().train.stop_all_boxcar_at_turntable();
                     is_boxcar_stopped = true;
                 }
@@ -452,6 +453,22 @@ public void set_destination()
         }            
     }
 
+    public IEnumerator simple_straight_move(Vector2 start_position, Vector2 destination)
+    {
+        float og_distance = Vector2.Distance(start_position, destination); // distance to destination
+        float distance = og_distance;
+        next_position = start_position;
+        while (distance > GameManager.tolerance)
+        {
+            float step = normal_speed * Time.deltaTime; // calculate distance to move
+            next_position = Vector2.MoveTowards(next_position, destination, step);
+            transform.position = next_position;
+            distance = Vector2.Distance(next_position, destination);
+            yield return new WaitForEndOfFrame();
+        }
+        is_fill_void = false;
+    }
+
     public IEnumerator straight_move(Vector2 start_position, Vector2 destination, bool turntable_dest = false, bool exit_dest = false)
     {
         float og_distance = Vector2.Distance(start_position, destination); // distance to destination
@@ -468,7 +485,7 @@ public void set_destination()
                 yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling is_inventory
                 continue; // don't execute the code below
             }
-            if (gameObject.tag == "boxcar" && !one_time_move_pass)
+            if (gameObject.tag == "boxcar")
             {
                 Boxcar boxcar = gameObject.GetComponent<Boxcar>();
                 if (!boxcar.train.is_train_departed_for_turntable) // only stop boxcar if train is stationary. 

@@ -65,6 +65,7 @@ public class Turntable : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         Train train = train_object.GetComponent<Train>();
+        train.GetComponent<CapsuleCollider2D>().size = new Vector2(.205f, .837f);
         train.board_turntable(end_orientation, depart_for_turntable);
     }
 

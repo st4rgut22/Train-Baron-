@@ -79,6 +79,7 @@ public class CityMenuManager : MenuManager
                 default:
                     break;
             }
+            clicked_item.transform.localScale = new Vector3(4, 4);
         }
         catch (NullReferenceException)
         {

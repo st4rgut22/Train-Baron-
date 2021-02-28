@@ -137,7 +137,7 @@ public class Building : Structure
             Person person = person_go.GetComponent<Person>();
             if (person.desired_activity != "") // not in a period of waiting for activity
                 PersonManager.add_notification_for_city(person.city.tilemap_position, false); // remove notification
-            string review_summary = "Imma go somewhere that can stick to the train schedule timetable. Peace.";
+            string review_summary = "I'm go somewhere that can stick to the train schedule timetable.";
             person.leave_review(person.city, Person.Review.One_Star);
             person.update_review_page(review_summary, (int)Person.Review.One_Star);
             DestroyImmediate(person_go); // otherwise get error from coroutine
@@ -155,8 +155,20 @@ public class Building : Structure
         return true;
     }
 
+    public Vector2Int get_room_pos(int room_count)
+    {
+        // populate the first available room
+        Vector2Int room_tile_pos = new Vector2Int(offset_position.x, offset_position.y);
+        for (int i = 0; i < room_count; i++)
+        {
+            room_tile_pos.x += 1;
+        }
+        return room_tile_pos;
+    }
+
     public int get_new_room_id()
     {
+        // populate the first available room
         for (int i=0; i<roomba.Length; i++)
         {
             GameObject room_go = roomba[i];

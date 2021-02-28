@@ -39,6 +39,8 @@ public class City : Structure
     public GameObject[,] city_board; // contains location of vehicles within city
     public List<Station> station_list;
 
+    public Button remove_lot_btn;
+
     public GameObject Turn_Table;
     public GameObject Turn_Table_Circle;
     public GameObject turn_table;
@@ -58,6 +60,7 @@ public class City : Structure
     public Station North_Station;
     public Station East_Station;
     public Station South_Station;
+
 
     public GameObject city_tilemap_go;
     public Tilemap city_tilemap;
@@ -90,7 +93,7 @@ public class City : Structure
     public GameObject south_bl;
 
     public int total_room;
-
+    public int c;
     //public List<GameObject> person_in_transit; //people unloading from trains
 
     public class Inventory_Item
@@ -105,6 +108,7 @@ public class City : Structure
     private void Awake()
     {
         base.Awake();
+        c = 2;
         Traffic_Light_Manager_Instance = Instantiate(TrafficLightManager);
         traffic_manager = Traffic_Light_Manager_Instance.GetComponent<TrafficLightManager>();
         Traffic_Light_Manager_Instance.transform.parent = gameObject.transform; // only activate when this city is activated
@@ -128,8 +132,8 @@ public class City : Structure
         west_bl = Instantiate(BuildingLot);
         south_bl = Instantiate(BuildingLot);
         start_reputation = PersonManager.reputation; // 0
-
-
+        //remove_lot_btn = GameObject.Find("Remove Lot Button").GetComponent<Button>();
+        //remove_lot_btn.onClick.AddListener(delegate { remove_lot(1); });
 
         north_bl.GetComponent<BuildingLot>().init_building_lot
             (
@@ -233,14 +237,16 @@ public class City : Structure
     public void populate_entrance()
     {
         //use delta reputation to populate as many rooms as possible
-        int total_vacancy_count = get_total_vacancy_count();
-        int people_to_add = Math.Max(total_vacancy_count - 2, 0); // should be fewer people than vacant rooms. Adjustable.
-        int max_to_add = 4 - total_people; // can have most 3 pepole in the city at one time.
-        people_to_add = Math.Min(people_to_add, max_to_add);
-        print("People to add is " + people_to_add + " total vacancy count is " + total_vacancy_count + " max to add is " + max_to_add);
+        int total_vacancy_count = CityManager.get_total_vacancy_count();
+        print("total people is " + CityManager.total_people);
+        //int people_to_add = Math.Max(total_vacancy_count - 1, 0); // should be fewer people than vacant rooms. Adjustable.
+        int people_to_add = 0;
+        if (CityManager.total_people != 0)
+            people_to_add = total_vacancy_count / CityManager.total_people / c; //c is a constant adjust to increase # of people added
+        print("people to add equals total vacancy count " + total_vacancy_count + " / total people " + CityManager.total_people + " divided by constant " + c + " EQUALS " + people_to_add);
         start_reputation = PersonManager.reputation;
         List<Building> available_building_list = get_available_building_list();
-        if (CityManager.total_people == 1) people_to_add = 1; //in the beginning add another person to speed things up
+        //if (CityManager.total_people == 1) people_to_add = 1; //in the beginning add another person to speed things up
         for (int i = 0; i < people_to_add; i++)
         {
             if (available_building_list.Count == 0)
@@ -255,7 +261,6 @@ public class City : Structure
                     if (!room.has_person)
                     {
                         Person person = room.spawn_person(true);
-                        total_people += 1;
                         person.initialize_egghead(false, false);
                         found_room = true;
                     }
@@ -601,7 +606,7 @@ public class City : Structure
         }
         if (this == CityManager.Activated_City_Component)
         {
-            show_all_undeveloped_plots(false);
+            show_all_undeveloped_plots();
             set_all_room_sprites();
         }
         reputation = Mathf.Max(0, reputation);
@@ -686,17 +691,24 @@ public class City : Structure
         return parking_spot;
     }
 
-    public void show_all_undeveloped_plots(bool is_hide)
+    public void show_all_undeveloped_plots()
     {
         foreach (Building bldg in city_building_list)
         {
-            foreach (GameObject room_go in bldg.roomba)
-            {             
-                if (room_go != null) // room exists
+            for (int r=0;r<bldg.roomba.Length;r++)
+            {
+                GameObject room_go = bldg.roomba[r];
+                Vector2Int room_pos = bldg.get_room_pos(r);
+                if (room_go == null)
+                {
+                    print("set boarded tile at " + room_pos);
+                    GameManager.undeveloped_land.GetComponent<Tilemap>().SetTile((Vector3Int)room_pos, boarded_up_tile);
+                }
+                else
                 {
                     Room room = room_go.GetComponent<Room>();
-                    if (is_hide) GameManager.undeveloped_land.GetComponent<Tilemap>().SetTile((Vector3Int)room.tile_position, boarded_up_tile);
-                    else { GameManager.undeveloped_land.GetComponent<Tilemap>().SetTile((Vector3Int)room.tile_position, null); }
+                    print("set null tile at " + room.tile_position);
+                    GameManager.undeveloped_land.GetComponent<Tilemap>().SetTile((Vector3Int)room.tile_position, null);
                 }
             }
         }

@@ -206,12 +206,14 @@ public class MenuManager : EventDetector
         activate_begin_game_handler();
         GameManager.is_tutorial_mode = true;
         blocking_canvas.SetActive(true); // only makes a certain part of screen selectable
+        StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step());
     }
 
     public void activate_begin_game_handler()
     {
         //activates handlers for game screen
         PauseManager.pause_game(false);
+        GameObject.Find("GameManager").GetComponent<GameManager>().close_shipyard_btn.SetActive(true);
         activate_handler(new List<GameObject> { game_menu, game_icon_canvas });
     }
 
@@ -231,7 +233,7 @@ public class MenuManager : EventDetector
             }
             else if (screen_idx == 1)
             {
-                StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step(5)); // 5 seconds delayed from exiting shipyard to clicking on apartment to allow train time to arrives
+                StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step(4)); // 5 seconds delayed from exiting shipyard to clicking on apartment to allow train time to arrives
             }
             screen_idx += 1;
         }

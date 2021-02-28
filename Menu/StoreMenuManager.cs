@@ -48,7 +48,7 @@ public class StoreMenuManager : MonoBehaviour
         close_btn.onClick.AddListener(close_menu);
         buy_btn.onClick.AddListener(buy_item);
         add_listener_to_all_btn();
-        string[] find_name_list = new string[] { "count" };
+        string[] find_name_list = new string[] { "add" };
         random_algos.dfs_find_child_objects(transform, text_game_objects, find_name_list);
         //initialize_bomb_boxcar(); //todo temporary! remove
     }
@@ -113,7 +113,7 @@ public class StoreMenuManager : MonoBehaviour
         foreach (GameObject go in text_game_objects)
         {
             // updates the count
-            string count = go.GetComponent<Text>().text;
+            string count = go.transform.Find("plus").GetComponent<Text>().text;
             string item_name = go.transform.parent.parent.gameObject.name;
             int item_count = Int16.Parse(count);
             if (item_name.Contains("_desc"))
@@ -162,7 +162,7 @@ public class StoreMenuManager : MonoBehaviour
         total_cost = 0;
         foreach (GameObject go in text_game_objects)
         {
-            go.GetComponent<Text>().text = "0";
+            go.transform.Find("plus").GetComponent<Text>().text = "0";
         }
         remainder_text.text = GameManager.money.ToString();
         cost_text.text = "- 0";
@@ -200,13 +200,13 @@ public class StoreMenuManager : MonoBehaviour
     void add_listener_to_all_btn()
     {
         List<GameObject> btn_gameobjects = new List<GameObject>();
-        string[] find_name_list = new string[] { "add", "minus" };
+        string[] find_name_list = new string[] { "add" };
         random_algos.dfs_find_child_objects(transform, btn_gameobjects, find_name_list);
         foreach (GameObject btn_go in btn_gameobjects)
         {
             GameObject item = btn_go.transform.parent.parent.gameObject;
             Button btn = btn_go.GetComponent<Button>();
-            Text btn_text = btn_go.transform.parent.Find("count").GetComponent<Text>();
+            Text btn_text = btn_go.transform.Find("plus").GetComponent<Text>();
             btn.onClick.AddListener(delegate { update_text(btn_go, btn_text); });
         }
     }

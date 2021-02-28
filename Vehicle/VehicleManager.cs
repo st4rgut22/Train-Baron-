@@ -125,6 +125,7 @@ public class VehicleManager : BoardManager
                 }
                 else
                 {
+                    prev_boxcar.one_time_move_pass = true; // dont stop all boxcars when encountering a stop tile
                     print("STRAIGHT move boxcar " + boxcar.boxcar_id + " to previous boxcar id " + prev_boxcar.boxcar_id + " spot @ " + prev_boxcar.transform.position);
                     StartCoroutine(boxcar.one_time_straight_move(prev_boxcar));
                 }

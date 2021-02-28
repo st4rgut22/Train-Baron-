@@ -22,6 +22,9 @@ public class GameMenuManager : MenuManager
     public GameObject apartment;
     public GameObject business;
 
+    public Tilemap nature_tilemap;
+    public Tilemap bottom_nature_tilemap;
+
     public Camera camera;
 
     public Tile ES_tile;
@@ -156,6 +159,7 @@ public class GameMenuManager : MenuManager
                     clicked_tile = WS_tile;
                     break;
                 case "hor":
+                    print("instantiate horizontal track");
                     clicked_item = Instantiate(hor_track, position, Quaternion.identity);
                     clicked_tile = hor_tile;
                     break;
@@ -199,6 +203,7 @@ public class GameMenuManager : MenuManager
                 default:
                     break;
             }
+            clicked_item.transform.localScale = new Vector3(4,4);
             if (tag == "structure")
             {
                 building_component.enabled = false;
@@ -213,6 +218,7 @@ public class GameMenuManager : MenuManager
     public override void OnDrag(PointerEventData eventData)
     {
         if (clicked_item == null) return;
+        print("drag horizontal track");
         Vector3 world_position = MenuManager.convert_screen_to_world_coord(eventData.position);
         clicked_item.transform.position = world_position;
     }
@@ -220,13 +226,17 @@ public class GameMenuManager : MenuManager
     public override void OnEndDrag(PointerEventData eventData)
     {
         GameManager.tutorial_manager.toggle_raycast(true);
+        print("finish dragging horizontal track");
         if (clicked_item == null) return;
         if (clicked_go.tag == "structure")
             building_component.enabled = true;
         Destroy(clicked_item);
-        if (GameManager.tutorial_manager.is_click_in_wrong_place())
+        if (GameManager.is_tutorial_mode)
         {
-            return;
+            if (GameManager.tutorial_manager.is_click_in_wrong_place())
+            {
+                return;
+            }
         }
         TrackManager track_manager = GameObject.Find("TrackManager").GetComponent<TrackManager>();
         Vector2Int final_tilemap_position = GameManager.get_selected_tile(eventData.position);
@@ -237,7 +247,9 @@ public class GameMenuManager : MenuManager
             Tilemap structure_tilemap = GameManager.Structure.GetComponent<Tilemap>();
             List<Tile> track_tile = GameManager.track_manager.track_grid[final_tilemap_position.x,final_tilemap_position.y];
             Tile city_tile = (Tile)structure_tilemap.GetTile((Vector3Int)final_tilemap_position);
-            if (GameManager.is_position_in_bounds(final_tilemap_position))
+            Tile top_nature_tile = (Tile)nature_tilemap.GetTile((Vector3Int)final_tilemap_position);
+            Tile bottom_nature_tile = (Tile)bottom_nature_tilemap.GetTile((Vector3Int)final_tilemap_position);
+            if (GameManager.is_position_in_bounds(final_tilemap_position) && top_nature_tile == null && bottom_nature_tile == null)
             {
                 if (tag == "structure")
                 {

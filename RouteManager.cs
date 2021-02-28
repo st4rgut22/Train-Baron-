@@ -448,4 +448,36 @@ public class RouteManager : MonoBehaviour
                 throw new Exception("orientation not valid");
         }
     }
+
+    //public static Vector2Int get_prev_pos(Orientation orientation, Vector2Int tile_pos, string track_name)
+    //{
+    //    Orientation opp_orientation = TrackManager.flip_straight_orientation(orientation);
+    //    if (track_name == "NE")
+    //    {
+    //        if (opp_orientation == Orientation.South) return new Vector2Int(tile_pos.x + 1, tile_pos.y);
+    //        else { return new Vector2Int(tile_pos.x, tile_pos.y + 1); }
+    //    }
+    //    else if (track_name == "WS")
+    //    {
+    //        if (opp_orientation == Orientation.East) return new Vector2Int(tile_pos.x, tile_pos.y - 1);
+    //        else { return new Vector2Int(tile_pos.x - 1, tile_pos.y); }
+    //    }
+    //    else if (track_name == "WN")
+    //    {
+    //        if (opp_orientation == Orientation.East) return new Vector2Int(tile_pos.x, tile_pos.y + 1);
+    //        else { return new Vector2Int(tile_pos.x - 1, tile_pos.y);  }
+    //    }
+    //    else if (track_name == "ES")
+    //    {
+    //        if (opp_orientation == Orientation.West) return new Vector2Int(tile_pos.x, tile_pos.y - 1);
+    //        else { return new Vector2Int(tile_pos.x + 1, tile_pos.y); }
+    //    }
+    //    else if (track_name == "hor")
+    //    {
+    //        if (opp_orientation == Orientation.West) return new Vector2Int(tile_pos.x - 1, tile_po)
+    //    }
+
+
+
+    //}
 }

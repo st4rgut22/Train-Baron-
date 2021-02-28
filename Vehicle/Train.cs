@@ -30,6 +30,7 @@ public class Train : MovingObject
     {
         base.Start(); // train instantiated bottom left
         GameManager.vehicle_manager.update_vehicle_board(city.city_board, gameObject, tile_position, new Vector3Int(-1, -1, -1));
+        GetComponent<CapsuleCollider2D>().size = new Vector2(.5f, .837f);
     }
 
     // Update is called once per frame
@@ -121,7 +122,7 @@ public class Train : MovingObject
             {
                 // leave a RIP review
                 Person deceased_person = boxcar.passenger_go.GetComponent<Person>();
-                string review_summary = "I died in a train accident departing from " + city.name + ". It doesn't seem too safe.";
+                string review_summary = "I died in a train accident departing from " + city.city_type + ". It doesn't seem too safe.";
                 deceased_person.update_review_page(review_summary, 0);
                 if (boxcar.passenger_go.tag == "rich")
                     GameManager.update_game_money_text(-100); // lawsuit fees
@@ -129,6 +130,7 @@ public class Train : MovingObject
                 {
                     GameManager.update_game_money_text(-250); // lawsuit fees
                 }
+                CityManager.update_total_people(-1);
                 Destroy(boxcar.passenger_go);
             }
             boxcar.remove_vehicle_from_board();
@@ -474,6 +476,7 @@ public class Train : MovingObject
         foreach (GameObject boxcar_go in boxcar_squad)
         {
             Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
+            boxcar.GetComponent<BoxCollider2D>().size = new Vector2(.27f,.73f); // original size
             boxcar.speed = normal_speed;
         }
     }
@@ -481,6 +484,8 @@ public class Train : MovingObject
     public void stop_single_boxcar_at_turntable(GameObject boxcar_go)
     {
         Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
+        BoxCollider2D bc2d = boxcar_go.GetComponent<BoxCollider2D>();
+        bc2d.size = new Vector2(1f, .73f); // fatten the boxcar
         Tilemap boxcar_tilemap = CityDetector.boxcar_orientation_to_offset_tilemap(boxcar.orientation);
         Vector3Int boxcar_cell_pos = boxcar_tilemap.WorldToCell(boxcar_go.transform.position);
         //print("boxcar " + boxcar_go.name + " tile position " + boxcar.tile_position + " prev tile position " + boxcar.prev_tile_position);
@@ -494,6 +499,7 @@ public class Train : MovingObject
 
     public void stop_all_boxcar_at_turntable()
     {
+        print("stop all boxcar at turntable");
         foreach (GameObject boxcar_go in boxcar_squad)
         {
             stop_single_boxcar_at_turntable(boxcar_go);

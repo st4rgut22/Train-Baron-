@@ -256,6 +256,19 @@ public class CityManager : BoardManager
         return null;
     }
 
+    public static int get_total_vacancy_count()
+    {
+        int city_occupant_count = 0;
+        foreach (City city in city_list)
+        {
+            foreach (Building bldg in city.city_building_list)
+            {
+                city_occupant_count += bldg.get_vacancy_count();
+            }
+        }
+        return city_occupant_count;
+    }
+
     public static bool does_activity_match_city(string activity_name, string city_name)
     {
         switch (activity_name)
@@ -463,7 +476,7 @@ public class CityManager : BoardManager
             City activated_city = Activated_City.GetComponent<City>();
             activated_city.enable_train_for_screen();
             activated_city.show_all_building_occupants(false);
-            activated_city.show_all_undeveloped_plots(true);
+            activated_city.show_all_undeveloped_plots();
             activated_city.change_traffic_signal(false);
             hide_shipyard_inventory();
         }
@@ -476,7 +489,7 @@ public class CityManager : BoardManager
             City city = city_object.GetComponent<City>();
             city.set_all_room_sprites();
             city.show_all_building_occupants(true);
-            city.show_all_undeveloped_plots(false);
+            city.show_all_undeveloped_plots();
             city.display_boxcar();
             //if (city.city_type == "Entrance")
             //    city.populate_entrance();

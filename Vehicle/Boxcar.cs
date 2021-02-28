@@ -32,6 +32,8 @@ public class Boxcar : MovingObject
     {
         base.Start();
         boxcar_type = gameObject.name.Replace("(Clone)", "");
+        BoxCollider2D bc2d = GetComponent<BoxCollider2D>();
+        bc2d.size = new Vector2(1f, .73f);
         stop_car_if_wait_tile();
         idling_position = new Vector3(-1, -1, -1);
         departing = false;
@@ -192,7 +194,11 @@ public class Boxcar : MovingObject
         List<int[]> unloading_pos_list = new List<int[]>();
         if (!is_occupied)
             return unloading_pos_list;
-        bool building_has_room = false;
+        if (passenger_go.GetComponent<Person>().city == city)
+        {
+            print("you cant unload to the same city you came from");
+            return unloading_pos_list;
+        }
         int building_length = valid_pos[is_inner].Count;
         List<int[]> temp_unloading_pos_list = new List<int[]>();
         for (int c = 0; c < building_length; c++)
@@ -204,7 +210,6 @@ public class Boxcar : MovingObject
             if (room!=null && !room.booked) // room is not occupied
             {
                 unloading_pos_list.Add(new int[] { x, y });
-                building_has_room = true;
             }
         }
         //if (building_has_room)
