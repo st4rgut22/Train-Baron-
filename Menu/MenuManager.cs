@@ -94,6 +94,11 @@ public class MenuManager : EventDetector
         PauseManager.pause_game(true);
         blocking_canvas.SetActive(false);
         //test_pay.onClick.AddListener(pay_all);
+        if (!GameState.show_start_screen)
+        {
+            start_menu.SetActive(false);
+            activate_begin_game_handler();
+        }
     }
 
     public void add_inventory_texture(string item_name)

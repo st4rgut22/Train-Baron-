@@ -459,10 +459,6 @@ public class CityManager : BoardManager
         home_base.total_star = total_star;
         home_base.total_review_count = total_rev;
         home_base.reputation = total_rep;
-        if (home_base.total_star >= 4 && total_people > 7) // game ends when all avg star is 5 ADJUST THE DIFFICULTY
-        {
-            GameManager.end_level(true);
-        }
         print("home base total star is " + total_star + " total review count is " + total_rev + " total rep is " + total_rep);
     }
 

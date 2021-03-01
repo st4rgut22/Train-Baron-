@@ -27,7 +27,7 @@ public class PoorPerson : Person
             { "home_thought_bubble", 15}, 
             {"restaurant_thought_bubble", 10 },
             {"vacation_thought_bubble", 60 },
-            {"work_thought_bubble", 15 }
+            {"work_thought_bubble", 10 }
         }; // the time it takes to complete an action (if destinatikon4 matches thought bubble)
     }
 

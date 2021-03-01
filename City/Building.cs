@@ -137,7 +137,7 @@ public class Building : Structure
             Person person = person_go.GetComponent<Person>();
             if (person.desired_activity != "") // not in a period of waiting for activity
                 PersonManager.add_notification_for_city(person.city.tilemap_position, false); // remove notification
-            string review_summary = "I'm go somewhere that can stick to the train schedule timetable.";
+            string review_summary = "I'll go somewhere that can stick to the train schedule.";
             person.leave_review(person.city, Person.Review.One_Star);
             person.update_review_page(review_summary, (int)Person.Review.One_Star);
             DestroyImmediate(person_go); // otherwise get error from coroutine

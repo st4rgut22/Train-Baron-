@@ -25,6 +25,7 @@ public class GameManager : EventDetector
     public static GameObject Structure;
     public static GameObject Base;
     public static GameObject Shipyard_Base;
+    public static GameObject Shipyard_Base2;
     public static GameObject top_nature;
     public static GameObject medium_nature;
     public static GameObject bottom_nature;
@@ -46,6 +47,8 @@ public class GameManager : EventDetector
     public GameObject lose_play_btn;
     public GameObject win_quit_btn;
     public GameObject lose_quit_btn;
+
+    public Text high_score_text;
 
     public static int west_bound;
     public static int east_bound;
@@ -120,6 +123,8 @@ public class GameManager : EventDetector
     {
         win_screen = GameObject.Find("Win");
         lose_screen = GameObject.Find("Lose");
+        GameState.set_egghead_goal(); // initialize level if not done so.
+        high_score_text.text = "High Score: " + GameState.get_high_score() + "x";
         close_shipyard_btn.SetActive(false);
         east_bound = 16;
         south_bound = 1;
@@ -154,6 +159,7 @@ public class GameManager : EventDetector
         Base = GameObject.Find("Base");
         camera = GameObject.Find("Camera").GetComponent<Camera>();
         Shipyard_Base = GameObject.Find("Shipyard Base");
+        Shipyard_Base2 = GameObject.Find("Shipyard Base 2");
         top_nature = GameObject.Find("Top Nature");
         medium_nature = GameObject.Find("Medium Nature");
         bottom_nature = GameObject.Find("Bottom Nature");
@@ -185,7 +191,6 @@ public class GameManager : EventDetector
         lose_screen.SetActive(false);
         GameObject close_game = GameObject.Find("Close Game Btn");
         close_game.GetComponent<Button>().onClick.AddListener(exit);
-
     }
 
     public void exit()
@@ -202,6 +207,7 @@ public class GameManager : EventDetector
         track_manager = GameObject.Find("TrackManager").GetComponent<TrackManager>();
         menu_manager = GameObject.Find("MenuManager").GetComponent<MenuManager>();
         sound_manager = GameObject.Find("SoundManager").GetComponent<SoundManager>();
+        int hi_score = PlayerPrefs.GetInt("level");
         switch_on_shipyard(false);
         macro_morale = 50;
         macro_economy = 50;
@@ -215,15 +221,14 @@ public class GameManager : EventDetector
     {
         string goal = total_people.ToString() + "/" + GameState.egghead_goal.ToString();
         egghead_total_text.text = goal;
-        if (total_people == GameState.egghead_goal)
+        if (total_people >= GameState.egghead_goal)
         {
-            end_level(true);
             GameState.next_level();
+            end_level(true);
         }
         else if (total_people == 0)
         {
             end_level(false);
-            GameState.reset_game();
         }
     }
 
@@ -234,11 +239,16 @@ public class GameManager : EventDetector
 
     public void play_again()
     {
+        win_screen.SetActive(false);
+        lose_screen.SetActive(false);
+        GameState.show_start_screen = false;
+        SceneManager.LoadScene("Train Game");
         menu_manager.activate_begin_game_handler();
     }
 
     public static void exit_game()
     {
+        GameState.show_start_screen = true;
         SceneManager.LoadScene("Train Game");
     }
 
@@ -252,9 +262,7 @@ public class GameManager : EventDetector
     
     public static bool is_position_in_bounds(Vector2Int position)
     {
-        if (position.x >= 9 && position.y == 9)
-            return false;
-        else if (position.x >= west_bound && position.x <= east_bound && position.y >= south_bound && position.y <= north_bound)
+        if (position.x >= west_bound && position.x <= east_bound && position.y >= south_bound && position.y <= north_bound)
         {
             return true;
         }
@@ -277,10 +285,12 @@ public class GameManager : EventDetector
     {
         if (is_level_beaten)
         {
+            print("level is beaten");
             win_screen.SetActive(true);
         }
         else
         {
+            print("level is lost");
             lose_screen.SetActive(true);
         }
     }
@@ -561,7 +571,7 @@ public class GameManager : EventDetector
                 // call pointer events for boxcar and city from GameManager using Raycast data on the UI event detector
                 hint_tile_pos = selected_tile;
 
-                if (collider_tag_list.Contains("city_building")) // ADD A PERSON TO THE BOXCAR BOARD TRAIN HINT
+                if (collider_tag_list.Contains("city_building") && CityManager.Activated_City_Component != null) // ADD A PERSON TO THE BOXCAR BOARD TRAIN HINT
                 {
                     if (is_tutorial_mode && !TutorialManager.room_flag && !TutorialManager.step_in_progress)
                     {
@@ -571,7 +581,7 @@ public class GameManager : EventDetector
                     Collider2D collider = get_from_collider_list("city_building", collider_list);
                     collider.gameObject.GetComponent<CityDetector>().click_room(eventData);
                 }
-                else if (collider_tag_list.Contains("boxcar"))
+                else if (collider_tag_list.Contains("boxcar") && CityManager.Activated_City_Component != null)
                 {
                     if (is_tutorial_mode && !TutorialManager.boxcar_flag && !TutorialManager.step_in_progress)
                     {
@@ -580,7 +590,7 @@ public class GameManager : EventDetector
                     hint_tile_go = CityManager.get_vehicle_in_activated_city(collider_list, "boxcar");
                     if (hint_tile_go != null) hint_tile_go.GetComponent<Boxcar>().click_boxcar(eventData);
                 }
-                else if (collider_tag_list.Contains("train"))
+                else if (collider_tag_list.Contains("train") && CityManager.Activated_City_Component != null)
                 {
                     if (is_tutorial_mode && !TutorialManager.train_flag && !TutorialManager.step_in_progress)
                     {
@@ -591,7 +601,7 @@ public class GameManager : EventDetector
                     hint_tile_go = CityManager.get_vehicle_in_activated_city(collider_list, "train");
                     if (hint_tile_go != null) hint_tile_go.GetComponent<Train>().click_train(eventData);
                 }
-                else if (collider_tag_list.Contains("inventory"))
+                else if (collider_tag_list.Contains("inventory") && CityManager.Activated_City_Component != null)
                 {
                     Collider2D collider = get_from_collider_list("inventory", collider_list);
                     collider.gameObject.GetComponent<InventoryPusher>().click_inventory(eventData);
@@ -602,6 +612,7 @@ public class GameManager : EventDetector
                 }
                 else if (collider_tag_list.Contains("structure"))
                 {
+                    print("collider tag list includes structure");
                     if (is_tutorial_mode && !TutorialManager.step_in_progress)
                     {
                         if (!selected_tile.Equals(CityManager.home_base_location))
@@ -770,6 +781,7 @@ public class GameManager : EventDetector
     {
         Structure.SetActive(!state); // turn off colliders for city
         Shipyard_Base.SetActive(state);
+        Shipyard_Base2.SetActive(state);
         Shipyard_Track.SetActive(state);
         Shipyard_Track2.SetActive(state);
 

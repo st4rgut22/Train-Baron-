@@ -65,53 +65,53 @@ public class GameMenuManager : MenuManager
     {
     }
 
-    public override void OnPointerClick(PointerEventData eventData)
-    {
-        base.OnPointerClick(eventData);
-        List<List<int[]>> track_action_coord = new List<List<int[]>>();
-        List<string> track_hint_list = new List<string>();
-        item_name = eventData.pointerCurrentRaycast.gameObject.name;
-        Tilemap structure_tilemap = GameManager.Structure.GetComponent<Tilemap>();
-        List<int[]> track_action_list = new List<int[]>();
-        track_hint_list.Add("track");
-        switch (item_name)
-        {
-            case "ES":
-                clicked_tile = ES_tile;
-                break;
-            case "NE":
-                clicked_tile = NE_tile;
-                break;
-            case "WN":
-                clicked_tile = WN_tile;
-                break;
-            case "WS":
-                clicked_tile = WS_tile;
-                break;
-            case "hor":
-                clicked_tile = hor_tile;
-                break;
-            case "vert":
-                clicked_tile = vert_tile;
-                break;
-            default:
-                print("not a valid track selected in game menu manager");
-                break;
-        }
-        for (int i=0; i < BoardManager.track_width; i++)
-        {
-            for (int j = 0; j < BoardManager.track_height; j++)
-            {
-                Tile struct_tile = (Tile)structure_tilemap.GetTile(new Vector3Int(i, j, 0));
-                if (struct_tile == null) // if no city on this tile you can place it here
-                {
-                    track_action_list.Add(new int[] { i, j });
-                }
-            }
-        }
-        track_action_coord.Add(track_action_list);
-        GameObject.Find("GameManager").GetComponent<GameManager>().mark_tile_as_eligible(track_action_coord, track_hint_list, gameObject);
-    }
+    //public override void OnPointerClick(PointerEventData eventData)
+    //{
+    //    base.OnPointerClick(eventData);
+    //    List<List<int[]>> track_action_coord = new List<List<int[]>>();
+    //    List<string> track_hint_list = new List<string>();
+    //    item_name = eventData.pointerCurrentRaycast.gameObject.name;
+    //    Tilemap structure_tilemap = GameManager.Structure.GetComponent<Tilemap>();
+    //    List<int[]> track_action_list = new List<int[]>();
+    //    track_hint_list.Add("track");
+    //    switch (item_name)
+    //    {
+    //        case "ES":
+    //            clicked_tile = ES_tile;
+    //            break;
+    //        case "NE":
+    //            clicked_tile = NE_tile;
+    //            break;
+    //        case "WN":
+    //            clicked_tile = WN_tile;
+    //            break;
+    //        case "WS":
+    //            clicked_tile = WS_tile;
+    //            break;
+    //        case "hor":
+    //            clicked_tile = hor_tile;
+    //            break;
+    //        case "vert":
+    //            clicked_tile = vert_tile;
+    //            break;
+    //        default:
+    //            print("not a valid track selected in game menu manager");
+    //            break;
+    //    }
+    //    for (int i=0; i < BoardManager.track_width; i++)
+    //    {
+    //        for (int j = 0; j < BoardManager.track_height; j++)
+    //        {
+    //            Tile struct_tile = (Tile)structure_tilemap.GetTile(new Vector3Int(i, j, 0));
+    //            if (struct_tile == null) // if no city on this tile you can place it here
+    //            {
+    //                track_action_list.Add(new int[] { i, j });
+    //            }
+    //        }
+    //    }
+    //    track_action_coord.Add(track_action_list);
+    //    GameObject.Find("GameManager").GetComponent<GameManager>().mark_tile_as_eligible(track_action_coord, track_hint_list, gameObject);
+    //}
 
     public override void OnBeginDrag(PointerEventData eventData)
     {
@@ -225,6 +225,8 @@ public class GameMenuManager : MenuManager
 
     public override void OnEndDrag(PointerEventData eventData)
     {
+        TrackManager track_manager = GameObject.Find("TrackManager").GetComponent<TrackManager>();
+        Vector2Int final_tilemap_position = GameManager.get_selected_tile(eventData.position);
         GameManager.tutorial_manager.toggle_raycast(true);
         print("finish dragging horizontal track");
         if (clicked_item == null) return;
@@ -233,13 +235,12 @@ public class GameMenuManager : MenuManager
         Destroy(clicked_item);
         if (GameManager.is_tutorial_mode)
         {
-            if (GameManager.tutorial_manager.is_click_in_wrong_place())
+            if (GameManager.tutorial_manager.is_click_in_wrong_place(final_tilemap_position))
             {
                 return;
             }
         }
-        TrackManager track_manager = GameObject.Find("TrackManager").GetComponent<TrackManager>();
-        Vector2Int final_tilemap_position = GameManager.get_selected_tile(eventData.position);
+
         try
         {
             string tag = clicked_item.tag;
@@ -249,7 +250,8 @@ public class GameMenuManager : MenuManager
             Tile city_tile = (Tile)structure_tilemap.GetTile((Vector3Int)final_tilemap_position);
             Tile top_nature_tile = (Tile)nature_tilemap.GetTile((Vector3Int)final_tilemap_position);
             Tile bottom_nature_tile = (Tile)bottom_nature_tilemap.GetTile((Vector3Int)final_tilemap_position);
-            if (GameManager.is_position_in_bounds(final_tilemap_position) && top_nature_tile == null && bottom_nature_tile == null)
+            bool in_prohibited_area = (final_tilemap_position.x >= 9 && final_tilemap_position.y == 9);
+            if (GameManager.is_position_in_bounds(final_tilemap_position) && top_nature_tile == null && bottom_nature_tile == null && !in_prohibited_area)
             {
                 if (tag == "structure")
                 {

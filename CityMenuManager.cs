@@ -37,11 +37,15 @@ public class CityMenuManager : MenuManager
     {
         try
         {
+            Vector3 position = MenuManager.convert_screen_to_world_coord(eventData.position);
+
             clicked_go = eventData.pointerCurrentRaycast.gameObject;
             clicked_go = eventData.pointerCurrentRaycast.gameObject;
             item_name = clicked_go.name;
+            
             if (GameManager.is_tutorial_mode)
             {
+
                 bool is_it_hit = GameManager.tutorial_manager.did_raycast_hit_blocking_mask();
                 if (is_it_hit)
                 {
@@ -52,7 +56,6 @@ public class CityMenuManager : MenuManager
             if (GameManager.is_tutorial_mode)
                 StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step());
             string tag = eventData.pointerCurrentRaycast.gameObject.tag;
-            Vector3 position = MenuManager.convert_screen_to_world_coord(eventData.position);
             if ((VehicleManager.get_vehicle_count(item_name) <= 0))
             {
                 print("vehicle count 0");
@@ -104,9 +107,9 @@ public class CityMenuManager : MenuManager
         {
             bool is_wrong_place;
             if (vehicle_type == "train")
-                is_wrong_place = GameManager.tutorial_manager.is_click_in_wrong_place(4);
+                is_wrong_place = GameManager.tutorial_manager.is_click_in_wrong_place(final_tilemap_position, 4);
             else
-                is_wrong_place = GameManager.tutorial_manager.is_click_in_wrong_place();
+                is_wrong_place = GameManager.tutorial_manager.is_click_in_wrong_place(final_tilemap_position);
             if (is_wrong_place) return;
         }
         if (st == null)
