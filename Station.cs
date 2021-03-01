@@ -49,17 +49,21 @@ public class Station
 
     public Station_Track set_station_track(GameObject train)
     {
+        // place train in an available track. if none is available just return the outer track
         if (outer_track.train == null)
         {
-            outer_track.train = train;
+            //outer_track.train = train;
             return outer_track;
         }
-        else //if (inner_track.train == null) // TODOED just for testing uncomment later
+        else if (inner_track.train == null) // TODOED just for testing uncomment later
         {
-            inner_track.train = train;
+            //inner_track.train = train;
             return inner_track;
         }
-        //else { throw new Exception("track is not available"); }
+        else {  
+            // dont station track's train
+            return outer_track;
+        }
     }
 
     public Station_Track get_station_track(GameObject train)

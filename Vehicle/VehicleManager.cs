@@ -73,7 +73,7 @@ public class VehicleManager : BoardManager
         place_vehicle(new_train); // place the vehicle, which proceeds to depart
         train_component.station_track = st;
         train_component.init_arrive_at_city(st); // call immediately on instantiation. Otherwise, in_city = false and the wrong board is updated        
-        st.train = new_train;
+        //st.train = new_train; BUG! If a train collides with one which is first 
     }
 
     public void add_boxcar_to_train(Train train, string boxcar_type) //Temporary

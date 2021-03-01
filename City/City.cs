@@ -848,23 +848,6 @@ public class City : Structure
         StartCoroutine(t.turn_turntable(train_object, orientation, depart_for_turntable));
     }
 
-    public Station_Track add_train_to_station_track(GameObject train_object, RouteManager.Orientation orientation)
-    {
-        switch (orientation)
-        {
-            case RouteManager.Orientation.North:
-                return South_Station.set_station_track(train_object);
-            case RouteManager.Orientation.East:
-                return West_Station.set_station_track(train_object);
-            case RouteManager.Orientation.West:
-                return East_Station.set_station_track(train_object);
-            case RouteManager.Orientation.South:
-                return North_Station.set_station_track(train_object);
-            default:
-                return null;
-        }
-    }
-
     public Station_Track add_train_to_station(GameObject train_object, RouteManager.Orientation orientation)
     {
         switch (orientation)

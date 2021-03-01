@@ -322,10 +322,12 @@ public void set_destination()
         {
             if (gameObject.name == "train(Clone)" && !gameObject.GetComponent<Train>().is_train_departed_for_turntable)
             {
+                Train train = gameObject.GetComponent<Train>();
                 // gameObject.GetComponent<Train>().halt_train(false, true); // TODOED1 will pause the train until the turntable has arrived
-                                                                         // wait for train's turn
-                gameObject.GetComponent<Train>().is_pause = true; // TODOED1 remove
-                gameObject.GetComponent<Train>().set_boxcar_wait_flag(true);
+                // wait for train's turn
+                train.station_track.train = gameObject; // assign train to station track after it has stopped. If it were set upon entrance, it could overwrite an existing train at this track
+                train.is_pause = true; // TODOED1 remove
+                train.set_boxcar_wait_flag(true);
                 while (true)
                 {
                     bool is_train_turn = city.turn_table.GetComponent<Turntable>().is_train_turn(gameObject);

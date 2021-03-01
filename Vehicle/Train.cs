@@ -40,7 +40,7 @@ public class Train : MovingObject
         {
             set_destination();
             if (!in_city && gameObject.tag == "train" && is_end_of_track() && !is_pause)
-            {
+            {   
                 StartCoroutine(gameObject.GetComponent<Train>().wait_for_track_placement(next_tilemap_position));
                 gameObject.GetComponent<Train>().halt_train(false, true);
                 end_of_track = true;
@@ -67,6 +67,8 @@ public class Train : MovingObject
                     if (boxcar_squad.Count > 0 && boxcar_squad[0] == collision.gameObject) //ignore coll9isions with own lead boxcar
                         return;
                 }
+                else if (collision.gameObject.tag == "train")
+                    collision.gameObject.GetComponent<Train>().station_track.train = null; 
                 if (!in_city && boxcar_squad.Contains(collision.gameObject))
                 {
                     Tile city_tile = (Tile)RouteManager.city_tilemap.GetTile(collision.gameObject.GetComponent<Boxcar>().tile_position);
@@ -91,11 +93,13 @@ public class Train : MovingObject
                 }
                 if (collision.gameObject.tag == "boxcar")
                 {
+                    Boxcar destroyed_boxcar = collision.gameObject.GetComponent<Boxcar>();
+                    destroyed_boxcar.train.remove_boxcar(destroyed_boxcar.boxcar_id);
                     GameObject other_boxcar_explosion = Instantiate(explosion);
                     explosion_list.Add(other_boxcar_explosion);
                     explode other_boxcar_explosion_anim = other_boxcar_explosion.transform.GetChild(0).gameObject.GetComponent<explode>();
                     other_boxcar_explosion_anim.exploded_boxcar = collision.gameObject.GetComponent<Boxcar>();
-                    other_boxcar_explosion.transform.position = collision.gameObject.transform.position;
+                    other_boxcar_explosion.transform.position = collision.gameObject.transform.position;                    
                     other_boxcar_explosion.transform.localScale = new Vector3(.2f, .2f);
                 }
                 if (city != CityManager.Activated_City_Component) hide_explosion(explosion_list);
@@ -268,7 +272,7 @@ public class Train : MovingObject
         base.arrive_at_city();
         //city.add_train_to_list(gameObject);
         is_train_departed_for_turntable = false; //reset
-        station_track.train = gameObject;
+        //station_track.train = gameObject;
         Vector3Int station_tile_position = station_track.start_location; 
         GameManager.vehicle_manager.depart(gameObject, station_tile_position, city.city_board);
         city.add_train_to_list(gameObject);
@@ -281,12 +285,9 @@ public class Train : MovingObject
         is_train_departed_for_turntable = false; //reset
         station_track = city.add_train_to_station(gameObject, orientation);
         //city.turn_table.GetComponent<Turntable>().add_train_to_queue(gameObject);
-        if (station_track != null)
-        {
-            Vector3Int station_tile_position = station_track.start_location; // A NON-NULLABLE TYPE? ? ?
-            GameManager.vehicle_manager.depart(gameObject, station_tile_position, city.city_board);
-            assign_station_to_boxcar();
-        }
+        Vector3Int station_tile_position = station_track.start_location; // A NON-NULLABLE TYPE? ? ?
+        GameManager.vehicle_manager.depart(gameObject, station_tile_position, city.city_board);
+        assign_station_to_boxcar();
         set_boxcar_to_depart();
         city.add_train_to_list(gameObject);
     }
