@@ -92,6 +92,8 @@ public class GameManager : EventDetector
     public static float tolerance = .004f;
     public static float speed = 1;
 
+    public GameObject close_game;
+
     public static GameObject star_review_image_go;
 
     public Tilemap offset_boxcar_tilemap; // saved offset tilemap
@@ -189,7 +191,6 @@ public class GameManager : EventDetector
         lose_quit_btn.GetComponent<Button>().onClick.AddListener(quit);
         win_screen.SetActive(false);
         lose_screen.SetActive(false);
-        GameObject close_game = GameObject.Find("Close Game Btn");
         close_game.GetComponent<Button>().onClick.AddListener(exit);
     }
 
@@ -243,7 +244,7 @@ public class GameManager : EventDetector
         lose_screen.SetActive(false);
         GameState.show_start_screen = false;
         SceneManager.LoadScene("Train Game");
-        menu_manager.activate_begin_game_handler();
+        //menu_manager.activate_begin_game_handler();
     }
 
     public static void exit_game()
@@ -608,7 +609,8 @@ public class GameManager : EventDetector
                 }
                 else if (collider_tag_list.Contains("track_layer"))
                 {
-                    track_manager.toggle_on_train_track(selected_tile);
+                    if (VehicleManager.vehicle_board[selected_tile.x+1, selected_tile.y+1] == null) // dont switch track as vehicle is passing over it
+                        track_manager.toggle_on_train_track(selected_tile);
                 }
                 else if (collider_tag_list.Contains("structure"))
                 {

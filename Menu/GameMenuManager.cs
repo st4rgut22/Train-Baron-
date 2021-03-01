@@ -55,6 +55,12 @@ public class GameMenuManager : MenuManager
     Building building_component;
 
     City city;
+
+    private void Awake()
+    {
+        print("clclc");
+    }
+
     void Start()
     {
         camera = GameObject.Find("Camera").GetComponent<Camera>();

@@ -299,6 +299,7 @@ public void set_destination()
         //Vector3Int prev_boxcar_prev_tile_position = prev_boxcar.prev_tile_position;
         //Vector2Int prevboxcar_next_tilemap_position = prev_boxcar.next_tilemap_position;
         RouteManager.Orientation prev_orientation = prev_boxcar.orientation;
+        Vector3 prev_destination = prev_boxcar.train_destination;
         //one_time_move_pass = true; // lets boxcar move  even though train hasnt departed yet. 
         yield return StartCoroutine(simple_straight_move(transform.position, prev_boxcar.transform.position)); // dont set new positions until movement is completed
         //one_time_move_pass = false;
@@ -306,6 +307,7 @@ public void set_destination()
         next_tilemap_position = (Vector2Int) prev_boxcar_position;
         prev_tile_position = prev_boxcar_position;
         orientation = prev_orientation;
+        train_destination = prev_destination;
     }
 
     public IEnumerator one_time_bezier_move(Boxcar prev_boxcar)

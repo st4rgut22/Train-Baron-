@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Tilemaps;
 using System;
-using UnityEngine.EventSystems;
 
 public class MenuManager : EventDetector
 {
@@ -19,7 +18,7 @@ public class MenuManager : EventDetector
     public static CityMenuManager city_menu_manager;
     public static GameObject exit_confirm;
     public static GameObject store_menu;
-    public static GameObject start_menu;
+    public GameObject start_menu;
     public static GameObject game_menu;
     public static GameObject review_menu;
     public static GameObject shipyard_exit_menu;
@@ -59,13 +58,7 @@ public class MenuManager : EventDetector
     {
         city_menu_manager = GameObject.Find("Exit Bck").GetComponent<CityMenuManager>();
         exit_bck = GameObject.Find("Exit Bck");
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
         exit_confirm = GameObject.Find("Exit Confirmation");
-        start_menu = GameObject.Find("Start");
         store_menu = GameObject.Find("Store Menu");
         game_menu = GameObject.Find("Game Menu");
         previous_menu = game_menu;
@@ -83,22 +76,33 @@ public class MenuManager : EventDetector
         event_handler_list.Add(shipyard_exit_menu);
         event_handler_list.Add(game_icon_canvas);
         event_handler_list.Add(review_menu);
-        activate_start_menu_handler(); // activate the start menu
-        play_btn.onClick.AddListener(activate_begin_game_handler );
+        //activate_start_menu_handler(); // activate the start menu
+        play_btn.onClick.AddListener(activate_begin_game_handler);
         tutorial_btn.onClick.AddListener(activate_tutorial);
         store_btn.onClick.AddListener(delegate { activate_handler(new List<GameObject> { store_menu }); });
         shipyard_exit_btn.onClick.AddListener(turn_off_shipyard);
         exit_game_btn.onClick.AddListener(exit_game);
         confirm_exit_btn.onClick.AddListener(exit_final);
         deny_exit_btn.onClick.AddListener(return_to_game);
-        PauseManager.pause_game(true);
+        //PauseManager.pause_game(true);
         blocking_canvas.SetActive(false);
         //test_pay.onClick.AddListener(pay_all);
-        if (!GameState.show_start_screen)
+        if (GameState.show_start_screen)
         {
-            start_menu.SetActive(false);
+            //start_menu.SetActive(true);
+            activate_start_menu_handler();
+            //activate_begin_game_handler();
+        }
+        else
+        {
             activate_begin_game_handler();
         }
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+
     }
 
     public void add_inventory_texture(string item_name)
@@ -219,6 +223,7 @@ public class MenuManager : EventDetector
         //activates handlers for game screen
         PauseManager.pause_game(false);
         GameObject.Find("GameManager").GetComponent<GameManager>().close_shipyard_btn.SetActive(true);
+        GameObject.Find("GameManager").GetComponent<BoxCollider2D>().enabled = true;
         activate_handler(new List<GameObject> { game_menu, game_icon_canvas });
     }
 

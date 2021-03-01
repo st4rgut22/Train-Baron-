@@ -21,6 +21,11 @@ public class CityMenuManager : MenuManager
 
     GameObject clicked_go;
 
+    private void Awake()
+    {
+        print("clclc");
+    }
+
     // Start is called before the first frame update
     void Start()
     {
