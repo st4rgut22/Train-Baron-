@@ -58,7 +58,7 @@ public class GameMenuManager : MenuManager
 
     private void Awake()
     {
-        print("clclc");
+        //print("clclc");
     }
 
     void Start()
@@ -101,7 +101,7 @@ public class GameMenuManager : MenuManager
     //            clicked_tile = vert_tile;
     //            break;
     //        default:
-    //            print("not a valid track selected in game menu manager");
+    //            //print("not a valid track selected in game menu manager");
     //            break;
     //    }
     //    for (int i=0; i < BoardManager.track_width; i++)
@@ -127,7 +127,7 @@ public class GameMenuManager : MenuManager
             item_name = clicked_go.name;
             string tag = eventData.pointerCurrentRaycast.gameObject.tag;
             clicked_tile = null; // reset this variable
-            print("drag tile is " + item_name);
+            //print("drag tile is " + item_name);
             if (GameManager.is_tutorial_mode)
             {
                 bool is_it_hit = GameManager.tutorial_manager.did_raycast_hit_blocking_mask();
@@ -165,7 +165,7 @@ public class GameMenuManager : MenuManager
                     clicked_tile = WS_tile;
                     break;
                 case "hor":
-                    print("instantiate horizontal track");
+                    //print("instantiate horizontal track");
                     clicked_item = Instantiate(hor_track, position, Quaternion.identity);
                     clicked_tile = hor_tile;
                     break;
@@ -217,14 +217,14 @@ public class GameMenuManager : MenuManager
         }
         catch (NullReferenceException)
         {
-            print("null");
+            //print("null");
         }
     }
 
     public override void OnDrag(PointerEventData eventData)
     {
         if (clicked_item == null) return;
-        print("drag horizontal track");
+        //print("drag horizontal track");
         Vector3 world_position = MenuManager.convert_screen_to_world_coord(eventData.position);
         clicked_item.transform.position = world_position;
     }
@@ -234,7 +234,7 @@ public class GameMenuManager : MenuManager
         TrackManager track_manager = GameObject.Find("TrackManager").GetComponent<TrackManager>();
         Vector2Int final_tilemap_position = GameManager.get_selected_tile(eventData.position);
         GameManager.tutorial_manager.toggle_raycast(true);
-        print("finish dragging horizontal track");
+        //print("finish dragging horizontal track");
         if (clicked_item == null) return;
         if (clicked_go.tag == "structure")
             building_component.enabled = true;
@@ -294,11 +294,11 @@ public class GameMenuManager : MenuManager
         }
         catch (NullReferenceException e)
         {
-            print(e.StackTrace);
+            //print(e.StackTrace);
         }
         catch (MissingReferenceException e)
         {
-            print(e.Message); // tried to drag something that is not draggable
+            //print(e.Message); // tried to drag something that is not draggable
         }
         update_inventory();
     }

@@ -23,7 +23,7 @@ public class CityMenuManager : MenuManager
 
     private void Awake()
     {
-        print("clclc");
+        //print("clclc");
     }
 
     // Start is called before the first frame update
@@ -63,7 +63,7 @@ public class CityMenuManager : MenuManager
             string tag = eventData.pointerCurrentRaycast.gameObject.tag;
             if ((VehicleManager.get_vehicle_count(item_name) <= 0))
             {
-                print("vehicle count 0");
+                //print("vehicle count 0");
                 eventData.pointerDrag = null;
                 return;
             }
@@ -91,7 +91,7 @@ public class CityMenuManager : MenuManager
         }
         catch (NullReferenceException)
         {
-            print("null");
+            //print("null");
         }
     }
 

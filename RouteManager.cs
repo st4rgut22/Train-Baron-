@@ -361,7 +361,7 @@ public class RouteManager : MonoBehaviour
         catch (NullReferenceException e)
         {
             final_cell_dest = tile_world_coord;
-            print(e.Message);
+            //print(e.Message);
         }
 
         final_cell_dest += offset;

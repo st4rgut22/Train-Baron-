@@ -101,7 +101,7 @@ public class Person : Simple_Moving_Object
         thought_bubble = Instantiate(eggheads_thought_bubble);
         thought_bubble_renderer = thought_bubble.GetComponent<SpriteRenderer>();
         desired_activity = thought_bubble.GetComponent<SpriteRenderer>().sprite.name;
-        print("desired activity is " + desired_activity);
+        //print("desired activity is " + desired_activity);
         thought_bubble.transform.parent = gameObject.transform;
         thought_bubble.transform.localPosition = thought_bubble_offset; //GameManager.person_manager.GetComponent<PersonManager>().building_lot_to_thought_offset(room.building.building_lot);
         thought_bubble.GetComponent<SpriteRenderer>().enabled = is_bubble_on;
@@ -167,7 +167,7 @@ public class Person : Simple_Moving_Object
         if (review == Review.Zero_Star) reputation_change = -3;
         if (review == Review.One_Star) reputation_change = -2;
         if (review == Review.Two_Star) reputation_change = -1;
-        print("LEFT REVIEW " + review);
+        //print("LEFT REVIEW " + review);
         city.change_star_count((int)review);
         city.change_reputation(reputation_change);
         PersonManager.change_reputation(reputation_change);
@@ -305,9 +305,9 @@ public class Person : Simple_Moving_Object
             float trip_rating = 1 - Math.Min(1, accurate_trip_duration / trip_desire_timeout);
             float train_rating = (boarding_rating + trip_rating) / 2; // One minus the average rating of boarding and trip
             string trip_critique = review_board_trip_time((int)(trip_rating * 5));
-            print("trip critique equals trip rating " + trip_rating + " times 5");
+            //print("trip critique equals trip rating " + trip_rating + " times 5");
             string board_critique = review_board_trip_time((int)(boarding_rating * 5));
-            print("board critique equals boarding rating " + boarding_rating + " times 5");
+            //print("board critique equals boarding rating " + boarding_rating + " times 5");
             review_summary = "The trip was " + trip_critique + " and boarding was " + board_critique;
             int star_rating = (int)(train_rating * 5) + 1;
             star_rating = Math.Min(5, star_rating);
@@ -315,8 +315,8 @@ public class Person : Simple_Moving_Object
             if (class_critique != "") star_rating -= 1;
             review_summary = class_critique + review_summary;
             review = (Review)star_rating;
-            print("boarding pause duration is " + boarding_pause_duration + " and trip pause duration is " + trip_pause_duration + "trip rating is " + train_rating);
-            print("FINISHED TRIP. Board duration was " + accurate_boarding_duration + " trip duration was " + accurate_trip_duration + "review was " + review);
+            //print("boarding pause duration is " + boarding_pause_duration + " and trip pause duration is " + trip_pause_duration + "trip rating is " + train_rating);
+            //print("FINISHED TRIP. Board duration was " + accurate_boarding_duration + " trip duration was " + accurate_trip_duration + "review was " + review);
         }
         GameManager.convert_star_to_profit((int)review);
         if (CityManager.Activated_City_Component == city)
@@ -345,12 +345,12 @@ public class Person : Simple_Moving_Object
             || boxcar_type == "work" && desired_activity == "work_thought_bubble"
             || boxcar_type == "vacation " && desired_activity == "vacation_thought_bubble")
         {
-            print("boxcar type " + boxcar_type + " matches desired activity " + desired_activity);
+            //print("boxcar type " + boxcar_type + " matches desired activity " + desired_activity);
             return true;
         }            
         else
         {
-            print("boxcar type " + boxcar_type + " doesn't match desired activity " + desired_activity);
+            //print("boxcar type " + boxcar_type + " doesn't match desired activity " + desired_activity);
             return false;
         }
     }
@@ -401,9 +401,9 @@ public class Person : Simple_Moving_Object
         else
         {
             desired_activity = pick_next_activity(); // when activity is over pick next activity
-            print("next activity is " + desired_activity);
+            //print("next activity is " + desired_activity);
             bool is_city_same_as_activity = CityManager.does_activity_match_city(desired_activity, room.building.gameObject.name);
-            print("is activity " + desired_activity + " same as " + room.building.gameObject.name + " " + is_city_same_as_activity);
+            //print("is activity " + desired_activity + " same as " + room.building.gameObject.name + " " + is_city_same_as_activity);
             if (is_city_same_as_activity) 
             {
                 StartCoroutine(schedule_activity()); // if next activity is the same, dont need to board a train
@@ -433,7 +433,7 @@ public class Person : Simple_Moving_Object
         if (activity_list.Count == 0)
         {
             GameManager.update_game_money_text(-ticket_cost_map["work_thought_bubble"]);
-            print("STOLE FROM THE BOSS CUZ I GOT NO MONEY");
+            //print("STOLE FROM THE BOSS CUZ I GOT NO MONEY");
             return "work_thought_bubble";
         }
         else

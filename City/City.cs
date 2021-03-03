@@ -238,12 +238,12 @@ public class City : Structure
     {
         //use delta reputation to populate as many rooms as possible
         int total_vacancy_count = CityManager.get_total_vacancy_count();
-        print("total people is " + CityManager.total_people);
+        //print("total people is " + CityManager.total_people);
         //int people_to_add = Math.Max(total_vacancy_count - 1, 0); // should be fewer people than vacant rooms. Adjustable.
         int people_to_add = 0;
         if (CityManager.total_people != 0)
             people_to_add = total_vacancy_count / CityManager.total_people / c; //c is a constant adjust to increase # of people added
-        print("people to add equals total vacancy count " + total_vacancy_count + " / total people " + CityManager.total_people + " divided by constant " + c + " EQUALS " + people_to_add);
+        //print("people to add equals total vacancy count " + total_vacancy_count + " / total people " + CityManager.total_people + " divided by constant " + c + " EQUALS " + people_to_add);
         start_reputation = PersonManager.reputation;
         List<Building> available_building_list = get_available_building_list();
         //if (CityManager.total_people == 1) people_to_add = 1; //in the beginning add another person to speed things up
@@ -296,7 +296,7 @@ public class City : Structure
         reputation += reputation_change;
         reputation = Mathf.Min(reputation, max_reputation);
         reputation = Mathf.Max(reputation, min_reputation);
-        print("reputation of city is " + reputation);
+        //print("reputation of city is " + reputation);
     }
 
     public Station get_station_by_orientation(RouteManager.Orientation orientation)
@@ -471,7 +471,7 @@ public class City : Structure
         GameObject occupant_go = room.person_go_instance; //todo: laster move the occupant to the room (first checkpoint). 
         Person occupant = occupant_go.GetComponent<Person>();
         occupant.is_selected = false;
-        print("board train boxcar " + boxcar.boxcar_id + " is occupied");
+        //print("board train boxcar " + boxcar.boxcar_id + " is occupied");
         //occupant.boxcar_go = boxcar_go;
         occupant.station_track = boxcar.station_track;
         occupant.offset_map = RouteManager.offset_route_map[boxcar.station_track.start_location];
@@ -551,7 +551,7 @@ public class City : Structure
 
     public int remove_lot(int affected_lot)
     {
-        print("removed " + affected_lot + " lots");
+        //print("removed " + affected_lot + " lots");
         int remove_lot_count = 0;
         foreach (Building bldg in city_building_list)
         {
@@ -586,7 +586,7 @@ public class City : Structure
         // why is delta reputation never negative ? 
         // why are all city reputations the same ? 
         int delta_reputation = reputation + unapplied_reputation_count - last_checked_reputation;
-        print("APPLY reputation " + delta_reputation + " formula is reputation " + reputation + " plus " + unapplied_reputation_count + " minus " + last_checked_reputation);
+        //print("APPLY reputation " + delta_reputation + " formula is reputation " + reputation + " plus " + unapplied_reputation_count + " minus " + last_checked_reputation);
         int lot_affected = Math.Abs(delta_reputation);
         int leftover_reputation = 0;
         if (delta_reputation > reputation_per_lot)
@@ -598,13 +598,13 @@ public class City : Structure
         {
             int underwater_rollover_lot = remove_lot(lot_affected);
             rollover_reputation = underwater_rollover_lot * -reputation_per_lot;
-            print("underwater lots is " + underwater_rollover_lot);
+            //print("underwater lots is " + underwater_rollover_lot);
         }
         else if (delta_reputation > 0){
             int excess_rollover_lot = add_lot(lot_affected / reputation_per_lot);
             rollover_reputation = excess_rollover_lot * reputation_per_lot + delta_reputation % reputation_per_lot;
-            print("excess lots is " + excess_rollover_lot);
-            print("rollover reputation is " + rollover_reputation);
+            //print("excess lots is " + excess_rollover_lot);
+            //print("rollover reputation is " + rollover_reputation);
         }
         if (this == CityManager.Activated_City_Component)
         {
@@ -613,10 +613,10 @@ public class City : Structure
         }
         reputation = Mathf.Max(0, reputation);
         reputation = Mathf.Min(100, reputation);
-        print("reputation is now " + reputation);
+        //print("reputation is now " + reputation);
         unapplied_reputation_count = leftover_reputation + rollover_reputation;
 
-        print("apply reputation");
+        //print("apply reputation");
         last_checked_reputation = reputation;
         GameManager.star_review_image_go.GetComponent<RawImage>().texture = get_star_image_from_reputation();
         CityManager.set_reputation_for_station();
@@ -703,13 +703,13 @@ public class City : Structure
                 Vector2Int room_pos = bldg.get_room_pos(r);
                 if (room_go == null)
                 {
-                    print("set boarded tile at " + room_pos);
+                    //print("set boarded tile at " + room_pos);
                     GameManager.undeveloped_land.GetComponent<Tilemap>().SetTile((Vector3Int)room_pos, boarded_up_tile);
                 }
                 else
                 {
                     Room room = room_go.GetComponent<Room>();
-                    print("set null tile at " + room.tile_position);
+                    //print("set null tile at " + room.tile_position);
                     GameManager.undeveloped_land.GetComponent<Tilemap>().SetTile((Vector3Int)room.tile_position, null);
                 }
             }

@@ -64,7 +64,80 @@ public class CityManager : BoardManager
 
     public static List<int[]> boxcar_city_outer_wait_tile = new List<int[]> { new int[] { 15, 3 } , new int[] { 1, 7 } };
     public static List<int[]> boxcar_city_inner_wait_tile = new List<int[]> { new int[] { 14, 2 } , new int[] { 2, 8 } };
-    public static List<int[]>  boxcar_city_wait_tile = new List<int[]> { new int[] { 6, 1 }, new int[] { 10, 1 } , new int[] { 12, 3 } , new int[] { 4, 3 }, new int[] { 5, 8 }, new int[] { 4, 7 }, new int[] { 12, 7 }, new int[] { 10, 9 }, new int[] { 6, 9 } }; // ADD MORE 
+    //public static List<int[]> boxcar_city_wait_tile = new List<int[]> { new int[] { 6, 1 }, new int[] { 10, 1 }, new int[] { 12, 3 }, new int[] { 4, 3 }, new int[] { 5, 8 }, new int[] { 4, 7 }, new int[] { 12, 7 }, new int[] { 10, 9 }, new int[] { 6, 9 } }; // ADD MORE 
+    public static List<List<List<int[]>>> boxcar_city_wait_tile = new List<List<List<int[]>>>
+    {
+        // NORTH STATION
+        new List<List<int[]>>{
+            new List<int[]> // OUTER TRACK
+            {
+                new int[]{4,7 },
+                new int[]{3,7 },
+                new int[]{2,7 },
+                new int[]{1,7 }
+            },
+            new List<int[]> // INNER TRACK
+            {
+                new int[]{6,9 },
+                new int[]{5,9 },
+                new int[]{4,9 },
+                new int[]{3,9 }
+
+            }
+        },
+        // EAST STATION
+        new List<List<int[]>>{
+            new List<int[]> // OUTER TRACK
+            {
+                new int[]{10,9 },
+                new int[]{11,9 },
+                new int[]{12,9 },
+                new int[]{13,9 }
+            },
+            new List<int[]> // INNER TRACK
+            {
+                new int[]{12,7 },
+                new int[]{13,7 },
+                new int[]{14,7 },
+                new int[]{15,7 }
+            }
+        },
+        // WEST STATION
+        new List<List<int[]>>{
+            new List<int[]> // OUTER TRACK
+            {
+                new int[]{6,1 }, // first boxcar waiting tile
+                new int[]{5,1 }, // second boxcar waiting tile
+                new int[]{4,1 }, // and so on...
+                new int[]{3,1 }
+            },
+            new List<int[]> // INNER TRACK
+            {
+                new int[]{4,3 },
+                new int[]{3,3 },
+                new int[]{2,3 },
+                new int[]{1,3 }
+            }
+        },
+        // SOUTH STATION
+        new List<List<int[]>>{
+            new List<int[]> // OUTER TRACK
+            {
+                new int[]{12,3 },
+                new int[]{13,3 },
+                new int[]{14,3 },
+                new int[]{15,3 }
+            },
+            new List<int[]> // INNER TRACK
+            {
+                new int[]{10,1 },
+                new int[]{11,1 },
+                new int[]{12,1 },
+                new int[]{13,1 }
+            }
+        },
+    };
+
     public int entrance_update_interval;
 
     public static Dictionary<RouteManager.Orientation, RouteManager.Orientation[,]> board_train_orientation_dict;
@@ -454,12 +527,12 @@ public class CityManager : BoardManager
         int city_list_count = Math.Max(city_list.Count - 1, 1);
         int avg_star = total_star / city_list_count;
         int avg_rep = total_rep / city_list_count;
-        print("avg star is " + avg_star + " equals total star " + total_star + " divided by city count " + city_list_count);
-        print("avg rep is " + avg_rep + " equals total rep " + total_rep + " divided by city count " + city_list_count);
+        //print("avg star is " + avg_star + " equals total star " + total_star + " divided by city count " + city_list_count);
+        //print("avg rep is " + avg_rep + " equals total rep " + total_rep + " divided by city count " + city_list_count);
         home_base.total_star = total_star;
         home_base.total_review_count = total_rev;
         home_base.reputation = total_rep;
-        print("home base total star is " + total_star + " total review count is " + total_rev + " total rep is " + total_rep);
+        //print("home base total star is " + total_star + " total review count is " + total_rev + " total rep is " + total_rep);
     }
 
     public void set_activated_city(GameObject city_object=null)

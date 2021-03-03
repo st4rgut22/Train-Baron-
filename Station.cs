@@ -38,6 +38,24 @@ public class Station
         }
     }
 
+    public int orientation_to_idx()
+    {
+        // used to access wait tile list
+        switch (orientation)
+        {
+            case RouteManager.Orientation.North:
+                return 0;
+            case RouteManager.Orientation.East:
+                return 1;
+            case RouteManager.Orientation.West:
+                return 2;
+            case RouteManager.Orientation.South:
+                return 3;
+            default:
+                throw new Exception("not a valid orientation");
+        }
+    }
+
     public bool is_station_track_available()
     {
         if (outer_track.train == null || inner_track.train == null) return true;

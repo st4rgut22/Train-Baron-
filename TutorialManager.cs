@@ -118,7 +118,7 @@ public class TutorialManager : EventDetector
     public bool did_raycast_hit_blocking_mask()
     {
         //Code to be place in a MonoBehaviour with a GraphicRaycaster component
-        print("turn off raycast target");
+        //print("turn off raycast target");
         //GameManager.tutorial_manager.toggle_raycast(false);
         //Create the PointerEventData with null for the EventSystem
         PointerEventData ped = new PointerEventData(null);
@@ -337,7 +337,7 @@ public class TutorialManager : EventDetector
 
     public void backtrack_tutorial_step()
     {
-        print("backtracking tutorial step");
+        //print("backtracking tutorial step");
         active_tutorial_step_idx--;
         Mask_Group mg = tutorial_step_list[active_tutorial_step_idx].mg;     
         set_all_anchor_points(mg);
@@ -393,7 +393,7 @@ public class TutorialManager : EventDetector
 
     public IEnumerator activate_next_tutorial_step(int delay = 0)
     {
-        print("wait for delay " + delay);
+        //print("wait for delay " + delay);
         if (delay != 0)
         {
             //hide_mask(false); // hide the previous message, if waiting for new one
@@ -425,7 +425,7 @@ public class TutorialManager : EventDetector
     {
         bool pos_in_bounds = GameManager.is_position_in_bounds(tile_pos);
         bool is_it_hit = GameManager.tutorial_manager.did_raycast_hit_blocking_mask();
-        print("is it hit " + is_it_hit);
+        //print("is it hit " + is_it_hit);
         if (is_it_hit || !pos_in_bounds)
         {
             backtrack_tutorial_step();

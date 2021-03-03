@@ -110,7 +110,7 @@ public class VehicleManager : BoardManager
         int removed_boxcar_id = boxcar.boxcar_id;
         List<GameObject> boxcar_squad = train.boxcar_squad;
         int remove_boxcar_idx = train.get_boxcar_by_id(removed_boxcar_id);
-        print("remove boxcar id is " + removed_boxcar_id);
+        //print("remove boxcar id is " + removed_boxcar_id);
         if (removed_boxcar_id > 0)
         {
             Boxcar prev_boxcar = boxcar_squad[remove_boxcar_idx].GetComponent<Boxcar>(); // spot of the previous boxcar
@@ -120,13 +120,13 @@ public class VehicleManager : BoardManager
                 boxcar.is_fill_void = true;
                 if (boxcar.orientation != prev_boxcar.orientation)
                 {
-                    print("BEZIER move boxcar " + boxcar.boxcar_id + " to previous boxcar id " + prev_boxcar.boxcar_id);
+                    //print("BEZIER move boxcar " + boxcar.boxcar_id + " to previous boxcar id " + prev_boxcar.boxcar_id);
                     StartCoroutine(boxcar.one_time_bezier_move(prev_boxcar));
                 }
                 else
                 {
                     prev_boxcar.one_time_move_pass = true; // dont stop all boxcars when encountering a stop tile
-                    print("STRAIGHT move boxcar " + boxcar.boxcar_id + " to previous boxcar id " + prev_boxcar.boxcar_id + " spot @ " + prev_boxcar.transform.position);
+                    //print("STRAIGHT move boxcar " + boxcar.boxcar_id + " to previous boxcar id " + prev_boxcar.boxcar_id + " spot @ " + prev_boxcar.transform.position);
                     StartCoroutine(boxcar.one_time_straight_move(prev_boxcar));
                 }
                 boxcar.city.city_board[boxcar.tile_position.x + 1, boxcar.tile_position.y + 1] = null;
@@ -160,7 +160,7 @@ public class VehicleManager : BoardManager
         // 6. train confirms end of track is next tile
         // 7. train stops and tells boxcars to stop
         Vector3Int last_location = train.tile_position; 
-        //print("train last location is " + last_location);
+        ////print("train last location is " + last_location);
         RouteManager.Orientation depart_orientation = train.orientation;
         MovingObject last_vehicle = train;
         if (train.in_city) board = train.get_city().city_board;
@@ -180,7 +180,7 @@ public class VehicleManager : BoardManager
                 }
                 last_vehicle = moving_boxcar;
                 moving_boxcar.departing = false; // reset departing 
-                print("Make Boxcar depart. boxcar orientation is " + moving_boxcar.get_orientation() + " new tile position is " + last_location + "old tile position is " + moving_boxcar.tile_position);
+                //print("Make Boxcar depart. boxcar orientation is " + moving_boxcar.get_orientation() + " new tile position is " + last_location + "old tile position is " + moving_boxcar.tile_position);
                 moving_boxcar.set_depart_status(true);
                 if (train.in_city) moving_boxcar.receive_train_order = true;
                 moving_boxcar.tile_position = last_location;
@@ -235,7 +235,7 @@ public class VehicleManager : BoardManager
             // save gameobject tile with adjustments. when a user clicks on a tile, it will be in the tile opposite the vehicle's orientation. Therefore, flip orientation
             //Vector2Int boxcar_board_position = RouteManager.get_straight_next_tile_pos(TrackManager.flip_straight_orientation(boxcar_component.orientation), (Vector2Int)boxcar_component.tile_position);
             boxcar_component.city.city_board[pos_pair.tile_dest_pos.x+1, pos_pair.tile_dest_pos.y+1] = boxcar; // offset boxcar to be consistent
-            print("new boxcar created at tile position " + boxcar_component.tile_position);
+            //print("new boxcar created at tile position " + boxcar_component.tile_position);
         }
     }
 
@@ -276,7 +276,7 @@ public class VehicleManager : BoardManager
 
     public void depart(GameObject train_object, Vector3Int new_tile_position, GameObject[,] board=null)
     {
-        //print(gameObject.name + " departing to new tile position " + new_tile_position);
+        ////print(gameObject.name + " departing to new tile position " + new_tile_position);
         Train train = train_object.GetComponent<Train>();
         // remove train from station and depart.
         train.tile_position = new_tile_position; //TODO: depart should update vehicle's position to track position in TrackManager
@@ -315,7 +315,7 @@ public class VehicleManager : BoardManager
             {
                 if (vehicle_board[prev_position.x, prev_position.y] == null)
                 {
-                    print("WARNING. Gameobject " + game_object.name + " not found in previous position " + prev_position);
+                    //print("WARNING. Gameobject " + game_object.name + " not found in previous position " + prev_position);
                 }
                 else
                 {
@@ -333,13 +333,13 @@ public class VehicleManager : BoardManager
             else
             {
                 vehicle_board[position.x, position.y] = game_object;
-                //print("Update Vehicle Board with object " + game_object.name + " to position " + position);
+                ////print("Update Vehicle Board with object " + game_object.name + " to position " + position);
             }
 
         }
         catch (IndexOutOfRangeException e)
         {
-            print(e.Message + " Position: " + position);
+            //print(e.Message + " Position: " + position);
         }
     }
 }

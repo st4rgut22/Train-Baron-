@@ -179,10 +179,10 @@ public class PersonManager : MonoBehaviour
         int wealth = person_go.GetComponent<Person>().wealth;
         if (person_go.tag == "poor")
         {
-            print("wealth is " + wealth);
+            //print("wealth is " + wealth);
             if (wealth > how_to_become_rich)
             {
-                print("HOW TO BECOME RICH");
+                //print("HOW TO BECOME RICH");
                 GameObject rich_person = Instantiate(rich_person_go);
                 reinitialize_person(rich_person, person_go);
             }
@@ -191,7 +191,7 @@ public class PersonManager : MonoBehaviour
         {
             if (wealth < how_to_become_poor)
             {
-                print("HOW TO BECOME POOR");
+                //print("HOW TO BECOME POOR");
                 GameObject poor_person = Instantiate(poor_person_go);
                 reinitialize_person(poor_person, person_go);
             }
@@ -267,7 +267,7 @@ public class PersonManager : MonoBehaviour
         reputation += reputation_change;
         reputation = Mathf.Min(reputation, max_reputation);
         reputation = Mathf.Max(reputation, min_reputation);
-        print("reputation of all cities is " + reputation);
+        //print("reputation of all cities is " + reputation);
     }
 
     public static void add_notification_for_city(Vector3Int city_tile_position, bool is_notification)

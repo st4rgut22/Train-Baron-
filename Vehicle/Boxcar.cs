@@ -48,32 +48,39 @@ public class Boxcar : MovingObject
             base.Update();
     }
 
-    public void stop_single_boxcar()
+    public bool is_last_vehicle_in_list()
     {
-        if (!train.is_train_departed_for_turntable)
-        {
-            if (station_track.station.orientation == RouteManager.Orientation.South || station_track.station.orientation == RouteManager.Orientation.North)
-            {
-                int boxcar_position = gameObject.GetComponent<Boxcar>().train.get_boxcar_position(gameObject);
-                if (station_track.inner == 0) // outer
-                {
-                    if (boxcar_position == 4)
-                    {
-                        print("OUTER TRACk boxcar position 3. tile position is " + tile_position);
-                        stop_single_car_if_wait_tile(false);
-                    }
-                }
-                else  // inner
-                {
-                    if (boxcar_position == 4)
-                    {
-                        print("INNER TRACk boxcar position 4. tile position is " + tile_position);
-                        stop_single_car_if_wait_tile(true);
-                    }
-                }
-            }
-        }
+        int boxcar_pos = train.get_boxcar_position(gameObject);
+        if (boxcar_pos == 4) return true;
+        else { return false; }
     }
+
+    //public void stop_single_boxcar()
+    //{
+    //    if (!train.is_train_departed_for_turntable)
+    //    {
+    //        if (station_track.station.orientation == RouteManager.Orientation.South || station_track.station.orientation == RouteManager.Orientation.North)
+    //        {
+    //            int boxcar_position = gameObject.GetComponent<Boxcar>().train.get_boxcar_position(gameObject);
+    //            if (station_track.inner == 0) // outer
+    //            {
+    //                if (boxcar_position == 4)
+    //                {
+    //                    //print("OUTER TRACk boxcar position 3. tile position is " + tile_position);
+    //                    stop_single_car_if_wait_tile(false);
+    //                }
+    //            }
+    //            else  // inner
+    //            {
+    //                if (boxcar_position == 4)
+    //                {
+    //                    //print("INNER TRACk boxcar position 4. tile position is " + tile_position);
+    //                    stop_single_car_if_wait_tile(true);
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
     public void initialize_boxcar(int id)
     {
@@ -95,19 +102,27 @@ public class Boxcar : MovingObject
         base.arrive_at_city();
         if (is_occupied)
         {
-
-            passenger_go.GetComponent<Person>().set_animation_clip("player_idle_front");
+            Person person = passenger_go.GetComponent<Person>();
+            person.set_animation_clip("player_idle_front");
             Quaternion current_rotation = new Quaternion();
+            bool is_last_boxcar = person.boxcar_go.GetComponent<Boxcar>().is_last_vehicle_in_list();
             if (station_track.station.orientation == RouteManager.Orientation.North || station_track.station.orientation == RouteManager.Orientation.West)
             {
-                current_rotation.eulerAngles = new Vector3(0, 0, 90);
-                passenger_go.transform.localRotation = current_rotation; // rotate to correct for occupant turning at bend
+                if (station_track.station.orientation == RouteManager.Orientation.North && is_last_boxcar && station_track.inner == 0)
+                {
+                    current_rotation.eulerAngles = new Vector3(0,0,180);
+                }
+                else { current_rotation.eulerAngles = new Vector3(0, 0, 90); }                
             }
             if (station_track.station.orientation == RouteManager.Orientation.East || station_track.station.orientation == RouteManager.Orientation.South)
             {
-                current_rotation.eulerAngles = new Vector3(0, 0, -90);
-                passenger_go.transform.localRotation = current_rotation; // rotate to correct for occupant turning at bend
+                if (station_track.station.orientation == RouteManager.Orientation.South && is_last_boxcar && station_track.inner == 0)
+                {
+                    current_rotation.eulerAngles = new Vector3(0, 0, 0);
+                }
+                else { current_rotation.eulerAngles = new Vector3(0, 0, -90); }                
             }
+            passenger_go.transform.localRotation = current_rotation; // rotate to correct for occupant turning at bend
         }
     }
 
@@ -196,7 +211,7 @@ public class Boxcar : MovingObject
             return unloading_pos_list;
         if (passenger_go.GetComponent<Person>().city == city)
         {
-            print("you cant unload to the same city you came from");
+            //print("you cant unload to the same city you came from");
             return unloading_pos_list;
         }
         int building_length = valid_pos[is_inner].Count;

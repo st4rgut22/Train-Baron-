@@ -286,12 +286,12 @@ public class GameManager : EventDetector
     {
         if (is_level_beaten)
         {
-            print("level is beaten");
+            //print("level is beaten");
             win_screen.SetActive(true);
         }
         else
         {
-            print("level is lost");
+            //print("level is lost");
             lose_screen.SetActive(true);
         }
     }
@@ -321,7 +321,7 @@ public class GameManager : EventDetector
                 break;
         }
         update_game_money_text(profit);
-        print("STAR TO PROFIT IS " + star_review + " and " + profit);
+        //print("STAR TO PROFIT IS " + star_review + " and " + profit);
     }
 
     public static RaycastHit2D[] get_all_object_at_cursor(Vector3 cursor_pos)
@@ -503,7 +503,7 @@ public class GameManager : EventDetector
                     if (boxcar.is_wait_for_turntable) // if user clicks on a leaving boxcar ignore
                     {
                         Vector2Int unoffset_boxcar_city_location = (Vector2Int)boxcar_go.GetComponent<Boxcar>().tile_position;
-                        print("board boxcar with tile position " + unoffset_boxcar_city_location);
+                        //print("board boxcar with tile position " + unoffset_boxcar_city_location);
                         int hint_index = is_selected_tile_in_context(unoffset_boxcar_city_location);
                         if (hint_index != -1)
                         {
@@ -528,7 +528,7 @@ public class GameManager : EventDetector
                 }
                 else if (hint_context == "unload")
                 {
-                    print("unload from boxcar to city");
+                    //print("unload from boxcar to city");
                     if (is_tutorial_mode && !TutorialManager.unload_flag && !TutorialManager.step_in_progress)
                     {
                         TutorialManager.unload_flag = true;
@@ -543,7 +543,9 @@ public class GameManager : EventDetector
                     boxcar.city.place_boxcar_tile(boxcar.boxcar_type, (Vector3Int) selected_tile);
                     boxcar.city.add_boxcar_to_tilemap_with_location(boxcar.boxcar_type, selected_tile);
                     vehicle_manager.boxcar_fill_void(hint_gameobject); // move boxcars behind this one forward
-                    boxcar.train.remove_boxcar(boxcar.boxcar_id);
+                    boxcar.train.boxcar_squad.Remove(hint_gameobject);
+                    Destroy(hint_gameobject);
+                    //boxcar.train.remove_boxcar(boxcar.boxcar_id);
                 }
                 else if (hint_context == "north exit" || hint_context == "east exit" || hint_context == "west exit" || hint_context == "south exit") // DEPART TRAIN
                 {
@@ -614,7 +616,7 @@ public class GameManager : EventDetector
                 }
                 else if (collider_tag_list.Contains("structure"))
                 {
-                    print("collider tag list includes structure");
+                    //print("collider tag list includes structure");
                     if (is_tutorial_mode && !TutorialManager.step_in_progress)
                     {
                         if (!selected_tile.Equals(CityManager.home_base_location))
@@ -720,24 +722,24 @@ public class GameManager : EventDetector
             if (!moving_object.in_city)
             {
                 if (moving_object.gameObject.tag == "boxcar")
-                    print("enable boxcar " + moving_object.gameObject.GetComponent<Boxcar>().boxcar_id + "  for screen line. GAME menu state is TRUE but moving object NOT IN city");
-                print("GAME MENU ON object NOT in city. TURN on VEHICLE");
+                    //print("enable boxcar " + moving_object.gameObject.GetComponent<Boxcar>().boxcar_id + "  for screen line. GAME menu state is TRUE but moving object NOT IN city");
+                //print("GAME MENU ON object NOT in city. TURN on VEHICLE");
                 StartCoroutine(moving_object.switch_on_vehicle(true, is_delayed:true)); // delay
             }
             else {
-                print("GAME MENU OFF object IN city turn OFF vehicle");
+                //print("GAME MENU OFF object IN city turn OFF vehicle");
                 StartCoroutine(moving_object.switch_on_vehicle(false));
             }
         if (city_menu_state)
         {            
             if (moving_object.in_city && moving_object.city == CityManager.Activated_City_Component)
             {
-                print("CITY MENU ON object IN ACTIVATED city turn ON vehicle");
+                //print("CITY MENU ON object IN ACTIVATED city turn ON vehicle");
                 StartCoroutine(moving_object.switch_on_vehicle(true));
             }
             else
             {
-                print("CITY MENU ON object not IN ACTIVATED city turn OFF vehicle");
+                //print("CITY MENU ON object not IN ACTIVATED city turn OFF vehicle");
                 StartCoroutine(moving_object.switch_on_vehicle(false));
             }
         }

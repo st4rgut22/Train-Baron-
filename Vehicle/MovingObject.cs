@@ -20,7 +20,7 @@ public class MovingObject : Simple_Moving_Object
     public bool is_wait_for_turntable;
     public bool is_boxcar_stopped;
     public bool is_fill_void;
-    public bool is_instantiated;
+    //public bool is_instantiated;
     public bool go_to_turntable = false;
     public bool one_time_move_pass = false;
 
@@ -33,7 +33,7 @@ public class MovingObject : Simple_Moving_Object
     // Start is called before the first frame update
     public void Awake()
     {
-        is_instantiated = true;
+        //is_instantiated = true;
         is_fill_void = false;
         is_boxcar_stopped = true;
         is_wait_for_turntable = false;
@@ -66,7 +66,7 @@ public void set_destination()
         if (!in_city)
         {
             Tilemap toggled_tilemap = GameManager.track_manager.top_tilemap;
-            //print("update vehicle board at " + tile_position);
+            ////print("update vehicle board at " + tile_position);
             GameManager.vehicle_manager.update_vehicle_board(VehicleManager.vehicle_board, gameObject, tile_position, prev_tile_position);
             position_pair = RouteManager.get_destination(this, toggled_tilemap, offset); // set the final orientation and destination
         }
@@ -110,10 +110,10 @@ public void set_destination()
                     {
                         Boxcar boxcar = gameObject.GetComponent<Boxcar>();
                         distance_multiplier -= boxcar.train.get_distance_from_train(boxcar.boxcar_id); // offset boxcar n units away from train
-                        print("distance multiplier of boxcar " + boxcar.boxcar_id + " is " + distance_multiplier);
+                        //print("distance multiplier of boxcar " + boxcar.boxcar_id + " is " + distance_multiplier);
                     }
                     train_destination = transform.up * distance_multiplier * RouteManager.cell_width + transform.position; // 5 units in the direction the train is facing
-                    print("destination is " + train_destination);
+                    //print("destination is " + train_destination);
                     if (gameObject.tag == "train")
                         gameObject.transform.parent = gameObject.GetComponent<Train>().city.turn_table.transform; // make train child of turntable so it rotates with it
                     else { gameObject.transform.parent = gameObject.GetComponent<Boxcar>().city.turn_table.transform; }
@@ -179,12 +179,12 @@ public void set_destination()
     {
         if (in_city)
         {
-            if (city.city_board[tile_position.x + 1, tile_position.y + 1] == null) print("vehicle not found in city");
+            if (city.city_board[tile_position.x + 1, tile_position.y + 1] == null) //print("vehicle not found in city");
             city.city_board[tile_position.x + 1, tile_position.y + 1] = null;
         }
         else
         {
-            if (city.city_board[tile_position.x + 1, tile_position.y + 1] == null) print("vehicle not found in game view");
+            if (city.city_board[tile_position.x + 1, tile_position.y + 1] == null) //print("vehicle not found in game view");
             VehicleManager.vehicle_board[tile_position.x + 1, tile_position.y + 1] = null;
         }
     }
@@ -225,7 +225,7 @@ public void set_destination()
             // if in the meantime, (during the delay) the game menu was toggled, mmake sure consistent with game menu state
             if (!GameManager.game_menu_state)
             {
-                print("game menu toggled OFF during delay. dont show BOXCAR sprite renderer");
+                //print("game menu toggled OFF during delay. dont show BOXCAR sprite renderer");
                 yield break;
             }
         }            
@@ -242,7 +242,7 @@ public void set_destination()
         }
         if (gameObject.tag == "boxcar")
         {
-            print("boxcar " + gameObject.GetComponent<Boxcar>().boxcar_id + " sprite renderer state is " + state);
+            //print("boxcar " + gameObject.GetComponent<Boxcar>().boxcar_id + " sprite renderer state is " + state);
         }
         GetComponent<SpriteRenderer>().enabled = state;
     }
@@ -255,7 +255,7 @@ public void set_destination()
         complete_exit = false; // on verge of departing city
         departure_track_chosen = false;
         is_boxcar_stopped = false;
-        is_instantiated = false;
+        //is_instantiated = false;
         go_to_turntable = false;
     }
 
@@ -280,7 +280,7 @@ public void set_destination()
 
     public override void OnPointerClick(PointerEventData eventData)
     {
-        //print("inside Moving Object class");
+        ////print("inside Moving Object class");
     }
 
     public void set_position(Vector3Int tile_position)
@@ -371,17 +371,23 @@ public void set_destination()
     }
 
     public void stop_car_if_wait_tile()
-    {
-        if (random_algos.list_contains_arr(CityManager.boxcar_city_wait_tile, tile_position) && in_city && !is_instantiated) // STOP CONDITION
-            if (gameObject == gameObject.GetComponent<Boxcar>().train.boxcar_squad[0]) // is lead boxcar
+    {       
+        if (!gameObject.GetComponent<Boxcar>().train.is_train_departed_for_turntable && in_city)
+        {
+            Boxcar boxcar = gameObject.GetComponent<Boxcar>();
+            int track_location_idx = boxcar.station_track.inner; // 0 means outer track
+            int orientation_idx = boxcar.station_track.station.orientation_to_idx();
+            int boxcar_pos_idx = boxcar.train.get_boxcar_position(gameObject) - 1;
+            if (boxcar_pos_idx == 0) print(tile_position);
+            int[] boxcar_wait_tile = CityManager.boxcar_city_wait_tile[orientation_idx][track_location_idx][boxcar_pos_idx];
+            if (tile_position.x == boxcar_wait_tile[0] && tile_position.y == boxcar_wait_tile[1])
             {
-                if (!gameObject.GetComponent<Boxcar>().train.is_train_departed_for_turntable)
-                {
-                    GetComponent<Boxcar>().train.GetComponent<CapsuleCollider2D>().size = new Vector2(.205f, .837f);
-                    GetComponent<Boxcar>().train.stop_all_boxcar_at_turntable();
-                    is_boxcar_stopped = true;
-                }
+                boxcar.train.GetComponent<CapsuleCollider2D>().size = new Vector2(.205f, .837f);
+                print("stopping boxcar at position " + boxcar_pos_idx + " at wait tile " + boxcar_wait_tile);
+                boxcar.train.stop_single_boxcar_at_turntable(gameObject);
+                is_boxcar_stopped = true;
             }
+        }
     }
 
     public override IEnumerator bezier_move(Transform location, RouteManager.Orientation orientation, RouteManager.Orientation final_orientation)
@@ -423,7 +429,7 @@ public void set_destination()
                 if (!is_boxcar_stopped) // one time boolean flag only execute once
                 {
                     stop_car_if_wait_tile(); // stop all boxcars if wait tile
-                    gameObject.GetComponent<Boxcar>().stop_single_boxcar();
+                    //gameObject.GetComponent<Boxcar>().stop_single_boxcar();
                 }
             }
             float interp = 1.0f - t_param;
@@ -448,7 +454,7 @@ public void set_destination()
         in_tile = false;
         if (gameObject.tag == "boxcar" && gameObject.GetComponent<Boxcar>().boxcar_id == 3)
         {
-            print("FINISH BOXCAR 3 BEZIER MOVE FROM " + tile_position + " TO " + next_tilemap_position);
+            //print("FINISH BOXCAR 3 BEZIER MOVE FROM " + tile_position + " TO " + next_tilemap_position);
         }
         if (is_fill_void)
         {

@@ -59,7 +59,7 @@ public class TrainRouteManager : RouteManager
                 tile_world_coord.y += cell_width / 2;
                 break;
             default:
-                //print("train orientation is not set. cannot set boxcar position");
+                ////print("train orientation is not set. cannot set boxcar position");
                 break;
         }
         // Get the center of the city where the vehicle is instantiated

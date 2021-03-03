@@ -54,7 +54,7 @@ public class Train : MovingObject
     {
         // should still trigger when not visible in inspector
         // not updated in unity's inspector
-        //print("collided with " + collision.gameObject.name);        
+        ////print("collided with " + collision.gameObject.name);        
         if (collision.gameObject.tag == "boxcar" || collision.gameObject.tag == "train")
         {
             bool collide_go_in_city = collision.gameObject.GetComponent<MovingObject>().in_city;
@@ -117,7 +117,7 @@ public class Train : MovingObject
     {
         // destroy train and collided train/boxcar
         // TODOED: remove car from city tilemap or vehicle tilemap
-        print("destroy train " + id + " at " + Time.time);
+        //print("destroy train " + id + " at " + Time.time);
         GameManager.train_list.Remove(gameObject);
         city.train_list.Remove(gameObject);
         foreach (GameObject boxcar_go in boxcar_squad)
@@ -178,7 +178,7 @@ public class Train : MovingObject
             {
                 if (!boxcar.in_city && menu_state) 
                 {
-                    print("turn on train boxcar " + boxcar.boxcar_id + " NOT IN CITY and game mneu is on. Turn ON sprit e renderer");
+                    //print("turn on train boxcar " + boxcar.boxcar_id + " NOT IN CITY and game mneu is on. Turn ON sprit e renderer");
                     StartCoroutine(boxcar.switch_on_vehicle(true));
                     continue;
                 }
@@ -187,12 +187,12 @@ public class Train : MovingObject
             {
                 if (boxcar.in_city && menu_state && boxcar.city == CityManager.Activated_City_Component)
                 {
-                    print("not GAME MENU. TURN ON TRAIN boxcar " + boxcar.boxcar_id + " IN CITY and . Turn ON sprit e renderer");
+                    //print("not GAME MENU. TURN ON TRAIN boxcar " + boxcar.boxcar_id + " IN CITY and . Turn ON sprit e renderer");
                     StartCoroutine(boxcar.switch_on_vehicle(true));
                     continue;
                 }
             }
-            print("switch vehicle OFF");
+            //print("switch vehicle OFF");
             StartCoroutine(boxcar.switch_on_vehicle(false));
         }
     }
@@ -414,7 +414,7 @@ public class Train : MovingObject
             Tile cur_tile = (Tile)tilemap.GetTile(tile_position);
             if (cur_tile_name != cur_tile.name) // if  the current track has switched, update the next track
             {
-                print("current track has switched from " + cur_tile_name + " to " + cur_tile.name);
+                //print("current track has switched from " + cur_tile_name + " to " + cur_tile.name);
                 next_tile_pos = RouteManager.get_destination(this, tilemap, offset).tile_dest_pos;
                 next_track_tile = (Tile)tilemap.GetTile((Vector3Int)next_tile_pos);
             }
@@ -492,7 +492,7 @@ public class Train : MovingObject
         bc2d.size = new Vector2(1f, .73f); // fatten the boxcar
         Tilemap boxcar_tilemap = CityDetector.boxcar_orientation_to_offset_tilemap(boxcar.orientation);
         Vector3Int boxcar_cell_pos = boxcar_tilemap.WorldToCell(boxcar_go.transform.position);
-        //print("boxcar " + boxcar_go.name + " tile position " + boxcar.tile_position + " prev tile position " + boxcar.prev_tile_position);
+        ////print("boxcar " + boxcar_go.name + " tile position " + boxcar.tile_position + " prev tile position " + boxcar.prev_tile_position);
         boxcar.prev_tile_position = boxcar.tile_position; // move up  one
         boxcar.tile_position = boxcar_cell_pos;
         //boxcar.next_tilemap_position = (Vector2Int)boxcar.tile_position;
@@ -503,7 +503,7 @@ public class Train : MovingObject
 
     public void stop_all_boxcar_at_turntable()
     {
-        print("stop all boxcar at turntable");
+        //print("stop all boxcar at turntable");
         foreach (GameObject boxcar_go in boxcar_squad)
         {
             stop_single_boxcar_at_turntable(boxcar_go);
@@ -520,8 +520,5 @@ public class Train : MovingObject
         return false;
     }
 
-    public void attach_boxcar(GameObject boxcar)
-    {
-        boxcar_squad.Add(boxcar);
-    }
+
 }

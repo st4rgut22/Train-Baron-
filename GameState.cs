@@ -14,14 +14,14 @@ public static class GameState
     public static void next_level()
     {
         int level = PlayerPrefs.GetInt("level");
-        Debug.Log("advance to level " + (level + 1));
+        //Debug.Log("advance to level " + (level + 1));
         PlayerPrefs.SetInt("level",level+1);
     }
 
     public static int get_high_score()
     {
         int level = PlayerPrefs.GetInt("level");
-        Debug.Log("level is " + level + " high score is " + (baseline_egghead_goal + (level - 1) * egghead_increment));
+        //Debug.Log("level is " + level + " high score is " + (baseline_egghead_goal + (level - 1) * egghead_increment));
         if (level == 1) return 0;
         else
         {

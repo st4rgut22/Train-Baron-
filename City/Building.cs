@@ -37,8 +37,8 @@ public class Building : Structure
         if (building_lot.id == initial_building_lot_name) 
         {
             Room room = spawn_room();
-            print(city.city_type + " increment total room by 1. Total room is NOW " + CityManager.total_room);
-            print("bldg name is " + gameObject.name);
+            //print(city.city_type + " increment total room by 1. Total room is NOW " + CityManager.total_room);
+            //print("bldg name is " + gameObject.name);
             if (gameObject.name.Contains("Station"))
             {
                 Person person = room.spawn_person(true);

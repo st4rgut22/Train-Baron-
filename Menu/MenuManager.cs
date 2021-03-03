@@ -204,7 +204,7 @@ public class MenuManager : EventDetector
     {
         exit_bck.SetActive(false);
         GameManager.game_menu_state = true;
-        print("turn OFF SHIPYARD, set game menu state true");
+        //print("turn OFF SHIPYARD, set game menu state true");
         GameManager.city_manager.set_activated_city(); // hide all the trains in the city
         GameObject.Find("GameManager").GetComponent<GameManager>().switch_on_shipyard(false);
         activate_default_handler();
@@ -264,7 +264,7 @@ public class MenuManager : EventDetector
         {
             PauseManager.pause_game(false);
             GameManager.game_menu_state = true;
-            print("set game menu state TRUE becuase prev menu is store menu/review menu");
+            //print("set game menu state TRUE becuase prev menu is store menu/review menu");
         }
         if (menu[0] == store_menu || menu[0] == review_menu)
         {

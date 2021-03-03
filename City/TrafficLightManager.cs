@@ -105,7 +105,7 @@ public class TrafficLightManager : Simple_Moving_Object
             this.orientation = final_orientation; // updating the orientation at every new tile
             if (seen_track_tile_set.Contains(tile_position))
             {
-                //print("yellow warning for orientation " + orientation + " this route contains loop");
+                ////print("yellow warning for orientation " + orientation + " this route contains loop");
                 signal = update_signal(signal, Traffic_Light.Yellow); // warning, this route contains a loop
                 break;
             }
@@ -113,7 +113,7 @@ public class TrafficLightManager : Simple_Moving_Object
             GameObject vehicle_go = VehicleManager.vehicle_board[tile_position.x + 1, tile_position.y + 1]; // remove offset
             if (!tile_position.Equals(city_tile_position) && vehicle_go != null)
             {
-                //print("RED warning for orientation " + orientation + " vehicle " + vehicle_go.name + " found at " + tile_position);
+                ////print("RED warning for orientation " + orientation + " vehicle " + vehicle_go.name + " found at " + tile_position);
                 signal = update_signal(signal, Traffic_Light.Red); // is train enroute? . If YES return RED todoed
             }
             PositionPair position_pair;
@@ -126,7 +126,7 @@ public class TrafficLightManager : Simple_Moving_Object
                 GameObject city_object = GameManager.city_manager.get_city(next_tilemap_position);
                 if (city_object == null) // end of track
                 {
-                    //print("yellow warning for orientation " + orientation + " this route does not end at a city");
+                    ////print("yellow warning for orientation " + orientation + " this route does not end at a city");
                     signal = update_signal(signal, Traffic_Light.Yellow);
                     break;
                 }
@@ -140,12 +140,12 @@ public class TrafficLightManager : Simple_Moving_Object
                     bool station_available = incoming_station.is_station_track_available();
                     if (station_available)
                     {
-                        //print("GREEN for orientation " + orientation + " stations available GOOD TO GO");
+                        ////print("GREEN for orientation " + orientation + " stations available GOOD TO GO");
                         signal = update_signal(signal, Traffic_Light.Green);
                     }
                     else
                     {
-                        //print("RED warning for orientation " + orientation + " the destination city has no available tracks");
+                        ////print("RED warning for orientation " + orientation + " the destination city has no available tracks");
                         signal = update_signal(signal, Traffic_Light.Red);
                     } // station track is not available
                     break;

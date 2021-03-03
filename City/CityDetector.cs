@@ -158,7 +158,7 @@ public class CityDetector : EventDetector
             catch (IndexOutOfRangeException) { print("eligible boxcar location (" + boxcar_loc[0] + "," + boxcar_loc[1] + ") is not suitable for boxcar placement"); };
         }
         all_eligible_boxcar.AddRange(offset_tile_list);
-        print("available boxcar tally is " + available_boxcar + " size of available boxcar list is " + available_boxcar_list.Count);
+        //print("available boxcar tally is " + available_boxcar + " size of available boxcar list is " + available_boxcar_list.Count);
         return available_boxcar_list;
     }
 

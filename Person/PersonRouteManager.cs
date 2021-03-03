@@ -52,7 +52,7 @@ public class PersonRouteManager : RouteManager
         // RIGHT DOOR TOP RIGHT ALWAYS FACES THE OUTER TRACK (RIGHT DOOR TOP RIGHT IS ON BOTTOM OF ROOM. OUTER TRACK IS RIGHT IN FRONT OF IT
         GameObject door_parent;
         int is_inner = boxcar.station_track.inner;
-        print("is station track with boxcar inner? " + is_inner);
+        //print("is station track with boxcar inner? " + is_inner);
         //if (room.outer_door != null && room.inner_door != null) // 2 doors to choose from
         //{ // choose the door that is on the right side of the track
         if (is_inner == 0)
@@ -116,7 +116,7 @@ public class PersonRouteManager : RouteManager
         occupant.boxcar_go = boxcar.gameObject;
         boxcar.is_being_boarded = true;
         room.booked = false;
-        print("set room instance to NULL");
+        //print("set room instance to NULL");
         room.person_go_instance = null;
         boxcar.passenger_go = occupant_go;
         GameObject door = get_exit_door(boxcar, room);
@@ -178,7 +178,7 @@ public class PersonRouteManager : RouteManager
         Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
         Vector2 boxcar_position = boxcar_go.transform.position;
         Orientation final_orientation = TrackManager.enter_boxcar_orientation(boxcar_position, person_go_instance.transform.position);
-        print("enter boxcar cp with person orientation " + person.orientation + " final orientation " + final_orientation + " boxcar tile pos " + boxcar.tile_position);
+        //print("enter boxcar cp with person orientation " + person.orientation + " final orientation " + final_orientation + " boxcar tile pos " + boxcar.tile_position);
         Checkpoint step_on_boxcar_cp = new Checkpoint(boxcar.transform.position, (Vector2Int)boxcar.tile_position, person.orientation, final_orientation, "walk");
         List<Checkpoint> board_train_checkpoints = new List<Checkpoint>() { step_on_boxcar_cp };
         yield return StartCoroutine(person.move_checkpoints(board_train_checkpoints));
@@ -217,7 +217,7 @@ public class PersonRouteManager : RouteManager
         List<Checkpoint> go_home_checkpoints = new List<Checkpoint>();
         GameObject person_go_instance = boxcar.passenger_go;
         boxcar.is_occupied = false;
-        print("unload train boxcar " + boxcar.boxcar_id +  " is NOT occupied");
+        //print("unload train boxcar " + boxcar.boxcar_id +  " is NOT occupied");
         person_go_instance.transform.parent = null;
         Person person = person_go_instance.GetComponent<Person>();
         boxcar.passenger_go = null;
@@ -225,7 +225,7 @@ public class PersonRouteManager : RouteManager
         person.room = null;
         room.booked = true;
         room.person_go_instance = person_go_instance;
-        print("set room instance to PERSON " + person_go_instance.GetComponent<Person>().name);
+        //print("set room instance to PERSON " + person_go_instance.GetComponent<Person>().name);
         room.unlocked_door = get_exit_door(boxcar, room);
         // the final dest tile is offset from the person's route, so find the offset using city map
         Orientation home_orientation = CityManager.station_track_boarding_map[boxcar.station_track.start_location];
