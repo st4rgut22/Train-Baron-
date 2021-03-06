@@ -81,6 +81,7 @@ public class Person : Simple_Moving_Object
         enter_home_orientation = RouteManager.Orientation.None; // initialized on enter home sequence
         final_dest_tile_pos = new Vector3Int(-1, -1, 0);
         board_start_time = Time.time;
+        StartCoroutine(does_person_give_up());
     }
 
     public void pop_thought_bubble()
@@ -131,19 +132,31 @@ public class Person : Simple_Moving_Object
             }
             final_destination_reached = false;
         }
-        boarding_duration = Time.time - board_start_time;
-        if (boarding_duration >= board_desire_timeout && !trip_in_progress && !activity_in_progress && !is_selected) // waiting for a train
+    }
+
+    public IEnumerator does_person_give_up()
+    {
+        while (true)
         {
-            leave_review(room.building.city, Review.Zero_Star); // worst review is if person is not picked up
-            if (room.building.city.city_type != "Entrance") // if city is entrance, then person keeps desiring to go home
+            if (!PauseManager.game_is_paused)
             {
-                pop_thought_bubble();
-                StartCoroutine(schedule_activity());
+                boarding_duration = Time.time - board_start_time - PauseManager.find_cumulative_pause(board_start_time);
+                //print("boarding duration is " + boarding_duration);
+                if (boarding_duration >= board_desire_timeout && !trip_in_progress && !activity_in_progress && !is_selected) // waiting for a train
+                {
+                    leave_review(room.building.city, Review.Zero_Star); // worst review is if person is not picked up
+                    if (room.building.city.city_type != "Entrance") // if city is entrance, then person keeps desiring to go home
+                    {
+                        pop_thought_bubble();
+                        StartCoroutine(schedule_activity());
+                    }
+                    else
+                    {
+                        board_start_time = Time.time; // reset timer until leave another bad review due to timeout
+                    }
+                }
             }
-            else
-            {
-                board_start_time = Time.time; // reset timer until leave another bad review due to timeout
-            }
+            yield return new WaitForSeconds(1);
         }
     }
 

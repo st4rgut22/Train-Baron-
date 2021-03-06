@@ -12,9 +12,10 @@ public class CityManager : BoardManager
     //oversee routes between cities for to inform decision making
 
     public static List<City> city_list;
+    public static List<string> initial_building_lot_list;
     public static City home_base;
     //public static Vector2Int home_base_location = new Vector2Int(3, 6); // location of city
-    public static Vector2Int home_base_location = new Vector2Int(10, 5); // TODO: temporary to test structure
+    public static Vector2Int home_base_location;
     public int city_id;
     public GameObject City;
     public static GameObject Activated_City;
@@ -149,13 +150,32 @@ public class CityManager : BoardManager
     public const int restaurant_cost = 100;
     public const int diner_cost = 20;
 
+    public void find_station_location()
+    {
+        Tilemap structure_tilemap = GameObject.Find("Structure").GetComponent<Tilemap>();
+        for (int i = 0; i < board_width; i++)
+        {
+            for (int j = 0; j < board_height; j++)
+            {
+                Tile struct_tile = (Tile)structure_tilemap.GetTile(new Vector3Int(i, j, 0));
+                if (struct_tile != null)
+                {
+                    home_base_location = new Vector2Int(i, j);
+                    print("home base location is at " + home_base_location);
+                }
+            }
+        }
+    }
+
     private void Awake()
     {
         base.Awake();
+        initial_building_lot_list = new List<string>() { "Building Lot South", "Building Lot West", "Building Lot North", "Building Lot East" };
         city_list = new List<City>();
         total_people = 0;
         total_room = 0;
         entrance_update_interval = 15;
+        find_station_location();
         create_city((Vector3Int)home_base_location); // initialize train entrance
         home_base = get_city(home_base_location).GetComponent<City>();
         //Activated_City_Component = home_base;

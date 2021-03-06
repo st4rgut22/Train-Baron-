@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Tilemaps;
 using System;
+using UnityEngine.SceneManagement;
 
 public class MenuManager : EventDetector
 {
@@ -77,7 +78,7 @@ public class MenuManager : EventDetector
         event_handler_list.Add(game_icon_canvas);
         event_handler_list.Add(review_menu);
         //activate_start_menu_handler(); // activate the start menu
-        play_btn.onClick.AddListener(activate_begin_game_handler);
+        play_btn.onClick.AddListener(start_game);
         tutorial_btn.onClick.AddListener(activate_tutorial);
         store_btn.onClick.AddListener(delegate { activate_handler(new List<GameObject> { store_menu }); });
         shipyard_exit_btn.onClick.AddListener(turn_off_shipyard);
@@ -216,6 +217,13 @@ public class MenuManager : EventDetector
         GameManager.is_tutorial_mode = true;
         blocking_canvas.SetActive(true); // only makes a certain part of screen selectable
         StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step());
+    }
+
+    public void start_game()
+    {
+        GameState.show_start_screen = false;
+        string level_name = GameState.get_level_name();
+        SceneManager.LoadScene(level_name);
     }
 
     public void activate_begin_game_handler()

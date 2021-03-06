@@ -131,7 +131,7 @@ public class Boxcar : MovingObject
         return orientation;
     }
 
-    public void set_depart_status(bool status)
+    public void set_depart_status(bool status)  
     {
         departing = status;
     }

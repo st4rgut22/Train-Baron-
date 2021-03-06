@@ -29,6 +29,7 @@ public class GameManager : EventDetector
     public static GameObject top_nature;
     public static GameObject medium_nature;
     public static GameObject bottom_nature;
+    public static GameObject bottom_nature_2;
     public static GameObject Shipyard_Track;
     public static GameObject Shipyard_Track2;
     public static GameObject Shipyard_Inventory;
@@ -98,6 +99,10 @@ public class GameManager : EventDetector
 
     public Tilemap offset_boxcar_tilemap; // saved offset tilemap
 
+    public Button Easy_Btn;
+    public Button Medium_Btn;
+    public Button Hard_Btn;
+
     public static GameObject traffic_tilemap_go;
     public static Tilemap traffic_tilemap;
     public static Tilemap traffic_tilemap_offset_north;
@@ -120,13 +125,24 @@ public class GameManager : EventDetector
     public static bool is_tutorial_mode;
 
     public GameObject tutorial_canvas;
-
     private void Awake()
     {
         win_screen = GameObject.Find("Win");
         lose_screen = GameObject.Find("Lose");
         GameState.set_egghead_goal(); // initialize level if not done so.
-        high_score_text.text = "High Score: " + GameState.get_high_score() + "x";
+
+        if (GameState.show_start_screen)
+        {
+            Easy_Btn.onClick.AddListener(select_easy);
+            Medium_Btn.onClick.AddListener(select_medium);
+            Hard_Btn.onClick.AddListener(select_hard);
+            if (GameState.difficulty == "easy")
+                Easy_Btn.Select();
+            else if (GameState.difficulty == "medium")
+                Medium_Btn.Select();
+            else if (GameState.difficulty == "hard")
+                Hard_Btn.Select();
+        }
         close_shipyard_btn.SetActive(false);
         east_bound = 16;
         south_bound = 1;
@@ -165,6 +181,7 @@ public class GameManager : EventDetector
         top_nature = GameObject.Find("Top Nature");
         medium_nature = GameObject.Find("Medium Nature");
         bottom_nature = GameObject.Find("Bottom Nature");
+        bottom_nature_2 = GameObject.Find("Bottom Nature Blocking 2");
         tutorial_manager = tutorial_canvas.GetComponent<TutorialManager>();
         Shipyard_Track = GameObject.Find("Shipyard Track");
         Shipyard_Track2 = GameObject.Find("Shipyard Track 2");
@@ -191,6 +208,7 @@ public class GameManager : EventDetector
         lose_quit_btn.GetComponent<Button>().onClick.AddListener(quit);
         win_screen.SetActive(false);
         lose_screen.SetActive(false);
+
         close_game.GetComponent<Button>().onClick.AddListener(exit);
     }
 
@@ -218,13 +236,33 @@ public class GameManager : EventDetector
 
     }
 
+    public void select_easy()
+    {
+        GameState.difficulty = "easy";
+        Easy_Btn.Select();
+        GameState.set_egghead_goal();
+    }
+
+    public void select_medium()
+    {
+        GameState.difficulty = "medium";
+        Medium_Btn.Select();
+        GameState.set_egghead_goal();
+    }
+
+    public void select_hard()
+    {
+        GameState.difficulty = "hard";
+        Hard_Btn.Select();
+        GameState.set_egghead_goal();
+    }
+
     public static void update_egghead_total(int total_people)
     {
         string goal = total_people.ToString() + "/" + GameState.egghead_goal.ToString();
         egghead_total_text.text = goal;
         if (total_people >= GameState.egghead_goal)
         {
-            GameState.next_level();
             end_level(true);
         }
         else if (total_people == 0)
@@ -243,14 +281,16 @@ public class GameManager : EventDetector
         win_screen.SetActive(false);
         lose_screen.SetActive(false);
         GameState.show_start_screen = false;
-        SceneManager.LoadScene("Train Game");
+        string level_name = GameState.get_level_name();
+        SceneManager.LoadScene(level_name);
         //menu_manager.activate_begin_game_handler();
     }
 
     public static void exit_game()
     {
         GameState.show_start_screen = true;
-        SceneManager.LoadScene("Train Game");
+        string level_name = GameState.get_level_name();
+        SceneManager.LoadScene(level_name);
     }
 
     public static void update_game_money_text(int delta_money)
@@ -284,15 +324,22 @@ public class GameManager : EventDetector
 
     public static void end_level(bool is_level_beaten)
     {
+        RawImage win_star_img = GameObject.Find("Win Star").GetComponent<RawImage>();
+        RawImage lose_star_img = GameObject.Find("Lose Star").GetComponent<RawImage>();
+        PersonManager pm = person_manager.GetComponent<PersonManager>();
+        Texture texture = pm.get_star_texture(CityManager.home_base.total_star);
         if (is_level_beaten)
         {
+            GameState.next_level();
             //print("level is beaten");
             win_screen.SetActive(true);
+            win_star_img.texture = texture;
         }
         else
         {
             //print("level is lost");
             lose_screen.SetActive(true);
+            lose_star_img.texture = texture;
         }
     }
 
@@ -721,7 +768,7 @@ public class GameManager : EventDetector
         if (game_menu_state)
             if (!moving_object.in_city)
             {
-                if (moving_object.gameObject.tag == "boxcar")
+                //if (moving_object.gameObject.tag == "boxcar")
                     //print("enable boxcar " + moving_object.gameObject.GetComponent<Boxcar>().boxcar_id + "  for screen line. GAME menu state is TRUE but moving object NOT IN city");
                 //print("GAME MENU ON object NOT in city. TURN on VEHICLE");
                 StartCoroutine(moving_object.switch_on_vehicle(true, is_delayed:true)); // delay
@@ -809,6 +856,9 @@ public class GameManager : EventDetector
         top_nature.SetActive(!state);
         medium_nature.SetActive(!state);
         bottom_nature.SetActive(!state);
+
+        if (bottom_nature_2 != null)
+            bottom_nature_2.SetActive(!state);
 
         track_manager.bottom_tilemap_go_1.SetActive(!state);
         track_manager.bottom_tilemap_go_2.SetActive(!state);

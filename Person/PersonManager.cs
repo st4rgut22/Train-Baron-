@@ -35,6 +35,7 @@ public class PersonManager : MonoBehaviour
     public Sprite small_home_thought_bubble;
     public Sprite small_work_thought_bubble;
     public Sprite small_vacation_thought_bubble;
+    public int people_count;
 
     public class Notification
     {
@@ -79,6 +80,7 @@ public class PersonManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        people_count = 0;
         how_to_become_poor = 100;
         how_to_become_rich = 300;
         total_notification = 0;
@@ -200,6 +202,7 @@ public class PersonManager : MonoBehaviour
 
     public GameObject create_person(bool is_person_poor)
     {
+        people_count += 1;
         GameObject person_go_instance;
         bool sex_is_male = is_sex_male();
         if (is_person_poor) // women or men

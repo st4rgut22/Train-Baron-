@@ -55,7 +55,7 @@ public class Train : MovingObject
         // should still trigger when not visible in inspector
         // not updated in unity's inspector
         ////print("collided with " + collision.gameObject.name);        
-        if (collision.gameObject.tag == "boxcar" || collision.gameObject.tag == "train")
+        if ((collision.gameObject.tag == "boxcar" || collision.gameObject.tag == "train") && !collision.gameObject.name.Contains("placeholder"))
         {
             bool collide_go_in_city = collision.gameObject.GetComponent<MovingObject>().in_city;
             if (in_city == collide_go_in_city)

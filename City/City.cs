@@ -75,12 +75,12 @@ public class City : Structure
     public int last_checked_reputation;
     public const int reputation_per_lot = 3;
     public int unapplied_reputation_count;
+    public string initial_building_lot_name;
 
     public int total_review_count;
     public int total_star;
 
     public static Dictionary<string, GameObject> building_map;
-    List<string> initial_building_lot_list;
     public GameObject BuildingLot;
     public GameObject TrafficLightManager;
     public GameObject Traffic_Light_Manager_Instance;
@@ -109,6 +109,7 @@ public class City : Structure
     {
         base.Awake();
         c = 2;
+        initial_building_lot_name = choose_random_initial_building_lot();
         Traffic_Light_Manager_Instance = Instantiate(TrafficLightManager);
         traffic_manager = Traffic_Light_Manager_Instance.GetComponent<TrafficLightManager>();
         Traffic_Light_Manager_Instance.transform.parent = gameObject.transform; // only activate when this city is activated
@@ -117,7 +118,6 @@ public class City : Structure
         unapplied_reputation_count = 0;
         total_review_count = 0;
         last_checked_reputation = reputation;
-        initial_building_lot_list = new List<string>() { "Building Lot South", "Building Lot West", "Building Lot North", "Building Lot East" }; // order determines sequence in wh/ich buildings are created
         West_Station = new Station(CityManager.west_start_outer, CityManager.west_start_inner, RouteManager.Orientation.West, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
         North_Station = new Station(CityManager.north_start_outer, CityManager.north_start_inner, RouteManager.Orientation.North, RouteManager.shipyard_track_tilemap, RouteManager.shipyard_track_tilemap2);
         East_Station = new Station(CityManager.east_start_outer, CityManager.east_start_inner, RouteManager.Orientation.East, RouteManager.shipyard_track_tilemap2, RouteManager.shipyard_track_tilemap);
@@ -201,6 +201,12 @@ public class City : Structure
         turn_table_circle.GetComponent<SpriteRenderer>().enabled = false;
         game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
         building_id = 1;
+    }
+
+    public string choose_random_initial_building_lot()
+    {
+        int rand_idx = UnityEngine.Random.Range(0, CityManager.initial_building_lot_list.Count);
+        return CityManager.initial_building_lot_list[rand_idx];
     }
 
     public void change_traffic_signal(bool is_signal_on)
@@ -498,7 +504,7 @@ public class City : Structure
 
     public void initialize_city_tilemap()
     {
-        foreach (string initial_building_lot in initial_building_lot_list)
+        foreach (string initial_building_lot in CityManager.initial_building_lot_list)
         {
             GameObject first_building_lot_go = building_map[initial_building_lot];
             BuildingLot initial_bl = first_building_lot_go.GetComponent<BuildingLot>();

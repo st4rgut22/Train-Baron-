@@ -6,27 +6,25 @@ using System;
 public static class GameState
 {
 
-    public static int baseline_egghead_goal = 5;
-    public static int egghead_increment = 3;
-    public static int egghead_goal = baseline_egghead_goal;
+    public static int easy_egghead_goal = 5;
+    public static int medium_egghead_goal = 9;
+    public static int hard_egghead_goal = 13;
+    public static int egghead_goal = easy_egghead_goal;
+    public static string difficulty = "easy";
     public static bool show_start_screen = true;
+    public static string[] level_list = new string[] { "Train Game", "Train Game Level 2", "Train Game Level 3", "Train Game Level 4", "Train Game Level 5", "Train Game Level 6", "Train Game Level 7", "Train Game Level 8", "Train Game Level 9", "Train Game Level 10", };
+
+    public static string get_level_name()
+    {
+        int level_idx = PlayerPrefs.GetInt("level") - 1;
+        string level_name = level_list[level_idx];
+        return level_name;
+    }
 
     public static void next_level()
     {
         int level = PlayerPrefs.GetInt("level");
-        //Debug.Log("advance to level " + (level + 1));
         PlayerPrefs.SetInt("level",level+1);
-    }
-
-    public static int get_high_score()
-    {
-        int level = PlayerPrefs.GetInt("level");
-        //Debug.Log("level is " + level + " high score is " + (baseline_egghead_goal + (level - 1) * egghead_increment));
-        if (level == 1) return 0;
-        else
-        {
-            return baseline_egghead_goal + (level - 2) * egghead_increment;
-        }
     }
 
     public static void set_egghead_goal()
@@ -41,6 +39,17 @@ public static class GameState
             PlayerPrefs.SetInt("level", 1);
             level = 1;
         }
-        egghead_goal = baseline_egghead_goal + (level - 1) * egghead_increment; // eg level 1 has a goal of 15, then 20, 25, 30 etc.
+        if (difficulty == "easy")
+        {
+            egghead_goal = easy_egghead_goal;
+        }
+        else if (difficulty == "medium")
+        {
+            egghead_goal = medium_egghead_goal;
+        }
+        else if (difficulty == "hard")
+        {
+            egghead_goal = hard_egghead_goal;
+        }
     }
 }
