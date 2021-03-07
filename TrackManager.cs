@@ -80,10 +80,20 @@ public class TrackManager : BoardManager
 
     public static Dictionary<string, int> track_count_dict = new Dictionary<string, int>(); // <track name, building count>
 
-
+    public static TrackManager instance;
     private void Awake()
     {
         base.Awake();
+        if (instance == null)
+        {
+            instance = this;
+            initialize();
+            DontDestroyOnLoad(transform.gameObject);
+        }
+        else if (instance != this)
+        {
+            Destroy(gameObject);
+        }
     }
 
     // Start is called before the first frame update
@@ -91,6 +101,17 @@ public class TrackManager : BoardManager
     {
         base.Start();
 
+        //initialize_track_layer();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    public void initialize()
+    {
         parking_coord_map = new Dictionary<RouteManager.Orientation, List<int>> // parking boxcars
         { // {{coordinates of loading tiles for outer track},{coordinates of loading tiles for inner track}}
             { RouteManager.Orientation.North, new List<int>{6,0,5} },
@@ -100,28 +121,21 @@ public class TrackManager : BoardManager
         };
 
         unloading_coord_map = new Dictionary<RouteManager.Orientation, List<List<int[]>>>();
-        //{ // {{coordinates of loading tiles for outer track},{coordinates of loading tiles for inner track}}
-        //    { RouteManager.Orientation.North, new int[,,] { { { 0, 7 }, { 0, 8 }, { 0, 9 } }, { { 3, 9 }, { 4, 9 }, { 5, 9 }, {6,9 } } },
-        //    { RouteManager.Orientation.East, new int[,,] { { { 16, 8 }, { 15, 8 }, { 14, 8 }, { 13, 8 }, { 12, 8 }, { 11, 8 } }, { { 16, 8 }, { 15, 8 }, { 14, 8 }, { 13, 8 }, { 12, 8 }, { 11, 8 } } } },
-        //    { RouteManager.Orientation.West, new int[,,] { { { 0, 2 }, { 1, 2 }, { 2, 2 }, { 3, 2 }, { 4, 2 }, { 5, 2 } }, { { 0, 2 }, { 1, 2 }, { 2, 2 }, { 3, 2 }, { 4, 2 }, { 5, 2 } } }  },
-        //    { RouteManager.Orientation.South, new int[,,] { { { 16, 3 }, { 16, 2 }, { 16, 1 } }, { { 13, 1 }, { 12, 1 }, { 11, 1 }, { 10, 1 } } } }
 
-        //};
-
-        List<int[]> unload_north_outer = new List<int[]>() { new int[]{ 2, 8 }, new int[] { 3, 8 }, new int[] { 4, 8 }, new int[] { 5, 8 } };
+        List<int[]> unload_north_outer = new List<int[]>() { new int[] { 2, 8 }, new int[] { 3, 8 }, new int[] { 4, 8 }, new int[] { 5, 8 } };
         List<int[]> unload_north_inner = new List<int[]>() { new int[] { 2, 8 }, new int[] { 3, 8 }, new int[] { 4, 8 }, new int[] { 5, 8 } };
         List<int[]> unload_east_outer = new List<int[]>() { new int[] { 14, 8 }, new int[] { 13, 8 }, new int[] { 12, 8 }, new int[] { 11, 8 } };
         List<int[]> unload_east_inner = new List<int[]>() { new int[] { 14, 8 }, new int[] { 13, 8 }, new int[] { 12, 8 }, new int[] { 11, 8 } };
         List<int[]> unload_west_outer = new List<int[]>() { new int[] { 2, 2 }, new int[] { 3, 2 }, new int[] { 4, 2 }, new int[] { 5, 2 } };
         List<int[]> unload_west_inner = new List<int[]>() { new int[] { 2, 2 }, new int[] { 3, 2 }, new int[] { 4, 2 }, new int[] { 5, 2 } };
-        List<int[]> unload_south_outer = new List<int[]> { new int[] { 11, 2 }, new int[] { 12, 2 }, new int[] { 13, 2 }, new int[]{ 14, 2 } };
+        List<int[]> unload_south_outer = new List<int[]> { new int[] { 11, 2 }, new int[] { 12, 2 }, new int[] { 13, 2 }, new int[] { 14, 2 } };
         List<int[]> unload_south_inner = new List<int[]> { new int[] { 11, 2 }, new int[] { 12, 2 }, new int[] { 13, 2 }, new int[] { 14, 2 } };
         unloading_coord_map[RouteManager.Orientation.North] = new List<List<int[]>>() { unload_north_outer, unload_north_inner };
         unloading_coord_map[RouteManager.Orientation.East] = new List<List<int[]>>() { unload_east_outer, unload_east_inner };
         unloading_coord_map[RouteManager.Orientation.West] = new List<List<int[]>>() { unload_west_outer, unload_west_inner };
-        unloading_coord_map[RouteManager.Orientation.South] = new List<List<int[]>>() { unload_south_outer, unload_south_inner }; 
+        unloading_coord_map[RouteManager.Orientation.South] = new List<List<int[]>>() { unload_south_outer, unload_south_inner };
 
-        List<int[]> west_outer_track = new List<int[]> { new int[]{ -1, 1 }, new int[] { 0, 1 }, new int[] { 1, 1 }, new int[] { 2, 1 }, new int[] { 3, 1 }, new int[] { 4, 1 }, new int[] { 5, 1 }, new int[] { 6, 1 }, new int[] { 6, 2 } };
+        List<int[]> west_outer_track = new List<int[]> { new int[] { -1, 1 }, new int[] { 0, 1 }, new int[] { 1, 1 }, new int[] { 2, 1 }, new int[] { 3, 1 }, new int[] { 4, 1 }, new int[] { 5, 1 }, new int[] { 6, 1 }, new int[] { 6, 2 } };
         List<int[]> west_inner_track = new List<int[]> { new int[] { -1, 3 }, new int[] { 0, 3 }, new int[] { 1, 3 }, new int[] { 2, 3 }, new int[] { 3, 3 }, new int[] { 4, 3 }, new int[] { 5, 3 }, new int[] { 6, 3 } };
         List<int[]> east_outer_track = new List<int[]> { new int[] { 17, 9 }, new int[] { 16, 9 }, new int[] { 15, 9 }, new int[] { 14, 9 }, new int[] { 13, 9 }, new int[] { 12, 9 }, new int[] { 11, 9 }, new int[] { 10, 9 }, new int[] { 10, 8 } };
         List<int[]> east_inner_track = new List<int[]> { new int[] { 17, 7 }, new int[] { 16, 7 }, new int[] { 15, 7 }, new int[] { 14, 7 }, new int[] { 13, 7 }, new int[] { 12, 7 }, new int[] { 11, 7 }, new int[] { 10, 7 } };
@@ -141,7 +155,7 @@ public class TrackManager : BoardManager
             { RouteManager.Orientation.East, new List<int[]> { new int[] { 11,5 }, new int[] { 12,5 }, new int[]{13,5 }, new int[]{14,5 }, new int[]{15,5 }, new int[]{16,5 }}},
             { RouteManager.Orientation.South, new List<int[]> { new int[] { 8,0 }, new int[] { 8,1 }, new int[]{8,2 }} },
             { RouteManager.Orientation.North, new List<int[]> { new int[] { 8,8 }, new int[] { 8,9 }} }
-        } ;
+        };
 
         bottom_tilemap_list = new Tilemap[] { bottom_tilemap_1, bottom_tilemap_2, bottom_tilemap_3, bottom_tilemap_4, bottom_tilemap_5 };
         bottom_tilemap_go_list = new GameObject[] { bottom_tilemap_go_1, bottom_tilemap_go_2, bottom_tilemap_go_3, bottom_tilemap_go_4, bottom_tilemap_go_5 };
@@ -149,18 +163,11 @@ public class TrackManager : BoardManager
         gameobject_board = new GameObject[board_width, board_height];
         for (int i = 0; i < board_width; i++)
         {
-            for (int j=0; j< board_height; j++)
+            for (int j = 0; j < board_height; j++)
             {
-                track_grid[i, j] = new List<Tile>();                
+                track_grid[i, j] = new List<Tile>();
             }
         }
-        initialize_track_layer();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     public static bool is_location_in_list(List<int[]> loc_list, Vector2Int loc)
@@ -194,20 +201,20 @@ public class TrackManager : BoardManager
     }
 
 
-    public void initialize_track_layer()
-    {
-        // add tracks that pre-exist to the grid
-        for (int i = 0; i < board_width; i++)
-        {
-            for (int j = 0; j < board_height; j++)
-            {
-                Vector3Int tile_pos = new Vector3Int(i, j, 0);
-                Tile tile = (Tile) top_tilemap.GetTile(tile_pos);
-                if (tile != null)
-                    track_grid[i, j].Add(tile);
-            }
-        }
-    }
+    //public void initialize_track_layer()
+    //{
+    //    // add tracks that pre-exist to the grid
+    //    for (int i = 0; i < board_width; i++)
+    //    {
+    //        for (int j = 0; j < board_height; j++)
+    //        {
+    //            Vector3Int tile_pos = new Vector3Int(i, j, 0);
+    //            Tile tile = (Tile) top_tilemap.GetTile(tile_pos);
+    //            if (tile != null)
+    //                track_grid[i, j].Add(tile);
+    //        }
+    //    }
+    //}
 
     public static bool is_track_a_path(RouteManager.Orientation prior_orientation, string next_track_tile, string cur_track_tile)
     {

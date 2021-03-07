@@ -150,6 +150,8 @@ public class CityManager : BoardManager
     public const int restaurant_cost = 100;
     public const int diner_cost = 20;
 
+    public static CityManager instance;
+
     public void find_station_location()
     {
         Tilemap structure_tilemap = GameObject.Find("Structure").GetComponent<Tilemap>();
@@ -167,17 +169,30 @@ public class CityManager : BoardManager
         }
     }
 
+    public void initialize()
+    {
+        city_tilemap_go = GameObject.Find("City Tilemap");
+    }
+
     private void Awake()
     {
         base.Awake();
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(transform.gameObject);
+        }
+        else if (instance != this)
+        {
+            Destroy(gameObject);
+        }
+
         initial_building_lot_list = new List<string>() { "Building Lot South", "Building Lot West", "Building Lot North", "Building Lot East" };
         city_list = new List<City>();
         total_people = 0;
         total_room = 0;
         entrance_update_interval = 15;
         find_station_location();
-        create_city((Vector3Int)home_base_location); // initialize train entrance
-        home_base = get_city(home_base_location).GetComponent<City>();
         //Activated_City_Component = home_base;
         board_train_orientation_dict = new Dictionary<RouteManager.Orientation, RouteManager.Orientation[,]>() // <building lot orientation, [outer orientation pair, inner orientation pair]>
         {
@@ -322,7 +337,6 @@ public class CityManager : BoardManager
     void Start()
     {
         base.Start();
-        StartCoroutine(populate_entrance());
     }
 
     // Update is called once per frame
@@ -439,7 +453,7 @@ public class CityManager : BoardManager
         else if (orientation == RouteManager.Orientation.South)
             loc = new Vector3Int(city_loc.x, city_loc.y - 1, city_loc.z);
         else { throw new Exception("not a valid orientation"); }
-        Tilemap track_tilemap = GameManager.track_manager.top_tilemap;
+        Tilemap track_tilemap = TrackManager.instance.top_tilemap;
         Tile tile_type = (Tile)track_tilemap.GetTile(loc);
         if (tile_type == null) // todo: an additional check that exit track orientation is correct
         {
@@ -626,6 +640,13 @@ public class CityManager : BoardManager
         return train_list;
     }
 
+    public void create_home_base()
+    {
+        create_city((Vector3Int)home_base_location);
+        home_base = get_city(home_base_location).GetComponent<City>();
+        StartCoroutine(populate_entrance());
+    }
+
     public void create_city(Vector3Int cell_position)
     {
         // initialize board with stationary tiles eg cities
@@ -643,6 +664,10 @@ public class CityManager : BoardManager
             city_component.city_id = city_id;
             gameobject_board[cell_position.x, cell_position.y] = city;
             city_id++;
+        }
+        else
+        {
+            throw new Exception("couldnt create new city because somethings already at " + cell_position);
         }
     }
 }

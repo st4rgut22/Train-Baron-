@@ -90,12 +90,12 @@ public class StoreMenuManager : MonoBehaviour
     void buy_item()
     {
         MenuManager.is_btn_active = true; // keep true for follow up action (closing menu)
-        GameMenuManager game_menu_manager = MenuManager.game_menu.GetComponent<GameMenuManager>();
+        GameMenuManager game_menu_manager = GameManager.game_menu.GetComponent<GameMenuManager>();
         bool is_money_sufficient = change_item_count();
         if (is_money_sufficient)
         {
             game_menu_manager.update_inventory(); // change game mneu item count\
-            MenuManager.city_menu_manager.update_inventory();
+            CityMenuManager.instance.update_inventory();
         }
         update_money_text();
         close_menu();
@@ -105,7 +105,7 @@ public class StoreMenuManager : MonoBehaviour
     {
         reset_count();
         //activates handlers for game screen
-        GameManager.menu_manager.activate_default_handler(); // activates the game menu
+        MenuManager.instance.activate_default_handler(); // activates the game menu
     }
 
     void create_purchased_items(List<GameObject> text_game_objects)
@@ -123,17 +123,17 @@ public class StoreMenuManager : MonoBehaviour
                 if (item_name == "train" || item_name == "fast_train" || item_name == "home" || item_name == "food" || item_name == "work" || item_name == "vacation")
                 {
                     VehicleManager.update_vehicle_count(item_name, 1);
-                    MenuManager.city_menu_manager.add_inventory_texture(item_name);
+                    CityMenuManager.instance.add_inventory_texture(item_name);
                 }
                 else if (item_name == "hor" || item_name == "WN" || item_name == "NE" || item_name == "WS" || item_name == "ES" || item_name == "vert")
                 {
                     TrackManager.update_track_count(item_name, 1);
-                    GameManager.game_menu_manager.GetComponent<GameMenuManager>().add_inventory_texture(item_name);
+                    GameMenuManager.instance.add_inventory_texture(item_name);
                 }
                 else
                 {
                     CityManager.update_building_count(item_name, 1);
-                    GameManager.game_menu_manager.GetComponent<GameMenuManager>().add_inventory_texture(item_name);
+                    GameMenuManager.instance.add_inventory_texture(item_name);
                 }
 
             }

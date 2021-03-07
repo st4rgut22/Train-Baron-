@@ -55,10 +55,19 @@ public class GameMenuManager : MenuManager
     Building building_component;
 
     City city;
+    public static new GameMenuManager instance;
 
     private void Awake()
     {
-        //print("clclc");
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(transform.gameObject);
+        }
+        else if (instance != this)
+        {
+            Destroy(gameObject);
+        }
     }
 
     void Start()
@@ -70,54 +79,6 @@ public class GameMenuManager : MenuManager
     void Update()
     {
     }
-
-    //public override void OnPointerClick(PointerEventData eventData)
-    //{
-    //    base.OnPointerClick(eventData);
-    //    List<List<int[]>> track_action_coord = new List<List<int[]>>();
-    //    List<string> track_hint_list = new List<string>();
-    //    item_name = eventData.pointerCurrentRaycast.gameObject.name;
-    //    Tilemap structure_tilemap = GameManager.Structure.GetComponent<Tilemap>();
-    //    List<int[]> track_action_list = new List<int[]>();
-    //    track_hint_list.Add("track");
-    //    switch (item_name)
-    //    {
-    //        case "ES":
-    //            clicked_tile = ES_tile;
-    //            break;
-    //        case "NE":
-    //            clicked_tile = NE_tile;
-    //            break;
-    //        case "WN":
-    //            clicked_tile = WN_tile;
-    //            break;
-    //        case "WS":
-    //            clicked_tile = WS_tile;
-    //            break;
-    //        case "hor":
-    //            clicked_tile = hor_tile;
-    //            break;
-    //        case "vert":
-    //            clicked_tile = vert_tile;
-    //            break;
-    //        default:
-    //            //print("not a valid track selected in game menu manager");
-    //            break;
-    //    }
-    //    for (int i=0; i < BoardManager.track_width; i++)
-    //    {
-    //        for (int j = 0; j < BoardManager.track_height; j++)
-    //        {
-    //            Tile struct_tile = (Tile)structure_tilemap.GetTile(new Vector3Int(i, j, 0));
-    //            if (struct_tile == null) // if no city on this tile you can place it here
-    //            {
-    //                track_action_list.Add(new int[] { i, j });
-    //            }
-    //        }
-    //    }
-    //    track_action_coord.Add(track_action_list);
-    //    GameObject.Find("GameManager").GetComponent<GameManager>().mark_tile_as_eligible(track_action_coord, track_hint_list, gameObject);
-    //}
 
     public override void OnBeginDrag(PointerEventData eventData)
     {
@@ -252,7 +213,7 @@ public class GameMenuManager : MenuManager
             string tag = clicked_item.tag;
             string item_name = clicked_item.name.Replace("(Clone)", ""); // remove clone from the game object name
             Tilemap structure_tilemap = GameManager.Structure.GetComponent<Tilemap>();
-            List<Tile> track_tile = GameManager.track_manager.track_grid[final_tilemap_position.x,final_tilemap_position.y];
+            List<Tile> track_tile = TrackManager.instance.track_grid[final_tilemap_position.x,final_tilemap_position.y];
             Tile city_tile = (Tile)structure_tilemap.GetTile((Vector3Int)final_tilemap_position);
             Tile top_nature_tile = (Tile)nature_tilemap.GetTile((Vector3Int)final_tilemap_position);
             Tile bottom_nature_tile = (Tile)bottom_nature_tilemap.GetTile((Vector3Int)final_tilemap_position);
@@ -264,7 +225,7 @@ public class GameMenuManager : MenuManager
                     if (city_tile == null && track_tile.Count == 0)
                     {
                         RouteManager.city_tilemap.SetTile((Vector3Int)final_tilemap_position, clicked_tile);
-                        GameManager.city_manager.create_city((Vector3Int)final_tilemap_position);
+                        CityManager.instance.create_city((Vector3Int)final_tilemap_position);
                         CityManager.update_building_count(item_name, -1);
                         if (CityManager.get_building_count(item_name) == 0)
                         {

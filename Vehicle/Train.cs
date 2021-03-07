@@ -406,7 +406,7 @@ public class Train : MovingObject
 
     public IEnumerator wait_for_track_placement(Vector2Int next_tile_pos)
     {
-        Tilemap tilemap = GameManager.track_manager.top_tilemap; // TODOED update the next tile pos if track is switched 
+        Tilemap tilemap = TrackManager.instance.top_tilemap; // TODOED update the next tile pos if track is switched 
         string cur_tile_name = tilemap.GetTile(tile_position).name;
         while (true)
         {

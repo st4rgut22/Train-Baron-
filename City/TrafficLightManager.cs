@@ -70,7 +70,7 @@ public class TrafficLightManager : Simple_Moving_Object
 
     public bool is_end_of_track()
     {
-        Tilemap next_tilemap = GameManager.track_manager.top_tilemap;
+        Tilemap next_tilemap = TrackManager.instance.top_tilemap;
         if (next_tilemap.GetTile((Vector3Int)next_tilemap_position) == null)
             return true;
         else
@@ -87,7 +87,7 @@ public class TrafficLightManager : Simple_Moving_Object
     public void set_signal_from_exit_route(Vector3Int city_tile_position, Traffic_Light_Loc traffic_light_loc)
     {
         bool exit_route_is_shown = CityManager.is_exit_route_shown(traffic_light_loc.orientation);
-        Tilemap toggled_tilemap = GameManager.track_manager.top_tilemap;
+        Tilemap toggled_tilemap = TrackManager.instance.top_tilemap;
         tile_position = (Vector3Int)RouteManager.get_depart_tile_position(traffic_light_loc.orientation, city_tile_position);
         if (!exit_route_is_shown) // no route exists, dont show signal
         {
@@ -123,7 +123,7 @@ public class TrafficLightManager : Simple_Moving_Object
             tile_position = new Vector3Int(next_tilemap_position.x, next_tilemap_position.y, 0);
             if (is_end_of_track())
             {
-                GameObject city_object = GameManager.city_manager.get_city(next_tilemap_position);
+                GameObject city_object = CityManager.instance.get_city(next_tilemap_position);
                 if (city_object == null) // end of track
                 {
                     ////print("yellow warning for orientation " + orientation + " this route does not end at a city");

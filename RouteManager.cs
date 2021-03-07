@@ -32,6 +32,8 @@ public class RouteManager : MonoBehaviour
     public static Vector2 no_offset = new Vector2(0, 0);
     public static Dictionary<Vector3Int, Dictionary<string, Vector2>> offset_route_map;
 
+    public static RouteManager instance;
+
     public enum Orientation
     {
         None,
@@ -53,6 +55,20 @@ public class RouteManager : MonoBehaviour
     }
 
     private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            initialize();
+            DontDestroyOnLoad(transform.gameObject);
+        }
+        else if (instance != this)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    public void initialize()
     {
         Track_Layer = GameObject.Find("Top Track Layer");
         track_tilemap = Track_Layer.GetComponent<Tilemap>();
@@ -414,7 +430,7 @@ public class RouteManager : MonoBehaviour
             Tile city_tile = (Tile)city_tilemap.GetTile(tile_coord);
             if (city_tile != null) //check if arriving at city
             {
-                City city = GameManager.city_manager.gameobject_board[tile_coord.x, tile_coord.y].GetComponent<City>(); // check if city arrived at is not the same city we're leaving
+                City city = CityManager.instance.gameobject_board[tile_coord.x, tile_coord.y].GetComponent<City>(); // check if city arrived at is not the same city we're leaving
                 pos_pair.abs_dest_pos = tile_world_coord; // destination is the center of the tile
                 moving_thing.prepare_to_arrive_at_city(city);
             }

@@ -324,7 +324,7 @@ public class VehicleManager : BoardManager
                 }
             }
             bool in_city = game_object.GetComponent<MovingObject>().in_city;
-            GameObject city_object = GameManager.city_manager.get_city(new Vector2Int(position.x, position.y));
+            GameObject city_object = CityManager.instance.get_city(new Vector2Int(position.x, position.y));
             string destination_type = TrainRouteManager.get_destination_type(unadjusted_position, in_city);
             if (destination_type=="city") // if vehicle arriving at city is a boxcar, don't update tile
             {

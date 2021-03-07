@@ -21,9 +21,19 @@ public class CityMenuManager : MenuManager
 
     GameObject clicked_go;
 
+    public static new CityMenuManager instance;
+
     private void Awake()
     {
-        //print("clclc");
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(transform.gameObject);
+        }
+        else if (instance != this)
+        {
+            Destroy(gameObject);
+        }
     }
 
     // Start is called before the first frame update
