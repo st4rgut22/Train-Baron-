@@ -10,10 +10,8 @@ public class MenuManager : EventDetector
 {
     public Button store_btn;
     public Button shipyard_exit_btn;
-    public Button exit_game_btn;
     public Button confirm_exit_btn;
     public Button deny_exit_btn;
-    public GameObject close_shipyard_go;
 
     public static GameObject blocking_canvas;
 
@@ -43,6 +41,7 @@ public class MenuManager : EventDetector
     public int screen_idx = 0; // track close screen for appropriate delay
 
     public static bool is_btn_active = true; // toggle false if tutorial is ON  and incorrect btn is pressed
+    public static Button exit_game_btn;
 
     static List<GameObject> event_handler_list; // names of gameobjects that listen for events
     City city;
@@ -57,6 +56,7 @@ public class MenuManager : EventDetector
         if (instance == null)
         {
             instance = this;
+
             DontDestroyOnLoad(transform.gameObject);
         }
         else if (instance != this)
@@ -76,17 +76,18 @@ public class MenuManager : EventDetector
         event_handler_list.Add(GameManager.lose_screen);
         play_btn = GameObject.Find("Play Btn").GetComponent<Button>();
         tutorial_btn = GameObject.Find("Tutorial Btn").GetComponent<Button>();
-        exit_game_btn = GameObject.Find("Close Game Btn").GetComponent<Button>();
         play_btn.onClick.AddListener(start_game);
         tutorial_btn.onClick.AddListener(activate_tutorial);
         store_btn.onClick.AddListener(delegate { activate_handler(new List<GameObject> { GameManager.store_menu }); });
-        shipyard_exit_btn.onClick.AddListener(turn_off_shipyard);
-        exit_game_btn.onClick.AddListener(exit_game);
+        GameManager.close_shipyard_btn.onClick.AddListener(turn_off_shipyard);
         confirm_exit_btn.onClick.AddListener(activate_start_menu_handler);
         deny_exit_btn.onClick.AddListener(return_to_game);
+        exit_game_btn = GameObject.Find("Iconic Close Game Btn").GetComponent<Button>();
+        exit_game_btn.onClick.AddListener(exit_game);
         blocking_canvas = GameObject.Find("Tutorial Canvas");
         blocking_canvas.SetActive(false);
-        close_shipyard_go.SetActive(false);
+        GameManager.close_shipyard_go.SetActive(false);
+
         store_menu_manager = GameManager.store_menu.GetComponent<StoreMenuManager>();
         game_menu_manager = GameManager.game_menu.GetComponent<GameMenuManager>();
         camera = GameObject.Find("Camera").GetComponent<Camera>();
@@ -187,6 +188,7 @@ public class MenuManager : EventDetector
             return;
         }
         PauseManager.pause_game(true);
+        GameObject.Find("GameManager").GetComponent<BoxCollider2D>().enabled = false;
         activate_handler(new List<GameObject>() { GameManager.exit_confirm }); 
     }
 
@@ -231,7 +233,6 @@ public class MenuManager : EventDetector
     {
         //activates handlers for game screen
         //PauseManager.pause_game(false);
-        close_shipyard_go.SetActive(true);
         GameObject.Find("GameManager").GetComponent<BoxCollider2D>().enabled = true;
         activate_handler(new List<GameObject> { GameManager.game_menu, GameManager.game_icon_canvas });
     }
@@ -296,7 +297,7 @@ public class MenuManager : EventDetector
 
     public static Vector3 convert_screen_to_world_coord(Vector3 position)
     {
-        Vector3 world_position = camera.ScreenToWorldPoint(new Vector3(position.x, position.y, Mathf.Abs(camera.transform.position.z)));
+        Vector3 world_position = GameManager.camera.ScreenToWorldPoint(new Vector3(position.x, position.y, Mathf.Abs(GameManager.camera.transform.position.z)));
         position.z = 0;
         return world_position;
     }

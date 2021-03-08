@@ -27,12 +27,23 @@ public class VehicleManager : BoardManager
 
     static int orient_count = 0; // for testing
 
+    public static VehicleManager instance;
+
     private void Awake()
     {
         base.Awake();
         vehicle_board = new GameObject[board_width, board_height];
         boxcar_counter = 0;
         train_counter = 0;
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (instance != this)
+        {
+            Destroy(gameObject);
+        }
     }
 
     // Start is called before the first frame update

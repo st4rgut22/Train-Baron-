@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class TrainDisplay : MenuManager
 { // inherit from MenuManager to get drag logic
     Train train;
-    VehicleManager vehicle_manager;
     Vector3Int spawn_location;
     Button add_btn;
     Button sub_btn;

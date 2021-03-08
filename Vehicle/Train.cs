@@ -29,7 +29,7 @@ public class Train : MovingObject
     void Start()
     {
         base.Start(); // train instantiated bottom left
-        GameManager.vehicle_manager.update_vehicle_board(city.city_board, gameObject, tile_position, new Vector3Int(-1, -1, -1));
+        VehicleManager.instance.update_vehicle_board(city.city_board, gameObject, tile_position, new Vector3Int(-1, -1, -1));
         GetComponent<CapsuleCollider2D>().size = new Vector2(.5f, .837f);
     }
 
@@ -273,8 +273,8 @@ public class Train : MovingObject
         //city.add_train_to_list(gameObject);
         is_train_departed_for_turntable = false; //reset
         //station_track.train = gameObject;
-        Vector3Int station_tile_position = station_track.start_location; 
-        GameManager.vehicle_manager.depart(gameObject, station_tile_position, city.city_board);
+        Vector3Int station_tile_position = station_track.start_location;
+        VehicleManager.instance.depart(gameObject, station_tile_position, city.city_board);
         city.add_train_to_list(gameObject);
     }
 
@@ -286,7 +286,7 @@ public class Train : MovingObject
         station_track = city.add_train_to_station(gameObject, orientation);
         //city.turn_table.GetComponent<Turntable>().add_train_to_queue(gameObject);
         Vector3Int station_tile_position = station_track.start_location; // A NON-NULLABLE TYPE? ? ?
-        GameManager.vehicle_manager.depart(gameObject, station_tile_position, city.city_board);
+        VehicleManager.instance.depart(gameObject, station_tile_position, city.city_board);
         assign_station_to_boxcar();
         set_boxcar_to_depart();
         city.add_train_to_list(gameObject);
@@ -496,7 +496,7 @@ public class Train : MovingObject
         boxcar.prev_tile_position = boxcar.tile_position; // move up  one
         boxcar.tile_position = boxcar_cell_pos;
         //boxcar.next_tilemap_position = (Vector2Int)boxcar.tile_position;
-        GameManager.vehicle_manager.update_vehicle_board(city.city_board, boxcar_go, boxcar_cell_pos, boxcar.prev_tile_position); // nullify prev tile
+        VehicleManager.instance.update_vehicle_board(city.city_board, boxcar_go, boxcar_cell_pos, boxcar.prev_tile_position); // nullify prev tile
         boxcar.speed = stopping_speed;
         boxcar.is_halt = true; // only call ONCE when first called
     }

@@ -59,6 +59,14 @@ public class RouteManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
+            Track_Layer = GameObject.Find("Top Track Layer");
+            track_tilemap = Track_Layer.GetComponent<Tilemap>();
+            exit_north_tilemap = GameObject.Find("Shipyard Track Exit North").GetComponent<Tilemap>();
+            exit_south_tilemap = GameObject.Find("Shipyard Track Exit South").GetComponent<Tilemap>();
+            exit_west_tilemap = GameObject.Find("Shipyard Track Exit West").GetComponent<Tilemap>();
+            exit_east_tilemap = GameObject.Find("Shipyard Track Exit East").GetComponent<Tilemap>();
+            shipyard_track_tilemap = GameObject.Find("Shipyard Track").GetComponent<Tilemap>();
+            shipyard_track_tilemap2 = GameObject.Find("Shipyard Track 2").GetComponent<Tilemap>();
             initialize();
             DontDestroyOnLoad(transform.gameObject);
         }
@@ -70,14 +78,6 @@ public class RouteManager : MonoBehaviour
 
     public void initialize()
     {
-        Track_Layer = GameObject.Find("Top Track Layer");
-        track_tilemap = Track_Layer.GetComponent<Tilemap>();
-        exit_north_tilemap = GameObject.Find("Shipyard Track Exit North").GetComponent<Tilemap>();
-        exit_south_tilemap = GameObject.Find("Shipyard Track Exit South").GetComponent<Tilemap>();
-        exit_west_tilemap = GameObject.Find("Shipyard Track Exit West").GetComponent<Tilemap>();
-        exit_east_tilemap = GameObject.Find("Shipyard Track Exit East").GetComponent<Tilemap>();
-        shipyard_track_tilemap = GameObject.Find("Shipyard Track").GetComponent<Tilemap>();
-        shipyard_track_tilemap2 = GameObject.Find("Shipyard Track 2").GetComponent<Tilemap>();
         city_tilemap = GameObject.Find("Structure").GetComponent<Tilemap>();
 
         offset_route_map = new Dictionary<Vector3Int, Dictionary<string, Vector2>>()

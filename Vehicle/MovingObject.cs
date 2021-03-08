@@ -25,7 +25,6 @@ public class MovingObject : Simple_Moving_Object
     public bool one_time_move_pass = false;
 
     public string train_name = "train(Clone)";
-    VehicleManager vehicle_manager;
     public RouteManager.Orientation exit_track_orientation = RouteManager.Orientation.None;
     public RouteManager.Orientation steep_angle_orientation = RouteManager.Orientation.None;
     public Vector3 train_destination;
@@ -67,12 +66,12 @@ public void set_destination()
         {
             Tilemap toggled_tilemap = TrackManager.instance.top_tilemap;
             ////print("update vehicle board at " + tile_position);
-            GameManager.vehicle_manager.update_vehicle_board(VehicleManager.vehicle_board, gameObject, tile_position, prev_tile_position);
+            VehicleManager.instance.update_vehicle_board(VehicleManager.vehicle_board, gameObject, tile_position, prev_tile_position);
             position_pair = RouteManager.get_destination(this, toggled_tilemap, offset); // set the final orientation and destination
         }
         else
         {
-            GameManager.vehicle_manager.update_vehicle_board(city.city_board, gameObject, tile_position, prev_tile_position);
+            VehicleManager.instance.update_vehicle_board(city.city_board, gameObject, tile_position, prev_tile_position);
             position_pair = RouteManager.get_destination(this, station_track.tilemap, offset); // set the final orientation and destination
         }
         Vector2 train_dest_xy = position_pair.abs_dest_pos;
@@ -541,11 +540,10 @@ public void set_destination()
             final_orientation = orientation;
             if (gameObject.tag == "train")
             {
-                vehicle_manager = GameObject.Find("VehicleManager").GetComponent<VehicleManager>();
                 city.delete_train(gameObject);
                 prev_city = city;
                 Vector3Int city_location = city.get_location();
-                vehicle_manager.depart(gameObject, city_location);
+                VehicleManager.instance.depart(gameObject, city_location);
                 city.turn_table.GetComponent<Turntable>().remove_train_from_queue(gameObject);
                 game_manager.enable_vehicle_for_screen(gameObject);
                 gameObject.GetComponent<Train>().set_boxcar_to_depart(); // set depart = true so boxcars leave city

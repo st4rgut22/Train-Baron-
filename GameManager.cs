@@ -40,6 +40,8 @@ public class GameManager : EventDetector
     public static GameObject building_lot_south;
     public static GameObject building_lot_west;
     public static GameObject building_lot_east;
+    public static GameObject close_shipyard_go;
+    public static Button close_shipyard_btn;
 
     public static GameObject exit_bck;// = GameObject.Find("Exit Bck"); // just a blue background
     public static GameObject exit_confirm;
@@ -68,7 +70,6 @@ public class GameManager : EventDetector
     public static int east_bound = 16;
     public static int north_bound = 9;
     public static int south_bound = 1;
-    public static VehicleManager vehicle_manager;
     public static RouteManager route_manager;
     public static SoundManager sound_manager;
 
@@ -149,9 +150,7 @@ public class GameManager : EventDetector
             Medium_Btn.onClick.AddListener(select_medium);
             Hard_Btn.onClick.AddListener(select_hard);
 
-            vehicle_manager = GameObject.Find("VehicleManager").GetComponent<VehicleManager>(); ;
             sound_manager = GameObject.Find("SoundManager").GetComponent<SoundManager>();
-
             win_screen = GameObject.Find("Win");
             lose_screen = GameObject.Find("Lose");
             RawImage win_star_img = GameObject.Find("Win Star").GetComponent<RawImage>();
@@ -181,6 +180,19 @@ public class GameManager : EventDetector
             traffic_tilemap_offset_south = traffic_tilemap_offset_south_go.GetComponent<Tilemap>();
             traffic_tilemap_offset_east = traffic_tilemap_offset_east_go.GetComponent<Tilemap>();
             traffic_tilemap_offset_west = traffic_tilemap_offset_west_go.GetComponent<Tilemap>();
+            camera = GameObject.Find("Camera").GetComponent<Camera>();
+            Shipyard_Base = GameObject.Find("Shipyard Base");
+            Shipyard_Base2 = GameObject.Find("Shipyard Base 2");
+            Shipyard_Track = GameObject.Find("Shipyard Track");
+            Shipyard_Track2 = GameObject.Find("Shipyard Track 2");
+            Shipyard_Inventory = GameObject.Find("Shipyard Inventory");
+            exit_north = GameObject.Find("Shipyard Track Exit North");
+            exit_south = GameObject.Find("Shipyard Track Exit South");
+            exit_west = GameObject.Find("Shipyard Track Exit West");
+            exit_east = GameObject.Find("Shipyard Track Exit East");
+            undeveloped_land = GameObject.Find("Undeveloped Land");
+            close_shipyard_btn = GameObject.Find("Close Shipyard Btn").GetComponent<Button>();
+            close_shipyard_go = GameObject.Find("Close Shipyard Menu");
 
             win_play_btn = GameObject.Find("Win Play Again");
             win_quit_btn = GameObject.Find("Win Quit");
@@ -208,6 +220,8 @@ public class GameManager : EventDetector
     public static void initialize_scene()
     {
         // UPDATE ON SCENE LOAD
+        Structure = GameObject.Find("Structure");
+
         GameState.set_egghead_goal(); // initialize level if not done so.
 
         if (GameState.show_start_screen)
@@ -219,30 +233,18 @@ public class GameManager : EventDetector
             else if (GameState.difficulty == "hard")
                 Hard_Btn.Select();
         }
-
-        Structure = GameObject.Find("Structure");
-
         Base = GameObject.Find("Base");
-        camera = GameObject.Find("Camera").GetComponent<Camera>();
-        Shipyard_Base = GameObject.Find("Shipyard Base");
-        Shipyard_Base2 = GameObject.Find("Shipyard Base 2");
-        top_nature = GameObject.Find("Top Nature");
-        medium_nature = GameObject.Find("Medium Nature");
-        bottom_nature = GameObject.Find("Bottom Nature");
-        bottom_nature_2 = GameObject.Find("Bottom Nature Blocking 2");
-        Shipyard_Track = GameObject.Find("Shipyard Track");
-        Shipyard_Track2 = GameObject.Find("Shipyard Track 2");
-        Shipyard_Inventory = GameObject.Find("Shipyard Inventory");
-        exit_north = GameObject.Find("Shipyard Track Exit North");
-        exit_south = GameObject.Find("Shipyard Track Exit South");
-        exit_west = GameObject.Find("Shipyard Track Exit West");
-        exit_east = GameObject.Find("Shipyard Track Exit East");
-        city_tilemap_go = GameObject.Find("City Tilemap");
-        undeveloped_land = GameObject.Find("Undeveloped Land");
+        // DESTROY EVERY SCENE
         building_lot_north = GameObject.Find("Building Lot North");
         building_lot_south = GameObject.Find("Building Lot South");
         building_lot_west = GameObject.Find("Building Lot West");
         building_lot_east = GameObject.Find("Building Lot East");
+        top_nature = GameObject.Find("Top Nature");
+        medium_nature = GameObject.Find("Medium Nature");
+        bottom_nature = GameObject.Find("Bottom Nature");
+        bottom_nature_2 = GameObject.Find("Bottom Nature Blocking 2");
+        city_tilemap_go = GameObject.Find("City Tilemap");
+
         game_menu_manager = GameObject.Find("Game Menu");
         person_manager = GameObject.Find("People Manager");
         scroll_handler = GameObject.Find("scrollHandler");
@@ -263,8 +265,8 @@ public class GameManager : EventDetector
 
         win_screen.SetActive(false);
         lose_screen.SetActive(false);
-        CityManager.instance.create_home_base();
         switch_on_shipyard(false);
+        RouteManager.instance.initialize();
         CityManager.instance.initialize();
     }
 
@@ -318,26 +320,6 @@ public class GameManager : EventDetector
     {
         MenuManager.instance.activate_start_menu_handler();
     }
-
-    //public void play_again()
-    //{
-    //    win_screen.SetActive(false);
-    //    lose_screen.SetActive(false);
-    //    GameState.show_start_screen = false;
-    //    string level_name = GameState.get_level_name();
-    //    SceneManager.LoadScene(level_name);
-    //    initialize_scene(); // first start game
-    //    menu_manager.activate_begin_game_handler();
-    //}
-
-    //public static void exit_game()
-    //{
-    //    GameState.show_start_screen = true;
-    //    string level_name = GameState.get_level_name();
-    //    SceneManager.LoadScene(level_name);
-    //    initialize_scene(); // first start game
-    //    menu_manager.activate_start_menu_handler();
-    //}
 
     public static void update_game_money_text(int delta_money)
     {
@@ -633,7 +615,7 @@ public class GameManager : EventDetector
                     Boxcar boxcar = hint_gameobject.GetComponent<Boxcar>();
                     boxcar.city.place_boxcar_tile(boxcar.boxcar_type, (Vector3Int) selected_tile);
                     boxcar.city.add_boxcar_to_tilemap_with_location(boxcar.boxcar_type, selected_tile);
-                    vehicle_manager.boxcar_fill_void(hint_gameobject); // move boxcars behind this one forward
+                    VehicleManager.instance.boxcar_fill_void(hint_gameobject); // move boxcars behind this one forward
                     boxcar.train.boxcar_squad.Remove(hint_gameobject);
                     Destroy(hint_gameobject);
                     //boxcar.train.remove_boxcar(boxcar.boxcar_id);
@@ -749,52 +731,6 @@ public class GameManager : EventDetector
     // Update is called once per frame
     void Update()
     {
-        //if (hint_context_list != null)
-        //{
-        //    if (Input.GetMouseButtonDown(0) && hint_context_list.Count == 0)
-        //    {
-        //        //if (!tutorial_manager.is_follow_tutorial())
-        //        //    return;
-        //        //else
-        //        //{
-        //        //    if (TutorialManager.get_current_step().action_type == ActionType.Action.CLICK)
-        //        //        tutorial_manager.activate_next_tutorial_step(); // move to next step
-        //        //}
-        //        Vector2Int selected_tile = get_selected_tile(Input.mousePosition);
-        //        RaycastHit2D selected_object = get_object_at_cursor(Input.mousePosition);
-        //        if (selected_object != null)
-        //        {
-        //            Collider2D collided_object = selected_object.collider;
-        //            if (collided_object != null) // the first collided object will be in the clickDetector Layer, which sould be ignored for non-hint clicks
-        //            {
-        //                GameObject clicked_gameobject = collided_object.gameObject;
-        //                string object_tag = clicked_gameobject.tag;
-        //                if (object_tag == "track_layer")
-        //                {
-        //                    track_manager.toggle_on_train_track(selected_tile);
-        //                }
-        //                else if (object_tag == "structure")
-        //                {
-        //                    GameObject city_object = city_manager.get_city(selected_tile);
-        //                    // display boxcars
-        //                    switch_on_shipyard(true);
-        //                    city_manager.set_activated_city(city_object);
-        //                    MenuManager.activate_handler(new List<GameObject> { MenuManager.shipyard_exit_menu });
-        //                    if (city_object != CityManager.home_base.gameObject) // not home base, dont show vehicle creation options
-        //                    {
-
-        //                        MenuManager.city_menu_manager.turn_of_vehicle_in_exit_bar(false);
-        //                    }
-        //                    else
-        //                    {
-        //                        MenuManager.city_menu_manager.turn_of_vehicle_in_exit_bar(true);
-        //                    }
-        //                    MenuManager.city_menu_manager.change_bck_color(city_object.GetComponent<City>().city_type);
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
     }
 
     public static IEnumerator clear_hint_list()
@@ -874,7 +810,7 @@ public class GameManager : EventDetector
 
     public static void switch_on_shipyard(bool state)
     {
-        GameManager.Structure.SetActive(!state); // turn off colliders for city
+        Structure.SetActive(!state); // turn off colliders for city
         Shipyard_Base.SetActive(state);
         Shipyard_Base2.SetActive(state);
         Shipyard_Track.SetActive(state);
@@ -897,6 +833,8 @@ public class GameManager : EventDetector
         traffic_tilemap_offset_west_go.SetActive(state);
         traffic_tilemap_offset_south_go.SetActive(state);
 
+        close_shipyard_go.SetActive(state);
+
         top_nature.SetActive(!state);
         medium_nature.SetActive(!state);
         bottom_nature.SetActive(!state);
@@ -911,7 +849,7 @@ public class GameManager : EventDetector
         TrackManager.instance.bottom_tilemap_go_5.SetActive(!state);
         TrackManager.instance.top_tilemap_go.SetActive(!state);
 
-        GameManager.Structure.SetActive(!state);
+        Structure.SetActive(!state);
         Base.SetActive(!state);
 
         game_menu_state = !state;

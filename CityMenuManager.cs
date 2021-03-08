@@ -133,13 +133,13 @@ public class CityMenuManager : MenuManager
         {
             if (st.train == null || !st.train.GetComponent<Train>().is_wait_for_turntable || !st.train.GetComponent<Train>().is_boxcar_within_max_limit())
                 return; // no train at this station
-            GameManager.vehicle_manager.add_boxcar_to_train(st.train.GetComponent<Train>(), vehicle_type);
+            VehicleManager.instance.add_boxcar_to_train(st.train.GetComponent<Train>(), vehicle_type);
         }
         else if (vehicle_type.Contains("train"))
         {
             RouteManager.Orientation train_orientation = TrackManager.flip_straight_orientation(st.station.orientation);
 
-            GameManager.vehicle_manager.create_vehicle_at_home_base(train_orientation, st);
+            VehicleManager.instance.create_vehicle_at_home_base(train_orientation, st);
         }
         else
         {

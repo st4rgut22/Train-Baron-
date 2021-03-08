@@ -154,7 +154,7 @@ public class CityManager : BoardManager
 
     public void find_station_location()
     {
-        Tilemap structure_tilemap = GameObject.Find("Structure").GetComponent<Tilemap>();
+        Tilemap structure_tilemap = GameManager.Structure.GetComponent<Tilemap>();
         for (int i = 0; i < board_width; i++)
         {
             for (int j = 0; j < board_height; j++)
@@ -172,6 +172,8 @@ public class CityManager : BoardManager
     public void initialize()
     {
         city_tilemap_go = GameObject.Find("City Tilemap");
+        find_station_location();
+        create_home_base();
     }
 
     private void Awake()
@@ -192,7 +194,6 @@ public class CityManager : BoardManager
         total_people = 0;
         total_room = 0;
         entrance_update_interval = 15;
-        find_station_location();
         //Activated_City_Component = home_base;
         board_train_orientation_dict = new Dictionary<RouteManager.Orientation, RouteManager.Orientation[,]>() // <building lot orientation, [outer orientation pair, inner orientation pair]>
         {
@@ -496,7 +497,7 @@ public class CityManager : BoardManager
             {
                 if (train_object.GetComponent<Train>().is_boxcar_within_max_limit())
                 {
-                    GameManager.vehicle_manager.add_boxcar_to_train(train_object.GetComponent<Train>(), boxcar_type);
+                    VehicleManager.instance.add_boxcar_to_train(train_object.GetComponent<Train>(), boxcar_type);
                     activated_city.remove_boxcar_from_inventory(boxcar_tile_pos); // after adding a boxcar to train, remove it from inventory
                     return true;
                 }
