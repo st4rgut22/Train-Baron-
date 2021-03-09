@@ -14,6 +14,12 @@ public class CityMenuManager : MenuManager
     public GameObject vacation_boxcar;
     public GameObject food_boxcar;
     public GameObject work_boxcar;
+
+    public GameObject home_bubble;
+    public GameObject food_bubble;
+    public GameObject work_bubble;
+    public GameObject train_bubble;
+
     string item_name;
     public string tutorial_clicked_item;
 
@@ -46,6 +52,20 @@ public class CityMenuManager : MenuManager
     void Update()
     {
         
+    }
+
+    public void initialize()
+    {
+        reset_count();
+    }
+
+    public void reset_count()
+    {
+        home_bubble.GetComponent<RawImage>().texture = empty_inventory_bubble;
+        train_bubble.GetComponent<RawImage>().texture = empty_inventory_bubble;
+        work_bubble.GetComponent<RawImage>().texture = empty_inventory_bubble;
+        food_bubble.GetComponent<RawImage>().texture = empty_inventory_bubble;
+        update_inventory();
     }
 
     public override void OnBeginDrag(PointerEventData eventData)

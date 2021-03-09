@@ -112,6 +112,7 @@ public class TrackManager : BoardManager
 
     public void initialize()
     {
+        track_count_dict = new Dictionary<string, int>();
         parking_coord_map = new Dictionary<RouteManager.Orientation, List<int>> // parking boxcars
         { // {{coordinates of loading tiles for outer track},{coordinates of loading tiles for inner track}}
             { RouteManager.Orientation.North, new List<int>{6,0,5} },
@@ -166,6 +167,7 @@ public class TrackManager : BoardManager
             for (int j = 0; j < board_height; j++)
             {
                 track_grid[i, j] = new List<Tile>();
+                top_tilemap.SetTile(new Vector3Int(i, j, 0), null); // remove all tracks to start new scene
             }
         }
     }

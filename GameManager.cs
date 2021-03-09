@@ -29,6 +29,7 @@ public class GameManager : EventDetector
     public static GameObject medium_nature;
     public static GameObject bottom_nature;
     public static GameObject bottom_nature_2;
+    public static GameObject bottom_nature_pass;
     public static GameObject Shipyard_Track;
     public static GameObject Shipyard_Track2;
     public static GameObject Shipyard_Inventory;
@@ -52,6 +53,15 @@ public class GameManager : EventDetector
     public static GameObject review_menu;
     public static GameObject shipyard_exit_menu;
     public static GameObject game_icon_canvas;
+
+    public static GameObject Track_Layer;//DO THIS
+    public static Tilemap track_tilemap;
+    public static Tilemap shipyard_track_tilemap;
+    public static Tilemap shipyard_track_tilemap2;
+    public static Tilemap exit_north_tilemap;
+    public static Tilemap exit_south_tilemap;
+    public static Tilemap exit_east_tilemap;
+    public static Tilemap exit_west_tilemap;
 
     public static RawImage win_star_img;
     public static RawImage lose_star_img;
@@ -153,8 +163,8 @@ public class GameManager : EventDetector
             sound_manager = GameObject.Find("SoundManager").GetComponent<SoundManager>();
             win_screen = GameObject.Find("Win");
             lose_screen = GameObject.Find("Lose");
-            RawImage win_star_img = GameObject.Find("Win Star").GetComponent<RawImage>();
-            RawImage lose_star_img = GameObject.Find("Lose Star").GetComponent<RawImage>();
+            win_star_img = GameObject.Find("Win Star").GetComponent<RawImage>();
+            lose_star_img = GameObject.Find("Lose Star").GetComponent<RawImage>();
 
             notification_count_text = GameObject.Find("MsgCount").GetComponent<Text>();
             tutorial_canvas = GameObject.Find("Tutorial Canvas");
@@ -165,6 +175,15 @@ public class GameManager : EventDetector
             start_menu = GameObject.Find("Start");
             game_menu = GameObject.Find("Game Menu");
             previous_menu = game_menu;
+            Track_Layer = GameObject.Find("Top Track Layer");
+            track_tilemap = Track_Layer.GetComponent<Tilemap>();
+            Track_Layer = GameObject.Find("Top Track Layer");
+            exit_north_tilemap = GameObject.Find("Shipyard Track Exit North").GetComponent<Tilemap>();
+            exit_south_tilemap = GameObject.Find("Shipyard Track Exit South").GetComponent<Tilemap>();
+            exit_west_tilemap = GameObject.Find("Shipyard Track Exit West").GetComponent<Tilemap>();
+            exit_east_tilemap = GameObject.Find("Shipyard Track Exit East").GetComponent<Tilemap>();
+            shipyard_track_tilemap = GameObject.Find("Shipyard Track").GetComponent<Tilemap>();
+            shipyard_track_tilemap2 = GameObject.Find("Shipyard Track 2").GetComponent<Tilemap>();
             review_menu = GameObject.Find("Review Canvas");
             shipyard_exit_menu = GameObject.Find("Exit Bar");
             game_icon_canvas = GameObject.Find("Iconic Canvas");
@@ -239,9 +258,11 @@ public class GameManager : EventDetector
         building_lot_south = GameObject.Find("Building Lot South");
         building_lot_west = GameObject.Find("Building Lot West");
         building_lot_east = GameObject.Find("Building Lot East");
+
         top_nature = GameObject.Find("Top Nature");
         medium_nature = GameObject.Find("Medium Nature");
-        bottom_nature = GameObject.Find("Bottom Nature");
+        bottom_nature_pass = GameObject.Find("Bottom Nature");
+        bottom_nature = GameObject.Find("Bottom Nature Blocking");
         bottom_nature_2 = GameObject.Find("Bottom Nature Blocking 2");
         city_tilemap_go = GameObject.Find("City Tilemap");
 
@@ -266,8 +287,11 @@ public class GameManager : EventDetector
         win_screen.SetActive(false);
         lose_screen.SetActive(false);
         switch_on_shipyard(false);
-        RouteManager.instance.initialize();
+        TrackManager.instance.initialize();
         CityManager.instance.initialize();
+        VehicleManager.instance.initialize();
+        GameMenuManager.instance.initialize();
+        CityMenuManager.instance.initialize();
     }
 
     public void exit()
@@ -353,19 +377,19 @@ public class GameManager : EventDetector
     public static void end_level(bool is_level_beaten)
     {
         PersonManager pm = person_manager.GetComponent<PersonManager>();
-        Texture texture = pm.get_star_texture(CityManager.home_base.total_star);
+        Texture star_img = CityManager.home_base.get_star_image_from_reputation();
         if (is_level_beaten)
         {
             GameState.next_level();
             //print("level is beaten");
             win_screen.SetActive(true);
-            win_star_img.texture = texture;
+            win_star_img.texture = star_img;
         }
         else
         {
             //print("level is lost");
             lose_screen.SetActive(true);
-            lose_star_img.texture = texture;
+            lose_star_img.texture = star_img;
         }
     }
 

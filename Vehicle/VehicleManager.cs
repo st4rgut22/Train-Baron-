@@ -18,7 +18,7 @@ public class VehicleManager : BoardManager
     public GameObject Food_Boxcar;
     public GameObject Home_Boxcar;
 
-    public static Dictionary<string, int> vehicle_count_dict = new Dictionary<string, int>(); // <vehicle name, building count>
+    public static Dictionary<string, int> vehicle_count_dict;
 
     public static GameObject[,] vehicle_board; //contains moving objects eg trains, boxcars
     City start_city;
@@ -32,9 +32,6 @@ public class VehicleManager : BoardManager
     private void Awake()
     {
         base.Awake();
-        vehicle_board = new GameObject[board_width, board_height];
-        boxcar_counter = 0;
-        train_counter = 0;
         if (instance == null)
         {
             instance = this;
@@ -52,6 +49,14 @@ public class VehicleManager : BoardManager
         base.Start();
         prefab_tag = "train";
         Train_List = new List<GameObject>();
+    }
+
+    public void initialize()
+    {
+        vehicle_count_dict = new Dictionary<string, int>(); // <vehicle name, building count>
+        vehicle_board = new GameObject[board_width, board_height];
+        boxcar_counter = 0;
+        train_counter = 0;
     }
 
     // Update is called once per frame

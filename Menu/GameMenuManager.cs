@@ -7,6 +7,19 @@ using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 public class GameMenuManager : MenuManager
 {
+    public GameObject ne_bubble;
+    public GameObject es_bubble;
+    public GameObject wn_bubble;
+    public GameObject ws_bubble;
+    public GameObject hor_bubble;
+    public GameObject vert_bubble;
+    public GameObject restaurant_bubble;
+    public GameObject mansion_bubble;
+    public GameObject diner_bubble;
+    public GameObject factory_bubble;
+    public GameObject apartment_bubble;
+    public GameObject business_bubble;
+
     public GameObject ne_curve;
     public GameObject es_curve;
     public GameObject wn_curve;
@@ -78,6 +91,11 @@ public class GameMenuManager : MenuManager
     // Update is called once per frame
     void Update()
     {
+    }
+
+    public void initialize()
+    {
+        reset_count();
     }
 
     public override void OnBeginDrag(PointerEventData eventData)
@@ -218,33 +236,37 @@ public class GameMenuManager : MenuManager
             Tile top_nature_tile = (Tile)GameManager.top_nature.GetComponent<Tilemap>().GetTile((Vector3Int)final_tilemap_position);
             Tile bottom_nature_tile = (Tile)GameManager.bottom_nature.GetComponent<Tilemap>().GetTile((Vector3Int)final_tilemap_position);
             Tile bottom_nature_tile_2 = (Tile)GameManager.bottom_nature_2.GetComponent<Tilemap>().GetTile((Vector3Int)final_tilemap_position);
+            Tile bottom_nature_pass_tile = (Tile)GameManager.bottom_nature_pass.GetComponent<Tilemap>().GetTile((Vector3Int)final_tilemap_position);
             bool in_prohibited_area = (final_tilemap_position.x >= 9 && final_tilemap_position.y == 9);
-            if (GameManager.is_position_in_bounds(final_tilemap_position) && top_nature_tile == null && bottom_nature_tile == null && !in_prohibited_area)
+            if ((bottom_nature_tile == null && bottom_nature_tile_2 == null && top_nature_tile == null) || bottom_nature_pass_tile != null)
             {
-                if (tag == "structure")
+                if (GameManager.is_position_in_bounds(final_tilemap_position) && !in_prohibited_area)
                 {
-                    if (city_tile == null && track_tile.Count == 0)
+                    if (tag == "structure")
                     {
-                        RouteManager.city_tilemap.SetTile((Vector3Int)final_tilemap_position, clicked_tile);
-                        CityManager.instance.create_city((Vector3Int)final_tilemap_position);
-                        CityManager.update_building_count(item_name, -1);
-                        if (CityManager.get_building_count(item_name) == 0)
+                        if (city_tile == null && track_tile.Count == 0)
                         {
-                            RawImage raw_image = clicked_go.GetComponent<RawImage>();
-                            raw_image.texture = empty_inventory_bubble;
+                            RouteManager.city_tilemap.SetTile((Vector3Int)final_tilemap_position, clicked_tile);
+                            CityManager.instance.create_city((Vector3Int)final_tilemap_position);
+                            CityManager.update_building_count(item_name, -1);
+                            if (CityManager.get_building_count(item_name) == 0)
+                            {
+                                RawImage raw_image = clicked_go.GetComponent<RawImage>();
+                                raw_image.texture = empty_inventory_bubble;
+                            }
                         }
                     }
-                }
-                else if (tag == "track")
-                {
-                    if (city_tile == null)
+                    else if (tag == "track")
                     {
-                        track_manager.place_tile(final_tilemap_position, clicked_tile, true);
-                        TrackManager.update_track_count(item_name, -1);
-                        if (TrackManager.get_track_count(item_name) == 0)
+                        if (city_tile == null)
                         {
-                            RawImage raw_image = clicked_go.GetComponent<RawImage>();
-                            raw_image.texture = empty_inventory_bubble;
+                            track_manager.place_tile(final_tilemap_position, clicked_tile, true);
+                            TrackManager.update_track_count(item_name, -1);
+                            if (TrackManager.get_track_count(item_name) == 0)
+                            {
+                                RawImage raw_image = clicked_go.GetComponent<RawImage>();
+                                raw_image.texture = empty_inventory_bubble;
+                            }
                         }
                     }
                 }
@@ -262,6 +284,23 @@ public class GameMenuManager : MenuManager
         {
             //print(e.Message); // tried to drag something that is not draggable
         }
+        update_inventory();
+    }
+
+    public void reset_count()
+    {
+        ne_bubble.GetComponent<RawImage>().texture = empty_inventory_bubble;
+        wn_bubble.GetComponent<RawImage>().texture = empty_inventory_bubble;
+        ws_bubble.GetComponent<RawImage>().texture = empty_inventory_bubble;
+        es_bubble.GetComponent<RawImage>().texture = empty_inventory_bubble;
+        hor_bubble.GetComponent<RawImage>().texture = empty_inventory_bubble;
+        vert_bubble.GetComponent<RawImage>().texture = empty_inventory_bubble;
+        restaurant_bubble.GetComponent<RawImage>().texture = empty_inventory_bubble;
+        mansion_bubble.GetComponent<RawImage>().texture = empty_inventory_bubble;
+        diner_bubble.GetComponent<RawImage>().texture = empty_inventory_bubble;
+        factory_bubble.GetComponent<RawImage>().texture = empty_inventory_bubble;
+        apartment_bubble.GetComponent<RawImage>().texture = empty_inventory_bubble;
+        business_bubble.GetComponent<RawImage>().texture = empty_inventory_bubble;
         update_inventory();
     }
 

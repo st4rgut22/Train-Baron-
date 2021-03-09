@@ -171,7 +171,11 @@ public class CityManager : BoardManager
 
     public void initialize()
     {
-        city_tilemap_go = GameObject.Find("City Tilemap");
+        city_list = new List<City>();
+        total_people = 0;
+        total_room = 0;
+        entrance_update_interval = 15; city_tilemap_go = GameObject.Find("City Tilemap");
+        building_count_dict = new Dictionary<string, int>();
         find_station_location();
         create_home_base();
     }
@@ -190,10 +194,7 @@ public class CityManager : BoardManager
         }
 
         initial_building_lot_list = new List<string>() { "Building Lot South", "Building Lot West", "Building Lot North", "Building Lot East" };
-        city_list = new List<City>();
-        total_people = 0;
-        total_room = 0;
-        entrance_update_interval = 15;
+
         //Activated_City_Component = home_base;
         board_train_orientation_dict = new Dictionary<RouteManager.Orientation, RouteManager.Orientation[,]>() // <building lot orientation, [outer orientation pair, inner orientation pair]>
         {
@@ -329,6 +330,9 @@ public class CityManager : BoardManager
                         },
                         {
                             "WS", RouteManager.Orientation.North
+                        },
+                        {
+                            "NE", RouteManager.Orientation.North
                         }
                     }
             }

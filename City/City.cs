@@ -293,6 +293,7 @@ public class City : Structure
 
     public void change_star_count(int star_count)
     {
+        print("total stars is " + total_star);
         total_star += star_count;
     }
 
@@ -464,8 +465,17 @@ public class City : Structure
         person.is_enter_home = true;
         Room room = city_room_matrix[room_position.x, room_position.y];
         string track_name = RouteManager.shipyard_track_tilemap.GetTile(boxcar.tile_position).name;
-        RouteManager.Orientation exit_orientation = CityManager.station_track_unloading_map[boxcar.station_track.start_location][track_name];
-        StartCoroutine(GameObject.Find("PersonRouteManager").GetComponent<PersonRouteManager>().unload_train(boxcar, room, exit_orientation));
+        try
+        {
+            print("boxcar track loc " + boxcar.station_track.start_location + " track name is " + track_name);
+            RouteManager.Orientation exit_orientation = CityManager.station_track_unloading_map[boxcar.station_track.start_location][track_name];
+            StartCoroutine(GameObject.Find("PersonRouteManager").GetComponent<PersonRouteManager>().unload_train(boxcar, room, exit_orientation));
+        }
+        catch (KeyNotFoundException k)
+        {
+            print("exit orientation not found");
+        }
+
     }
 
     public void board_train(GameObject boxcar_go, Vector2Int room_position)

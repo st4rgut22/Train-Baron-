@@ -9,16 +9,18 @@ public class RouteManager : MonoBehaviour
     // all functions for routing moving objects
 
 
-    public static GameObject Track_Layer;
     public static Tilemap track_tilemap;
 
     public static Tilemap city_tilemap;
+
+    public static GameObject Track_Layer;
     public static Tilemap shipyard_track_tilemap;
     public static Tilemap shipyard_track_tilemap2;
     public static Tilemap exit_north_tilemap;
     public static Tilemap exit_south_tilemap;
     public static Tilemap exit_east_tilemap;
     public static Tilemap exit_west_tilemap;
+
     public static float cell_width = .88f;
     public static float offset_amount = .1f;
 
@@ -31,8 +33,6 @@ public class RouteManager : MonoBehaviour
     public static Vector2 offset_diag_se = new Vector2(-cell_width / 3, cell_width / 3);
     public static Vector2 no_offset = new Vector2(0, 0);
     public static Dictionary<Vector3Int, Dictionary<string, Vector2>> offset_route_map;
-
-    public static RouteManager instance;
 
     public enum Orientation
     {
@@ -56,24 +56,15 @@ public class RouteManager : MonoBehaviour
 
     private void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-            Track_Layer = GameObject.Find("Top Track Layer");
-            track_tilemap = Track_Layer.GetComponent<Tilemap>();
-            exit_north_tilemap = GameObject.Find("Shipyard Track Exit North").GetComponent<Tilemap>();
-            exit_south_tilemap = GameObject.Find("Shipyard Track Exit South").GetComponent<Tilemap>();
-            exit_west_tilemap = GameObject.Find("Shipyard Track Exit West").GetComponent<Tilemap>();
-            exit_east_tilemap = GameObject.Find("Shipyard Track Exit East").GetComponent<Tilemap>();
-            shipyard_track_tilemap = GameObject.Find("Shipyard Track").GetComponent<Tilemap>();
-            shipyard_track_tilemap2 = GameObject.Find("Shipyard Track 2").GetComponent<Tilemap>();
-            initialize();
-            DontDestroyOnLoad(transform.gameObject);
-        }
-        else if (instance != this)
-        {
-            Destroy(gameObject);
-        }
+        track_tilemap = GameManager.track_tilemap;
+        Track_Layer = GameManager.Track_Layer;
+        exit_north_tilemap = GameManager.exit_north_tilemap;
+        exit_south_tilemap = GameManager.exit_south_tilemap;
+        exit_west_tilemap = GameManager.exit_west_tilemap;
+        exit_east_tilemap = GameManager.exit_east_tilemap;
+        shipyard_track_tilemap = GameManager.shipyard_track_tilemap;
+        shipyard_track_tilemap2 = GameManager.shipyard_track_tilemap2;
+        initialize();
     }
 
     public void initialize()
