@@ -52,47 +52,47 @@ public class MenuManager : EventDetector
 
     private void Awake()
     {
-        print(gameObject.name);
         if (instance == null)
         {
             instance = this;
+            event_handler_list = new List<GameObject>();
+            event_handler_list.Add(GameManager.exit_confirm);
+            event_handler_list.Add(GameManager.store_menu);
+            event_handler_list.Add(GameManager.start_menu);
+            event_handler_list.Add(GameManager.game_menu);
+            event_handler_list.Add(GameManager.shipyard_exit_menu);
+            event_handler_list.Add(GameManager.game_icon_canvas);
+            event_handler_list.Add(GameManager.review_menu);
+            event_handler_list.Add(GameManager.win_screen);
+            event_handler_list.Add(GameManager.lose_screen);
+            play_btn = GameObject.Find("Play Btn").GetComponent<Button>();
+            tutorial_btn = GameObject.Find("Tutorial Btn").GetComponent<Button>();
+            play_btn.onClick.AddListener(start_game);
+            tutorial_btn.onClick.AddListener(activate_tutorial);
+            store_btn.onClick.AddListener(delegate { activate_handler(new List<GameObject> { GameManager.store_menu }); });
+            GameManager.close_shipyard_btn.onClick.AddListener(turn_off_shipyard);
+            confirm_exit_btn.onClick.AddListener(activate_start_menu_handler);
+            deny_exit_btn.onClick.AddListener(return_to_game);
+            exit_game_btn = GameObject.Find("Iconic Close Game Btn").GetComponent<Button>();
+            exit_game_btn.onClick.AddListener(exit_game);
+            // if found u u little poopoo
+            print(gameObject.name);
+            blocking_canvas = GameObject.Find("Tutorial Canvas");
+            blocking_canvas.SetActive(false);
+            //blocking_canvas.SetActive(false);
+            GameManager.close_shipyard_go.SetActive(false);
 
+            store_menu_manager = GameManager.store_menu.GetComponent<StoreMenuManager>();
+            game_menu_manager = GameManager.game_menu.GetComponent<GameMenuManager>();
+            camera = GameObject.Find("Camera").GetComponent<Camera>();
+            GameManager.instance.add_click_listeners(); // win play btn, lose play btn
+            activate_start_menu_handler();
             DontDestroyOnLoad(transform.gameObject);
         }
         else if (instance != this)
         {
             Destroy(transform.gameObject);
         }
-
-        event_handler_list = new List<GameObject>();
-        event_handler_list.Add(GameManager.exit_confirm);
-        event_handler_list.Add(GameManager.store_menu);
-        event_handler_list.Add(GameManager.start_menu);
-        event_handler_list.Add(GameManager.game_menu);
-        event_handler_list.Add(GameManager.shipyard_exit_menu);
-        event_handler_list.Add(GameManager.game_icon_canvas);
-        event_handler_list.Add(GameManager.review_menu);
-        event_handler_list.Add(GameManager.win_screen);
-        event_handler_list.Add(GameManager.lose_screen);
-        play_btn = GameObject.Find("Play Btn").GetComponent<Button>();
-        tutorial_btn = GameObject.Find("Tutorial Btn").GetComponent<Button>();
-        play_btn.onClick.AddListener(start_game);
-        tutorial_btn.onClick.AddListener(activate_tutorial);
-        store_btn.onClick.AddListener(delegate { activate_handler(new List<GameObject> { GameManager.store_menu }); });
-        GameManager.close_shipyard_btn.onClick.AddListener(turn_off_shipyard);
-        confirm_exit_btn.onClick.AddListener(activate_start_menu_handler);
-        deny_exit_btn.onClick.AddListener(return_to_game);
-        exit_game_btn = GameObject.Find("Iconic Close Game Btn").GetComponent<Button>();
-        exit_game_btn.onClick.AddListener(exit_game);
-        blocking_canvas = GameObject.Find("Tutorial Canvas");
-        blocking_canvas.SetActive(false);
-        GameManager.close_shipyard_go.SetActive(false);
-
-        store_menu_manager = GameManager.store_menu.GetComponent<StoreMenuManager>();
-        game_menu_manager = GameManager.game_menu.GetComponent<GameMenuManager>();
-        camera = GameObject.Find("Camera").GetComponent<Camera>();
-        GameManager.instance.add_click_listeners(); // win play btn, lose play btn
-        activate_start_menu_handler();
     }
 
     // Start is called before the first frame update
@@ -177,6 +177,7 @@ public class MenuManager : EventDetector
     public void return_to_game()
     {
         PauseManager.pause_game(false);
+        GameObject.Find("GameManager").GetComponent<BoxCollider2D>().enabled = true;
         activate_default_handler();
     }
 
@@ -184,12 +185,14 @@ public class MenuManager : EventDetector
     {
         if (GameManager.is_tutorial_mode)
         {
+            blocking_canvas.SetActive(false);
             activate_start_menu_handler();
             return;
         }
+        //GameManager.switch_on_shipyard(true); // enable tilemap initialization for next scene in initialize_scene()
         PauseManager.pause_game(true);
         GameObject.Find("GameManager").GetComponent<BoxCollider2D>().enabled = false;
-        activate_handler(new List<GameObject>() { GameManager.exit_confirm }); 
+        activate_handler(new List<GameObject>() { GameManager.exit_confirm });
     }
 
     public void turn_off_shipyard()
@@ -204,22 +207,34 @@ public class MenuManager : EventDetector
 
     public void activate_tutorial()
     {
-        GameManager.initialize_scene();
-        activate_begin_game_handler();
-        GameManager.is_tutorial_mode = true;
-        blocking_canvas.SetActive(true); // only makes a certain part of screen selectable
-        StartCoroutine(GameManager.tutorial_manager.activate_next_tutorial_step());
+        GameManager.initialize();
+        GameState.show_start_screen = false;
+        GameManager.win_screen.SetActive(false);
+        GameManager.lose_screen.SetActive(false);
+        SceneManager.LoadScene("Train Game");
+        SceneManager.sceneLoaded += tutorial_finished_loading;
     }
 
     void scene_finished_loading(Scene scene, LoadSceneMode mode)
     {
-        GameManager.initialize_scene(); // first start game
+        GameManager.is_tutorial_mode = false;
+        GameManager.instance.initialize_scene(); // first start game
         activate_begin_game_handler();
         SceneManager.sceneLoaded -= scene_finished_loading; // unsubscribe delegate
     }
 
+    void tutorial_finished_loading(Scene scene, LoadSceneMode mode)
+    {
+        GameManager.is_tutorial_mode = true;
+        GameManager.instance.initialize_scene(); // first start game
+        activate_begin_game_handler();
+        SceneManager.sceneLoaded -= tutorial_finished_loading; // unsubscribe delegate
+    }
+
     public void start_game()
     {
+        print("game started");
+        GameManager.initialize();
         GameState.show_start_screen = false;
         string level_name = GameState.get_level_name();
         GameManager.win_screen.SetActive(false);
@@ -272,9 +287,9 @@ public class MenuManager : EventDetector
         }
         if (menu[0] == GameManager.game_menu && (GameManager.previous_menu == GameManager.store_menu || GameManager.previous_menu == GameManager.review_menu)) // transition from a pause menu. otherwise no need to unpause the game
         {
-            PauseManager.pause_game(false);
+            if (PauseManager.pause_list.Count > 0)
+                PauseManager.pause_game(false); // TODOED RETURN TO DELETE ME
             GameManager.game_menu_state = true;
-            //print("set game menu state TRUE becuase prev menu is store menu/review menu");
         }
         if (menu[0] == GameManager.store_menu || menu[0] == GameManager.review_menu)
         {
@@ -287,7 +302,8 @@ public class MenuManager : EventDetector
         }
         foreach (GameObject handler in event_handler_list)
         {
-            if (menu.Contains(handler)) {
+            if (menu.Contains(handler))
+            {
                 handler.SetActive(true);
             }
             else { handler.SetActive(false); }

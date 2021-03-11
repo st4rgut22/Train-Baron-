@@ -125,6 +125,8 @@ public class Building : Structure
 
     public bool remove_last_room()
     {
+        if (last_room_position_stack.Count == 0)
+            return false;
         Vector2Int room_pos = (Vector2Int) last_room_position_stack.Pop();
         Room boarded_room = city.city_room_matrix[room_pos.x, room_pos.y];
         

@@ -74,6 +74,8 @@ public class GameManager : EventDetector
     public static GameObject win_quit_btn;
     public static GameObject lose_quit_btn;
 
+    public static GameObject game_complete_btn;
+
     public Text high_score_text;
 
     public static int west_bound = 0;
@@ -123,6 +125,8 @@ public class GameManager : EventDetector
     public static Button Medium_Btn;
     public static Button Hard_Btn;
 
+    public static GameObject content_scroll;
+
     public static GameObject traffic_tilemap_go;
     public static Tilemap traffic_tilemap;
     public static Tilemap traffic_tilemap_offset_north;
@@ -147,6 +151,8 @@ public class GameManager : EventDetector
 
     public static GameObject tutorial_canvas;
 
+    public static Text money_text;
+
     private void Awake()
     {
         if (instance == null)
@@ -155,6 +161,7 @@ public class GameManager : EventDetector
             Easy_Btn = GameObject.Find("Easy Btn").GetComponent<Button>();
             Medium_Btn = GameObject.Find("Medium Btn").GetComponent<Button>();
             Hard_Btn = GameObject.Find("Hard Btn").GetComponent<Button>();
+            money_text = GameObject.Find("Money Text").GetComponent<Text>();
 
             Easy_Btn.onClick.AddListener(select_easy);
             Medium_Btn.onClick.AddListener(select_medium);
@@ -186,6 +193,7 @@ public class GameManager : EventDetector
             shipyard_track_tilemap2 = GameObject.Find("Shipyard Track 2").GetComponent<Tilemap>();
             review_menu = GameObject.Find("Review Canvas");
             shipyard_exit_menu = GameObject.Find("Exit Bar");
+            content_scroll = GameObject.Find("content");
             game_icon_canvas = GameObject.Find("Iconic Canvas");
             star_review_image_go = GameObject.Find("star_review");
             game_money_text = GameObject.Find("Game Money Text").GetComponent<Text>();
@@ -217,12 +225,22 @@ public class GameManager : EventDetector
             win_quit_btn = GameObject.Find("Win Quit");
             lose_play_btn = GameObject.Find("Lose Play Again");
             lose_quit_btn = GameObject.Find("Lose Quit");
+            game_complete_btn = GameObject.Find("Final Win Btn");
+
+            game_complete_btn.GetComponent<Button>().onClick.AddListener(quit);
+
             win_quit_btn.GetComponent<Button>().onClick.AddListener(quit);
+
             lose_quit_btn.GetComponent<Button>().onClick.AddListener(quit);
 
-            close_game.GetComponent<Button>().onClick.AddListener(exit);
+            building_lot_north = GameObject.Find("Building Lot North");
+            building_lot_south = GameObject.Find("Building Lot South");
+            building_lot_west = GameObject.Find("Building Lot West");
+            building_lot_east = GameObject.Find("Building Lot East");
 
-            DontDestroyOnLoad(transform.gameObject);
+            close_game.GetComponent<Button>().onClick.AddListener(exit);
+            initialize();
+            DontDestroyOnLoad(transform.gameObject);            
         }
         else if (instance != this)
         {
@@ -236,28 +254,42 @@ public class GameManager : EventDetector
         lose_play_btn.GetComponent<Button>().onClick.AddListener(MenuManager.instance.start_game);
     }
 
-    public static void initialize_scene()
+    public static void initialize(string difficulty = null)
     {
-        // UPDATE ON SCENE LOAD
-        Structure = GameObject.Find("Structure");
-
-        GameState.set_egghead_goal(); // initialize level if not done so.
-
+        if (difficulty == null)
+            if (PlayerPrefs.HasKey("difficulty"))
+                difficulty = PlayerPrefs.GetString("difficulty");
+            else
+            {
+                difficulty = "easy";
+                Easy_Btn.Select();
+                PlayerPrefs.SetString("difficulty",difficulty);
+            }
+        else
+        {
+            PlayerPrefs.SetString("difficulty", difficulty);
+        }
         if (GameState.show_start_screen)
         {
-            if (GameState.difficulty == "easy")
+            if (difficulty == "easy")
                 Easy_Btn.Select();
-            else if (GameState.difficulty == "medium")
+            else if (difficulty == "medium")
                 Medium_Btn.Select();
-            else if (GameState.difficulty == "hard")
+            else if (difficulty == "hard")
                 Hard_Btn.Select();
+            PlayerPrefs.SetString("difficulty", difficulty);
         }
+        GameState.set_egghead_goal(); // initialize level if not done so.
+    }
+
+    public void initialize_scene()
+    {
+        // UPDATE ON SCENE LOAD
+        Scene scene = SceneManager.GetActiveScene();
+        print(scene.name);
+        Structure = GameObject.Find("Structure");
         Base = GameObject.Find("Base");
         // DESTROY EVERY SCENE
-        building_lot_north = GameObject.Find("Building Lot North");
-        building_lot_south = GameObject.Find("Building Lot South");
-        building_lot_west = GameObject.Find("Building Lot West");
-        building_lot_east = GameObject.Find("Building Lot East");
 
         top_nature = GameObject.Find("Top Nature");
         medium_nature = GameObject.Find("Medium Nature");
@@ -265,6 +297,8 @@ public class GameManager : EventDetector
         bottom_nature = GameObject.Find("Bottom Nature Blocking");
         bottom_nature_2 = GameObject.Find("Bottom Nature Blocking 2");
         city_tilemap_go = GameObject.Find("City Tilemap");
+
+        money_text.text = money.ToString();
 
         game_menu_manager = GameObject.Find("Game Menu");
         person_manager = GameObject.Find("People Manager");
@@ -276,22 +310,41 @@ public class GameManager : EventDetector
         traffic_tilemap_offset_south_go.SetActive(false);
 
         money = 5000;
+        game_money_text.text = money.ToString();
+        notification_count_text.text = 0.ToString();
         train_list = new List<GameObject>();
         hint_context_list = new List<string>();
         hint_context_pos_list = new List<List<int[]>>();
         shipyard_state = false;
 
 
-        is_tutorial_mode = false;
+        //is_tutorial_mode = false; // CHANGE
 
         win_screen.SetActive(false);
         lose_screen.SetActive(false);
         switch_on_shipyard(false);
+
+        foreach (Transform child in content_scroll.transform)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+
+        GetComponent<BoxCollider2D>().enabled = true; // turn on blocking mask
+
+        if (is_tutorial_mode)
+        {
+            MenuManager.blocking_canvas.SetActive(true);
+        }
+        else
+        {
+            MenuManager.blocking_canvas.SetActive(false);
+        }
         TrackManager.instance.initialize();
         CityManager.instance.initialize();
         VehicleManager.instance.initialize();
         GameMenuManager.instance.initialize();
         CityMenuManager.instance.initialize();
+        TutorialManager.instance.initialize();
     }
 
     public void exit()
@@ -307,23 +360,23 @@ public class GameManager : EventDetector
 
     public void select_easy()
     {
-        GameState.difficulty = "easy";
         Easy_Btn.Select();
         GameState.set_egghead_goal();
+        initialize("easy");
     }
 
     public void select_medium()
     {
-        GameState.difficulty = "medium";
         Medium_Btn.Select();
         GameState.set_egghead_goal();
+        initialize("medium");
     }
 
     public void select_hard()
     {
-        GameState.difficulty = "hard";
         Hard_Btn.Select();
         GameState.set_egghead_goal();
+        initialize("hard");
     }
 
     public static void update_egghead_total(int total_people)
@@ -378,6 +431,26 @@ public class GameManager : EventDetector
     {
         PersonManager pm = person_manager.GetComponent<PersonManager>();
         Texture star_img = CityManager.home_base.get_star_image_from_reputation();
+        int level = PlayerPrefs.GetInt("level");
+        print("level is " + level + " level list length is " + GameState.level_list.Length);
+        GameObject.Find("GameManager").GetComponent<BoxCollider2D>().enabled = false;
+        if (level == GameState.level_list.Length) // last level, start over
+        {
+            PlayerPrefs.SetInt("level", 0);
+            game_complete_btn.SetActive(true);
+            lose_quit_btn.SetActive(false);
+            lose_play_btn.SetActive(false);
+            win_quit_btn.SetActive(false);
+            win_play_btn.SetActive(false);
+        }
+        else
+        {
+            lose_quit_btn.SetActive(true);
+            lose_play_btn.SetActive(true);
+            win_quit_btn.SetActive(true);
+            win_play_btn.SetActive(true);
+            game_complete_btn.SetActive(false);
+        }
         if (is_level_beaten)
         {
             GameState.next_level();
@@ -389,7 +462,7 @@ public class GameManager : EventDetector
         {
             //print("level is lost");
             lose_screen.SetActive(true);
-            lose_star_img.texture = star_img;
+            lose_star_img.texture = star_img;            
         }
     }
 

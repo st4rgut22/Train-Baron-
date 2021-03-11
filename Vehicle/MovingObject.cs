@@ -231,19 +231,26 @@ public void set_destination()
         else {
             yield return null;
         }
-        if (gameObject.tag == "boxcar")
+        try
         {
-            Boxcar boxcar = gameObject.GetComponent<Boxcar>();
-            if (boxcar.is_occupied)
+            if (gameObject.tag == "boxcar")
             {
-                boxcar.passenger_go.GetComponent<SpriteRenderer>().enabled = state;
+                Boxcar boxcar = gameObject.GetComponent<Boxcar>();
+                if (boxcar.is_occupied)
+                {
+                    boxcar.passenger_go.GetComponent<SpriteRenderer>().enabled = state;
+                }
             }
-        }
-        if (gameObject.tag == "boxcar")
+            if (gameObject.tag == "boxcar")
+            {
+                //print("boxcar " + gameObject.GetComponent<Boxcar>().boxcar_id + " sprite renderer state is " + state);
+            }
+            GetComponent<SpriteRenderer>().enabled = state;           
+        } catch (MissingReferenceException e)
         {
-            //print("boxcar " + gameObject.GetComponent<Boxcar>().boxcar_id + " sprite renderer state is " + state);
+            print(e.StackTrace);
         }
-        GetComponent<SpriteRenderer>().enabled = state;
+
     }
 
     public void reset_departure_flag()
@@ -311,10 +318,16 @@ public void set_destination()
 
     public IEnumerator one_time_bezier_move(Boxcar prev_boxcar)
     {
+        Vector3 prev_destination = prev_boxcar.train_destination;
+        Vector3Int prev_boxcar_position = prev_boxcar.tile_position;
+        RouteManager.Orientation prev_orientation = prev_boxcar.orientation;
         yield return StartCoroutine(bezier_move(transform, orientation, prev_boxcar.orientation));
-        orientation = prev_boxcar.orientation;
-        tile_position = prev_boxcar.tile_position;
-        next_tilemap_position = prev_boxcar.next_tilemap_position;
+        orientation = prev_orientation;
+        tile_position = prev_boxcar_position;
+        // NECESSARY???
+        next_tilemap_position = (Vector2Int) prev_boxcar_position;
+        prev_tile_position = prev_boxcar_position;
+        train_destination = prev_destination;
     }
 
     public IEnumerator wait_for_turntable(string track_name)

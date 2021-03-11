@@ -235,7 +235,9 @@ public class GameMenuManager : MenuManager
             Tile city_tile = (Tile)structure_tilemap.GetTile((Vector3Int)final_tilemap_position);
             Tile top_nature_tile = (Tile)GameManager.top_nature.GetComponent<Tilemap>().GetTile((Vector3Int)final_tilemap_position);
             Tile bottom_nature_tile = (Tile)GameManager.bottom_nature.GetComponent<Tilemap>().GetTile((Vector3Int)final_tilemap_position);
-            Tile bottom_nature_tile_2 = (Tile)GameManager.bottom_nature_2.GetComponent<Tilemap>().GetTile((Vector3Int)final_tilemap_position);
+            Tile bottom_nature_tile_2 = null;
+            if (GameManager.bottom_nature_2 != null)
+                bottom_nature_tile_2 = (Tile)GameManager.bottom_nature_2.GetComponent<Tilemap>().GetTile((Vector3Int)final_tilemap_position);
             Tile bottom_nature_pass_tile = (Tile)GameManager.bottom_nature_pass.GetComponent<Tilemap>().GetTile((Vector3Int)final_tilemap_position);
             bool in_prohibited_area = (final_tilemap_position.x >= 9 && final_tilemap_position.y == 9);
             if ((bottom_nature_tile == null && bottom_nature_tile_2 == null && top_nature_tile == null) || bottom_nature_pass_tile != null)

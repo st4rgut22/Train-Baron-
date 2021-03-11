@@ -205,8 +205,11 @@ public class City : Structure
 
     public string choose_random_initial_building_lot()
     {
+        UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
         int rand_idx = UnityEngine.Random.Range(0, CityManager.initial_building_lot_list.Count);
-        return CityManager.initial_building_lot_list[rand_idx];
+        if (GameManager.is_tutorial_mode)
+            rand_idx = 3; // east populate
+        return CityManager.initial_building_lot_list[rand_idx]; // CHANGE
     }
 
     public void change_traffic_signal(bool is_signal_on)

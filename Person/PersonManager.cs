@@ -159,6 +159,7 @@ public class PersonManager : MonoBehaviour
         if (old_person.room != null)
         {
             person.room = old_person.room;
+            person.name = old_person.name;
             person.room.person_go_instance = person_go_instance;
         } else
         {
@@ -182,7 +183,7 @@ public class PersonManager : MonoBehaviour
         if (person_go.tag == "poor")
         {
             //print("wealth is " + wealth);
-            if (wealth > how_to_become_rich)
+            if (wealth >= how_to_become_rich)
             {
                 //print("HOW TO BECOME RICH");
                 GameObject rich_person = Instantiate(rich_person_go);
@@ -191,7 +192,7 @@ public class PersonManager : MonoBehaviour
         }
         else
         {
-            if (wealth < how_to_become_poor)
+            if (wealth <= how_to_become_poor)
             {
                 //print("HOW TO BECOME POOR");
                 GameObject poor_person = Instantiate(poor_person_go);

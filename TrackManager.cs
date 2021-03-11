@@ -168,6 +168,11 @@ public class TrackManager : BoardManager
             {
                 track_grid[i, j] = new List<Tile>();
                 top_tilemap.SetTile(new Vector3Int(i, j, 0), null); // remove all tracks to start new scene
+                bottom_tilemap_1.SetTile(new Vector3Int(i, j, 0), null); // remove all tracks to start new scene
+                bottom_tilemap_2.SetTile(new Vector3Int(i, j, 0), null); // remove all tracks to start new scene
+                bottom_tilemap_3.SetTile(new Vector3Int(i, j, 0), null); // remove all tracks to start new scene
+                bottom_tilemap_4.SetTile(new Vector3Int(i, j, 0), null); // remove all tracks to start new scene
+                bottom_tilemap_5.SetTile(new Vector3Int(i, j, 0), null); // remove all tracks to start new scene
             }
         }
     }

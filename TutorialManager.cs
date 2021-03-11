@@ -52,6 +52,8 @@ public class TutorialManager : EventDetector
     public static Step[] tutorial_step_list;
     public static bool step_in_progress;
 
+    public static TutorialManager instance;
+
     public class Step
     {
         public string instruction_text;
@@ -65,6 +67,19 @@ public class TutorialManager : EventDetector
             action_position = pos;
             this.action_type = action_type;
             this.mg = mg;
+        }
+    }
+
+    private void Awake()
+    {
+        if(instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (instance != this)
+        {
+            Destroy(gameObject);
         }
     }
 
@@ -137,6 +152,11 @@ public class TutorialManager : EventDetector
     }
 
     void Start()
+    {
+        StartCoroutine(activate_next_tutorial_step());
+    }
+
+    public void initialize()
     {
         step_in_progress = true;
 
@@ -327,7 +347,6 @@ public class TutorialManager : EventDetector
                                           click_entrance_step, start_drag_train_step, end_drag_train_step, start_drag_boxcar_step, end_drag_boxcar_step, click_person_step, board_boxcar_step, click_train_step, click_exit_track,
                                           close_city_step, click_apartment_step, click_train_unload_step, click_room_unload_step, close_shipyard_step, close_tutorial_step
         };
-        StartCoroutine(activate_next_tutorial_step());
     }
 
     // Update is called once per frame
