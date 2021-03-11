@@ -183,15 +183,14 @@ public class MenuManager : EventDetector
 
     public void exit_game()
     {
+        GameObject.Find("GameManager").GetComponent<BoxCollider2D>().enabled = false;
         if (GameManager.is_tutorial_mode)
         {
             blocking_canvas.SetActive(false);
             activate_start_menu_handler();
             return;
         }
-        //GameManager.switch_on_shipyard(true); // enable tilemap initialization for next scene in initialize_scene()
-        PauseManager.pause_game(true);
-        GameObject.Find("GameManager").GetComponent<BoxCollider2D>().enabled = false;
+        PauseManager.pause_game(true);     
         activate_handler(new List<GameObject>() { GameManager.exit_confirm });
     }
 
@@ -307,6 +306,11 @@ public class MenuManager : EventDetector
                 handler.SetActive(true);
             }
             else { handler.SetActive(false); }
+        }
+        if (menu[0] == start_menu)
+        {
+            GameState.show_start_screen = true;
+            GameManager.initialize(); // select easy, medium or hard
         }
         GameManager.previous_menu = menu[0];
     }
