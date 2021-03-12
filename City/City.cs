@@ -808,36 +808,35 @@ public class City : Structure
         }
     }
 
-    public bool is_train_on_track(Vector2Int tile_pos, bool get_outer)
+    public bool is_train_on_track(RouteManager.Orientation orientation, bool get_outer)
     {
         Station_Track station_track;
-        if (tile_pos.y <= 4)
+        Station station;
+        switch (orientation)
         {
-            if (tile_pos.x < 7)
-            {
-                if (get_outer) station_track = West_Station.outer_track;
-                else { station_track = West_Station.inner_track; }
-            }
-            else
-            {
-                if (get_outer) station_track = South_Station.outer_track;
-                else { station_track = South_Station.inner_track; }
-            }
+            case RouteManager.Orientation.North:
+                station = North_Station;
+                break;
+            case RouteManager.Orientation.East:
+                station = East_Station;
+                break;
+            case RouteManager.Orientation.West:
+                station = West_Station;
+                break;
+            case RouteManager.Orientation.South:
+                station = South_Station;
+                break;
+            default:
+                throw new Exception("nota  valid orientation for station");
         }
+        if (get_outer)
+            station_track = station.outer_track;
         else
         {
-            if (tile_pos.x < 7)
-            {
-                if (get_outer) station_track = North_Station.outer_track;
-                else { station_track = North_Station.inner_track; }
-            }
-            else
-            {
-                if (get_outer) station_track = East_Station.outer_track;
-                else { station_track = East_Station.inner_track; }
-            }
+            station_track = station.inner_track;
         }
-        if (station_track.train != null && station_track.train.GetComponent<Train>().is_boxcar_within_max_limit()) return true;
+        if (station_track.train != null && station_track.train.GetComponent<Train>().is_boxcar_within_max_limit())
+            return true;
         return false;
     }
 

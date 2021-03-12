@@ -297,6 +297,7 @@ public class GameManager : EventDetector
         bottom_nature = GameObject.Find("Bottom Nature Blocking");
         bottom_nature_2 = GameObject.Find("Bottom Nature Blocking 2");
         city_tilemap_go = GameObject.Find("City Tilemap");
+        money = 5000;
 
         money_text.text = money.ToString();
 
@@ -309,7 +310,6 @@ public class GameManager : EventDetector
         traffic_tilemap_offset_west_go.SetActive(false);
         traffic_tilemap_offset_south_go.SetActive(false);
 
-        money = 5000;
         game_money_text.text = money.ToString();
         notification_count_text.text = 0.ToString();
         scrollScript.instance.initialize();

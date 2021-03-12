@@ -26,7 +26,7 @@ public class InventoryPusher : EventDetector
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void click_inventory(PointerEventData eventData)
@@ -39,58 +39,63 @@ public class InventoryPusher : EventDetector
             List<List<int[]>> boxcar_action_coord = new List<List<int[]>>();
             List<int[]> valid_unloading_pos_list = new List<int[]>();
             Station_Track station_track = CityManager.Activated_City_Component.get_station_track(selected_tile_pos); // inner, outer doesnt matter
-            RouteManager.Orientation orientation = station_track.station.orientation;
-            List<List<int[]>> valid_boxcar_add_pos = TrackManager.add_to_train_coord_map[orientation];
-            bool train_in_outer_track = CityManager.Activated_City_Component.is_train_on_track(selected_tile_pos, true);
-            bool train_in_inner_track = CityManager.Activated_City_Component.is_train_on_track(selected_tile_pos, false);
+            RouteManager.Orientation[] orientation_list = new RouteManager.Orientation[] { RouteManager.Orientation.North, RouteManager.Orientation.East, RouteManager.Orientation.West, RouteManager.Orientation.South };
+            foreach (RouteManager.Orientation orientation in orientation_list)
+            {
+                List<List<int[]>> valid_boxcar_add_pos = TrackManager.add_to_train_coord_map[orientation];
 
-            //concatenate lists of outer track and inner track positions
-            if (train_in_outer_track)
-                valid_unloading_pos_list.AddRange(valid_boxcar_add_pos[0]);
-            if (train_in_inner_track)
-                valid_unloading_pos_list.AddRange(valid_boxcar_add_pos[1]);
-            boxcar_action_coord.Add(valid_unloading_pos_list);
+                bool train_in_outer_track = CityManager.Activated_City_Component.is_train_on_track(orientation, true);
+                bool train_in_inner_track = CityManager.Activated_City_Component.is_train_on_track(orientation, false);
+
+                //concatenate lists of outer track and inner track positions
+                if (train_in_outer_track)
+                    valid_unloading_pos_list.AddRange(valid_boxcar_add_pos[0]);
+                if (train_in_inner_track)
+                    valid_unloading_pos_list.AddRange(valid_boxcar_add_pos[1]);
+                boxcar_action_coord.Add(valid_unloading_pos_list);
+            }
             List<string> hint_context_list = new List<string>() { "add" };
             GameObject.Find("GameManager").GetComponent<GameManager>().mark_tile_as_eligible(boxcar_action_coord, hint_context_list, gameObject, true);
         }
     }
+}
 
-    public override void OnBeginDrag(PointerEventData eventData)
-    {
-        //boxcar_selected_tile_pos = GameManager.get_selected_tile(Input.mousePosition);
-        //selected_tile = (Tile) inventory_tilemap.GetTile((Vector3Int)boxcar_selected_tile_pos);
-
-
-        //Vector2Int tile_pos = GameManager.get_selected_tile(transform.position);
-        //RouteManager.Orientation orientation;
-        //if (tile_pos.x < 7 && tile_pos.y < 4) orientation = RouteManager.Orientation.West;
-        //else if (tile_pos.x > 9 && tile_pos.y < 4) orientation = RouteManager.Orientation.South;
-        //else if (tile_pos.x < 7 && tile_pos.y > 6) orientation = RouteManager.Orientation.North;
-        //else if (tile_pos.x > 9 && tile_pos.y > 6) orientation = RouteManager.Orientation.East;
-        //else { throw new System.Exception("not a valid tile for parkedboxcar"); }
-        //List<int[]> valid_boxcar_add_pos = TrackManager.add_to_train_coord_map[orientation];
-        //boxcar_action_coord.Add(valid_boxcar_add_pos);
-        //List<string> hint_context_list = new List<string>() { "add" };
-        //game_manager.mark_tile_as_eligible(boxcar_action_coord, hint_context_list, gameObject, true);
+//public override void OnBeginDrag(PointerEventData eventData)
+//{
+    //boxcar_selected_tile_pos = GameManager.get_selected_tile(Input.mousePosition);
+    //selected_tile = (Tile) inventory_tilemap.GetTile((Vector3Int)boxcar_selected_tile_pos);
 
 
-        //if (selected_tile.name=="supply_boxcar")
-        //{
-        //    dummy_boxcar = Instantiate(dummy_supply_boxcar);
-        //}
-        //else if (selected_tile.name=="bomb_boxcar")
-        //{
-        //    dummy_boxcar = Instantiate(dummy_bomb_boxcar);
-        //}
-        //else if (selected_tile.name=="troop_boxcar")
-        //{
-        //    dummy_boxcar = Instantiate(dummy_troop_boxcar);
-        //}
-        //else
-        //{
-        //    throw new System.Exception("not a valid boxcar " + selected_tile.name);
-        //}
-    }
+    //Vector2Int tile_pos = GameManager.get_selected_tile(transform.position);
+    //RouteManager.Orientation orientation;
+    //if (tile_pos.x < 7 && tile_pos.y < 4) orientation = RouteManager.Orientation.West;
+    //else if (tile_pos.x > 9 && tile_pos.y < 4) orientation = RouteManager.Orientation.South;
+    //else if (tile_pos.x < 7 && tile_pos.y > 6) orientation = RouteManager.Orientation.North;
+    //else if (tile_pos.x > 9 && tile_pos.y > 6) orientation = RouteManager.Orientation.East;
+    //else { throw new System.Exception("not a valid tile for parkedboxcar"); }
+    //List<int[]> valid_boxcar_add_pos = TrackManager.add_to_train_coord_map[orientation];
+    //boxcar_action_coord.Add(valid_boxcar_add_pos);
+    //List<string> hint_context_list = new List<string>() { "add" };
+    //game_manager.mark_tile_as_eligible(boxcar_action_coord, hint_context_list, gameObject, true);
+
+
+    //if (selected_tile.name=="supply_boxcar")
+    //{
+    //    dummy_boxcar = Instantiate(dummy_supply_boxcar);
+    //}
+    //else if (selected_tile.name=="bomb_boxcar")
+    //{
+    //    dummy_boxcar = Instantiate(dummy_bomb_boxcar);
+    //}
+    //else if (selected_tile.name=="troop_boxcar")
+    //{
+    //    dummy_boxcar = Instantiate(dummy_troop_boxcar);
+    //}
+    //else
+    //{
+    //    throw new System.Exception("not a valid boxcar " + selected_tile.name);
+    //}
+//}
 
     //public override void OnDrag(PointerEventData eventData)
     //{
@@ -125,4 +130,4 @@ public class InventoryPusher : EventDetector
     //    }
     //    Destroy(dummy_boxcar);
     //}
-}
+//}
