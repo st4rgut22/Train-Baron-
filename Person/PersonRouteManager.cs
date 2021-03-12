@@ -142,7 +142,7 @@ public class PersonRouteManager : RouteManager
         else if (end_orientation == Orientation.East) occupant_go.GetComponent<SpriteRenderer>().flipX = false;
         yield return StartCoroutine(occupant.set_animation_clip(go_to_door_animation_name));
         yield return StartCoroutine(occupant.bezier_move(occupant.transform, start_orientation, end_orientation));
-        StartCoroutine(unlocked_door.rotate(false)); // wait 3 seconds before closing the door
+        StartCoroutine(unlocked_door.rotate(false)); 
         // go to doorstep (update tile position and orientation)
         Vector3 original_euler = occupant.transform.eulerAngles;
         occupant.transform.eulerAngles = new Vector3(0, 0, occupant.orient_angle); // use angle just to get direction of travelfor offset

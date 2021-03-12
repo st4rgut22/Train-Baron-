@@ -301,6 +301,7 @@ public void set_destination()
 
     public IEnumerator one_time_straight_move(Boxcar prev_boxcar)
     {
+        prev_boxcar.train.is_boxcar_filling_void = true;
         Vector3Int prev_boxcar_position = prev_boxcar.tile_position;
         //Vector3Int prev_boxcar_prev_tile_position = prev_boxcar.prev_tile_position;
         //Vector2Int prevboxcar_next_tilemap_position = prev_boxcar.next_tilemap_position;
@@ -314,20 +315,22 @@ public void set_destination()
         prev_tile_position = prev_boxcar_position;
         orientation = prev_orientation;
         train_destination = prev_destination;
+        prev_boxcar.train.is_boxcar_filling_void = false;
     }
 
     public IEnumerator one_time_bezier_move(Boxcar prev_boxcar)
     {
+        prev_boxcar.train.is_boxcar_filling_void = true;
         Vector3 prev_destination = prev_boxcar.train_destination;
         Vector3Int prev_boxcar_position = prev_boxcar.tile_position;
         RouteManager.Orientation prev_orientation = prev_boxcar.orientation;
         yield return StartCoroutine(bezier_move(transform, orientation, prev_boxcar.orientation));
         orientation = prev_orientation;
         tile_position = prev_boxcar_position;
-        // NECESSARY???
         next_tilemap_position = (Vector2Int) prev_boxcar_position;
         prev_tile_position = prev_boxcar_position;
         train_destination = prev_destination;
+        prev_boxcar.train.is_boxcar_filling_void = false;
     }
 
     public IEnumerator wait_for_turntable(string track_name)
@@ -337,7 +340,6 @@ public void set_destination()
             if (gameObject.name == "train(Clone)" && !gameObject.GetComponent<Train>().is_train_departed_for_turntable)
             {
                 Train train = gameObject.GetComponent<Train>();
-                // gameObject.GetComponent<Train>().halt_train(false, true); // TODOED1 will pause the train until the turntable has arrived
                 // wait for train's turn
                 train.station_track.train = gameObject; // assign train to station track after it has stopped. If it were set upon entrance, it could overwrite an existing train at this track
                 train.is_pause = true; // TODOED1 remove
@@ -360,28 +362,6 @@ public void set_destination()
         }
     }
 
-    public void stop_single_car_if_wait_tile(bool is_inner)
-    {
-        if (is_inner)
-        {
-            if (random_algos.list_contains_arr(CityManager.boxcar_city_inner_wait_tile, tile_position))
-            {
-                print("INNER WAIT TILE ENCOUNTERED AT " + tile_position + " STOP ALLL BOXCAR");
-                GetComponent<Boxcar>().train.stop_single_boxcar_at_turntable(gameObject);
-                GetComponent<Boxcar>().is_boxcar_stopped = true;
-            }
-        }
-        else
-        {
-            if (random_algos.list_contains_arr(CityManager.boxcar_city_outer_wait_tile, tile_position))
-            {
-                print("OUTER WAIT TILE ENCOUNTERED AT " + tile_position + " STOP ALLL BOXCAR");
-                GetComponent<Boxcar>().train.stop_single_boxcar_at_turntable(gameObject);
-                GetComponent<Boxcar>().is_boxcar_stopped = true;
-            }
-        }
-    }
-
     public void stop_car_if_wait_tile()
     {       
         if (!gameObject.GetComponent<Boxcar>().train.is_train_departed_for_turntable && in_city)
@@ -395,7 +375,7 @@ public void set_destination()
             if (tile_position.x == boxcar_wait_tile[0] && tile_position.y == boxcar_wait_tile[1])
             {
                 boxcar.train.GetComponent<CapsuleCollider2D>().size = new Vector2(.205f, .837f);
-                print("stopping boxcar at position " + boxcar_pos_idx + " at wait tile " + boxcar_wait_tile);
+                print("stopping boxcar at position " + boxcar_pos_idx + " at wait tile x " + boxcar_wait_tile[0] + " y " + boxcar_wait_tile[1]);
                 boxcar.train.stop_single_boxcar_at_turntable(gameObject);
                 is_boxcar_stopped = true;
             }
@@ -512,7 +492,8 @@ public void set_destination()
                 Boxcar boxcar = gameObject.GetComponent<Boxcar>();
                 if (!boxcar.train.is_train_departed_for_turntable) // only stop boxcar if train is stationary. 
                 {
-                    stop_car_if_wait_tile();
+                    if (!is_boxcar_stopped)
+                        stop_car_if_wait_tile();
                 }                
             }
             float step = speed * Time.deltaTime; // calculate distance to move

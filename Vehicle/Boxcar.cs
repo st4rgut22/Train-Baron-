@@ -158,7 +158,7 @@ public class Boxcar : MovingObject
             List<List<int[]>> loading_coord = TrackManager.unloading_coord_map[station_orientation];
             if (!is_being_boarded)
                 valid_unloading_pos_list = get_unloading_pos(loading_coord, is_inner);
-            if (!train.is_any_boxcar_being_boarded())
+            if (!train.is_any_boxcar_being_boarded() && !train.is_boxcar_filling_void) // only execute if not boarding passengers and parking transition not in progress
                 valid_parking_pos_list = get_parking_list();
             List<int[]> filtered_parking_pos_list = filter_available_parking_spot(valid_parking_pos_list);
             if (is_occupied) filtered_parking_pos_list.Clear(); // don't show available parking lots if boxcar is occupied

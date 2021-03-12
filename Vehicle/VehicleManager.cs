@@ -17,7 +17,6 @@ public class VehicleManager : BoardManager
     public GameObject Work_Boxcar;
     public GameObject Food_Boxcar;
     public GameObject Home_Boxcar;
-
     public static Dictionary<string, int> vehicle_count_dict;
 
     public static GameObject[,] vehicle_board; //contains moving objects eg trains, boxcars

@@ -782,7 +782,8 @@ public class GameManager : EventDetector
                 }
                 else if (collider_tag_list.Contains("track_layer"))
                 {
-                    if (VehicleManager.vehicle_board[selected_tile.x+1, selected_tile.y+1] == null) // dont switch track as vehicle is passing over it
+                    GameObject veh = VehicleManager.vehicle_board[selected_tile.x + 1, selected_tile.y + 1];
+                    if (veh == null || veh.GetComponent<MovingObject>().is_pause || veh.GetComponent<MovingObject>().is_halt) // dont switch track as vehicle is passing over it
                         TrackManager.instance.toggle_on_train_track(selected_tile);
                 }
                 else if (collider_tag_list.Contains("structure"))

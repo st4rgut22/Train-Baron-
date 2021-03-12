@@ -17,12 +17,14 @@ public class Train : MovingObject
     public List<GameObject> explosion_list;
     public bool is_train_departed_for_turntable;
     public const int max_boxcar_count = 4;
+    public bool is_boxcar_filling_void;
 
     private void Awake()
     {
         boxcar_counter = 0;
         base.Awake();
         is_train_departed_for_turntable = false;
+        is_boxcar_filling_void = false;
     }
 
     // Start is called before the first frame update
@@ -492,10 +494,8 @@ public class Train : MovingObject
         bc2d.size = new Vector2(1f, .73f); // fatten the boxcar
         Tilemap boxcar_tilemap = CityDetector.boxcar_orientation_to_offset_tilemap(boxcar.orientation);
         Vector3Int boxcar_cell_pos = boxcar_tilemap.WorldToCell(boxcar_go.transform.position);
-        ////print("boxcar " + boxcar_go.name + " tile position " + boxcar.tile_position + " prev tile position " + boxcar.prev_tile_position);
         boxcar.prev_tile_position = boxcar.tile_position; // move up  one
         boxcar.tile_position = boxcar_cell_pos;
-        //boxcar.next_tilemap_position = (Vector2Int)boxcar.tile_position;
         VehicleManager.instance.update_vehicle_board(city.city_board, boxcar_go, boxcar_cell_pos, boxcar.prev_tile_position); // nullify prev tile
         boxcar.speed = stopping_speed;
         boxcar.is_halt = true; // only call ONCE when first called
