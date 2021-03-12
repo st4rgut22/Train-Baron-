@@ -209,7 +209,7 @@ public class City : Structure
         int rand_idx = UnityEngine.Random.Range(0, CityManager.initial_building_lot_list.Count);
         if (GameManager.is_tutorial_mode)
             rand_idx = 3; // east populate
-        return CityManager.initial_building_lot_list[rand_idx]; // CHANGE
+        return CityManager.initial_building_lot_list[3]; // CHANGE
     }
 
     public void change_traffic_signal(bool is_signal_on)

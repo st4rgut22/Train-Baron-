@@ -135,24 +135,14 @@ public class PersonRouteManager : RouteManager
         Station boxcar_station = boxcar.station_track.station;
         Orientation start_orientation = CityManager.board_train_orientation_dict[boxcar_station.orientation][boxcar.station_track.inner, 0];
         Orientation end_orientation = CityManager.board_train_orientation_dict[boxcar_station.orientation][boxcar.station_track.inner, 1];
-        //if (boxcar.station_track.inner == 0)
-        //{
-        //    start_orientation = CityManager.outer_orientation_pair_map[0];
-        //    end_orientation = CityManager.outer_orientation_pair_map[1];
-        //}
-        //else
-        //{
-        //    start_orientation = CityManager.inner_orientation_pair_map[0];
-        //    end_orientation = CityManager.inner_orientation_pair_map[1];
-        //}
         occupant.arrived_at_room = false; 
-        yield return StartCoroutine(unlocked_door.rotate());
+        yield return StartCoroutine(unlocked_door.rotate(true));
         string go_to_door_animation_name = get_animation_from_orientation(end_orientation,"walk");
         if (end_orientation == Orientation.West) occupant_go.GetComponent<SpriteRenderer>().flipX = true;
         else if (end_orientation == Orientation.East) occupant_go.GetComponent<SpriteRenderer>().flipX = false;
         yield return StartCoroutine(occupant.set_animation_clip(go_to_door_animation_name));
         yield return StartCoroutine(occupant.bezier_move(occupant.transform, start_orientation, end_orientation));
-        StartCoroutine(unlocked_door.rotate(3)); // wait 3 seconds before closing the door
+        StartCoroutine(unlocked_door.rotate(false)); // wait 3 seconds before closing the door
         // go to doorstep (update tile position and orientation)
         Vector3 original_euler = occupant.transform.eulerAngles;
         occupant.transform.eulerAngles = new Vector3(0, 0, occupant.orient_angle); // use angle just to get direction of travelfor offset
@@ -199,10 +189,10 @@ public class PersonRouteManager : RouteManager
         Checkpoint enter_home_cp = new Checkpoint(room_position, room.tile_position, enter_home_orientation, enter_home_orientation, "walk");
         enter_home_checkpoints.Add(enter_door_cp);
         enter_home_checkpoints.Add(enter_home_cp);
-        yield return StartCoroutine(unlocked_door.rotate());
+        yield return StartCoroutine(unlocked_door.rotate(true));
         yield return StartCoroutine(person.move_checkpoints(enter_home_checkpoints));
         StartCoroutine(person.set_animation_clip(rest_animation_name));
-        StartCoroutine(unlocked_door.rotate());
+        StartCoroutine(unlocked_door.rotate(false));
         person.arrived_at_room = true;
         City city = person.room.building.city;
         person.finish_trip();

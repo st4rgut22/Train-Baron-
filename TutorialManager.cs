@@ -320,7 +320,7 @@ public class TutorialManager : EventDetector
         Step add_train_step = new Step("Add a train to your inventory. Each train can pull up to four boxcars.", new Vector3(127, 447), ActionType.Action.BTN_PRESS, buy_train_mg);
         Step add_boxcar_step = new Step("Add a boxcar to your inventory. An orange boxcar will board passengers going to orange structures, in this case residential buildings.", new Vector3(419, 499), ActionType.Action.BTN_PRESS, buy_boxcar_mg);
         Step add_hor_track_step = new Step("Add a track to your inventory to get from point A to point B.", new Vector3(274, 239), ActionType.Action.BTN_PRESS, buy_track_mg);
-        Step add_apartment_step = new Step("Add an apartment. When your passengers become wealthy, they'll prefer a fancier structure like a mansion, office building or restaurant.", new Vector3(417, 29), ActionType.Action.BTN_PRESS, buy_apartment_mg);
+        Step add_apartment_step = new Step("Add an apartment. When your passengers become rich, they'll prefer a fancier structure like a mansion, office building or restaurant.", new Vector3(417, 29), ActionType.Action.BTN_PRESS, buy_apartment_mg);
         Step close_store_step = new Step("Time to splash the cash. Don't worry you'll make your money back from ticket sales.", new Vector3(1261, 33), ActionType.Action.BTN_PRESS, buy_item_mg);
         Step start_drag_track_step = new Step("Drag the track west of the station. Each structure can have up to four outbound tracks.", new Vector3(827, 66), ActionType.Action.DRAG, start_drag_track_mg);
         Step end_drag_track_step = new Step("Tip: you can put tracks on top of each other and click on them to change direction.", new Vector3(827, 66), ActionType.Action.DRAG, end_drag_track_mg);
@@ -339,7 +339,7 @@ public class TutorialManager : EventDetector
         Step click_apartment_step = new Step("Click on the apartment.", new Vector3(639, 394), ActionType.Action.CLICK, click_apartment_mg);
         Step click_train_unload_step = new Step("The train has arrived. Click it to begin unloading the passenger.", new Vector3(847, 713), ActionType.Action.CLICK, click_boxcar_to_unload_mg);
         Step click_room_unload_step = new Step("Click an available room to book the guest. ", new Vector3(883, 629), ActionType.Action.CLICK, click_room_to_unload_mg);
-        Step close_shipyard_step = new Step("Good reviews open new rooms and attract more customers. You can exit the apartment, but check back soon. Long boarding or trip times can shutter your business.", new Vector3(0, 0), ActionType.Action.CLICK, exit_shipyard_mg);
+        Step close_shipyard_step = new Step("Good reviews open new rooms and attract more customers. You can exit the apartment, but check back soon! Long boarding or trip times can shutter your business.", new Vector3(0, 0), ActionType.Action.CLICK, exit_shipyard_mg);
         Step close_tutorial_step = new Step("Your population size grew! Meet the population requirement to complete the level. Exit the tutorial and begin playing.", new Vector3(0, 0), ActionType.Action.CLICK, exit_tutorial_mg);
         // new Step for quota
         active_tutorial_step_idx = -1;

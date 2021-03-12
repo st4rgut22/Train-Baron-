@@ -93,7 +93,7 @@ public class Simple_Moving_Object : EventDetector
         animator.SetBool(animation_clip, true);
         animator.SetBool(current_animation, false);
         current_animation = animation_clip;
-        yield return new WaitForSeconds(1);// wait a frame to set animation
+        yield return new WaitForSeconds(.3f);// wait a frame to set animation
     }
 
     public IEnumerator move_checkpoints(List<Checkpoint> checkpoint_list)

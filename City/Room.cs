@@ -96,6 +96,7 @@ public class Room : Structure
     {
         GameObject door_go = Instantiate(Door);
         Door door = door_go.GetComponent<Door>();
+        door.room = this;
         door.set_sprite(door_prop.pivot_door);
         door.door_rotation = door_prop.door_rotation;
         door.tile_rotation = door_prop.rotation;

@@ -312,6 +312,7 @@ public class GameManager : EventDetector
         money = 5000;
         game_money_text.text = money.ToString();
         notification_count_text.text = 0.ToString();
+        scrollScript.instance.initialize();
         train_list = new List<GameObject>();
         hint_context_list = new List<string>();
         hint_context_pos_list = new List<List<int[]>>();
