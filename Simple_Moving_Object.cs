@@ -6,7 +6,6 @@ using UnityEngine.Tilemaps;
 
 public class Simple_Moving_Object : EventDetector
 {
-    protected Vector2 target_position;
     public float speed = 2f; // Temporary. changed from 2f
     public float stopping_speed = 0;
     public float normal_speed = 2f;

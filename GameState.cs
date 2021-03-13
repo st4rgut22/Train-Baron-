@@ -7,8 +7,8 @@ public static class GameState
 {
 
     public static int easy_egghead_goal = 5;
-    public static int medium_egghead_goal = 10;
-    public static int hard_egghead_goal = 15;
+    public static int medium_egghead_goal = 7;
+    public static int hard_egghead_goal = 10;
     public static int egghead_goal = easy_egghead_goal;
     public static bool show_start_screen = true;
     public static string[] level_list = new string[] { "Train Game", "Train Game Level 2", "Train Game Level 3", "Train Game Level 4", "Train Game Level 5", "Train Game Level 6", "Train Game Level 7", "Train Game Level 8", "Train Game Level 9", "Train Game Level 10", };

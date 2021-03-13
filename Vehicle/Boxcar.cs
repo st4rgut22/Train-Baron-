@@ -17,6 +17,7 @@ public class Boxcar : MovingObject
     public GameObject explosion;
     public GameObject explosion_go;
     public bool is_stopped;
+    public bool abort_move;
     public bool is_being_boarded;
 
     private void Awake()
@@ -26,6 +27,7 @@ public class Boxcar : MovingObject
         is_occupied = false;
         is_halt = true;
         is_being_boarded = false;
+        abort_move = false; // flag to abort a move in progress (is_paused move) after filling a void
     }
 
     void Start()

@@ -47,7 +47,6 @@ public class MovingObject : Simple_Moving_Object
     public override void Start()
     {
         game_manager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        target_position = transform.position;
     }
 
     public void initialize_orientation(RouteManager.Orientation orientation)
@@ -410,14 +409,21 @@ public void set_destination()
         while (!final_step)
         {
 
-            if (is_pause)
+            if (is_pause && !is_fill_void)
             {
                 yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling
                 continue; // don't execute the code below
             }
             if (gameObject.tag == "boxcar")
             {
-                bool is_boxcar_stopped = gameObject.GetComponent<Boxcar>().is_boxcar_stopped;
+                Boxcar boxcar = gameObject.GetComponent<Boxcar>();
+                if (boxcar.abort_move)
+                {
+                    boxcar.abort_move = false;
+                    print("abort bezier move");
+                    break;
+                }
+                bool is_boxcar_stopped = boxcar.is_boxcar_stopped;
                 if (!is_boxcar_stopped) // one time boolean flag only execute once
                 {
                     stop_car_if_wait_tile(); // stop all boxcars if wait tile
@@ -486,10 +492,16 @@ public void set_destination()
             {
                 yield return new WaitForEndOfFrame(); //delay updating the position if vehicle is idling is_inventory
                 continue; // don't execute the code below
-            }
+            }           
             if (gameObject.tag == "boxcar")
             {
                 Boxcar boxcar = gameObject.GetComponent<Boxcar>();
+                if (boxcar.abort_move)
+                {
+                    boxcar.abort_move = false;
+                    //print("abort straight move");
+                    break;
+                }
                 if (!boxcar.train.is_train_departed_for_turntable) // only stop boxcar if train is stationary. 
                 {
                     if (!is_boxcar_stopped)

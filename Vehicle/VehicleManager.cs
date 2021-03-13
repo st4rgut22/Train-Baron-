@@ -132,6 +132,7 @@ public class VehicleManager : BoardManager
             for (int i = remove_boxcar_idx+1; i < boxcar_squad.Count; i++)
             {
                 boxcar = boxcar_squad[i].GetComponent<Boxcar>();
+                boxcar.abort_move = true;
                 boxcar.is_fill_void = true;
                 if (boxcar.orientation != prev_boxcar.orientation)
                 {
