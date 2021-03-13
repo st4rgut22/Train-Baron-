@@ -458,6 +458,7 @@ public class Person : Simple_Moving_Object
             {
                 num_counter += activity_likelihood_map[activity];
             }
+            UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
             int rand_num = UnityEngine.Random.Range(0, num_counter);
             int rand_num_score = 0;
             foreach (string activity in activity_list)

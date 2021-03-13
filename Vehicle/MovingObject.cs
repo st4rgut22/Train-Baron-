@@ -417,12 +417,12 @@ public void set_destination()
             if (gameObject.tag == "boxcar")
             {
                 Boxcar boxcar = gameObject.GetComponent<Boxcar>();
-                if (boxcar.abort_move)
-                {
-                    boxcar.abort_move = false;
-                    print("abort bezier move");
-                    break;
-                }
+                //if (boxcar.abort_move)
+                //{
+                //    boxcar.abort_move = false;
+                //    print("abort bezier move");
+                //    break;
+                //}
                 bool is_boxcar_stopped = boxcar.is_boxcar_stopped;
                 if (!is_boxcar_stopped) // one time boolean flag only execute once
                 {
