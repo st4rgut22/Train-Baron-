@@ -176,6 +176,7 @@ public class MenuManager : EventDetector
 
     public void return_to_game()
     {
+        CityManager.update_total_people(0);
         PauseManager.pause_game(false);
         GameObject.Find("GameManager").GetComponent<BoxCollider2D>().enabled = true;
         activate_default_handler();
@@ -286,8 +287,8 @@ public class MenuManager : EventDetector
         }
         if (menu[0] == GameManager.game_menu && (GameManager.previous_menu == GameManager.store_menu || GameManager.previous_menu == GameManager.review_menu)) // transition from a pause menu. otherwise no need to unpause the game
         {
-            if (PauseManager.pause_list.Count > 0)
-                PauseManager.pause_game(false); // TODOED RETURN TO DELETE ME
+            CityManager.update_total_people(0);
+            PauseManager.pause_game(false); // TODOED RETURN TO DELETE ME
             GameManager.game_menu_state = true;
         }
         if (menu[0] == GameManager.store_menu || menu[0] == GameManager.review_menu)

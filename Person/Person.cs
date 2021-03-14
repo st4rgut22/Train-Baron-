@@ -72,8 +72,8 @@ public class Person : Simple_Moving_Object
 
     public void Start()
     {
-        board_desire_timeout = 90;
-        trip_desire_timeout = 260;
+        board_desire_timeout = 120;
+        trip_desire_timeout = 300;
         in_tile = true;
         arrived_at_room = true;
         is_egghead_thinking = true;

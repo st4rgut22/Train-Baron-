@@ -182,6 +182,8 @@ public class VehicleManager : BoardManager
         if (train.in_city) board = train.get_city().city_board;
         while (boxcar_depart_id < boxcar_count) 
         {
+            if (boxcar_depart_id >= boxcar_list.Count)
+                break;
             GameObject boxcar = boxcar_list[boxcar_depart_id];
             if (boxcar == null)
                 yield break; // the boxcar collidd with another train while entering city. 

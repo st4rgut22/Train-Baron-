@@ -19,15 +19,15 @@ public class PoorPerson : Person
         {
             { "work_thought_bubble", 50 },
             {"home_thought_bubble", 30 },
-            {"restaurant_thought_bubble", 15 },
-            {"vacation_thought_bubble", 5 }
+            {"restaurant_thought_bubble", 20 }//,
+            //{"vacation_thought_bubble", 10 }
         };
 
         activity_duration_map = new Dictionary<string, int>(){
-            { "home_thought_bubble", 15}, 
-            {"restaurant_thought_bubble", 10 },
-            {"vacation_thought_bubble", 60 },
-            {"work_thought_bubble", 10 }
+            { "home_thought_bubble", 25}, 
+            {"restaurant_thought_bubble", 50 },
+            //{"vacation_thought_bubble", 60 },
+            {"work_thought_bubble", 25 }
         }; // the time it takes to complete an action (if destinatikon4 matches thought bubble)
     }
 

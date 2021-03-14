@@ -122,6 +122,10 @@ public class Train : MovingObject
         //print("destroy train " + id + " at " + Time.time);
         GameManager.train_list.Remove(gameObject);
         city.train_list.Remove(gameObject);
+        if (city != null)
+        {
+            city.turn_table.GetComponent<Turntable>().remove_train_from_queue(gameObject);
+        }
         foreach (GameObject boxcar_go in boxcar_squad)
         {
             Boxcar boxcar = boxcar_go.GetComponent<Boxcar>();
@@ -129,7 +133,7 @@ public class Train : MovingObject
             {
                 // leave a RIP review
                 Person deceased_person = boxcar.passenger_go.GetComponent<Person>();
-                string review_summary = "I died in a train accident departing from " + city.city_type + ". It doesn't seem too safe.";
+                string review_summary = "I died in a train accident departing from " + city.city_type + ". F";
                 deceased_person.update_review_page(review_summary, 0);
                 if (boxcar.passenger_go.tag == "rich")
                     GameManager.update_game_money_text(-100); // lawsuit fees

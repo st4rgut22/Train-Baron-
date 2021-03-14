@@ -152,6 +152,7 @@ public class GameManager : EventDetector
     public static GameObject tutorial_canvas;
 
     public static Text money_text;
+    public static Text remainder_text;
 
     private void Awake()
     {
@@ -162,6 +163,7 @@ public class GameManager : EventDetector
             Medium_Btn = GameObject.Find("Medium Btn").GetComponent<Button>();
             Hard_Btn = GameObject.Find("Hard Btn").GetComponent<Button>();
             money_text = GameObject.Find("Money Text").GetComponent<Text>();
+            remainder_text = GameObject.Find("Remainder Text").GetComponent<Text>();
 
             Easy_Btn.onClick.AddListener(select_easy);
             Medium_Btn.onClick.AddListener(select_medium);
@@ -300,7 +302,7 @@ public class GameManager : EventDetector
         money = 5000;
 
         money_text.text = money.ToString();
-
+        remainder_text.text = money.ToString();
         game_menu_manager = GameObject.Find("Game Menu");
         person_manager = GameObject.Find("People Manager");
         scroll_handler = GameObject.Find("scrollHandler");
@@ -396,6 +398,8 @@ public class GameManager : EventDetector
 
     public void quit()
     {
+        PauseManager.pause_game(true);
+        GameObject.Find("GameManager").GetComponent<BoxCollider2D>().enabled = false;
         MenuManager.instance.activate_start_menu_handler();
     }
 
@@ -430,40 +434,45 @@ public class GameManager : EventDetector
 
     public static void end_level(bool is_level_beaten)
     {
-        PersonManager pm = person_manager.GetComponent<PersonManager>();
         Texture star_img = CityManager.home_base.get_star_image_from_reputation();
         int level = PlayerPrefs.GetInt("level");
         print("level is " + level + " level list length is " + GameState.level_list.Length);
-        GameObject.Find("GameManager").GetComponent<BoxCollider2D>().enabled = false;
-        if (level == GameState.level_list.Length) // last level, start over
+        GameObject start_obj = GameObject.Find("Start");
+        GameObject lose_obj = GameObject.Find("Lose");
+        GameObject win_obj = GameObject.Find("Win");
+        if (start_obj == null && lose_obj == null && win_obj == null) // check if new level is already triggered
         {
-            PlayerPrefs.SetInt("level", 0);
-            game_complete_btn.SetActive(true);
-            lose_quit_btn.SetActive(false);
-            lose_play_btn.SetActive(false);
-            win_quit_btn.SetActive(false);
-            win_play_btn.SetActive(false);
-        }
-        else
-        {
-            lose_quit_btn.SetActive(true);
-            lose_play_btn.SetActive(true);
-            win_quit_btn.SetActive(true);
-            win_play_btn.SetActive(true);
-            game_complete_btn.SetActive(false);
-        }
-        if (is_level_beaten)
-        {
-            GameState.next_level();
-            //print("level is beaten");
-            win_screen.SetActive(true);
-            win_star_img.texture = star_img;
-        }
-        else
-        {
-            //print("level is lost");
-            lose_screen.SetActive(true);
-            lose_star_img.texture = star_img;            
+            if (level == GameState.level_list.Length) // last level, start over
+            {
+                PlayerPrefs.SetInt("level", 0);
+                game_complete_btn.SetActive(true);
+                lose_quit_btn.SetActive(false);
+                lose_play_btn.SetActive(false);
+                win_quit_btn.SetActive(false);
+                win_play_btn.SetActive(false);
+            }
+            else
+            {
+                lose_quit_btn.SetActive(true);
+                lose_play_btn.SetActive(true);
+                win_quit_btn.SetActive(true);
+                win_play_btn.SetActive(true);
+                game_complete_btn.SetActive(false);
+            }
+            if (is_level_beaten)
+            {
+                GameState.next_level();
+                //print("level is beaten");
+                win_screen.SetActive(true);
+                win_star_img.texture = star_img;
+            }
+            else
+            {
+                //print("level is lost");
+                lose_screen.SetActive(true);
+                lose_star_img.texture = star_img;
+            }
+            GameObject.Find("GameManager").GetComponent<BoxCollider2D>().enabled = false;
         }
     }
 
