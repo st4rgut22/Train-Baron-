@@ -40,8 +40,11 @@ public class Turntable : MonoBehaviour
 
     public void remove_train_from_queue(GameObject train)
     {
-        if (train != train_queue.Peek()) throw new Exception("train should be first in queue, and first to remove");
-        train_queue.Dequeue();
+        if (train_queue.Count > 0)
+        {
+            if (train != train_queue.Peek()) throw new Exception("train should be first in queue, and first to remove");
+            train_queue.Dequeue();
+        }
     }
 
     public void add_train_to_queue(GameObject train)
@@ -50,7 +53,7 @@ public class Turntable : MonoBehaviour
             train_queue.Enqueue(train);
     }
 
-    public IEnumerator turn_turntable(GameObject train_object, RouteManager.Orientation end_orientation, bool depart_for_turntable)
+    public IEnumerator turn_turntable(GameObject train_object, RouteManager.Orientation end_orientation, bool depart_for_turntable, City city = null)
     {
         ////print("end orientation of turntable is " + end_orientation);
         float turn_angle = get_turntable_rotation(end_orientation);
@@ -66,7 +69,7 @@ public class Turntable : MonoBehaviour
         }
         Train train = train_object.GetComponent<Train>();
         train.GetComponent<CapsuleCollider2D>().size = new Vector2(.205f, .837f);
-        train.board_turntable(end_orientation, depart_for_turntable);
+        train.board_turntable(end_orientation, depart_for_turntable, city);
     }
 
     public float get_turntable_rotation(RouteManager.Orientation end_orientation)

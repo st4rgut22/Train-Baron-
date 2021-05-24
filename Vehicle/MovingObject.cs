@@ -346,9 +346,9 @@ public void set_destination()
                 while (true)
                 {
                     bool is_train_turn = city.turn_table.GetComponent<Turntable>().is_train_turn(gameObject);
-                    if (is_train_turn && !PauseManager.game_is_paused)
+                    if (is_train_turn && !PauseManager.game_is_paused) // AND THE TURNTABLE HAS ARRIVED
                     {
-                        city.remove_train_from_station(gameObject);
+                        //city.remove_train_from_station(gameObject);
                         gameObject.GetComponent<Train>().set_boxcar_wait_flag(false);
                         break;
                     } 
@@ -369,12 +369,11 @@ public void set_destination()
             int track_location_idx = boxcar.station_track.inner; // 0 means outer track
             int orientation_idx = boxcar.station_track.station.orientation_to_idx();
             int boxcar_pos_idx = boxcar.train.get_boxcar_position(gameObject) - 1;
-            if (boxcar_pos_idx == 0) print(tile_position);
             int[] boxcar_wait_tile = CityManager.boxcar_city_wait_tile[orientation_idx][track_location_idx][boxcar_pos_idx];
             if (tile_position.x == boxcar_wait_tile[0] && tile_position.y == boxcar_wait_tile[1])
             {
                 boxcar.train.GetComponent<CapsuleCollider2D>().size = new Vector2(.205f, .837f);
-                print("stopping boxcar at position " + boxcar_pos_idx + " at wait tile x " + boxcar_wait_tile[0] + " y " + boxcar_wait_tile[1]);
+                //print("stopping boxcar at position " + boxcar_pos_idx + " at wait tile x " + boxcar_wait_tile[0] + " y " + boxcar_wait_tile[1]);
                 boxcar.train.stop_single_boxcar_at_turntable(gameObject);
                 is_boxcar_stopped = true;
             }

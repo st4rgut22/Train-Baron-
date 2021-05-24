@@ -163,7 +163,7 @@ public class CityManager : BoardManager
                 if (struct_tile != null)
                 {
                     home_base_location = new Vector2Int(i, j);
-                    print("home base location is at " + home_base_location);
+                    //print("home base location is at " + home_base_location);
                 }
             }
         }
@@ -171,6 +171,14 @@ public class CityManager : BoardManager
 
     public void initialize()
     {
+        Tilemap parking_inventory = GameManager.Shipyard_Inventory.GetComponent<Tilemap>();
+        for (int i = 0; i < board_width; i++)
+        {
+            for (int j = 0; j < board_height; j++)
+            {
+                parking_inventory.SetTile(new Vector3Int(i, j, 0), null); // remove all tracks to start new scene
+            }
+        }
         city_list = new List<City>();
         total_people = 0;
         total_room = 0;

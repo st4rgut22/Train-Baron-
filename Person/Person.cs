@@ -208,7 +208,7 @@ public class Person : Simple_Moving_Object
         if (wealth + delta >= 0)
         {
             wealth += delta;
-            print("wealth is now " + wealth);
+            //print("wealth is now " + wealth);
             return true;
         } else
         {
@@ -389,7 +389,7 @@ public class Person : Simple_Moving_Object
         trip_in_progress = false;
         activity_in_progress = true;
         yield return new WaitForSeconds(duration);
-        print("saved activity is " + save_desired_activity + " room name is " + room.building.name);
+        //print("saved activity is " + save_desired_activity + " room name is " + room.building.name);
         if (save_desired_activity == "work_thought_bubble" && (room.building.name.Contains("Factory") || room.building.name.Contains("Business")))
         {
             if (gameObject.tag == "poor")

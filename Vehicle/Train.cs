@@ -328,7 +328,7 @@ public class Train : MovingObject
         throw new Exception("boxcar with id " + boxcar_id + " should belong to train");
     }
 
-    public void board_turntable(RouteManager.Orientation orientation, bool depart_turntable)
+    public void board_turntable(RouteManager.Orientation orientation, bool depart_turntable, City city=null)
     {
         if (depart_turntable)
         {
@@ -338,6 +338,7 @@ public class Train : MovingObject
             halt_train(true, false); //unhalt the boxcars
             halt_train(is_halt = false, is_pause = false); // unpause the train
             is_train_departed_for_turntable = true;
+            city.remove_train_from_station(gameObject);
         }
         else // leaving the turntable
         {

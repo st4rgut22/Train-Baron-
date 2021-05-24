@@ -52,10 +52,10 @@ public class Door : MonoBehaviour
                 is_closing = true;
                 end_angle = original_angle;
             }
-            print("end angle is " + end_angle);
+            //print("end angle is " + end_angle);
             float t_param = 1;
-            Debug.Log("In response from " + GetInstanceID());
-            print("rotate from cur angle " + cur_angle + " to end angle " + end_angle);
+            //Debug.Log("In response from " + GetInstanceID());
+            //print("rotate from cur angle " + cur_angle + " to end angle " + end_angle);
             while (t_param > 0)
             {
                 t_param -= Time.deltaTime / 2; // half speed give time to enter the door
@@ -66,10 +66,10 @@ public class Door : MonoBehaviour
                 yield return new WaitForEndOfFrame();
             }
         }
-        else
-        {
-            print("IGNORE action is open is " + is_open + " is opening is " + is_opening + " is closing is " + is_closing);
-        }
+        //else
+        //{
+        //    print("IGNORE action is open is " + is_open + " is opening is " + is_opening + " is closing is " + is_closing);
+        //}
         if (is_open)
         {
             is_opening = false;

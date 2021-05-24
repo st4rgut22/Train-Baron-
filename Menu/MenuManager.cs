@@ -76,7 +76,7 @@ public class MenuManager : EventDetector
             exit_game_btn = GameObject.Find("Iconic Close Game Btn").GetComponent<Button>();
             exit_game_btn.onClick.AddListener(exit_game);
             // if found u u little poopoo
-            print(gameObject.name);
+            //print(gameObject.name);
             blocking_canvas = GameObject.Find("Tutorial Canvas");
             blocking_canvas.SetActive(false);
             //blocking_canvas.SetActive(false);
@@ -207,6 +207,7 @@ public class MenuManager : EventDetector
 
     public void activate_tutorial()
     {
+        screen_idx = 0;
         GameManager.initialize();
         GameState.show_start_screen = false;
         GameManager.win_screen.SetActive(false);
@@ -233,7 +234,7 @@ public class MenuManager : EventDetector
 
     public void start_game()
     {
-        print("game started");
+        //print("game started");
         GameManager.initialize();
         GameState.show_start_screen = false;
         string level_name = GameState.get_level_name();

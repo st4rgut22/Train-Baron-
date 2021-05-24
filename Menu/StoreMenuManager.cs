@@ -164,9 +164,9 @@ public class StoreMenuManager : MonoBehaviour
         {
             go.transform.Find("plus").GetComponent<Text>().text = "0";
         }
+        money_text.text = GameManager.money.ToString();
         remainder_text.text = GameManager.money.ToString();
         cost_text.text = "- 0";
-
     }
 
     void update_text(GameObject btn_go, Text item_count)

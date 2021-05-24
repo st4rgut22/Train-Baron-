@@ -34,7 +34,7 @@ public class CityMenuManager : MenuManager
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(transform.gameObject);
+            //DontDestroyOnLoad(transform.gameObject);
         }
         else if (instance != this)
         {
@@ -45,13 +45,13 @@ public class CityMenuManager : MenuManager
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void initialize()
@@ -77,7 +77,7 @@ public class CityMenuManager : MenuManager
             clicked_go = eventData.pointerCurrentRaycast.gameObject;
             clicked_go = eventData.pointerCurrentRaycast.gameObject;
             item_name = clicked_go.name;
-            
+
             if (GameManager.is_tutorial_mode)
             {
 
@@ -177,15 +177,15 @@ public class CityMenuManager : MenuManager
     public void change_bck_color(string structure_name)
     {
         Color32 color;
-        if (structure_name=="Apartment" || structure_name=="Mansion")
+        if (structure_name == "Apartment" || structure_name == "Mansion")
         {
             color = home_color;
         }
-        else if (structure_name == "Factory" ||  structure_name=="business")
+        else if (structure_name == "Factory" || structure_name == "business")
         {
             color = work_color;
         }
-        else if (structure_name=="Diner" || structure_name=="Restaurant")
+        else if (structure_name == "Diner" || structure_name == "Restaurant")
         {
             color = food_color;
         }

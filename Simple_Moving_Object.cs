@@ -61,7 +61,7 @@ public class Simple_Moving_Object : EventDetector
             orientation = final_orientation; // updating the orientation at every new tile
             tile_position = new Vector3Int(next_tilemap_position.x, next_tilemap_position.y, 0);
             PositionPair position_pair;
-            final_destination_reached = is_destination_reached(RouteManager.cell_width / 2);
+            final_destination_reached = is_destination_reached(RouteManager.cell_width * 5 / 8);
             if (final_destination_reached) // stop movement update once reached final destination
             {
                 in_tile = true;

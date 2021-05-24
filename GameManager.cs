@@ -156,6 +156,7 @@ public class GameManager : EventDetector
 
     private void Awake()
     {
+        PlayerPrefs.SetInt("level",5); // temporary. REMOVE
         if (instance == null)
         {
             instance = this;
@@ -436,7 +437,7 @@ public class GameManager : EventDetector
     {
         Texture star_img = CityManager.home_base.get_star_image_from_reputation();
         int level = PlayerPrefs.GetInt("level");
-        print("level is " + level + " level list length is " + GameState.level_list.Length);
+        //print("level is " + level + " level list length is " + GameState.level_list.Length);
         GameObject start_obj = GameObject.Find("Start");
         GameObject lose_obj = GameObject.Find("Lose");
         GameObject win_obj = GameObject.Find("Win");

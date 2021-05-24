@@ -296,7 +296,7 @@ public class City : Structure
 
     public void change_star_count(int star_count)
     {
-        print("total stars is " + total_star);
+        //print("total stars is " + total_star);
         total_star += star_count;
     }
 
@@ -470,7 +470,7 @@ public class City : Structure
         string track_name = RouteManager.shipyard_track_tilemap.GetTile(boxcar.tile_position).name;
         try
         {
-            print("boxcar track loc " + boxcar.station_track.start_location + " track name is " + track_name);
+            //print("boxcar track loc " + boxcar.station_track.start_location + " track name is " + track_name);
             RouteManager.Orientation exit_orientation = CityManager.station_track_unloading_map[boxcar.station_track.start_location][track_name];
             StartCoroutine(GameObject.Find("PersonRouteManager").GetComponent<PersonRouteManager>().unload_train(boxcar, room, exit_orientation));
         }
@@ -863,7 +863,7 @@ public class City : Structure
     public void turn_turntable(GameObject train_object, RouteManager.Orientation orientation, bool depart_for_turntable = false)
     {
         Turntable t = turn_table.GetComponent<Turntable>();
-        StartCoroutine(t.turn_turntable(train_object, orientation, depart_for_turntable));
+        StartCoroutine(t.turn_turntable(train_object, orientation, depart_for_turntable, this));
     }
 
     public Station_Track add_train_to_station(GameObject train_object, RouteManager.Orientation orientation)
